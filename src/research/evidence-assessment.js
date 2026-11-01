@@ -30,7 +30,7 @@ function safeAssessment(value, claimLedger) {
 
 export async function assessClaimEvidence({
   claimLedger,
-  apiKey = process.env.GEMINI_API_KEY ?? "",
+  apiKey = process.env.ENABLE_GEMINI_EVIDENCE_ASSESSMENT === "true" ? (process.env.GEMINI_API_KEY ?? "") : "",
   fetchImpl = fetch,
   timeoutMs = 90000
 } = {}) {

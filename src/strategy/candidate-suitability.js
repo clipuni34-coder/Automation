@@ -10,10 +10,21 @@ const EXCLUDED_TITLE = [
   /\bhighlights?\s+compilation\b/i
 ];
 
+function isSafeHttpsReference(value) {
+  try {
+    const url = new URL(value);
+    const host = url.hostname.toLowerCase();
+    return url.protocol === "https:" && !url.username && !url.password &&
+      host !== "localhost" && !host.endsWith(".localhost") && !host.endsWith(".local") &&
+      !host.endsWith(".internal") && !/^127\\./.test(host) && !/^10\\./.test(host) &&
+      !/^192\\.168\\./.test(host) && !/^169\\.254\\./.test(host);
+  } catch {
+    return false;
+  }
+}
+
 export function assessCandidateSuitability(candidate = {}) {
   const title = String(candidate.title ?? "");
-  const description = String(candidate.description ?? "");
-  const text = `${title}\n${description}`;
   const reasons = [];
   for (const pattern of EXCLUDED_TITLE) {
     if (pattern.test(title)) reasons.push("likely_complete_broadcast_or_existing_copyrighted_entertainment_upload");
@@ -21,7 +32,7 @@ export function assessCandidateSuitability(candidate = {}) {
   if (candidate.platform && candidate.platform !== "youtube" && candidate.platform !== "rss") {
     reasons.push("unsupported_discovery_platform");
   }
-  if (!String(candidate.sourceUrl ?? "").startsWith("https://")) {
+  if (!isSafeHttpsReference(candidate.sourceUrl)) {
     reasons.push("missing_safe_reference_url");
   }
   if (!title.trim()) reasons.push("missing_title");

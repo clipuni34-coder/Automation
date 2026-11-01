@@ -28,7 +28,7 @@ export async function generateGeminiImage({ prompt, outputPath, apiKey = process
     const response = await fetchImpl(GEMINI_IMAGE_ENDPOINT, {
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
-      body: JSON.stringify({ model: IMAGE_MODEL, input: prompt, response_format: { type: "image", mime_type: "image/png", aspect_ratio: "9:16", image_size: "1K" } }),
+      body: JSON.stringify({ model: IMAGE_MODEL, input: prompt, response_format: { type: "image", mime_type: "image/jpeg", aspect_ratio: "9:16", image_size: "1K" } }),
       signal: controller.signal
     });
     if (!response.ok) {

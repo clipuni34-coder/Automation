@@ -45,6 +45,14 @@ Working branch: `autonomous-viral-discovery`
 - Dossier selection now weighs independent publisher diversity and substantive source excerpts alongside discovery opportunity. This is a research-triage heuristic, not automatic fact verification.
 - Complete matches/games/episodes, official music videos, obvious full broadcasts and common fan-edit patterns are now excluded from daily editorial shortlists, research dossier generation and niche samples. Remaining reference videos are still not reusable without permission.
 - A workflow-readiness report is now produced so a green discovery run cannot be mistaken for completed creative production or publishing.
+- Latest test workflow `41285434078` passed **138/138 tests** on commit `d732f3b`; this verifies automated tests and FFmpeg fixtures, not a live YouTube upload or a full live production run.
+
+## User/account prerequisites and remaining automation
+
+- The owner must create each YouTube channel in YouTube/Google and authorize the app. The YouTube Data API does not provide a general channel-creation endpoint. No channel ID, refresh token, or active channel profile was present in the latest discovery run.
+- The workflow has no OpenRouter API secret. Gemini and OpenAI secrets exist in GitHub Actions, but creative calls are deliberately disabled. No paid provider will be enabled without the owner's explicit approval.
+- YouTube comment inbox monitoring, moderation and authentic reply workflows are not implemented yet. Artificial likes, views, subscribers, comments or watch time will not be generated; organic engagement cannot be guaranteed.
+- No live render, upload, or channel analytics sync has been verified for this account. The workflow currently defaults to discovery-only.
 
 ## Not finished yet
 - The new strategy planner is a first editorial-decision slice, not yet a self-improving channel strategist: it does not yet ingest channel analytics, measure trend saturation over longer windows, or learn from published-post outcomes.

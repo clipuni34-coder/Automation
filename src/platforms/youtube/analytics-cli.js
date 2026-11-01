@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { refreshYouTubeAccessToken } from "./publisher.js";
 import { fetchYouTubeAnalyticsReport, rowsToObjects } from "./analytics.js";
@@ -31,12 +31,18 @@ try {
       sort: "-views", maxResults: 200
     })
   ]);
+  const shortsRows = rowsToObjects(shorts);
+  const longFormRows = rowsToObjects(longForm);
   const result = {
     fetchedAt: new Date().toISOString(),
     reportingLagDays: 2,
     reportingWindows: { last90Days: { startDate: iso(start), endDate: iso(end) }, last365Days: { startDate: iso(new Date(end.getTime() - 364 * 86400000)), endDate: iso(end) } },
-    shortsLast90Days: rowsToObjects(shorts),
-    channelLast365Days: rowsToObjects(longForm),
+    shortsLast90Days: { status: shorts.status ?? "ok", rows: shortsRows, error: shorts.error ?? null },
+    channelLast365Days: longFormRows,
+    estimatesNotOfficialYppCounters: {
+      shortsViewsLast90Days: Number(shortsRows[0]?.views ?? 0),
+      longFormWatchHoursLast365Days: Math.round(Number(longFormRows[0]?.estimatedMinutesWatched ?? 0) / 60 * 100) / 100
+    },
     topVideosLast90Days: rowsToObjects(topVideos),
     source: "YouTube Analytics API",
     caveat: "Analytics data is delayed and these reports do not by themselves provide all YPP-eligible counters. Use the Earn tab in YouTube Studio as the authoritative monetization progress source."

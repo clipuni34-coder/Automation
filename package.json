@@ -13,6 +13,7 @@
     "discover": "node src/discovery/cli.js",
     "test": "node --test",
     "research": "node src/research/cli.js",
-    "create-brief": "node src/creative/cli.js"
+    "create-brief": "node src/creative/cli.js",
+    "render": "node src/production/cli.js"
   }
 }

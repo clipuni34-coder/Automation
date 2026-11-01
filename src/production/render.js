@@ -48,7 +48,8 @@ function validateManifest(manifest) {
     if (Math.abs(scene.start - previousEnd) > 0.02) throw new Error("Scenes must be chronological and contiguous, starting at 0 seconds");
     previousEnd = scene.end;
     if (!ALLOWED_SOURCE_TYPES.has(scene.sourceType)) throw new Error("Scene " + (index + 1) + " has an unapproved or missing asset sourceType");
-    if (scene.sourceType !== "original_graphic" && (!scene.sourceUrl || !scene.license)) throw new Error("Scene " + (index + 1) + " must include sourceUrl and license provenance");
+    if (["public_domain", "licensed_stock", "creator_clip"].includes(scene.sourceType) && (!scene.sourceUrl || !scene.license)) throw new Error("Scene " + (index + 1) + " must include sourceUrl and license provenance");
+    if (scene.sourceType === "generated_visual" && (!scene.generationModel || !scene.generationPrompt)) throw new Error("Scene " + (index + 1) + " must include generated visual provenance");
     if (scene.sourceType === "creator_clip") assertAssetRights({ ...scene, durationSeconds: scene.end - scene.start }, { platform: manifest.targetPlatform ?? "youtube_shorts" });
   }
   return previousEnd;
@@ -151,7 +152,7 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
     fps: video.r_frame_rate,
     scenes: manifest.scenes.length,
     sourceAudioPreserved: preserveSourceAudio && sourceAudioAvailable.some(Boolean),
-    assetProvenance: manifest.scenes.map(({ sourceType, sourceUrl = null, license = null, rightsStatus = null, rightsEvidenceReference = null, creator = null }) => ({ sourceType, sourceUrl, license, rightsStatus, rightsEvidenceReference, creator }))
+    assetProvenance: manifest.scenes.map(({ sourceType, sourceUrl = null, license = null, rightsStatus = null, rightsEvidenceReference = null, creator = null, generationModel = null, generationPrompt = null }) => ({ sourceType, sourceUrl, license, rightsStatus, rightsEvidenceReference, creator, generationModel, generationPrompt }))
   };
 }
 

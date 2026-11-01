@@ -20,7 +20,17 @@ test("identifies promising niches only with repeated creator and regional eviden
   assert.equal(result.recommendations[0].niche, "Gaming");
   assert.equal(result.recommendations[0].decision, "run_a_channel_pilot_before_committing");
   assert.equal(result.categories[0].confidence, "medium");
+  assert.equal(result.recommendations[0].temporalConfidence, "medium");
   assert.ok(result.categories[0].uniqueCreators >= 5);
+});
+
+test("keeps temporal confidence low when only one discovery scan exists", () => {
+  const discovery = { runs: [{}], candidates: Array.from({ length: 15 }, (_, i) => video(String(i), "20", i)) };
+  const result = researchNiches(discovery);
+  assert.equal(result.recommendations.length, 1);
+  assert.equal(result.recommendations[0].confidence, "medium");
+  assert.equal(result.recommendations[0].temporalConfidence, "low");
+  assert.ok(result.constraints.some(item => item.includes("at least three discovery runs")));
 });
 
 test("excludes full broadcasts from niche category samples", () => {

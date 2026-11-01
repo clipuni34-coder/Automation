@@ -10,18 +10,21 @@ export async function refreshYouTubeAccessToken({
   refreshToken = process.env.YOUTUBE_REFRESH_TOKEN,
   fetchImpl = fetch
 } = {}) {
-  if (!clientId || !clientSecret || !refreshToken) {
-    throw new Error("YouTube OAuth is not configured: YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET and YOUTUBE_REFRESH_TOKEN are required.");
+  if (!clientId || !refreshToken) {
+    throw new Error("YouTube OAuth is not configured: YOUTUBE_CLIENT_ID and YOUTUBE_REFRESH_TOKEN are required. YOUTUBE_CLIENT_SECRET is optional for client configurations that do not issue one.");
   }
+  const tokenForm = new URLSearchParams({
+    client_id: clientId,
+    refresh_token: refreshToken,
+    grant_type: "refresh_token"
+  });
+  // Google OAuth client configurations may not issue a client secret. Include
+  // one only when the owner has a secret for this client.
+  if (clientSecret) tokenForm.set("client_secret", clientSecret);
   const response = await fetchImpl(TOKEN_ENDPOINT, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-      grant_type: "refresh_token"
-    })
+    body: tokenForm
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok || !payload.access_token) {

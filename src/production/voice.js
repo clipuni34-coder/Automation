@@ -1,7 +1,37 @@
-import { writeFile } from "node:fs/promises";
+import { writeFile, mkdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { dirname, resolve } from "node:path";
 
 const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
 const MODELS = ["gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts"];
+
+async function generateKokoroNarration({ text, outputPath, modelPath, voicesPath, voice = "af_heart", pythonPath = process.env.KOKORO_PYTHON ?? "python3", timeoutMs = 600000 } = {}) {
+  const model = resolve(modelPath ?? process.env.KOKORO_MODEL_PATH ?? "models/kokoro/kokoro-v1.0.onnx");
+  const voices = resolve(voicesPath ?? process.env.KOKORO_VOICES_PATH ?? "models/kokoro/voices-v1.0.bin");
+  if (!existsSync(model) || !existsSync(voices)) return { status: "not_configured", provider: "kokoro-onnx", outputPath: null };
+  const script = resolve("scripts/kokoro_tts.py");
+  await mkdir(dirname(resolve(outputPath)), { recursive: true });
+  return new Promise((resolvePromise, reject) => {
+    const child = spawn(pythonPath, [script], { stdio: ["pipe", "pipe", "pipe"] });
+    let stdout = "", stderr = "";
+    const timer = setTimeout(() => child.kill("SIGKILL"), timeoutMs);
+    child.stdout.on("data", chunk => { stdout += chunk.toString(); });
+    child.stderr.on("data", chunk => { stderr += chunk.toString(); });
+    child.on("error", error => { clearTimeout(timer); reject(error); });
+    child.on("close", code => {
+      clearTimeout(timer);
+      if (code !== 0) return reject(new Error("Kokoro local narration failed: " + stderr.slice(-1800)));
+      try {
+        const result = JSON.parse(stdout.trim().split("\\n").at(-1));
+        resolvePromise({ ...result, status: "generated", format: "wav", outputPath, bytes: null });
+      } catch {
+        reject(new Error("Kokoro local narration returned an invalid result: " + stdout.slice(-500)));
+      }
+    });
+    child.stdin.end(JSON.stringify({ text, outputPath: resolve(outputPath), modelPath: model, voicesPath: voices, voice }));
+  });
+}
 
 function audioFromResponse(payload) {
   const direct = payload.output_audio?.data;
@@ -16,13 +46,18 @@ function audioFromResponse(payload) {
 
 export async function generateNarration({
   text, outputPath = "narration.wav", style = "Natural, engaging, confident short-form documentary narrator. Clear diction, conversational pacing, expressive but not exaggerated.",
-  voice = "Kore", apiKey = process.env.GEMINI_API_KEY ?? "", fetchImpl = fetch, timeoutMs = 120000
+  voice = "Kore", apiKey = process.env.GEMINI_API_KEY ?? "", fetchImpl = fetch, timeoutMs = 120000,
+  localVoice = process.env.KOKORO_VOICE ?? "af_heart"
 } = {}) {
   const narration = String(text ?? "").trim();
   if (!narration || narration.length < 20 || narration.length > 12000) {
     throw new Error("Narration text must contain between 20 and 12000 characters");
   }
-  if (!apiKey) return { status: "not_configured", provider: "gemini", outputPath: null };
+  if (!apiKey) {
+    const local = await generateKokoroNarration({ text: narration, outputPath, voice: localVoice });
+    if (local.status === "generated") return local;
+    return { status: "not_configured", provider: "gemini-and-kokoro", outputPath: null };
+  }
   const errors = [];
   for (const model of MODELS) {
     const controller = new AbortController();
@@ -75,5 +110,11 @@ export async function generateNarration({
       clearTimeout(timer);
     }
   }
-  throw new Error(errors.join("; ") || "Gemini TTS failed without a diagnostic");
+  try {
+    const local = await generateKokoroNarration({ text: narration, outputPath, voice: localVoice });
+    if (local.status === "generated") return { ...local, fallbackReason: errors.join("; ") || "Gemini TTS unavailable" };
+  } catch (error) {
+    errors.push(error.message);
+  }
+  throw new Error(errors.join("; ") || "Gemini and local Kokoro TTS are unavailable");
 }

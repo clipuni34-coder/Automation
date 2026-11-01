@@ -31,3 +31,17 @@ test("compilation plan maps separately authorized local clips and rejects missin
   assert.equal(manifest.scenes[0].sourceOut, 9);
   assert.throws(() => buildCompilationRenderManifest({ plan, mediaAssets: {}, audioPath: "/voice.wav", outputPath: "/out.mp4" }), /Missing authorized local media/);
 });
+
+test("original creative brief maps generated visuals to timed vertical render scenes", async () => {
+  const { buildOriginalRenderManifest } = await import("../src/production/plan-manifest.js");
+  const manifest = buildOriginalRenderManifest({
+    brief: { topic: "Science", editorial: { visualPlan: [{ visual: "Planet" }, { visual: "Telescope" }, { visual: "Stars" }], scriptBeats: [{ narration: "First line" }, { narration: "Second line" }, { narration: "Final line" }] } },
+    assets: [{ imagePath: "/assets/one.png", sourceType: "generated_visual", generationModel: "test-model", generationPrompt: "prompt one" }, { imagePath: "/assets/two.png", sourceType: "generated_visual", generationModel: "test-model", generationPrompt: "prompt two" }],
+    audioPath: "/audio/voice.wav", outputPath: "/out/original.mp4", totalDurationSeconds: 40
+  });
+  assert.equal(manifest.scenes.length, 2);
+  assert.equal(manifest.scenes[0].start, 0);
+  assert.equal(manifest.scenes[0].end, 20);
+  assert.equal(manifest.scenes[1].end, 40);
+  assert.equal(manifest.scenes[0].caption, "First line");
+});

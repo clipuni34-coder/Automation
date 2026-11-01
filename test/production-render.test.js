@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { renderShortVideo } from "../src/production/render.js";
+import { generateOriginalGraphic } from "../src/production/visuals.js";
 
 const hasFfmpeg = spawnSync("ffmpeg", ["-version"], { stdio: "ignore" }).status === 0;
 
@@ -49,6 +50,27 @@ test("renderer creates and independently probes a vertical H.264/AAC MP4", { ski
     assert.equal(result.videoCodec, "h264");
     assert.equal(result.audioCodec, "aac");
     assert.equal(result.scenes, 1);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("renderer can encode the generated local PPM fallback graphic", { skip: !hasFfmpeg }, async () => {
+  const dir = await mkdtemp(join(tmpdir(), "automation-ppm-render-"));
+  try {
+    const graphic = await generateOriginalGraphic({ outputPath: join(dir, "scene.png"), sceneIndex: 2 });
+    const audioPath = join(dir, "voice.wav");
+    const outputPath = join(dir, "ppm-short.mp4");
+    const audio = spawnSync("ffmpeg", ["-y", "-v", "error", "-f", "lavfi", "-i", "sine=frequency=440:duration=2", "-c:a", "pcm_s16le", audioPath]);
+    assert.equal(audio.status, 0, audio.stderr?.toString());
+    const result = await renderShortVideo({
+      outputPath, audioPath,
+      scenes: [{ imagePath: graphic.path, start: 0, end: 2, caption: "Fallback visual render test.", sourceType: "original_graphic" }]
+    });
+    assert.equal(result.status, "rendered");
+    assert.equal(result.width, 1080);
+    assert.equal(result.height, 1920);
+    assert.equal(result.visualQuality.rendered.status, "passed");
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

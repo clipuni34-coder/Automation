@@ -60,7 +60,7 @@ export async function generateOriginalGraphic({ outputPath, sceneIndex = 0 } = {
   return { status: "generated", provider: "local-graphics", path: finalPath, mimeType: "image/x-portable-pixmap", bytes: header.length + pixels.length };
 }
 
-export async function generateGeminiImage({ prompt, outputPath, apiKey = process.env.GEMINI_API_KEY ?? "", fetchImpl = fetch, timeoutMs = 120000 } = {}) {
+export async function generateGeminiImage({ prompt, outputPath, apiKey = process.env.ENABLE_GEMINI_IMAGE_GENERATION === "true" ? (process.env.GEMINI_API_KEY ?? "") : "", fetchImpl = fetch, timeoutMs = 120000 } = {}) {
   if (!apiKey) return { status: "not_configured", provider: "gemini", outputPath: null };
   if (!String(prompt ?? "").trim() || !outputPath) throw new Error("Image prompt and outputPath are required");
   const controller = new AbortController();

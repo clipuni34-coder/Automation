@@ -13,7 +13,9 @@ const validPlan = {
   recommendedAngle: "Explain the surprising mechanism without overstating it.",
   alternativeAngles: ["A camouflage mystery", "A biology misconception"],
   hookOptions: ["How can an octopus change colour so fast?", "Its skin does something extraordinary."],
-  fullScript: "How does an octopus change colour so quickly? Its skin contains specialised structures that can change how light is reflected. Scientists study these mechanisms to understand camouflage and communication. The surprising part is that colour change is only one part of a much richer visual system. Follow for more science explained.",\n  estimatedDurationSeconds: 35,\n  scriptBeats: [
+  fullScript: "How does an octopus change colour so quickly? Its skin contains specialised structures that can change how light is reflected. Scientists study these mechanisms to understand camouflage and communication. The surprising part is that colour change is only one part of a much richer visual system. Follow for more science explained.",
+  estimatedDurationSeconds: 35,
+  scriptBeats: [
     { time: "0-3s", purpose: "Hook", narration: "How can an octopus change colour so quickly?", retentionDevice: "Open loop" },
     { time: "3-12s", purpose: "Context", narration: "Start with the visible change.", retentionDevice: "Visual reveal" },
     { time: "12-30s", purpose: "Explain", narration: "Explain only verified mechanisms.", retentionDevice: "Layered explanation" }

@@ -25,7 +25,8 @@ async function audioDuration(path) {
 }
 
 const briefPath = process.argv[2];
-const outputDir = resolve(process.argv[3] ?? join("output", "latest"));
+const baseOutputDir = resolve(process.argv[3] ?? join("output", "latest"));
+const outputDir = join(baseOutputDir, new Date().toISOString().replace(/[:.]/g, "-"));
 if (!briefPath) { console.error("Usage: npm run produce -- <creative-brief.json> [output-directory]"); process.exitCode = 1; }
 else {
   try {

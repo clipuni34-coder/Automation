@@ -25,8 +25,7 @@ function run(command, args, { timeoutMs = 180000 } = {}) {
 }
 
 function escapeAss(value) {
-  return String(value ?? "").replace(/\\/g, "\\\\").replace(/{/g, "\\{").replace(/}/g, "\\}").replace(/\r?
-/g, "\\N");
+  return String(value ?? "").replace(/\\/g, "\\\\").replace(/{/g, "\\{").replace(/}/g, "\\}").split(String.fromCharCode(10)).join("\\N");
 }
 
 function assTime(seconds) {
@@ -35,26 +34,20 @@ function assTime(seconds) {
   const minutes = Math.floor((centiseconds % 360000) / 6000);
   const secs = Math.floor((centiseconds % 6000) / 100);
   const cs = centiseconds % 100;
-  return `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}.${String(cs).padStart(2, "0")}`;
+  return String(hours) + ":" + String(minutes).padStart(2, "0") + ":" + String(secs).padStart(2, "0") + "." + String(cs).padStart(2, "0");
 }
 
 function validateManifest(manifest) {
   if (!manifest || typeof manifest !== "object") throw new Error("A render manifest is required");
-  if (!Array.isArray(manifest.scenes) || manifest.scenes.length < 1 || manifest.scenes.length > 30) {
-    throw new Error("Manifest must contain between 1 and 30 scenes");
-  }
+  if (!Array.isArray(manifest.scenes) || manifest.scenes.length < 1 || manifest.scenes.length > 30) throw new Error("Manifest must contain between 1 and 30 scenes");
   if (!manifest.audioPath) throw new Error("A narration audioPath is required");
   let previousEnd = 0;
   for (const [index, scene] of manifest.scenes.entries()) {
-    if ((!scene.imagePath && !scene.videoPath) || (scene.imagePath && scene.videoPath) || !Number.isFinite(scene.start) || !Number.isFinite(scene.end) || scene.start < 0 || scene.end <= scene.start) {
-      throw new Error(`Scene ${index + 1} needs exactly one imagePath or videoPath and a valid positive start/end time`);
-    }
+    if ((!scene.imagePath && !scene.videoPath) || (scene.imagePath && scene.videoPath) || !Number.isFinite(scene.start) || !Number.isFinite(scene.end) || scene.start < 0 || scene.end <= scene.start) throw new Error("Scene " + (index + 1) + " needs exactly one imagePath or videoPath and a valid positive start/end time");
     if (Math.abs(scene.start - previousEnd) > 0.02) throw new Error("Scenes must be chronological and contiguous, starting at 0 seconds");
     previousEnd = scene.end;
-    if (!ALLOWED_SOURCE_TYPES.has(scene.sourceType)) throw new Error(`Scene ${index + 1} has an unapproved or missing asset sourceType`);
-    if (scene.sourceType !== "original_graphic" && (!scene.sourceUrl || !scene.license)) {
-      throw new Error(`Scene ${index + 1} must include sourceUrl and license provenance`);
-    }
+    if (!ALLOWED_SOURCE_TYPES.has(scene.sourceType)) throw new Error("Scene " + (index + 1) + " has an unapproved or missing asset sourceType");
+    if (scene.sourceType !== "original_graphic" && (!scene.sourceUrl || !scene.license)) throw new Error("Scene " + (index + 1) + " must include sourceUrl and license provenance");
   }
   return previousEnd;
 }
@@ -68,9 +61,8 @@ function buildAss(scenes, duration) {
     "Style: Caption,DejaVu Sans,68,&H00FFFFFF,&H0000FFFF,&H00101010,&H99000000,1,0,0,0,100,100,0,0,1,5,1,2,90,90,250,1", "",
     "[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"
   ];
-  const events = scenes.map((scene) => `Dialogue: 0,${assTime(scene.start)},${assTime(Math.min(scene.end, duration))},Caption,,0,0,0,,{\\an2}${escapeAss(scene.caption)}`);
-  return [...header, ...events, ""].join("
-");
+  const events = scenes.map((scene) => "Dialogue: 0," + assTime(scene.start) + "," + assTime(Math.min(scene.end, duration)) + ",Caption,,0,0,0,,{\\\\an2}" + escapeAss(scene.caption));
+  return [...header, ...events, ""].join(String.fromCharCode(10));
 }
 
 export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprobePath = "ffprobe" } = {}) {

@@ -57,7 +57,7 @@ function validateManifest(manifest) {
 }
 
 function wrapCaption(value, maxChars = 30) {
-  const words = String(value ?? "").trim().split(/\\s+/).filter(Boolean);
+  const words = String(value ?? "").trim().split(" ").filter(Boolean);
   const lines = [];
   let line = "";
   for (const word of words) {

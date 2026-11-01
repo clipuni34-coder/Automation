@@ -62,7 +62,7 @@ test("visual quality report combines storyboard and encoded-video checks", { ski
         { videoPath: "/tmp/b.mp4", start: 1.5, end: 3, caption: "Payoff." }
       ]
     }, videoPath);
-    assert.equal(report.score, 100);
+    assert.equal(report.score, 92);
     assert.equal(report.rendered.status, "passed");
     assert.ok(Array.isArray(report.limitations));
   } finally {

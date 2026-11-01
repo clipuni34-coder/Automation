@@ -263,6 +263,65 @@ jobs:
           echo "YouTube uploads completed: $uploaded; held for quality/policy gates: $held; failed: $failed"
           if [ "$failed" -gt 0 ]; then exit 1; fi
 
+      - name: Report workflow readiness
+        if: always()
+        env:
+          ENABLE_GEMINI_CREATIVE: ${{ vars.ENABLE_GEMINI_CREATIVE || 'false' }}
+          ENABLE_OPENAI_CREATIVE: ${{ vars.ENABLE_OPENAI_CREATIVE || 'false' }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          PRODUCE_VIDEOS: ${{ vars.PRODUCE_VIDEOS || 'false' }}
+          YOUTUBE_AUTO_PUBLISH: ${{ vars.YOUTUBE_AUTO_PUBLISH || 'false' }}
+          SYNC_YOUTUBE_ANALYTICS: ${{ vars.SYNC_YOUTUBE_ANALYTICS || 'false' }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { existsSync, readFileSync, mkdirSync, writeFileSync, appendFileSync } from 'node:fs';
+          const files = name => existsSync(name);
+          const creativeEnabled =
+            (process.env.ENABLE_GEMINI_CREATIVE === 'true' && Boolean(process.env.GEMINI_API_KEY)) ||
+            (process.env.ENABLE_OPENAI_CREATIVE === 'true' && Boolean(process.env.OPENAI_API_KEY)) ||
+            Boolean(process.env.OPENROUTER_API_KEY);
+          const creativeFiles = ['research-*.creative.json'];
+          const { readdirSync } = await import('node:fs');
+          const hasBrief = readdirSync('.').some(name => /^research-.*\.creative\.json$/i.test(name));
+          const hasVideo = existsSync('output') && readdirSync('output', { withFileTypes: true }).some(entry => entry.isDirectory() && existsSync(`output/${entry.name}/short.mp4`));
+          let configuredChannels = 0;
+          try {
+            const config = JSON.parse(readFileSync('config/channels.json', 'utf8'));
+            configuredChannels = (Array.isArray(config) ? config : config.channels ?? [])
+              .filter(channel => channel.id && !String(channel.id).startsWith('replace-with') && channel.status === 'active').length;
+          } catch {}
+          const report = {
+            generatedAt: new Date().toISOString(),
+            discovery: files('data/discovery.json') ? 'completed' : 'missing',
+            dailyPlan: files('data/strategy.json') ? 'completed' : 'missing',
+            nicheResearch: files('data/niche-research.json') ? 'completed' : 'missing',
+            researchDossiers: readdirSync('.').filter(name => /^research-.*\.json$/i.test(name) && !/\.creative\.json$/i.test(name)).length,
+            creativeBriefs: hasBrief ? 'generated' : creativeEnabled ? 'not_generated_check_logs' : 'blocked_missing_free_provider_key_or_paid_provider_opt_in',
+            videoProduction: hasVideo ? 'rendered' : process.env.PRODUCE_VIDEOS === 'true' ? 'enabled_but_no_video_rendered' : 'disabled',
+            activeChannelProfiles: configuredChannels,
+            youtubeAnalytics: process.env.SYNC_YOUTUBE_ANALYTICS === 'true' ? 'enabled_check_snapshot' : 'not_connected_or_disabled',
+            youtubePublishing: process.env.YOUTUBE_AUTO_PUBLISH === 'true' && process.env.YOUTUBE_REFRESH_TOKEN && process.env.YOUTUBE_EXPECTED_CHANNEL_ID
+              ? 'enabled_check_upload_confirmations' : 'disabled_or_missing_channel_oauth',
+            publicationSafety: 'No upload is reported unless a YouTube upload confirmation artifact exists.'
+          };
+          mkdirSync('data', { recursive: true });
+          writeFileSync('data/workflow-readiness.json', JSON.stringify(report, null, 2) + '\n', { mode: 0o600 });
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
+            '## Automation readiness',
+            '',
+            '| Component | Status |',
+            '|---|---|',
+            ...Object.entries(report).filter(([key]) => key !== 'generatedAt' && key !== 'publicationSafety').map(([key, value]) => `| ${key} | ${value} |`),
+            '',
+            report.publicationSafety
+          ].join('\n') + '\n');
+          console.log(JSON.stringify(report, null, 2));
+          NODE
+
       - name: Save YouTube upload confirmations
         if: always() && hashFiles('output/**/publishing-package.youtube-upload.json') != ''
         uses: actions/upload-artifact@v4
@@ -313,6 +372,13 @@ jobs:
         with:
           name: youtube-analytics
           path: data/youtube-analytics.json
+          retention-days: 30
+      - name: Save workflow readiness report
+        if: always() && hashFiles('data/workflow-readiness.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-readiness
+          path: data/workflow-readiness.json
           retention-days: 30
       - name: Save research dossiers
         if: always() && hashFiles('research-*.json') != ''

@@ -186,3 +186,12 @@ Provider request and failure paths are covered by mocked tests; a live synthesis
 ## Project status and platform access
 
 See [verified build status](docs/STATUS.md) for live checks and remaining blockers. Social publishing prerequisites and official OAuth requirements are listed in [platform access](docs/PLATFORM_ACCESS.md).
+
+
+## Authorized viral-video re-edit: local end-to-end path
+
+The new `npm run reedit-render -- input.json` command connects rights validation, timed-moment ranking, cut selection, FFmpeg rendering and output probing. It takes a **local source video that the user owns or has permission to edit**, plus a timed transcript with editorial signals. It creates a silent audio bed only as a technical input; original source audio is retained when present. Output is a 1080×1920 H.264/AAC MP4 with captions and source provenance.
+
+Required input fields: `sourceLocalPath`, `outputPath`, `source` (HTTPS source URL, duration, approved `rightsStatus`, evidence reference/URL and `allowedPlatforms`), and `transcriptSegments` (start/end/text and optional 0–10 hook, emotion, curiosity, payoff and clarity signals). The command rejects reference-only YouTube/TikTok/Instagram discoveries. YouTube Data API returns metadata, not downloadable video bytes; this workflow intentionally does not scrape or bypass platform access controls. The source file and evidence must be supplied through a permitted/authorized route.
+
+Run `npm run reedit-render -- authorized-reedit-input.json`. A real FFmpeg end-to-end fixture test is included in `npm test`.

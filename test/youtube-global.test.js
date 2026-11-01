@@ -58,3 +58,21 @@ test("reports partial coverage when one region/category request fails", async ()
   assert.equal(result.successfulRequests, 1);
   assert.equal(result.failedRequests, 1);
 });
+
+import { searchYouTubeVideos } from "../src/discovery/sources/youtube.js";
+
+test("keyword search uses official YouTube search and details endpoints and marks results reference-only", async () => {
+  const calls = [];
+  const fetchImpl = async (url, options) => {
+    const parsed = new URL(url); calls.push(parsed);
+    if (parsed.pathname.endsWith("/search")) return { ok: true, json: async () => ({ items: [{ id: { videoId: "vid-1" } }] }) };
+    return { ok: true, json: async () => ({ items: [{ id: "vid-1", snippet: { title: "Creator viral moment", channelTitle: "Creator", channelId: "channel-1" }, statistics: { viewCount: "9000" } }] }) };
+  };
+  const result = await searchYouTubeVideos({ apiKey: "test-key", queries: ["IShowSpeed funny moments"], fetchImpl });
+  assert.equal(result.status, "ok");
+  assert.equal(result.items[0].rightsStatus, "reference_only");
+  assert.equal(result.items[0].metrics.views, 9000);
+  assert.equal(result.items[0].creator, "Creator");
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0].searchParams.get("q"), "IShowSpeed funny moments");
+});

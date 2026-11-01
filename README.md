@@ -182,3 +182,7 @@ npm run voice -- research-topic.creative.json output/narration.wav
 ```
 
 Provider request and failure paths are covered by mocked tests; a live synthesis run still depends on available Gemini TTS quota. This produces AI narration, not a cloned human voice. The video can still use real human footage as its visuals.
+
+## Project status and platform access
+
+See [verified build status](docs/STATUS.md) for live checks and remaining blockers. Social publishing prerequisites and official OAuth requirements are listed in [platform access](docs/PLATFORM_ACCESS.md).

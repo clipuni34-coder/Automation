@@ -61,7 +61,7 @@ function buildAss(scenes, duration) {
     "Style: Caption,DejaVu Sans,68,&H00FFFFFF,&H0000FFFF,&H00101010,&H99000000,1,0,0,0,100,100,0,0,1,5,1,2,90,90,250,1", "",
     "[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"
   ];
-  const events = scenes.map((scene) => "Dialogue: 0," + assTime(scene.start) + "," + assTime(Math.min(scene.end, duration)) + ",Caption,,0,0,0,,{\\\\an2}" + escapeAss(scene.caption));
+  const events = scenes.map((scene) => "Dialogue: 0," + assTime(scene.start) + "," + assTime(Math.min(scene.end, duration)) + ",Caption,,0,0,0,,{\\an2}" + escapeAss(scene.caption));
   return [...header, ...events, ""].join(String.fromCharCode(10));
 }
 

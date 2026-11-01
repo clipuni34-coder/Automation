@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "channels": [
+    {
+      "id": "replace-with-channel-id",
+      "name": "Channel 1",
+      "platform": "youtube",
+      "countryCode": "NG",
+      "timezone": "Africa/Lagos",
+      "status": "setup_pending",
+      "niche": "research_pending",
+      "nicheKeywords": [],
+      "targetFormat": "research_pending",
+      "publishing": {
+        "enabled": false,
+        "privacyStatus": "private",
+        "maxUploadsPerDay": 1
+      }
+    }
+  ]
+}

@@ -101,7 +101,7 @@ async function callGemini(prompt, apiKey, fetchImpl, timeoutMs) {
       } catch (error) {
         errors.push(`${model} attempt ${attempt + 1}: ${error.message}`);
         const transient = /HTTP (429|500|502|503|504)/.test(error.message);
-        if (!transient) break;
+        if (!transient) throw error;
         if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 1500));
       }
     }

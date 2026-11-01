@@ -1,4 +1,4 @@
-import { assertAssetRights } from "../rights/asset-rights.js";
+import { assessAssetRights } from "../rights/asset-rights.js";
 
 export function buildCompilationPlan({ title, clips, platform = "youtube_shorts", maxClips = 10, targetDurationSeconds = 55, introCommentary, outroCommentary } = {}) {
   if (!Array.isArray(clips) || clips.length < 2) throw new Error("A compilation needs at least two candidate clips");
@@ -10,7 +10,7 @@ export function buildCompilationPlan({ title, clips, platform = "youtube_shorts"
     unique.set(clip.sourceId + ":" + clip.start + ":" + clip.end, clip);
   }
   const ranked = [...unique.values()].map(clip => {
-    const rights = clip.rightsStatus === "reference_only" ? { allowed: false, reasons: ["Reference-only clip cannot be rendered"] } : assertAssetRights(clip, { platform });
+    const rights = assessAssetRights(clip, { platform });
     return { ...clip, rights, score: Number(clip.score) || 0 };
   }).filter(clip => clip.rights.allowed).sort((a,b) => b.score - a.score || a.start - b.start).slice(0, Math.max(2, Math.min(20, maxClips)));
   if (ranked.length < 2) return { mode: "viral_compilation", status: "blocked_rights", title: title ?? "Untitled compilation", rejectedCount: clips.length - ranked.length, requiredRights: "Two or more individually cleared source clips are required", clips: [] };

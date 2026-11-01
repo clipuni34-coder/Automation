@@ -26,13 +26,13 @@
 - [ ] Add topic-level clustering across different videos and sources.
 - [ ] Add saturation, trend lifecycle and rejection-reason analysis.
 - [ ] Add compliant TikTok and Instagram discovery adapters after access/terms verification.
-- [ ] Add scheduled, durable discovery runs and operational monitoring.
+- [x] Add a scheduled daily editorial-plan generation step and archive its output as a workflow artifact.\n- [ ] Replace short-lived workflow cache history with durable database/object storage and add operational monitoring.
 
 ## Phase 3 — Research and editorial intelligence
 - [x] Implement a bounded claim ledger with deduplication, query fallback and explicit unresolved states.
 - [x] Extract selected HTTPS source pages through Tavily for passage-level human review.
 - [x] Add advisory claim-to-passage support, contradiction, ambiguity and not-addressed assessments with source-linked passages; human editorial review remains mandatory and claims stay unverified.
-- [ ] Generate multiple creative angles and hooks.
+- [x] Generate provisional format classification, editorial angles, evidence-based daily recommendations and a ranked backlog from discovered candidates.\n- [ ] Generate multiple model-assisted creative angles and hooks, with retention-aware script/storyboard and timed edit decision list.
 - [ ] Build retention-aware script/storyboard and timed edit decision list.
 - [ ] Add rights/provenance checks for every media asset.
 - [ ] Keep predictions and confidence separate from observed facts.
@@ -73,7 +73,7 @@
 - [ ] Collect only metrics available and permitted through each platform.
 - [ ] Store source/timestamp for platform-reported metrics.
 - [ ] Separate measured metrics from internal heuristic scores.
-- [ ] Build sample-size-aware experiments for hooks, formats, pacing and topics.
+- [ ] Build sample-size-aware experiments for hooks, formats, pacing and topics; use outcome data to learn channel-specific strategy.
 - [ ] Feed observed outcomes back into discovery and production selection.
 
 ## Release rule

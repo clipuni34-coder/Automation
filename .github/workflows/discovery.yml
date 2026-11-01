@@ -1,0 +1,177 @@
+name: Discovery scan
+
+on:
+  workflow_dispatch:
+    inputs:
+      produce_videos:
+        description: "Generate narrated vertical MP4s for the best brief (uses Gemini image/TTS quota)."
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    - cron: '0 9 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: discovery-scan
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Restore previous discovery observations
+        uses: actions/cache@v4
+        with:
+          path: data/discovery.json
+          key: discovery-history-${{ github.run_id }}
+          restore-keys: |
+            discovery-history-
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run global discovery
+        env:
+          YOUTUBE_DATA_API_KEY: ${{ secrets.YOUTUBE_DATA_API_KEY }}
+          DISCOVERY_REGIONS: ${{ vars.DISCOVERY_REGIONS || 'US,GB,CA,AU,IN,NG,ZA,BR,MX,DE,JP,KR' }}
+          DISCOVERY_CATEGORIES: ${{ vars.DISCOVERY_CATEGORIES || '1,2,10,15,17,19,20,22,23,24,25,26,27,28,29' }}
+          DISCOVERY_SEARCH_QUERIES: ${{ vars.DISCOVERY_SEARCH_QUERIES || 'viral funny moments|unexpected reaction moments|gaming streamer moments|viral sports moments|surprising real-life moments' }}
+          DISCOVERY_SEARCH_MAX_RESULTS: '20'
+          DISCOVERY_SEARCH_ORDER: 'viewCount'
+          DISCOVERY_SEARCH_REGION: 'US'
+          DISCOVERY_CONCURRENCY: '5'
+          DISCOVERY_STORE_PATH: data/discovery.json
+        run: |
+          if [ -z "$YOUTUBE_DATA_API_KEY" ]; then
+            echo "::error::YOUTUBE_DATA_API_KEY is missing. Add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          npm run discover
+      - name: Research the three strongest qualified candidates
+        env:
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          DISCOVERY_STORE_PATH: data/discovery.json
+        run: |
+          if [ -z "$TAVILY_API_KEY" ]; then
+            echo "::warning::TAVILY_API_KEY is missing; skipping research."
+            exit 0
+          fi
+
+          if [ ! -s "$DISCOVERY_STORE_PATH" ]; then
+            echo "::warning::Discovery store is missing; skipping research."
+            exit 0
+          fi
+
+          count=0
+          while IFS= read -r topic; do
+            [ -z "$topic" ] && continue
+            echo "Researching qualified candidate $((count + 1)) of up to 3"
+            if npm run research -- "$topic"; then
+              count=$((count + 1))
+            else
+              echo "::warning::Research failed for one candidate; continuing with the remaining candidates."
+            fi
+          done < <(jq -r '[.candidates[] | select(.decision == "needs_research" and (.score // 0) >= 35) | .title] | unique | .[:3][]' "$DISCOVERY_STORE_PATH")
+
+          echo "Research dossiers created: $count"
+      - name: Generate original creative briefs
+        env:
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CREATIVE_LANGUAGE: ${{ vars.CREATIVE_LANGUAGE || 'English' }}
+        run: |
+          if [ -z "$GEMINI_API_KEY" ] && [ -z "$OPENAI_API_KEY" ]; then
+            echo "::warning::No creative model key configured; research dossiers are saved without creative briefs."
+            exit 0
+          fi
+
+          shopt -s nullglob
+          dossiers=(research-*.json)
+          if [ ${#dossiers[@]} -eq 0 ]; then
+            echo "No research dossiers available for creative reasoning."
+            exit 0
+          fi
+
+          # Generate one strongest candidate per daily run to conserve free-tier model quota.
+          if [ ${#dossiers[@]} -gt 1 ]; then
+            dossiers=("${dossiers[0]}")
+          fi
+
+          generated=0
+          failed=0
+          for dossier in "${dossiers[@]}"; do
+            if npm run create-brief -- "$dossier"; then
+              generated=$((generated + 1))
+            else
+              failed=$((failed + 1))
+              echo "::warning::Creative generation failed for $dossier; preserving other results and continuing."
+            fi
+          done
+          echo "Creative briefs generated: $generated; failed: $failed"
+      - name: Render original videos when explicitly enabled
+        if: vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        run: |
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "::warning::GEMINI_API_KEY is required for narration; skipping video production."
+            exit 0
+          fi
+
+          shopt -s nullglob
+          briefs=(research-*.creative.json)
+          if [ ${#briefs[@]} -eq 0 ]; then
+            echo "No creative briefs available for production."
+            exit 0
+          fi
+
+          rendered=0
+          failed=0
+          for brief in "${briefs[@]}"; do
+            output_dir="output/${brief%.json}"
+            if npm run produce -- "$brief" "$output_dir"; then
+              rendered=$((rendered + 1))
+            else
+              failed=$((failed + 1))
+              echo "::warning::Video production failed for $brief; continuing."
+            fi
+          done
+          echo "Videos rendered: $rendered; failed: $failed"
+
+      - name: Save rendered videos and production packages
+        if: always() && hashFiles('output/**/short.mp4') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-videos
+          path: output/
+          retention-days: 14
+
+      - name: Save creative briefs
+        if: always() && hashFiles('research-*.creative.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: creative-briefs
+          path: research-*.creative.json
+          retention-days: 14
+      - name: Save discovery results
+        if: always() && hashFiles('data/discovery.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: discovery-results
+          path: data/discovery.json
+          retention-days: 14
+      - name: Save research dossiers
+        if: always() && hashFiles('research-*.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-dossiers
+          path: research-*.json
+          retention-days: 14

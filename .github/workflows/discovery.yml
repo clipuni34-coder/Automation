@@ -67,6 +67,33 @@ jobs:
           done < <(jq -r '[.candidates[] | select(.decision == "needs_research" and (.score // 0) >= 35) | .title] | unique | .[:3][]' "$DISCOVERY_STORE_PATH")
 
           echo "Research dossiers created: $count"
+      - name: Generate original creative briefs
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$GEMINI_API_KEY" ] && [ -z "$OPENAI_API_KEY" ]; then
+            echo "::warning::No creative model key configured; research dossiers are saved without creative briefs."
+            exit 0
+          fi
+
+          shopt -s nullglob
+          dossiers=(research-*.json)
+          if [ ${#dossiers[@]} -eq 0 ]; then
+            echo "No research dossiers available for creative reasoning."
+            exit 0
+          fi
+
+          for dossier in "${dossiers[@]}"; do
+            npm run create-brief -- "$dossier"
+          done
+      - name: Save creative briefs
+        if: always() && hashFiles('research-*.creative.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: creative-briefs
+          path: research-*.creative.json
+          retention-days: 14
       - name: Save discovery results
         if: always() && hashFiles('data/discovery.json') != ''
         uses: actions/upload-artifact@v4

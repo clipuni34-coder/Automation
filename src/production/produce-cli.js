@@ -56,7 +56,7 @@ else {
     };
     rendered.visualQuality = quality;
     const qualityPath = join(outputDir, "quality-report.json");
-    await writeFile(qualityPath, JSON.stringify(quality, null, 2), { mode: "0600" });
+    await writeFile(qualityPath, JSON.stringify(quality, null, 2), { mode: 0o600 });
     const packageData = buildPublishingPackage({ brief, renderResult: rendered, assets });
     const packagePath = join(outputDir, "publishing-package.json");
     await writeFile(packagePath, JSON.stringify(packageData, null, 2), { mode: 0o600 });

@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
-import { searchPexelsVideos, downloadPexelsVideo } from "./pexels.js";
+import { searchPixabayVideos, downloadPixabayVideo } from "./pixabay.js";
 
 const GEMINI_IMAGE_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
 const IMAGE_MODEL = "gemini-nano-banana-2.1";
@@ -91,7 +91,7 @@ export async function generateGeminiImage({ prompt, outputPath, apiKey = process
   } finally { clearTimeout(timer); }
 }
 
-export async function generateStoryboardAssets({ visualPlan, topic, outputDir = "output/visuals", apiKey = process.env.GEMINI_API_KEY ?? "", pexelsApiKey = process.env.PEXELS_API_KEY ?? "", fetchImpl = fetch, maxScenes = 6, style = "Cinematic editorial illustration, cohesive visual language, vivid but natural color, realistic lighting, crisp details." } = {}) {
+export async function generateStoryboardAssets({ visualPlan, topic, outputDir = "output/visuals", apiKey = process.env.GEMINI_API_KEY ?? "", pixabayApiKey = process.env.PIXABAY_API_KEY ?? "", fetchImpl = fetch, maxScenes = 6, style = "Cinematic editorial illustration, cohesive visual language, vivid but natural color, realistic lighting, crisp details." } = {}) {
   if (!Array.isArray(visualPlan) || visualPlan.length < 1) throw new Error("A non-empty visualPlan is required");
   const selected = visualPlan.slice(0, Math.max(1, Math.min(6, maxScenes)));
   await mkdir(resolve(outputDir), { recursive: true });
@@ -110,20 +110,20 @@ export async function generateStoryboardAssets({ visualPlan, topic, outputDir = 
         console.warn("Gemini visual unavailable for scene " + (index + 1) + "; trying another visual source: " + error.message);
       }
     }
-    if (pexelsApiKey) {
+    if (pixabayApiKey) {
       try {
         const query = String(item.visual ?? item.description ?? topic ?? "cinematic vertical footage").slice(0, 160);
-        const found = await searchPexelsVideos({ query, apiKey: pexelsApiKey, fetchImpl, perPage: 5 });
+        const found = await searchPixabayVideos({ query, apiKey: pixabayApiKey, fetchImpl, perPage: 5 });
         if (found.videos.length) {
           const asset = found.videos[0];
           const destination = join(resolve(outputDir), "scene-" + String(index + 1).padStart(2, "0") + ".mp4");
-          const downloaded = await downloadPexelsVideo(asset, destination, { fetchImpl });
+          const downloaded = await downloadPixabayVideo(asset, destination, { fetchImpl });
           assets.push({ videoPath: downloaded.path, sourceType: "licensed_stock", sourceUrl: downloaded.sourceUrl, license: downloaded.license, attribution: downloaded.attribution });
           continue;
         }
-        console.warn("No Pexels stock footage found for scene " + (index + 1) + "; using an original graphic.");
+        console.warn("No Pixabay stock footage found for scene " + (index + 1) + "; using an original graphic.");
       } catch (error) {
-        console.warn("Pexels unavailable for scene " + (index + 1) + "; using an original graphic: " + error.message);
+        console.warn("Pixabay unavailable for scene " + (index + 1) + "; using an original graphic: " + error.message);
       }
     }
     const graphic = await generateOriginalGraphic({ outputPath: basePath, sceneIndex: index });

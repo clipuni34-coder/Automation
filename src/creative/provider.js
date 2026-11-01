@@ -107,6 +107,10 @@ async function callGemini(prompt, apiKey, fetchImpl, timeoutMs) {
         errors.push(`${model} attempt ${attempt + 1}: ${error.message}`);
         const transientHttp = /HTTP (429|500|502|503|504)/.test(error.message);
         const timedOut = error.name === "AbortError" || /aborted|timeout/i.test(error.message);
+        const quotaExhausted = /quota exceeded|free.?tier.*limit|resource_exhausted|retry in \\d+h/i.test(error.message);
+        if (quotaExhausted) {
+          throw new Error(`Gemini quota exhausted; stopping Gemini model retries to avoid wasting requests. ${error.message.slice(0, 700)}`);
+        }
         if (!transientHttp && !timedOut) throw error;
         if (transientHttp && attempt === 0) await new Promise((resolve) => setTimeout(resolve, 1500));
         if (timedOut) break;

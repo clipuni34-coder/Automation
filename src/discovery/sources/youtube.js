@@ -138,7 +138,7 @@ function numberOrNull(value) {
 }
 
 export async function searchYouTubeVideos({
-  apiKey, queries = [], maxResults = 20, order = "viewCount", regionCode = "US", fetchImpl = fetch
+  apiKey, queries = [], maxResults = 20, order = "viewCount", regionCode = "US", publishedAfter = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), fetchImpl = fetch
 } = {}) {
   if (!apiKey) return { source: "youtube_search", status: "not_configured", items: [], requests: 0 };
   const terms = [...new Set(queries.map(value => String(value).trim()).filter(Boolean))].slice(0, 5);
@@ -150,7 +150,7 @@ export async function searchYouTubeVideos({
   for (const query of terms) {
     try {
       const searchUrl = new URL(`${API_ROOT}/search`);
-      searchUrl.search = new URLSearchParams({ part: "snippet", type: "video", q: query, order, regionCode, maxResults: String(Math.max(1, Math.min(50, maxResults))) });
+      searchUrl.search = new URLSearchParams({ part: "snippet", type: "video", q: query, order, regionCode, publishedAfter, maxResults: String(Math.max(1, Math.min(50, maxResults))) });
       const searchResponse = await fetchImpl(searchUrl, { headers: { accept: "application/json", "x-goog-api-key": apiKey }, signal: AbortSignal.timeout(20000) });
       requests++;
       if (!searchResponse.ok) throw new Error(`YouTube search returned HTTP ${searchResponse.status}`);

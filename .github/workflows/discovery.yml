@@ -69,6 +69,15 @@ jobs:
           STRATEGY_STORE_PATH: data/strategy.json
         run: npm run daily-plan
 
+      - name: Sync authorized YouTube channel analytics
+        if: vars.SYNC_YOUTUBE_ANALYTICS == 'true'
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_ANALYTICS_PATH: data/youtube-analytics.json
+        run: npm run youtube-analytics
+
       - name: Research the three strongest qualified candidates
         env:
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
@@ -196,6 +205,13 @@ jobs:
           name: daily-editorial-plan
           path: data/strategy.json
           retention-days: 14
+      - name: Save YouTube analytics snapshot
+        if: always() && hashFiles('data/youtube-analytics.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: youtube-analytics
+          path: data/youtube-analytics.json
+          retention-days: 30
       - name: Save research dossiers
         if: always() && hashFiles('research-*.json') != ''
         uses: actions/upload-artifact@v4

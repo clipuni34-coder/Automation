@@ -47,14 +47,14 @@ function audioFromResponse(payload) {
 export async function generateNarration({
   text, outputPath = "narration.wav", style = "Natural, engaging, confident short-form documentary narrator. Clear diction, conversational pacing, expressive but not exaggerated.",
   voice = "Kore", apiKey = process.env.GEMINI_API_KEY ?? "", fetchImpl = fetch, timeoutMs = 120000,
-  localVoice = process.env.KOKORO_VOICE ?? "af_heart"
+  localVoice = process.env.KOKORO_VOICE ?? "af_heart", localGenerator = generateKokoroNarration
 } = {}) {
   const narration = String(text ?? "").trim();
   if (!narration || narration.length < 20 || narration.length > 12000) {
     throw new Error("Narration text must contain between 20 and 12000 characters");
   }
   if (!apiKey) {
-    const local = await generateKokoroNarration({ text: narration, outputPath, voice: localVoice });
+    const local = await localGenerator({ text: narration, outputPath, voice: localVoice });
     if (local.status === "generated") return local;
     return { status: "not_configured", provider: "gemini-and-kokoro", outputPath: null };
   }
@@ -100,8 +100,9 @@ export async function generateNarration({
       return { status: "generated", provider: "gemini", model, outputPath, bytes: bytes.length, format: "wav", voice };
     } catch (error) {
       if (error.message.startsWith("TTS_QUOTA:")) {
-        if (model !== MODELS.at(-1)) { errors.push(error.message.slice(10)); continue; }
-        throw new Error(error.message.slice(10));
+        errors.push(error.message.slice(10));
+        if (model !== MODELS.at(-1)) continue;
+        break;
       }
       if (error.name === "AbortError") errors.push("Gemini TTS request timed out");
       else if (!errors.includes(error.message)) errors.push(error.message);

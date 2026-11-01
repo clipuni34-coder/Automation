@@ -22,6 +22,7 @@
     "reedit-render": "node src/clips/reedit-render-cli.js",
     "daily-plan": "node src/strategy/cli.js",
     "monetization-audit": "node src/strategy/monetization-audit-cli.js",
-    "youtube-upload": "node src/platforms/youtube/upload-cli.js"
+    "youtube-upload": "node src/platforms/youtube/upload-cli.js",
+    "youtube-analytics": "node src/platforms/youtube/analytics-cli.js"
   }
 }

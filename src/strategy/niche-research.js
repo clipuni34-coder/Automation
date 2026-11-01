@@ -1,3 +1,5 @@
+import { classifyFormat } from "./daily-plan.js";
+
 const CATEGORY_NAMES = {
   "1": "Film & Animation", "2": "Autos & Vehicles", "10": "Music",
   "15": "Pets & Animals", "17": "Sports", "19": "Travel & Events",
@@ -33,7 +35,7 @@ function nicheStats(candidates) {
     const creator = item.creatorId ?? item.creator;
     if (creator) creators.set(creator, (creators.get(creator) ?? 0) + 1);
     for (const region of item.seenInRegions ?? []) regions.add(region);
-    const format = item.format ?? "unclassified";
+    const format = classifyFormat(item);
     formats.set(format, (formats.get(format) ?? 0) + 1);
   }
   const creatorCounts = [...creators.values()].sort((a, b) => b - a);
@@ -72,7 +74,6 @@ function nicheStats(candidates) {
 
 export function researchNiches(discovery, { generatedAt = new Date().toISOString() } = {}) {
   const byCategory = new Map();
-  const formatCandidates = new Map();
   for (const candidate of discovery?.candidates ?? []) {
     if (candidate.platform !== "youtube" || !candidate.categoryId) continue;
     const categoryId = String(candidate.categoryId);

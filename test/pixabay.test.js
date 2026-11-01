@@ -35,6 +35,18 @@ test("Pixabay search returns licensed video candidates with creator attribution"
   assert.equal(result.videos[0].file.width, 1920);
 });
 
+
+test("Pixabay search falls back to a smaller affordable variant", async () => {
+  const oversized = structuredClone(sample);
+  oversized.hits[0].videos.large.size = 150 * 1024 * 1024;
+  const result = await searchPixabayVideos({
+    query: "person speaking", apiKey: "test-key",
+    fetchImpl: async () => new Response(JSON.stringify(oversized), { status: 200, headers: { "content-type": "application/json" } })
+  });
+  assert.equal(result.videos[0].file.width, 1280);
+  assert.match(result.videos[0].file.url, /medium/);
+});
+
 test("Pixabay search fails closed when API key is absent", async () => {
   const result = await searchPixabayVideos({ query: "person", apiKey: "" });
   assert.equal(result.status, "not_configured");

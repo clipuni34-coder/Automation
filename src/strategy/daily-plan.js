@@ -1,4 +1,5 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { assessCandidateSuitability } from "./candidate-suitability.js";
 import { dirname } from "node:path";
 
 const DAY = 86400000;
@@ -84,7 +85,7 @@ export function buildDailyPlan({ discovery, history = EMPTY, now = new Date(), c
   const timestamp = now instanceof Date ? now : new Date(now);
   const nowMs = timestamp.getTime();
   const candidates = (discovery?.candidates ?? [])
-    .filter((item) => item?.id && item?.title && item?.sourceUrl)
+    .filter((item) => item?.id && item?.title && item?.sourceUrl && assessCandidateSuitability(item).eligible)
     .map((candidate) => {
       const format = classifyFormat(candidate);
       const ranked = opportunity(candidate, nowMs);

@@ -14,6 +14,12 @@ function run(command, args) {
   });
 }
 
+async function createSampleVideo(dir) {
+  const video = join(dir, "sample.mp4");
+  await run("ffmpeg", ["-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=red:s=320x240:d=2", "-pix_fmt", "yuv420p", "-c:v", "libx264", "-y", video]);
+  return video;
+}
+
 test("semantic visual review fails closed when no vision API key is configured", async () => {
   const result = await reviewSceneVisualSemantics({ scenes: [{ start: 0, end: 2 }] }, "/tmp/unused.mp4", { apiKey: "" });
   assert.equal(result.status, "unverified");
@@ -23,9 +29,8 @@ test("semantic visual review fails closed when no vision API key is configured",
 
 test("semantic visual review sends sampled scene frames and reports unrelated visuals", async () => {
   const dir = await mkdtemp(join(tmpdir(), "semantic-qc-"));
-  const video = join(dir, "sample.mp4");
   try {
-    await run("ffmpeg", ["-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=red:s=320x240:d=2", "-pix_fmt", "yuv420p", "-c:v", "libx264", "-y", video]);
+    const video = await createSampleVideo(dir);
     let request;
     const result = await reviewSceneVisualSemantics({
       scenes: [{ start: 0, end: 2, visualDescription: "A baseball catcher throwing a ball", narrationContext: "The catcher throws to second base." }]
@@ -42,6 +47,26 @@ test("semantic visual review sends sampled scene frames and reports unrelated vi
     assert.equal(result.status, "review");
     assert.equal(result.failedScenes, 1);
     assert.match(result.warnings[0], /failed semantic visual verification/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("OpenAI vision API errors are recorded without crashing the production pipeline", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "semantic-qc-error-"));
+  try {
+    const video = await createSampleVideo(dir);
+    const result = await reviewSceneVisualSemantics({
+      scenes: [{ start: 0, end: 2, visualDescription: "A basketball player dunking", narrationContext: "A player scores." }]
+    }, video, {
+      apiKey: "test-key",
+      fetchImpl: async () => new Response(JSON.stringify({ error: { message: "Quota exceeded" } }), { status: 429 })
+    });
+    assert.equal(result.status, "review");
+    assert.equal(result.reviewedScenes, 1);
+    assert.equal(result.failedScenes, 1);
+    assert.match(result.scenes[0].description, /basketball player/);
+    assert.match(result.scenes[0].error, /HTTP 429/);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

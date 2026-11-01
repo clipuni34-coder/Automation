@@ -107,3 +107,23 @@ test("creative provider retries a busy Gemini model and falls back to another Fl
   assert.equal(result.provider, "gemini");
   assert.deepEqual(requestedModels, ["gemini-3.8-flash", "gemini-3.8-flash", "gemini-3.7-flash"]);
 });
+
+test("creative provider falls back to the next Gemini model after a timeout", async () => {
+  const requestedModels = [];
+  const fetchImpl = async (url) => {
+    const model = url.split("/models/")[1]?.split(":")[0];
+    requestedModels.push(model);
+    if (model === "gemini-3.8-flash") {
+      const error = new Error("The operation was aborted");
+      error.name = "AbortError";
+      throw error;
+    }
+    return {
+      ok: true,
+      json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(validPlan) }] } }] })
+    };
+  };
+  const result = await generateEditorialPlan({ dossier, geminiApiKey: "test-key", fetchImpl });
+  assert.equal(result.status, "ok");
+  assert.deepEqual(requestedModels, ["gemini-3.8-flash", "gemini-3.7-flash"]);
+});

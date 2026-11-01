@@ -23,7 +23,7 @@ async function generateKokoroNarration({ text, outputPath, modelPath, voicesPath
       clearTimeout(timer);
       if (code !== 0) return reject(new Error("Kokoro local narration failed: " + stderr.slice(-1800)));
       try {
-        const result = JSON.parse(stdout.trim().split("\\n").at(-1));
+        const result = JSON.parse(stdout.trim());
         resolvePromise({ ...result, status: "generated", format: "wav", outputPath, bytes: null });
       } catch {
         reject(new Error("Kokoro local narration returned an invalid result: " + stdout.slice(-500)));

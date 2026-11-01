@@ -127,7 +127,7 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
   manifest.scenes.forEach((scene, index) => {
     const label = `v${index}`;
     const duration = (scene.end - scene.start).toFixed(3);
-    const motion = scene.videoPath ? `trim=duration=${duration},setpts=PTS-STARTPTS,` : '';
+    const motion = scene.videoPath ? `trim=duration=${duration},setpts=PTS-STARTPTS,tpad=stop_mode=clone:stop_duration=${duration},trim=duration=${duration},` : '';
     const zoom = scene.videoPath ? '' : `,zoompan=z='min(zoom+0.00035,1.06)':d=1:s=${WIDTH}x${HEIGHT}:fps=${FPS}`;
     filters.push(`[${index}:v]${motion}scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT}${zoom},fps=${FPS},setsar=1,format=yuv420p[${label}]`);
     videoLabels.push(`[${label}]`);

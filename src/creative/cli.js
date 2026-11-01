@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { generateEditorialPlan } from "./provider.js";
+import { generateEditorialPlan } from "./provider.js";import { searchTopic } from "../research/tavily.js";
+import { buildClaimLedger } from "../research/claim-ledger.js";
 
 const inputPath = process.argv[2];
 if (!inputPath) {
@@ -13,11 +14,13 @@ if (!inputPath) {
     if (result.status !== "ok") {
       console.log(JSON.stringify({ status: result.status, topic: dossier.topic }));
     } else {
+      const claimLedger = await buildClaimLedger({ claims: result.plan.claimsToVerify, search: searchTopic });
       const output = {
         ...dossier,
         editorial: {
           ...dossier.editorial,
           ...result.plan,
+          claimLedger,
           status: "brief_generated",
           provider: result.provider,
           generatedAt: new Date().toISOString()

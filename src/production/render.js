@@ -2,6 +2,7 @@ import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, extname, resolve } from "node:path";
 import { spawn } from "node:child_process";
 import { assertAssetRights } from "../rights/asset-rights.js";
+import { buildVisualQualityReport } from "./visual-qc.js";
 
 const ALLOWED_SOURCE_TYPES = new Set(["original_graphic", "generated_visual", "public_domain", "licensed_stock", "creator_clip"]);
 const WIDTH = 1080;
@@ -142,8 +143,10 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
   if (!Number.isFinite(actualDuration) || Math.abs(actualDuration - duration) > 1.5) {
     throw new Error("Rendered output duration differs materially from the storyboard");
   }
+  const visualQuality = await buildVisualQualityReport(manifest, outputPath, { ffmpegPath });
   return {
     status: "rendered",
+    visualQuality,
     outputPath,
     durationSeconds: actualDuration,
     width: video.width,

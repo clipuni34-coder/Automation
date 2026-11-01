@@ -14,6 +14,7 @@
     "test": "node --test",
     "research": "node src/research/cli.js",
     "create-brief": "node src/creative/cli.js",
-    "render": "node src/production/cli.js"
+    "render": "node src/production/cli.js",
+    "voice": "node src/production/voice-cli.js"
   }
 }

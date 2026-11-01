@@ -39,11 +39,15 @@ export function buildCompilationRenderManifest({ plan, mediaAssets, audioPath, o
   if (plan?.mode !== "viral_compilation" || plan.status !== "compilation_plan_ready") throw new Error("A rights-approved compilation plan is required");
   if (!audioPath || !outputPath || !mediaAssets || typeof mediaAssets !== "object") throw new Error("Narration audioPath, outputPath and mediaAssets map are required");
   const scenes = [];
-  for (const clip of plan.sequence) {
+  for (const [index, clip] of plan.sequence.entries()) {
     const asset = mediaAssets[clip.sourceId];
     if (!asset?.path) throw new Error("Missing authorized local media for compilation source " + clip.sourceId);
     if (asset.sourceUrl && asset.sourceUrl !== clip.sourceUrl) throw new Error("Local media source URL does not match the approved compilation plan");
-    appendScene(scenes, { ...clip, caption: clip.caption ?? `#${clip.rank} · ${clip.creator ?? "Moment"}` }, asset.path, 0, plan.platform);
+    const baseCaption = clip.caption ?? `#${clip.rank} · ${clip.creator ?? "Moment"}`;
+    const framedCaption = index === 0 ? `${plan.introCommentary}. ${baseCaption}`
+      : index === plan.sequence.length - 1 ? `${plan.outroCommentary}. ${baseCaption}`
+      : baseCaption;
+    appendScene(scenes, { ...clip, caption: framedCaption }, asset.path, 0, plan.platform);
   }
   return { outputPath, audioPath, targetPlatform: plan.platform, scenes };
 }

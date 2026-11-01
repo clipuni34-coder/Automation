@@ -8,7 +8,7 @@ Working branch: `autonomous-viral-discovery`
 - YouTube discovery uses the official Data API: regional/category most-popular charts plus bounded keyword searches for recent videos. Keyword results are references only, not reusable media.
 - Tavily research creates dossiers and extracts source passages. Search excerpts and model assessments remain advisory; factual claims are not automatically marked verified.
 - Gemini creative generation has a Gemini 3.5 Flash-Lite fallback when Gemini 3.8 Flash reaches its daily request quota. Scheduled runs create one English-language brief per run to reduce quota pressure; discovery runs only on the daily schedule or manual dispatch, not on code pushes.
-- Gemini TTS adapter and Gemini Nano Banana 2.1 image-generation adapter are implemented with mocked tests.
+- Gemini TTS adapter now falls back once to the Lite TTS model on primary quota errors; Gemini Nano Banana 2.1 image-generation adapter is implemented. Both are covered by mocked tests.
 - FFmpeg renderer produces vertical 1080x1920 H.264/AAC MP4s and independently probes output. It can preserve source-video audio and mix it with narration.
 - Original-video production command connects narration, up to six storyboard visuals, rendering, QC and a platform-specific draft package.
 - Standalone re-edit and creator-compilation planners rank moments, preserve source timestamps, enforce rights evidence and can create render manifests for locally available authorized media.

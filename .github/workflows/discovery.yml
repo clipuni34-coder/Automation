@@ -94,6 +94,11 @@ jobs:
             exit 0
           fi
 
+          # Generate one strongest candidate per daily run to conserve free-tier model quota.
+          if [ ${#dossiers[@]} -gt 1 ]; then
+            dossiers=("${dossiers[0]}")
+          fi
+
           generated=0
           failed=0
           for dossier in "${dossiers[@]}"; do

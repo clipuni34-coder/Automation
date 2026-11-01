@@ -29,3 +29,85 @@ test("publishing package preserves scene-level semantic visual review findings",
   assert.deepEqual(pkg.quality.semanticReview, semanticReview);
   assert.equal(pkg.quality.visualQualityStatus, "review");
 });
+
+function eligibleBrief(extra = {}) {
+  return {
+    topic: "Amazing Ocean Mystery",
+    editorial: {
+      workingTitle: "Amazing Ocean Mystery",
+      hookOptions: ["The ocean mystery nobody expected"],
+      callToAction: "What would you investigate next?",
+      fullScript: "This amazing ocean mystery begins with an unusual discovery beneath the waves. The story follows the clues, explains what the evidence can and cannot show, and reveals why the mystery matters to people who study the ocean. The final scene connects the discovery to a bigger question and gives viewers a clear takeaway. This is an original narrated story with a beginning, middle and payoff.",
+      visualPlan: [{ visual: "Ocean" }, { visual: "Research vessel" }, { visual: "Deep sea" }],
+      claimsToVerify: [],
+      ...extra
+    }
+  };
+}
+
+function eligibleAssets() {
+  return [
+    { sourceType: "original_graphic", graphicStyle: "custom editorial graphic", imagePath: "/assets/1.ppm" },
+    { sourceType: "original_graphic", graphicStyle: "custom editorial graphic", imagePath: "/assets/2.ppm" },
+    { sourceType: "original_graphic", graphicStyle: "custom editorial graphic", imagePath: "/assets/3.ppm" }
+  ];
+}
+
+test("approves autonomous YouTube upload only when rights, originality, factual and visual gates pass", t => {
+  const previous = process.env.YOUTUBE_AUTO_PUBLISH;
+  t.after(() => { if (previous === undefined) delete process.env.YOUTUBE_AUTO_PUBLISH; else process.env.YOUTUBE_AUTO_PUBLISH = previous; });
+  process.env.YOUTUBE_AUTO_PUBLISH = "true";
+  const pkg = buildPublishingPackage({
+    brief: eligibleBrief(),
+    renderResult: { status: "rendered", outputPath: "/out/short.mp4", durationSeconds: 35, visualQuality: { status: "passed", score: 95, warnings: [] } },
+    assets: eligibleAssets()
+  });
+  assert.equal(pkg.monetizationPreflight.status, "preflight_passed");
+  assert.equal(pkg.publication.status, "approved_for_upload");
+  assert.equal(pkg.publication.manualApprovalRequired, false);
+  assert.deepEqual(pkg.publication.blockers, []);
+  assert.ok(pkg.contentFingerprint);
+});
+
+test("holds videos with unverified factual claims even when other gates pass", t => {
+  const previous = process.env.YOUTUBE_AUTO_PUBLISH;
+  t.after(() => { if (previous === undefined) delete process.env.YOUTUBE_AUTO_PUBLISH; else process.env.YOUTUBE_AUTO_PUBLISH = previous; });
+  process.env.YOUTUBE_AUTO_PUBLISH = "true";
+  const pkg = buildPublishingPackage({
+    brief: eligibleBrief({ claimsToVerify: ["A factual claim that needs source review."] }),
+    renderResult: { status: "rendered", outputPath: "/out/short.mp4", durationSeconds: 35, visualQuality: { status: "passed", score: 95, warnings: [] } },
+    assets: eligibleAssets()
+  });
+  assert.equal(pkg.publication.status, "not_published");
+  assert.ok(pkg.monetizationPreflight.blockers.includes("factualClaimsChecked"));
+});
+
+test("holds near-duplicate scripts from the same channel", t => {
+  const previous = process.env.YOUTUBE_AUTO_PUBLISH;
+  t.after(() => { if (previous === undefined) delete process.env.YOUTUBE_AUTO_PUBLISH; else process.env.YOUTUBE_AUTO_PUBLISH = previous; });
+  process.env.YOUTUBE_AUTO_PUBLISH = "true";
+  const brief = eligibleBrief();
+  const tokens = brief.editorial.fullScript.toLowerCase().match(/[a-z0-9]{3,}/g);
+  const pkg = buildPublishingPackage({
+    brief,
+    recentContent: [{ channelId: "UC1", fingerprint: "old-hash", scriptTokens: [...new Set(tokens)] }],
+    renderResult: { status: "rendered", outputPath: "/out/short.mp4", durationSeconds: 35, visualQuality: { status: "passed", score: 95, warnings: [] } },
+    assets: eligibleAssets()
+  });
+  assert.equal(pkg.publication.status, "not_published");
+  assert.ok(pkg.monetizationPreflight.blockers.includes("notInterchangeableOrMassProduced"));
+});
+
+test("keeps upload approval disabled unless channel-level automation is enabled", t => {
+  const previous = process.env.YOUTUBE_AUTO_PUBLISH;
+  t.after(() => { if (previous === undefined) delete process.env.YOUTUBE_AUTO_PUBLISH; else process.env.YOUTUBE_AUTO_PUBLISH = previous; });
+  delete process.env.YOUTUBE_AUTO_PUBLISH;
+  const pkg = buildPublishingPackage({
+    brief: eligibleBrief(),
+    renderResult: { status: "rendered", outputPath: "/out/short.mp4", durationSeconds: 35, visualQuality: { status: "passed", score: 95, warnings: [] } },
+    assets: eligibleAssets()
+  });
+  assert.equal(pkg.monetizationPreflight.status, "preflight_passed");
+  assert.equal(pkg.publication.status, "not_published");
+  assert.equal(pkg.publication.manualApprovalRequired, true);
+});

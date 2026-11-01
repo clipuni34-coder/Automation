@@ -48,7 +48,7 @@ function validateManifest(manifest) {
     if (!scene.imagePath || !Number.isFinite(scene.start) || !Number.isFinite(scene.end) || scene.start < 0 || scene.end <= scene.start) {
       throw new Error(`Scene ${index + 1} needs an imagePath and a valid positive start/end time`);
     }
-    if (scene.start < previousEnd - 0.02) throw new Error("Scenes must be chronological and must not overlap");
+    if (Math.abs(scene.start - previousEnd) > 0.02) throw new Error("Scenes must be chronological and contiguous, starting at 0 seconds");
     previousEnd = scene.end;
     if (!ALLOWED_SOURCE_TYPES.has(scene.sourceType)) throw new Error(`Scene ${index + 1} has an unapproved or missing asset sourceType`);
     if (scene.sourceType !== "original_graphic" && (!scene.sourceUrl || !scene.license)) {
@@ -91,7 +91,7 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
   manifest.scenes.forEach((scene, index) => {
     const frames = Math.max(1, Math.round((scene.end - scene.start) * FPS));
     const label = `v${index}`;
-    filters.push(`[${index}:v]scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},zoompan=z='min(zoom+0.00035,1.06)':d=${frames}:s=${WIDTH}x${HEIGHT}:fps=${FPS},setsar=1,format=yuv420p[${label}]`);
+    filters.push(`[${index}:v]scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},zoompan=z='min(zoom+0.00035,1.06)':d=1:s=${WIDTH}x${HEIGHT}:fps=${FPS},setsar=1,format=yuv420p[${label}]`);
     videoLabels.push(`[${label}]`);
   });
   filters.push(`${videoLabels.join("")}concat=n=${manifest.scenes.length}:v=1:a=0,subtitles=filename='${assPath.replace(/\\/g, "/").replace(/:/g, "\\:")}',format=yuv420p[vout]`);

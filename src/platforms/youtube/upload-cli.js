@@ -1,7 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { refreshYouTubeAccessToken, uploadYouTubeVideo, waitForYouTubeProcessing, getAuthorizedYouTubeChannel } from "./publisher.js";
-import { readContentHistory, recordPublishedContent } from "../../strategy/content-history.js";
+import { hasPublishedFingerprint, readContentHistory, recordPublishedContent } from "../../strategy/content-history.js";
 
 const packagePath = process.argv[2];
 if (!packagePath) {
@@ -32,7 +32,7 @@ if (!packagePath) {
     }
     const historyPath = process.env.CONTENT_HISTORY_PATH ?? "data/content-history.json";
     const history = await readContentHistory(historyPath);
-    if (history.uploads.some(item => item.channelId === expectedChannelId && item.fingerprint === pkg.contentFingerprint)) {
+    if (hasPublishedFingerprint(history, expectedChannelId, pkg.contentFingerprint)) {
       throw new Error("This content fingerprint has already been uploaded to the target channel; refusing a duplicate upload.");
     }
     const result = await uploadYouTubeVideo({

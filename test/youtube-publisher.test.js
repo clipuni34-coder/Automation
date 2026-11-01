@@ -19,6 +19,20 @@ test("refreshes a YouTube OAuth access token without exposing credentials", asyn
   assert.match(String(request.options.body), /grant_type=refresh_token/);
 });
 
+test("refreshes a YouTube OAuth access token when the client has no secret", async () => {
+  let request;
+  const result = await refreshYouTubeAccessToken({
+    clientId: "public-client-id", refreshToken: "refresh-token",
+    fetchImpl: async (url, options) => {
+      request = { url, options };
+      return { ok: true, json: async () => ({ access_token: "access-token", expires_in: 3600 }) };
+    }
+  });
+  assert.equal(result.accessToken, "access-token");
+  assert.match(String(request.options.body), /client_id=public-client-id/);
+  assert.doesNotMatch(String(request.options.body), /client_secret/);
+});
+
 test("uploads MP4 through the official resumable upload flow", async () => {
   const dir = await mkdtemp(join(tmpdir(), "youtube-upload-"));
   try {

@@ -41,6 +41,7 @@
 - [x] Select FFmpeg as the first renderer and verify it with a real integration render in CI.\n- [x] Implement a Pexels live-action video search/download adapter with license and creator attribution metadata (live API test pending API key availability).
 - [x] Build mixed still-image/live-action scene timeline assembly, subtle still motion, scene-timed captions, narration-audio muxing and MP4 export.
 - [x] Add Gemini Nano Banana image generation for original 9:16 storyboard visuals (live provider verification pending).
+- [x] Add Gemini 3.5 Flash-Lite fallback when Gemini 3.8 Flash daily request quota is exhausted; cap scheduled creative generation to one brief per run.
 - [x] Orchestrate narration, generated/stock visuals, render, ffprobe QC and publishing-package metadata in a single production CLI.
 - [x] Preserve original source-video audio and mix it with narration after sample-rate/channel normalization.\n- [x] Add Gemini-generated voiceover from the creative brief script (live provider run pending quota availability).\n- [ ] Add additional dynamic B-roll acquisition/generation, word-timed captions and sound design.
 - [x] Render and probe 1080×1920, 30fps H.264/AAC fast-start MP4 output.\n- [ ] Add platform-specific variants and frame-rate/source adaptation.

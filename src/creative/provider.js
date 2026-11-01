@@ -124,7 +124,7 @@ export async function generateEditorialPlan({
   geminiApiKey = process.env.GEMINI_API_KEY ?? "",
   openaiApiKey = process.env.OPENAI_API_KEY ?? "",
   fetchImpl = fetch,
-  timeoutMs = 45000
+  timeoutMs = 120000
 } = {}) {
   if (!dossier || typeof dossier !== "object" || !dossier.topic) {
     throw new Error("A research dossier with a topic is required");

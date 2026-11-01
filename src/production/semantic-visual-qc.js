@@ -29,7 +29,7 @@ function parseJson(text) {
  * actual image depicts the planned scene. Missing keys/errors remain unverified.
  */
 export async function reviewSceneVisualSemantics(manifest, videoPath, {
-  apiKey = process.env.OPENAI_API_KEY ?? "",
+  apiKey = process.env.ENABLE_OPENAI_VISION_QC === "true" ? (process.env.OPENAI_API_KEY ?? "") : "",
   fetchImpl = fetch,
   ffmpegPath = "ffmpeg",
   timeoutMs = 90000

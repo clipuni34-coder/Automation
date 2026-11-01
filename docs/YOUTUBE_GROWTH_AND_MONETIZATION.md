@@ -50,3 +50,11 @@ The repository currently has discovery, a daily opportunity planner, an initial 
 - Configure the channel identity, timezone, target cadence, privacy defaults and allowed publish windows.
 - Complete Google account 2-Step Verification, advanced-features access and AdSense setup as required in YouTube Studio.
 - Keep automatic public publishing disabled until the owner explicitly enables it for that connected channel after a successful private/unlisted test upload.
+
+## Official policy and API references
+
+- YouTube Partner Program eligibility and application: https://support.google.com/youtube/answer/72851
+- YouTube channel monetization policies, including reused and inauthentic content: https://support.google.com/youtube/answer/1311392
+- YouTube fake engagement policy: https://support.google.com/youtube/answer/3399767
+- YouTube Data API video upload endpoint: https://developers.google.com/youtube/v3/docs/videos/insert
+- YouTube Analytics API reports query: https://developers.google.com/youtube/analytics/reference/reports/query

@@ -2,6 +2,7 @@ import { collectYouTubePopular } from "./sources/youtube.js";
 import { collectRssFeeds } from "./sources/rss.js";
 import { readDiscoveryStore, writeDiscoveryStore } from "./store.js";
 import { scoreCandidate, topicKey } from "./scoring.js";
+import { buildTopicClusters, explainCandidateDecision } from "./topics.js";
 
 export async function runDiscovery({
   config = {},
@@ -29,11 +30,12 @@ export async function runDiscovery({
   const incoming = sources.flatMap((source) => source.items ?? []);
   const existingById = new Map(store.candidates.map((item) => [item.id, item]));
   const observations = [];
-  const candidates = [];
+  const merged = new Map(store.candidates.map((item) => [item.id, item]));
 
   for (const item of incoming) {
     if (!item.id || !item.title || !item.sourceUrl) continue;
     const scored = scoreCandidate(item, store.observations);
+    const previous = existingById.get(item.id);
     const candidate = {
       ...item,
       topicKey: topicKey(item.title),
@@ -41,14 +43,12 @@ export async function runDiscovery({
       scoreComponents: scored.components,
       evidence: scored.evidence,
       confidence: scored.confidence,
-      firstSeenAt: existingById.get(item.id)?.firstSeenAt ?? timestamp,
+      firstSeenAt: previous?.firstSeenAt ?? timestamp,
       lastSeenAt: timestamp,
       decision: "needs_research",
-      decisionReasons: scored.evidence.velocityMeasured
-        ? ["Repeated observation supports a measured view-velocity estimate"]
-        : ["No prior observation: trend velocity is not yet measurable"]
+      decisionReasons: []
     };
-    candidates.push(candidate);
+    merged.set(candidate.id, candidate);
     observations.push({
       id: item.id,
       observedAt: timestamp,
@@ -57,25 +57,28 @@ export async function runDiscovery({
     });
   }
 
-  const merged = new Map(store.candidates.map((item) => [item.id, item]));
-  for (const candidate of candidates) {
-    const old = merged.get(candidate.id);
-    merged.set(candidate.id, old
-      ? { ...old, ...candidate, firstSeenAt: old.firstSeenAt }
-      : candidate);
+  const ranked = [...merged.values()].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 2000);
+  const topicClusters = buildTopicClusters(ranked, new Date(timestamp));
+  const clusterByCandidate = new Map();
+  for (const cluster of topicClusters) {
+    for (const id of cluster.candidateIds) clusterByCandidate.set(id, cluster);
   }
+  const reviewedCandidates = ranked.map((candidate) => ({
+    ...candidate,
+    ...explainCandidateDecision(candidate, clusterByCandidate.get(candidate.id))
+  }));
 
   const nextStore = {
-    version: 1,
+    version: 2,
     observations: [...store.observations, ...observations].slice(-20000),
-    candidates: [...merged.values()]
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 2000),
+    candidates: reviewedCandidates,
+    topicClusters,
     runs: [...store.runs, {
       startedAt: timestamp,
       completedAt: now().toISOString(),
       discovered: incoming.length,
-      accepted: candidates.length,
+      accepted: observations.length,
+      topicCount: topicClusters.length,
       sources: sources.map(({ source, status, error }) => ({ source, status, ...(error ? { error } : {}) }))
     }].slice(-500)
   };
@@ -86,7 +89,8 @@ export async function runDiscovery({
     sources: sources.map(({ source, status, error, items }) => ({
       source, status, count: items?.length ?? 0, ...(error ? { error } : {})
     })),
-    candidates: candidates.sort((a, b) => b.score - a.score),
+    topicClusters,
+    candidates: reviewedCandidates,
     storePath
   };
 }

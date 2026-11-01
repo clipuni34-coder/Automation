@@ -27,7 +27,7 @@ export function buildPublishingPackage({ brief, renderResult, assets = [] } = {}
     hookOptions: (editorial.hookOptions ?? []).slice(0, 3).map(value => clean(value, 240)),
     thumbnail: assets[0]?.imagePath ?? assets[0]?.videoPath ?? null,
     assetCredits: credits,
-    quality: { technicalRenderVerified: true, visualQualityStatus: renderResult.visualQuality?.status ?? "not_run", visualQualityScore: renderResult.visualQuality?.score ?? null, visualQualityWarnings: renderResult.visualQuality?.warnings ?? [], sourceAudioPreserved: renderResult.sourceAudioPreserved ?? false, factualReviewRequired: true, humanReviewRequired: true },
+    quality: { technicalRenderVerified: true, visualQualityStatus: renderResult.visualQuality?.status ?? "not_run", visualQualityScore: renderResult.visualQuality?.score ?? null, visualQualityWarnings: renderResult.visualQuality?.warnings ?? [], semanticReview: renderResult.visualQuality?.semanticReview ?? null, sourceAudioPreserved: renderResult.sourceAudioPreserved ?? false, factualReviewRequired: true, humanReviewRequired: true },
     publication: { status: "not_published", manualApprovalRequired: true, platforms: ["youtube_shorts", "tiktok", "instagram_reels"] }
   };
 }

@@ -6,7 +6,7 @@ Working branch: `autonomous-viral-discovery`
 ## Working and tested
 
 - An autonomous daily editorial planner now ranks unique discovery candidates, assigns provisional content formats (gaming, creator moments, sports, food, rankings/explainers, funny/surprising moments and general story explainers), explains selection evidence, and produces a short recommendation list plus a backlog. It deliberately leaves channel niches unselected until research supports a decision.
-- The daily planner preserves source provenance and explicitly marks public creator videos as research references unless a separate rights status is verified. It is deterministic and does not require an LLM API call.
+- The daily planner preserves source provenance and explicitly marks public creator videos as research references unless a separate rights status is verified. It is deterministic and does not require an LLM API call.\n- YouTube monetization helpers calculate expanded-YPP and full ad-revenue threshold progress separately, apply a rights/originality/repetition/factual-review preflight, and generate experiment suggestions from actual performance metrics.\n- Official YouTube OAuth token refresh, resumable video upload and processing-status polling are implemented behind strict opt-in and package approval gates.\n- Official YouTube Analytics report retrieval is implemented for Shorts and long-form windows plus top videos. Scheduled sync is optional and archives a metrics snapshot; no account is connected yet.
 
 - Scheduled discovery now also samples public Google Trends Trending Now RSS feeds for NG, US, GB, IN, ZA, CA and AU; these are limited search-interest signals, not a full Trends API or video virality measure.\n- YouTube discovery uses the official Data API: regional/category most-popular charts plus bounded keyword searches for recent videos. Keyword results are references only, not reusable media.
 - Tavily research creates dossiers and extracts source passages. Search excerpts and model assessments remain advisory; factual claims are not automatically marked verified.
@@ -36,7 +36,7 @@ Working branch: `autonomous-viral-discovery`
 - Automated transcription and visual/audio moment detection for authorized creator videos. Current re-edit CLI requires timed transcript segments and editorial signals as input.
 - Spoken compilation commentary timing and more advanced edit treatments. Current intro/outro are on-screen captions, not generated speech.
 - Full word-level captions, sound design, A/B MP4 variants and deeper editorial QC.
-- Platform OAuth integrations, publishing approvals and performance analytics/learning.
+- Live channel OAuth consent/credential setup, end-to-end upload testing, channel identity validation, approval automation and persistent analytics learning.
 - A persistent user-facing dashboard/upload workflow.
 
 ## Production safety

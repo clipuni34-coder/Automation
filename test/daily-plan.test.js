@@ -32,6 +32,15 @@ test("ranks unique opportunities and clearly marks reference-only footage", () =
   assert.ok(result.latestPlan.constraints.some((line) => line.includes("not a guarantee")));
 });
 
+test("does not shortlist complete broadcasts as original editorial opportunities", () => {
+  const discovery = { candidates: [
+    candidate("match", "JUEGO COMPLETO: América vs Toluca"),
+    candidate("science", "Why octopuses change colour", 60)
+  ] };
+  const result = buildDailyPlan({ discovery, now: new Date("2026-11-01T09:00:00.000Z") });
+  assert.deepEqual(result.latestPlan.recommendations.map(item => item.candidateId), ["science"]);
+});
+
 test("does not repeat candidates already recommended in saved plan history", () => {
   const discovery = { candidates: [candidate("one", "Funny unexpected moment")] };
   const history = { version: 1, plans: [{ recommendations: [{ candidateId: "one" }] }], outcomes: [] };

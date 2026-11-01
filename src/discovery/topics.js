@@ -73,12 +73,16 @@ export function buildTopicClusters(candidates, now = new Date()) {
 
 export function explainCandidateDecision(candidate, cluster) {
   const reasons = [];
-  if (candidate.confidence === "low") reasons.push("Growth velocity is not yet measured");
+  if (candidate.evidence?.breakoutSignal) reasons.push("Breakout signal: recent views/hour is at least 2.5x the previous interval and above 100 views/hour");
+  else if (candidate.confidence === "low") reasons.push("Growth velocity is not yet measured");
+  else if (candidate.confidence !== "high") reasons.push("More repeated observations are needed before confirming acceleration");
   if ((candidate.score ?? 0) < 35) reasons.push("Opportunity score is below the research threshold (35/100)");
   if (cluster?.saturation === "high") reasons.push("Reference coverage is crowded; seek a differentiated angle");
   if (cluster?.lifecycle === "insufficient_data") reasons.push("Too few related references to establish a trend lifecycle");
   if (!reasons.length) reasons.push("Candidate meets the initial research-screening threshold");
   return {
+    momentum: candidate.evidence?.breakoutSignal ? "breakout_candidate"
+      : candidate.evidence?.velocityMeasured ? "rising_or_measured" : "unverified",
     decision: (candidate.score ?? 0) >= 35 ? "needs_research" : "hold",
     decisionReasons: reasons
   };

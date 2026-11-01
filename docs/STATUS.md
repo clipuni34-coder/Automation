@@ -43,6 +43,7 @@ Working branch: `autonomous-viral-discovery`
 - The run found no active channel profile or configured expected YouTube channel ID. The temporary `channel-lab` is a research placeholder, not a real channel.
 - Research dossiers now retain the matched discovery candidate's ID, source URL, creator, category, observed metrics and explicit reference-only rights status.
 - Dossier selection now weighs independent publisher diversity and substantive source excerpts alongside discovery opportunity. This is a research-triage heuristic, not automatic fact verification.
+- Niche reports now separate cross-sectional sample confidence from temporal confidence. A single scan can show a broad sample, but persistence remains low until at least three discovery runs are observed.
 - Complete matches/games/episodes, official music videos, obvious full broadcasts and common fan-edit patterns are now excluded from daily editorial shortlists, research dossier generation and niche samples. Remaining reference videos are still not reusable without permission.
 - A workflow-readiness report is now produced so a green discovery run cannot be mistaken for completed creative production or publishing.
 - Latest test workflow `41285434078` passed **138/138 tests** on commit `d732f3b`; this verifies automated tests and FFmpeg fixtures, not a live YouTube upload or a full live production run.

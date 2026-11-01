@@ -46,7 +46,7 @@
 - [x] Orchestrate narration, generated/stock visuals, render, ffprobe QC and publishing-package metadata in a single production CLI.
 - [x] Preserve original source-video audio and mix it with narration after sample-rate/channel normalization.\n- [x] Add Gemini-generated voiceover from the creative brief script (live provider run pending quota availability).\n- [ ] Add additional dynamic B-roll acquisition/generation, word-timed captions and sound design.
 - [x] Render and probe 1080×1920, 30fps H.264/AAC fast-start MP4 output.\n- [ ] Add platform-specific variants and frame-rate/source adaptation.
-- [ ] Add independent editorial, factual, audio, visual and technical QC.
+- [x] Add automated storyboard visual-quality heuristics for scene variety, pacing, caption density and still-image holds, plus encoded-video black-frame/freeze inspection and a per-video quality report.\n- [ ] Add independent editorial, factual, audio and deeper semantic visual QC; implement repair/rerender or reject loop.
 - [ ] Implement repair/rerender or reject loop.
 
 ## Phase 4B — Viral re-editing and compilations

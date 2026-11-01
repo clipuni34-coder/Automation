@@ -4,6 +4,12 @@ on:
   push:
     branches: [autonomous-viral-discovery]
   workflow_dispatch:
+    inputs:
+      produce_videos:
+        description: "Generate narrated vertical MP4s for the best brief (uses Gemini image/TTS quota)."
+        required: false
+        type: boolean
+        default: false
   schedule:
     - cron: '0 9 * * *'
 
@@ -111,7 +117,7 @@ jobs:
           done
           echo "Creative briefs generated: $generated; failed: $failed"
       - name: Render original videos when explicitly enabled
-        if: vars.PRODUCE_VIDEOS == 'true'
+        if: vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}

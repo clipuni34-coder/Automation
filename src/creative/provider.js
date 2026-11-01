@@ -1,4 +1,5 @@
-const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent";
+const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
+const GEMINI_MODELS = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash"];
 const OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
 function extractJson(text) {
@@ -64,11 +65,11 @@ function buildPrompt(dossier) {
   ].join("\n\n");
 }
 
-async function callGemini(prompt, apiKey, fetchImpl, timeoutMs) {
+async function callGeminiModel(prompt, apiKey, fetchImpl, timeoutMs, model) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetchImpl(`${GEMINI_ENDPOINT}?key=${encodeURIComponent(apiKey)}`, {
+    const response = await fetchImpl(`${GEMINI_ENDPOINT}/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
@@ -89,6 +90,23 @@ async function callGemini(prompt, apiKey, fetchImpl, timeoutMs) {
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function callGemini(prompt, apiKey, fetchImpl, timeoutMs) {
+  const errors = [];
+  for (const model of GEMINI_MODELS) {
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        return await callGeminiModel(prompt, apiKey, fetchImpl, timeoutMs, model);
+      } catch (error) {
+        errors.push(`${model} attempt ${attempt + 1}: ${error.message}`);
+        const transient = /HTTP (429|500|502|503|504)/.test(error.message);
+        if (!transient) break;
+        if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+    }
+  }
+  throw new Error(errors.join("; "));
 }
 
 async function callOpenAI(prompt, apiKey, fetchImpl, timeoutMs) {

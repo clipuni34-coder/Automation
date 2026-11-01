@@ -30,12 +30,14 @@ function parseJson(text) {
  */
 export async function reviewSceneVisualSemantics(manifest, videoPath, {
   apiKey = process.env.ENABLE_OPENAI_VISION_QC === "true" ? (process.env.OPENAI_API_KEY ?? "") : "",
+  openrouterApiKey = process.env.OPENROUTER_API_KEY ?? "",
+  openrouterModel = process.env.OPENROUTER_VISION_MODEL ?? "openrouter/free",
   fetchImpl = fetch,
   ffmpegPath = "ffmpeg",
   timeoutMs = 90000
 } = {}) {
   const scenes = Array.isArray(manifest?.scenes) ? manifest.scenes : [];
-  if (!apiKey) return { status: "unverified", provider: null, reviewedScenes: 0, scenes: [], warnings: ["OPENAI_API_KEY is not configured; scene meaning was not visually verified."] };
+  if (!apiKey && !openrouterApiKey) return { status: "unverified", provider: null, reviewedScenes: 0, scenes: [], warnings: ["No authorized vision provider is configured; scene meaning was not visually verified."] };
   if (!scenes.length) return { status: "unverified", provider: "openai", reviewedScenes: 0, scenes: [], warnings: ["No scenes were available for semantic review."] };
   const dir = await mkdtemp(join(tmpdir(), "scene-semantic-qc-"));
   const results = [];
@@ -50,25 +52,51 @@ export async function reviewSceneVisualSemantics(manifest, videoPath, {
         await run(ffmpegPath, ["-hide_banner", "-loglevel", "error", "-ss", String(midpoint), "-i", resolve(videoPath), "-frames:v", "1", "-vf", "scale=512:-2", "-q:v", "5", "-y", framePath]);
         const bytes = await readFile(framePath);
         if (bytes.length < 1000 || bytes.length > 5 * 1024 * 1024) throw new Error("Sampled frame is empty or too large");
-        const response = await fetchImpl("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: { authorization: "Bearer " + apiKey, "content-type": "application/json" },
-          body: JSON.stringify({
-            model: "gpt-4.1-mini",
-            temperature: 0,
-            max_tokens: 180,
-            response_format: { type: "json_object" },
-            messages: [
-              { role: "system", content: "You are a strict visual quality inspector. Compare the supplied frame with the requested scene description. Do not infer unseen action or context. Return JSON only with relevant (boolean), confidence (0 to 1), observed (short string), reason (short string). Mark relevant false if the image is generic, unrelated, ambiguous, or does not visibly support the requested scene." },
-              { role: "user", content: [
-                { type: "text", text: "Planned scene: " + description + "\nNarration context: " + String(scene.narrationContext ?? "").slice(0, 700) + "\nDoes this actual frame visibly match the planned scene? Judge only visible evidence." },
-                { type: "image_url", image_url: { url: "data:image/jpeg;base64," + bytes.toString("base64"), detail: "low" } }
-              ] }
-            ]
-          }),
-          signal: AbortSignal.timeout(timeoutMs)
-        });
-        if (!response.ok) throw new Error("OpenAI vision returned HTTP " + response.status + ": " + (await response.text()).slice(0, 500));
+        const userContent = [
+          { type: "text", text: "Planned scene: " + description + "\nNarration context: " + String(scene.narrationContext ?? "").slice(0, 700) + "\nDoes this actual frame visibly match the planned scene? Judge only visible evidence." },
+          { type: "image_url", image_url: { url: "data:image/jpeg;base64," + bytes.toString("base64"), detail: "low" } }
+        ];
+        let response, provider, model;
+        if (apiKey) {
+          provider = "openai";
+          model = "gpt-4.1-mini";
+          response = await fetchImpl("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: { authorization: "Bearer " + apiKey, "content-type": "application/json" },
+            body: JSON.stringify({
+              model, temperature: 0, max_tokens: 180, response_format: { type: "json_object" },
+              messages: [
+                { role: "system", content: "You are a strict visual quality inspector. Compare the supplied frame with the requested scene description. Do not infer unseen action or context. Return JSON only with relevant (boolean), confidence (0 to 1), observed (short string), reason (short string). Mark relevant false if the image is generic, unrelated, ambiguous, or does not visibly support the requested scene." },
+                { role: "user", content: userContent }
+              ]
+            }),
+            signal: AbortSignal.timeout(timeoutMs)
+          });
+        } else {
+          if (openrouterModel !== "openrouter/free" && !openrouterModel.endsWith(":free")) {
+            throw new Error("OpenRouter vision QC is restricted to explicitly free models.");
+          }
+          provider = "openrouter-free";
+          model = openrouterModel;
+          response = await fetchImpl("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              authorization: "Bearer " + openrouterApiKey,
+              "content-type": "application/json",
+              "HTTP-Referer": "https://github.com/clipuni34-coder/Automation",
+              "X-Title": "Personal Autonomous Creator Workflow"
+            },
+            body: JSON.stringify({
+              model, temperature: 0, max_tokens: 180,
+              messages: [
+                { role: "system", content: "You are a strict visual quality inspector. Compare the supplied frame with the requested scene description. Do not infer unseen action or context. Return only JSON with relevant (boolean), confidence (0 to 1), observed (short string), reason (short string). Mark relevant false if generic, unrelated, ambiguous, or not visibly supporting the planned scene." },
+                { role: "user", content: userContent }
+              ]
+            }),
+            signal: AbortSignal.timeout(timeoutMs)
+          });
+        }
+        if (!response.ok) throw new Error(provider + " vision returned HTTP " + response.status + ": " + (await response.text()).slice(0, 500));
         const payload = await response.json();
         const raw = payload.choices?.[0]?.message?.content;
         const verdict = parseJson(raw);
@@ -84,5 +112,5 @@ export async function reviewSceneVisualSemantics(manifest, videoPath, {
   }
   const failed = results.filter(item => !item.relevant);
   const warnings = failed.map(item => "Scene " + item.scene + " failed semantic visual verification" + (item.reason ? ": " + item.reason : item.error ? ": " + item.error : "."));
-  return { status: failed.length ? "review" : "passed", provider: "openai", model: "gpt-4.1-mini", reviewedScenes: results.length, passedScenes: results.length - failed.length, failedScenes: failed.length, scenes: results, warnings };
+  return { status: failed.length ? "review" : "passed", provider: apiKey ? "openai" : "openrouter-free", model: apiKey ? "gpt-4.1-mini" : openrouterModel, reviewedScenes: results.length, passedScenes: results.length - failed.length, failedScenes: failed.length, scenes: results, warnings };
 }

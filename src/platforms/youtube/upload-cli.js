@@ -1,7 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { refreshYouTubeAccessToken, uploadYouTubeVideo, waitForYouTubeProcessing, getAuthorizedYouTubeChannel } from "./publisher.js";
-import { recordPublishedContent } from "../../strategy/content-history.js";
+import { readContentHistory, recordPublishedContent } from "../../strategy/content-history.js";
 
 const packagePath = process.argv[2];
 if (!packagePath) {
@@ -30,6 +30,11 @@ if (!packagePath) {
     if (authorizedChannel.channelId !== expectedChannelId) {
       throw new Error(`OAuth token is connected to channel ${authorizedChannel.channelId} (${authorizedChannel.title}), not expected channel ${expectedChannelId}; refusing to upload to the wrong channel.`);
     }
+    const historyPath = process.env.CONTENT_HISTORY_PATH ?? "data/content-history.json";
+    const history = await readContentHistory(historyPath);
+    if (history.uploads.some(item => item.channelId === expectedChannelId && item.fingerprint === pkg.contentFingerprint)) {
+      throw new Error("This content fingerprint has already been uploaded to the target channel; refusing a duplicate upload.");
+    }
     const result = await uploadYouTubeVideo({
       videoPath,
       accessToken: token.accessToken,
@@ -42,7 +47,7 @@ if (!packagePath) {
     const outputPath = absolutePackagePath.replace(/\.json$/i, ".youtube-upload.json");
     let contentHistoryStatus = "not_recorded";
     try {
-      await recordPublishedContent(process.env.CONTENT_HISTORY_PATH ?? "data/content-history.json", {
+      await recordPublishedContent(historyPath, {
         channelId: authorizedChannel.channelId,
         videoId: result.videoId,
         fingerprint: pkg.contentFingerprint,

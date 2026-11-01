@@ -56,10 +56,11 @@ function validatePlan(plan) {
   };
 }
 
-function buildPrompt(dossier) {
+function buildPrompt(dossier, outputLanguage = "English") {
   return [
     "You are the editorial strategist for an original short-form video studio.",
     "Create a production-ready creative brief from the research dossier below.",
+    "Write every field in " + String(outputLanguage || "English") + ", even when the source title or research is in another language. Translate and explain foreign-language topics accurately for this audience; do not invent missing context.",
     "Return ONLY valid JSON with keys: workingTitle, targetAudience, recommendedAngle, alternativeAngles (array), hookOptions (array of 3), fullScript (complete coherent spoken narration, not an outline), estimatedDurationSeconds (number), scriptBeats (array of 5-8 objects with time,purpose,narration,retentionDevice), visualPlan (array of objects with time,visual,sourceType,notes), callToAction, claimsToVerify (array), originalityNotes, uncertaintyNotes.",
     "Make an original concept inspired by the topic, not a remake of the reference video. Never request copying its footage, script, edit, voice, or distinctive expression.",
     "Use a strong but truthful opening, create curiosity, delay the central payoff until earned, and deliver a clear payoff. Avoid fake urgency, fabricated facts, misleading claims, and engagement bait.",
@@ -161,7 +162,8 @@ export async function generateEditorialPlan({
   geminiApiKey = process.env.GEMINI_API_KEY ?? "",
   openaiApiKey = process.env.OPENAI_API_KEY ?? "",
   fetchImpl = fetch,
-  timeoutMs = 120000
+  timeoutMs = 120000,
+  outputLanguage = process.env.CREATIVE_LANGUAGE ?? "English"
 } = {}) {
   if (!dossier || typeof dossier !== "object" || !dossier.topic) {
     throw new Error("A research dossier with a topic is required");
@@ -169,7 +171,7 @@ export async function generateEditorialPlan({
   if (!geminiApiKey && !openaiApiKey) {
     return { status: "not_configured", provider: null, plan: null };
   }
-  const prompt = buildPrompt(dossier);
+  const prompt = buildPrompt(dossier, outputLanguage);
   const providers = [
     ...(geminiApiKey ? [["gemini", () => callGemini(prompt, geminiApiKey, fetchImpl, timeoutMs)]] : []),
     ...(openaiApiKey ? [["openai", () => callOpenAI(prompt, openaiApiKey, fetchImpl, timeoutMs)]] : [])

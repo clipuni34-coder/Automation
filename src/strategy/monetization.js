@@ -72,6 +72,7 @@ export function evaluateChannelMonetization({ countryCode = "NG", metrics = {}, 
 export function auditVideoForMonetization({
   rightsStatus = "unknown",
   hasRightsEvidence = false,
+  assetProvenance = null,
   originalCommentary = false,
   meaningfulNarrative = false,
   educationalOrEntertainmentValue = false,
@@ -82,10 +83,17 @@ export function auditVideoForMonetization({
   aiDisclosureRequired = false,
   aiDisclosureIncluded = false
 } = {}) {
+  const permittedRights = new Set(["owned_by_user","licensed","permission_granted","public_domain","generated_output"]);
+  const hasThirdPartyAssets = Array.isArray(assetProvenance)
+    ? assetProvenance.some(asset => asset.rightsStatus === "licensed" || asset.rightsStatus === "permission_granted")
+    : !["owned_by_user","generated_output"].includes(rightsStatus);
+  const rightsCleared = Array.isArray(assetProvenance)
+    ? assetProvenance.length > 0 && assetProvenance.every(asset => permittedRights.has(asset.rightsStatus) && asset.hasRightsEvidence === true)
+    : permittedRights.has(rightsStatus) && hasRightsEvidence;
   const checks = {
-    rightsCleared: ["owned_by_user","licensed","permission_granted","public_domain"].includes(rightsStatus) && hasRightsEvidence,
+    rightsCleared,
     originalContribution: originalCommentary || meaningfulNarrative || educationalOrEntertainmentValue,
-    substantiveTransformationWhenUsingThirdPartyMaterial: rightsStatus === "owned_by_user" || substantiveTransformation,
+    substantiveTransformationWhenUsingThirdPartyMaterial: !hasThirdPartyAssets || substantiveTransformation,
     notInterchangeableOrMassProduced: distinctFromRecentUploads,
     factualClaimsChecked: factualClaimsVerified,
     accurateMetadata: metadataAccurate,

@@ -3,10 +3,11 @@ const MAX_SOURCES_PER_CLAIM = 5;
 
 function classifySource(url) {
   let hostname;
-  try { hostname = new URL(url).hostname.toLowerCase().replace(/^www\\./, ""); }
+  try { hostname = new URL(url).hostname.toLowerCase(); }
   catch { return "unknown"; }
-  if (hostname.endsWith(".gov") || hostname.endsWith(".gov.uk") || hostname.endsWith(".uscourts.gov") ||
-      /(^|\\.)(justice|court|parliament)\\.[a-z.]+$/.test(hostname)) return "government_or_court_candidate";
+  if (hostname.endsWith(".gov") || hostname.endsWith(".gov.uk") || hostname.endsWith(".uscourts.gov")) {
+    return "government_or_court_candidate";
+  }
   if (hostname === "pubmed.ncbi.nlm.nih.gov" || hostname === "doi.org" || hostname.endsWith(".edu") ||
       hostname.endsWith(".nature.com") || hostname.endsWith(".science.org") || hostname.endsWith(".nejm.org") ||
       hostname.endsWith(".thelancet.com")) return "academic_or_journal_candidate";

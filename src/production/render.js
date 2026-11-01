@@ -77,8 +77,20 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
   const assPath = `${outputPath}.captions.ass`;
   await writeFile(assPath, buildAss(manifest.scenes, duration), { mode: 0o600 });
 
+  const preserveSourceAudio = manifest.preserveSourceAudio !== false;
+  const sourceAudioAvailable = await Promise.all(manifest.scenes.map(async (scene) => {
+    if (!preserveSourceAudio || !scene.videoPath) return false;
+    const probe = await run(ffprobePath, ["-v", "error", "-select_streams", "a", "-show_entries", "stream=codec_type", "-of", "json", resolve(scene.videoPath)]);
+    return (JSON.parse(probe.stdout).streams ?? []).length > 0;
+  }));
   const args = ["-y", "-hide_banner", "-loglevel", "error"];
-  for (const scene of manifest.scenes) { if (scene.videoPath) args.push("-ss", String(scene.sourceIn ?? 0), "-t", (scene.end - scene.start).toFixed(3), "-an", "-i", resolve(scene.videoPath)); else args.push("-loop", "1", "-framerate", String(FPS), "-t", (scene.end - scene.start).toFixed(3), "-i", resolve(scene.imagePath)); }
+  for (const [index, scene] of manifest.scenes.entries()) {
+    if (scene.videoPath) {
+      args.push("-ss", String(scene.sourceIn ?? 0), "-t", (scene.end - scene.start).toFixed(3));
+      if (!sourceAudioAvailable[index]) args.push("-an");
+      args.push("-i", resolve(scene.videoPath));
+    } else args.push("-loop", "1", "-framerate", String(FPS), "-t", (scene.end - scene.start).toFixed(3), "-i", resolve(scene.imagePath));
+  }
   const audioIndex = manifest.scenes.length;
   args.push("-i", audioPath);
 
@@ -93,7 +105,24 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
     videoLabels.push(`[${label}]`);
   });
   filters.push(`${videoLabels.join("")}concat=n=${manifest.scenes.length}:v=1:a=0,subtitles=filename='${assPath.replace(/\\/g, "/").replace(/:/g, "\\:")}',format=yuv420p[vout]`);
-  args.push("-filter_complex", filters.join(";"), "-map", "[vout]", "-map", `${audioIndex}:a:0`,
+
+  if (preserveSourceAudio) {
+    const audioLabels = [];
+    manifest.scenes.forEach((scene, index) => {
+      const duration = (scene.end - scene.start).toFixed(3);
+      const label = "sourceAudio" + index;
+      if (sourceAudioAvailable[index]) {
+        const volume = Math.max(0, Math.min(2, Number(scene.sourceAudioVolume ?? 0.65)));
+        filters.push("[" + index + ":a:0]atrim=duration=" + duration + ",asetpts=PTS-STARTPTS,volume=" + volume + "[" + label + "]");
+      } else {
+        filters.push("anullsrc=channel_layout=stereo:sample_rate=48000,atrim=duration=" + duration + ",asetpts=PTS-STARTPTS[" + label + "]");
+      }
+      audioLabels.push("[" + label + "]");
+    });
+    filters.push(audioLabels.join("") + "concat=n=" + manifest.scenes.length + ":v=0:a=1[sourceAudio]");
+    filters.push("[sourceAudio][" + audioIndex + ":a:0]amix=inputs=2:duration=first:dropout_transition=2,alimiter=limit=0.95[aout]");
+  }
+  args.push("-filter_complex", filters.join(";"), "-map", "[vout]", "-map", preserveSourceAudio ? "[aout]" : String(audioIndex) + ":a:0",
     "-t", duration.toFixed(3), "-r", String(FPS), "-c:v", "libx264", "-preset", "veryfast",
     "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
     "-movflags", "+faststart", outputPath);
@@ -121,6 +150,7 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
     audioCodec: audio.codec_name,
     fps: video.r_frame_rate,
     scenes: manifest.scenes.length,
+    sourceAudioPreserved: preserveSourceAudio && sourceAudioAvailable.some(Boolean),
     assetProvenance: manifest.scenes.map(({ sourceType, sourceUrl = null, license = null, rightsStatus = null, rightsEvidenceReference = null, creator = null }) => ({ sourceType, sourceUrl, license, rightsStatus, rightsEvidenceReference, creator }))
   };
 }

@@ -4,7 +4,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { renderShortVideo } from "../src/production/render.js";
+import { buildAss, renderShortVideo } from "../src/production/render.js";
 import { generateOriginalGraphic } from "../src/production/visuals.js";
 
 const hasFfmpeg = spawnSync("ffmpeg", ["-version"], { stdio: "ignore" }).status === 0;
@@ -135,4 +135,13 @@ test("renderer preserves authorized source-video audio and mixes narration", { s
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+
+test("caption layout wraps long text into readable two-line mobile cards with timed phrases", () => {
+  const ass = buildAss([{ start: 0, end: 6, caption: "This is a longer sentence designed to test mobile caption wrapping and timed phrase display." }], 6);
+  const dialogue = ass.split("\\n").filter(line => line.startsWith("Dialogue:"));
+  assert.ok(dialogue.length > 1);
+  assert.ok(dialogue.every(line => line.includes("\\\\N")));
+  assert.ok(dialogue.every(line => !line.includes("longer sentence designed to test mobile caption wrapping and timed phrase display")));
 });

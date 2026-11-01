@@ -17,6 +17,7 @@
     "render": "node src/production/cli.js",
     "voice": "node src/production/voice-cli.js",
     "reedit": "node src/creative/reedit-cli.js",
-    "compile-clips": "node src/clips/compilation-cli.js"
+    "compile-clips": "node src/clips/compilation-cli.js",
+    "produce": "node src/production/produce-cli.js"
   }
 }

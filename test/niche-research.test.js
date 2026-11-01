@@ -4,7 +4,7 @@ import { researchNiches } from "../src/strategy/niche-research.js";
 
 function video(id, categoryId = "20", index = 0) {
   return {
-    id: `youtube:${id}`, platform: "youtube", categoryId,
+    id: `youtube:${id}`, platform: "youtube", categoryId, sourceUrl: `https://www.youtube.com/watch?v=${id}`,
     title: categoryId === "20" ? `Roblox gaming streamer challenge ${index}` : `Funny comedy moment ${index}`,
     creator: `Creator ${index % 6}`, creatorId: `creator-${index % 6}`,
     metrics: { views: 500000 + index * 1000, likes: 30000 + index * 10, comments: 1000 },
@@ -33,7 +33,7 @@ test("excludes full broadcasts from niche category samples", () => {
 
 test("does not recommend a niche from a single viral outlier", () => {
   const discovery = { candidates: [{
-    id: "youtube:one", platform: "youtube", categoryId: "23", title: "Funny viral moment",
+    id: "youtube:one", platform: "youtube", categoryId: "23", title: "Funny viral moment", sourceUrl: "https://www.youtube.com/watch?v=one",
     creatorId: "one-creator", metrics: { views: 10000000, likes: 500000, comments: 20000 },
     score: 100, scoreComponents: { velocity: 100 }, seenInRegions: ["US"]
   }] };

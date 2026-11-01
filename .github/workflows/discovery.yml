@@ -32,7 +32,6 @@ jobs:
             data/discovery.json
             data/strategy.json
             data/youtube-analytics.json
-            models/kokoro/
           key: discovery-history-${{ github.run_id }}
           restore-keys: |
             discovery-history-

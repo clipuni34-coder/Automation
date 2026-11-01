@@ -47,7 +47,7 @@ Working branch: `autonomous-viral-discovery`
 - Niche reports now separate cross-sectional sample confidence from temporal confidence. A single scan can show a broad sample, but persistence remains low until at least three discovery runs are observed.
 - Complete matches/games/episodes, official music videos, obvious full broadcasts and common fan-edit patterns are now excluded from daily editorial shortlists, research dossier generation and niche samples. Remaining reference videos are still not reusable without permission.
 - A workflow-readiness report is now produced so a green discovery run cannot be mistaken for completed creative production or publishing.
-- Latest test workflow `41285434078` passed **138/138 tests** on commit `d732f3b`; this verifies automated tests and FFmpeg fixtures, not a live YouTube upload or a full live production run.
+- Latest test workflow `41285680938` passed **143/143 tests** on the current comment-inbox and discovery code. This verifies automated tests and FFmpeg fixtures, not a live YouTube upload or a full live production run.
 
 ## User/account prerequisites and remaining automation
 

@@ -88,3 +88,23 @@ test("does not report failed YouTube processing as success", async () => {
     fetchImpl: async () => ({ ok: true, json: async () => ({ items: [{ processingDetails: { processingStatus: "failed" } }] }) })
   }), /processing ended with status: failed/);
 });
+
+test("verifies the OAuth-connected YouTube channel before publishing", async () => {
+  const { getAuthorizedYouTubeChannel } = await import("../src/platforms/youtube/publisher.js");
+  const result = await getAuthorizedYouTubeChannel({
+    accessToken: "token",
+    fetchImpl: async url => {
+      assert.match(String(url), /channels\?part=id%2Csnippet&mine=true/);
+      return { ok: true, json: async () => ({ items: [{ id: "UCexpected", snippet: { title: "My channel" } }] }) };
+    }
+  });
+  assert.deepEqual(result, { channelId: "UCexpected", title: "My channel" });
+});
+
+test("refuses ambiguous OAuth channel identity", async () => {
+  const { getAuthorizedYouTubeChannel } = await import("../src/platforms/youtube/publisher.js");
+  await assert.rejects(getAuthorizedYouTubeChannel({
+    accessToken: "token",
+    fetchImpl: async () => ({ ok: true, json: async () => ({ items: [] }) })
+  }), /Expected exactly one authorized YouTube channel/);
+});

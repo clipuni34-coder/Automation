@@ -1,3 +1,5 @@
+import { isIP } from "node:net";
+
 const EXCLUDED_TITLE = [
   /\bfull\s+(?:match|game|episode|movie|album|concert|song|livestream|live stream)\b/i,
   /\bcomplete\s+(?:match|game|episode|movie|concert)\b/i,
@@ -15,9 +17,9 @@ function isSafeHttpsReference(value) {
     const url = new URL(value);
     const host = url.hostname.toLowerCase();
     return url.protocol === "https:" && !url.username && !url.password &&
-      host !== "localhost" && !host.endsWith(".localhost") && !host.endsWith(".local") &&
-      !host.endsWith(".internal") && !/^127\\./.test(host) && !/^10\\./.test(host) &&
-      !/^192\\.168\\./.test(host) && !/^169\\.254\\./.test(host);
+      Boolean(host) && !isIP(host) && host !== "localhost" &&
+      !host.endsWith(".localhost") && !host.endsWith(".local") &&
+      !host.endsWith(".internal");
   } catch {
     return false;
   }

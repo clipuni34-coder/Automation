@@ -22,6 +22,8 @@ Working branch: `autonomous-viral-discovery`
 - GitHub Actions test run `41270655201` passed 66/66 tests, including FFmpeg integration tests for real video and source-audio mixing.
 - Live Gemini image generation and TTS have not yet been verified end-to-end with the user's API quota.
 
+- Authorized local-media re-edit now has a single end-to-end CLI path: rights gate → timed transcript scoring → strongest-moment selection → vertical MP4 render → ffprobe QC. CI includes a real FFmpeg fixture test, including preservation of source audio.
+
 ## Not finished yet
 
 - TikTok and Instagram discovery adapters using approved platform access.

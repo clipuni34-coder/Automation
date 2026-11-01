@@ -34,7 +34,7 @@ export function buildCompilationRenderManifest({ plan, mediaAssets, audioPath, o
 
 export function buildOriginalRenderManifest({ brief, assets, audioPath, outputPath, totalDurationSeconds, platform = "youtube_shorts" } = {}) {
   const editorial = brief?.editorial ?? brief;
-  if (!editorial || !Array.isArray(editorial.visualPlan) || !Array.isArray(assets) || assets.length !== editorial.visualPlan.length) throw new Error("Every original visual-plan scene needs exactly one generated or licensed asset");
+  if (!editorial || !Array.isArray(editorial.visualPlan) || !Array.isArray(assets) || assets.length < 1 || assets.length > editorial.visualPlan.length) throw new Error("Every selected original visual-plan scene needs exactly one generated or licensed asset");
   if (!audioPath || !outputPath || !Number.isFinite(totalDurationSeconds) || totalDurationSeconds <= 0) throw new Error("Narration path, output path and positive audio duration are required");
   const beats = Array.isArray(editorial.scriptBeats) ? editorial.scriptBeats : [];
   const count = assets.length;
@@ -42,7 +42,7 @@ export function buildOriginalRenderManifest({ brief, assets, audioPath, outputPa
     const start = Number((totalDurationSeconds * index / count).toFixed(3));
     const end = Number((totalDurationSeconds * (index + 1) / count).toFixed(3));
     const beatIndex = beats.length ? Math.min(beats.length - 1, Math.floor(index * beats.length / count)) : -1;
-    const caption = beatIndex >= 0 ? String(beats[beatIndex].narration ?? "").trim().slice(0, 180) : String(editorial.visualPlan[index].visual ?? "").slice(0, 180);
+    const caption = beatIndex >= 0 ? String(beats[beatIndex].narration ?? "").trim().slice(0, 180) : String(visualPlan[index].visual ?? "").slice(0, 180);
     const scene = { ...asset, start, end, caption, sourceAudioVolume: 0.35 };
     if (asset.sourceType === "generated_visual" && (!asset.generationModel || !asset.generationPrompt)) throw new Error("Generated visual scene " + (index + 1) + " is missing generation provenance");
     if (asset.sourceType === "licensed_stock" && (!asset.sourceUrl || !asset.license)) throw new Error("Licensed visual scene " + (index + 1) + " is missing license provenance");

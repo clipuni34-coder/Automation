@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { generateEditorialPlan } from "./provider.js";
 import { searchTopic, extractSources } from "../research/tavily.js";
 import { buildClaimLedger } from "../research/claim-ledger.js";
+import { assessClaimEvidence } from "../research/evidence-assessment.js";
 
 const inputPath = process.argv[2];
 if (!inputPath) {
@@ -18,6 +19,20 @@ if (!inputPath) {
       const claimLedger = await buildClaimLedger({
         claims: result.plan.claimsToVerify, search: searchTopic, extract: extractSources
       });
+      const evidenceAssessment = await assessClaimEvidence({ claimLedger });
+      const assessedById = new Map(evidenceAssessment.claims.map((item) => [item.claimId, item.assessment]));
+      for (const claim of claimLedger.claims) {
+        claim.evidenceAssessment = assessedById.get(claim.id) ?? {
+          decision: "not_addressed", confidence: "low", rationale: evidenceAssessment.status === "not_configured"
+            ? "Evidence assessment provider is not configured." : "No assessment available; human review required.",
+          evidence: [], requiresHumanReview: true, verificationDecision: "not_verified"
+        };
+      }
+      claimLedger.evidenceAssessment = {
+        status: evidenceAssessment.status, assessed: evidenceAssessment.assessed,
+        model: evidenceAssessment.model ?? null, error: evidenceAssessment.error ?? null,
+        policy: "AI evidence relationships are advisory only. No claim is verified without human editorial review."
+      };
       const output = {
         ...dossier,
         editorial: {

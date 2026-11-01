@@ -1,4 +1,5 @@
 import { classifyFormat } from "./daily-plan.js";
+import { assessCandidateSuitability } from "./candidate-suitability.js";
 
 const CATEGORY_NAMES = {
   "1": "Film & Animation", "2": "Autos & Vehicles", "10": "Music",
@@ -74,7 +75,9 @@ function nicheStats(candidates) {
 
 export function researchNiches(discovery, { generatedAt = new Date().toISOString() } = {}) {
   const byCategory = new Map();
-  for (const candidate of discovery?.candidates ?? []) {
+  const youtubeCandidates = (discovery?.candidates ?? []).filter(candidate => candidate.platform === "youtube");
+  const eligibleCandidates = youtubeCandidates.filter(candidate => assessCandidateSuitability(candidate).eligible);
+  for (const candidate of eligibleCandidates) {
     if (candidate.platform !== "youtube" || !candidate.categoryId) continue;
     const categoryId = String(candidate.categoryId);
     if (!byCategory.has(categoryId)) byCategory.set(categoryId, []);
@@ -111,13 +114,15 @@ export function researchNiches(discovery, { generatedAt = new Date().toISOString
     generatedAt,
     discoveryRuns: discovery?.runs?.length ?? 0,
     sampleSize: categories.reduce((sum, item) => sum + item.sampleSize, 0),
+    excludedCandidateCount: youtubeCandidates.length - eligibleCandidates.length,
     categories,
     recommendations,
     constraints: [
       "These are relative opportunity signals from the collected YouTube most-popular charts, not estimates of total addressable audience, RPM or guaranteed growth.",
       "A promising category requires multiple videos, creators and regions; a single breakout cannot determine a niche.",
       "Run a small channel pilot and compare actual retention, subscriber conversion and production cost before creating several channels.",
-      "Google Trends RSS signals are not yet joined to category-level video performance in this score."
+      "Google Trends RSS signals are not yet joined to category-level video performance in this score.",
+      "Complete broadcasts, full episodes, official music videos and obvious existing entertainment edits are excluded from the niche sample to reduce copyright-heavy source bias."
     ]
   };
 }

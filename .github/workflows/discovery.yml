@@ -118,7 +118,8 @@ jobs:
           DISCOVERY_STORE_PATH: data/discovery.json
         run: |
           if [ -z "$TAVILY_API_KEY" ]; then
-            echo "::warning::TAVILY_API_KEY is missing; skipping research."
+            echo "::warning::TAVILY_API_KEY is missing; creating clearly-labelled discovery-only dossiers."
+            npm run create-dossiers
             exit 0
           fi
 

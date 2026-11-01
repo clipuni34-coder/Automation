@@ -45,7 +45,7 @@ function milestone({ subscribers, uploads90d, watchHours365d, shortsViews90d }) 
 export function evaluateChannelMonetization({ countryCode = "NG", metrics = {}, policyStatus = "unknown", twoStepVerification = false, advancedFeatures = false, adsenseLinked = false, activeStrikes = 0 } = {}) {
   const progress = milestone(metrics);
   const country = String(countryCode).toUpperCase();
-  const expandedCountries = new Set(["NG","US","GB","CA","AU","IN","ZA","BR","MX","DE","JP","KR","KE","SN","UG","EG","ID","PH","SG","AE","TR","VN","AR","CO","CL","PE","TH","MY","NZ","FR","ES","IT","NL","SE","NO","DK","FI","IE","PT","PL","BE","AT","CH","GR","CZ","RO","HU","IL","SA","QA","KW","BH","OM","MA","DZ","TN"]);
+  const expandedCountries = new Set(["DZ","AS","AR","AW","AU","AT","BH","BY","BE","BM","BO","BA","BR","BG","CA","KY","CL","CO","CR","HR","CY","CZ","DK","DO","EC","EG","SV","EE","FI","FR","GF","PF","DE","GR","GP","GU","GT","HK","HN","HU","IS","IN","ID","IE","IL","IT","JP","JO","KE","KW","LV","LB","LI","LT","LU","MK","MY","MT","MA","MX","NL","NZ","NI","NG","MP","NO","OM","PA","PG","PE","PH","PL","PT","PR","PY","QA","RO","SA","SN","RS","SG","SK","SI","ZA","KR","ES","SE","CH","TW","TH","TR","TC","UG","AE","GB","US","UY","VI","VN"]);
   const prerequisites = {
     countryEligibleForExpandedYpp: expandedCountries.has(country),
     noActiveCommunityGuidelinesStrikes: finite(activeStrikes) === 0,

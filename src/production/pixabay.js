@@ -3,7 +3,7 @@ const MAX_DOWNLOAD_BYTES = 120 * 1024 * 1024;
 const VISUAL_STOP_WORDS = new Set(["a","an","the","and","or","of","to","in","on","at","for","with","from","show","shows","showing","scene","visual","footage","video","shot","image","cinematic","dramatic","close","wide","camera","view","background","person","people","man","woman","someone","something","their","this","that","into","while","during","about","after","before","over","under","against","near","around"]);
 
 function visualTerms(value) {
-  return [...new Set(String(value ?? "").toLowerCase().replace(/[^\\p{L}\\p{N}]+/gu, " ").split(/\\s+/)
+  return [...new Set(String(value ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").split(/\s+/)
     .map((word) => word.trim()).filter((word) => word.length >= 3 && !VISUAL_STOP_WORDS.has(word))
     .map((word) => word.endsWith("ies") && word.length > 4 ? word.slice(0, -3) + "y" : word.endsWith("s") && word.length > 4 ? word.slice(0, -1) : word))].slice(0, 10);
 }

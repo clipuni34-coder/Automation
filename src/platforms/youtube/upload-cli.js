@@ -39,7 +39,7 @@ if (!packagePath) {
         categoryId: process.env.YOUTUBE_CATEGORY_ID ?? "22"
       }
     });
-    const processing = await waitForYouTubeProcessing({ videoId: result.videoId, accessToken: token.accessToken });
+    const outputPath = absolutePackagePath.replace(/\.json$/i, ".youtube-upload.json");
     let contentHistoryStatus = "not_recorded";
     try {
       await recordPublishedContent(process.env.CONTENT_HISTORY_PATH ?? "data/content-history.json", {
@@ -47,15 +47,18 @@ if (!packagePath) {
         videoId: result.videoId,
         fingerprint: pkg.contentFingerprint,
         scriptTokens: pkg.contentTokens ?? [],
-        title: pkg.title
+        title: pkg.title,
+        status: "uploaded_processing_pending"
       });
       contentHistoryStatus = "recorded";
     } catch (historyError) {
       contentHistoryStatus = "failed";
       console.error("Warning: upload succeeded but content history could not be saved: " + historyError.message);
     }
-    const completed = { ...result, ...processing, authorizedChannel, contentHistoryStatus, status: "processing_complete", processedAt: new Date().toISOString() };
-    const outputPath = absolutePackagePath.replace(/\.json$/i, ".youtube-upload.json");
+    const provisional = { ...result, authorizedChannel, contentHistoryStatus, status: "uploaded_processing_pending", uploadedAt: new Date().toISOString() };
+    await writeFile(outputPath, JSON.stringify(provisional, null, 2) + "\n", { mode: 0o600 });
+    const processing = await waitForYouTubeProcessing({ videoId: result.videoId, accessToken: token.accessToken });
+    const completed = { ...provisional, ...processing, status: "processing_complete", processedAt: new Date().toISOString() };
     await writeFile(outputPath, JSON.stringify(completed, null, 2) + "\n", { mode: 0o600 });
     console.log(JSON.stringify({ ...completed, outputPath }, null, 2));
   } catch (error) {

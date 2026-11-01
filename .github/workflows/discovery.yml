@@ -162,6 +162,7 @@ jobs:
           OPENROUTER_MODEL: 'openrouter/free'
           ENABLE_GEMINI_CREATIVE: ${{ vars.ENABLE_GEMINI_CREATIVE || 'false' }}
           ENABLE_OPENAI_CREATIVE: ${{ vars.ENABLE_OPENAI_CREATIVE || 'false' }}
+          ENABLE_GEMINI_EVIDENCE_ASSESSMENT: ${{ vars.ENABLE_GEMINI_EVIDENCE_ASSESSMENT || 'false' }}
           SELECTED_DOSSIER: ${{ steps.select_dossier.outputs.path }}
           CREATIVE_LANGUAGE: ${{ vars.CREATIVE_LANGUAGE || 'English' }}
         run: |

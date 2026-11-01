@@ -187,3 +187,13 @@ test("creative provider uses Gemini Flash-Lite when the primary model daily quot
   assert.equal(result.provider, "gemini");
   assert.deepEqual(models, ["gemini-3.8-flash", "gemini-3.5-flash-lite"]);
 });
+
+test("creative briefs are written in the configured output language despite foreign-language source titles", async () => {
+  let requestBody;
+  const fetchImpl = async (_url, options) => {
+    requestBody = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(validPlan) }] } }] }) };
+  };
+  await generateEditorialPlan({ dossier: { topic: "Korean-language source title" }, geminiApiKey: "test-key", outputLanguage: "English", fetchImpl });
+  assert.match(requestBody.contents[0].parts[0].text, /Write every field in English/);
+});

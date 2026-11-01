@@ -38,7 +38,7 @@
 
 ## Phase 4 — Original video production
 - [x] Select FFmpeg as the first renderer and verify it with a real integration render in CI.\n- [x] Implement a Pexels live-action video search/download adapter with license and creator attribution metadata (live API test pending API key availability).
-- [x] Build mixed still-image/live-action scene timeline assembly, subtle still motion, scene-timed captions, narration-audio muxing and MP4 export.\n- [ ] Add automated voiceover generation, additional dynamic B-roll acquisition/generation, word-timed captions and sound design.
+- [x] Build mixed still-image/live-action scene timeline assembly, subtle still motion, scene-timed captions, narration-audio muxing and MP4 export.\n- [x] Add Gemini-generated voiceover from the creative brief script (live provider run pending quota availability).\n- [ ] Add additional dynamic B-roll acquisition/generation, word-timed captions and sound design.
 - [x] Render and probe 1080×1920, 30fps H.264/AAC fast-start MP4 output.\n- [ ] Add platform-specific variants and frame-rate/source adaptation.
 - [ ] Add independent editorial, factual, audio, visual and technical QC.
 - [ ] Implement repair/rerender or reject loop.

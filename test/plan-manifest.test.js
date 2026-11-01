@@ -60,3 +60,17 @@ test("original render manifest prefers concise editorial beat captions over full
   assert.equal(manifest.scenes[0].caption, "Nobody expected this!");
   assert.ok(manifest.scenes[0].caption.length <= 52);
 });
+
+test("original render manifest carries scene descriptions into semantic visual review", async () => {
+  const { buildOriginalRenderManifest } = await import("../src/production/plan-manifest.js");
+  const manifest = buildOriginalRenderManifest({
+    brief: { topic: "Sports", editorial: {
+      visualPlan: [{ visual: "A baseball catcher throwing to second base", notes: "Show the catcher and runner." }],
+      scriptBeats: [{ narration: "The catcher throws to second base.", caption: "A quick throw!" }]
+    } },
+    assets: [{ imagePath: "/assets/scene.ppm", sourceType: "original_graphic" }],
+    audioPath: "/audio/voice.wav", outputPath: "/out/short.mp4", totalDurationSeconds: 10
+  });
+  assert.equal(manifest.scenes[0].visualDescription, "A baseball catcher throwing to second base");
+  assert.equal(manifest.scenes[0].narrationContext, "The catcher throws to second base.");
+});

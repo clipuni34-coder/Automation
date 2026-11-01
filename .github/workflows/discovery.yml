@@ -139,6 +139,10 @@ jobs:
             fi
           done < <(jq -r '[.candidates[] | select(.decision == "needs_research" and (.score // 0) >= 35) | .title] | unique | .[:3][]' "$DISCOVERY_STORE_PATH")
 
+          if [ "$count" -eq 0 ]; then
+            echo "::warning::Independent research produced no dossiers; creating clearly-labelled discovery-only dossiers as a fallback."
+            npm run create-dossiers
+          fi
           echo "Research dossiers created: $count"
       - name: Select strongest daily research dossier
         id: select_dossier

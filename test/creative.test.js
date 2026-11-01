@@ -92,7 +92,7 @@ test("creative provider targets the currently recommended Gemini Flash model", a
 test("creative provider retries a busy Gemini model and falls back to another Flash model", async () => {
   const requestedModels = [];
   const fetchImpl = async (url) => {
-    const model = url.match(/models\\/([^/:]+)/)?.[1];
+    const model = url.split("/models/")[1]?.split(":")[0];
     requestedModels.push(model);
     if (model === "gemini-3.8-flash") {
       return { ok: false, status: 503, text: async () => "temporarily unavailable" };

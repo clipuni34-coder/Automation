@@ -96,10 +96,11 @@ export async function generateStoryboardAssets({ visualPlan, topic, outputDir = 
   const selected = visualPlan.slice(0, Math.max(1, Math.min(6, maxScenes)));
   await mkdir(resolve(outputDir), { recursive: true });
   const assets = [];
+  let geminiQuotaExhausted = false;
   for (const [index, item] of selected.entries()) {
     const prompt = visualPrompt(item, topic, style);
     const basePath = join(resolve(outputDir), "scene-" + String(index + 1).padStart(2, "0") + ".png");
-    if (apiKey) {
+    if (apiKey && !geminiQuotaExhausted) {
       try {
         const generated = await generateGeminiImage({ prompt, outputPath: basePath, apiKey, fetchImpl });
         if (generated.status === "generated") {
@@ -107,7 +108,8 @@ export async function generateStoryboardAssets({ visualPlan, topic, outputDir = 
           continue;
         }
       } catch (error) {
-        console.warn("Gemini visual unavailable for scene " + (index + 1) + "; trying another visual source: " + error.message);
+        if (/429|quota|resource.?exhausted|rate.?limit/i.test(error.message)) geminiQuotaExhausted = true;
+        console.warn("Gemini visual unavailable for scene " + (index + 1) + (geminiQuotaExhausted ? "; skipping further Gemini requests for this run and trying another visual source: " : "; trying another visual source: ") + error.message);
       }
     }
     if (pixabayApiKey) {

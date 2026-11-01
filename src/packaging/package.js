@@ -28,7 +28,7 @@ export function buildPublishingPackage({ brief, renderResult, assets = [], recen
   const tags = hashtags(topic, title);
   const credits = assets.filter(asset => asset.sourceType === "licensed_stock").map(asset => ({ provider: asset.attribution?.provider ?? "Stock provider", creator: asset.attribution?.creator ?? null, sourceUrl: asset.sourceUrl, license: asset.license, providerUrl: asset.attribution?.providerUrl ?? null }));
   const channelId = editorial.channelId ?? brief.channelId ?? process.env.YOUTUBE_EXPECTED_CHANNEL_ID ?? null;
-  const priorForChannel = recentContent.slice(-50);
+  const priorForChannel = recentContent.filter(item => !channelId || item.channelId === channelId).slice(-50);
   const distinctness = assessContentDistinctness(script, priorForChannel);
   const assetProvenance = assets.map(assetRights);
   const claims = Array.isArray(editorial.claimsToVerify) ? editorial.claimsToVerify : [];
@@ -42,47 +42,20 @@ export function buildPublishingPackage({ brief, renderResult, assets = [], recen
     Array.isArray(editorial.claimLedger?.claims) &&
     editorial.claimLedger.claims.every(claim => claim.verificationDecision === "human_verified")
   );
-  const monetizationPreflight = auditVideoForMonetization({
-    assetProvenance,
-    originalCommentary: narrativePresent,
-    meaningfulNarrative: narrativePresent,
-    educationalOrEntertainmentValue: narrativePresent && Boolean(hook || editorial.recommendedAngle),
-    substantiveTransformation: narrativePresent,
-    distinctFromRecentUploads: distinctness.distinct,
-    factualClaimsVerified,
-    metadataAccurate,
-    aiDisclosureRequired: editorial.aiDisclosureRequired === true,
-    aiDisclosureIncluded: editorial.aiDisclosureIncluded === true
-  });
+  const monetizationPreflight = auditVideoForMonetization({ assetProvenance, originalCommentary: narrativePresent, meaningfulNarrative: narrativePresent, educationalOrEntertainmentValue: narrativePresent && Boolean(hook || editorial.recommendedAngle), substantiveTransformation: narrativePresent, distinctFromRecentUploads: distinctness.distinct, factualClaimsVerified, metadataAccurate, aiDisclosureRequired: editorial.aiDisclosureRequired === true, aiDisclosureIncluded: editorial.aiDisclosureIncluded === true });
   const visualQualityStatus = renderResult.visualQuality?.status ?? "not_run";
   const autoPublishEnabled = process.env.YOUTUBE_AUTO_PUBLISH === "true";
   const autoApproved = autoPublishEnabled && visualQualityStatus === "passed" && monetizationPreflight.status === "preflight_passed";
   return {
-    status: "draft",
-    channelId,
-    title,
-    topic,
+    status: "draft", channelId, title, topic,
     video: { path: renderResult.outputPath, durationSeconds: renderResult.durationSeconds, width: renderResult.width, height: renderResult.height, fps: renderResult.fps, videoCodec: renderResult.videoCodec, audioCodec: renderResult.audioCodec },
-    platformPackages: {
-      youtube_shorts: { title, description: [baseCaption, ...credits.map(credit => "Footage: " + (credit.creator ?? "Creator") + " via " + credit.provider + " — " + credit.sourceUrl)].filter(Boolean).join("\n\n"), hashtags: [...tags, "#Shorts"] },
-      tiktok: { caption: clean(baseCaption, 2100), hashtags: [...tags, "#TikTok"] },
-      instagram_reels: { caption: clean(baseCaption, 2100), hashtags: [...tags, "#Reels"] }
-    },
+    platformPackages: { youtube_shorts: { title, description: [baseCaption, ...credits.map(credit => "Footage: " + (credit.creator ?? "Creator") + " via " + credit.provider + " — " + credit.sourceUrl)].filter(Boolean).join("\n\n"), hashtags: [...tags, "#Shorts"] }, tiktok: { caption: clean(baseCaption, 2100), hashtags: [...tags, "#TikTok"] }, instagram_reels: { caption: clean(baseCaption, 2100), hashtags: [...tags, "#Reels"] } },
     hookOptions: (editorial.hookOptions ?? []).slice(0, 3).map(value => clean(value, 240)),
     thumbnail: assets[0]?.imagePath ?? assets[0]?.videoPath ?? null,
-    assetCredits: credits,
-    assetProvenance,
-    contentFingerprint: distinctness.fingerprint,
-    contentTokens: distinctness.scriptTokens,
-    contentDistinctness: distinctness,
+    assetCredits: credits, assetProvenance,
+    contentFingerprint: distinctness.fingerprint, contentTokens: distinctness.scriptTokens, contentDistinctness: distinctness,
     monetizationPreflight,
     quality: { technicalRenderVerified: true, visualQualityStatus, visualQualityScore: renderResult.visualQuality?.score ?? null, visualQualityWarnings: renderResult.visualQuality?.warnings ?? [], semanticReview: renderResult.visualQuality?.semanticReview ?? null, sourceAudioPreserved: renderResult.sourceAudioPreserved ?? false, factualReviewRequired: !factualClaimsVerified, humanReviewRequired: !autoApproved },
-    publication: {
-      status: autoApproved ? "approved_for_upload" : "not_published",
-      manualApprovalRequired: !autoApproved,
-      autoPublishEnabled,
-      blockers: [...monetizationPreflight.blockers, ...(visualQualityStatus === "passed" ? [] : ["visualQualityNotPassed"])],
-      platforms: ["youtube_shorts"]
-    }
+    publication: { status: autoApproved ? "approved_for_upload" : "not_published", manualApprovalRequired: !autoApproved, autoPublishEnabled, blockers: [...monetizationPreflight.blockers, ...(visualQualityStatus === "passed" ? [] : ["visualQualityNotPassed"])], platforms: ["youtube_shorts"] }
   };
 }

@@ -10,6 +10,8 @@ test("rights gate blocks reference-only videos and missing permission evidence",
   assert.equal(assessAssetRights({ ...licensed, rightsStatus: "reference_only" }, { platform: "youtube_shorts" }).allowed, false);
   assert.equal(assessAssetRights({ ...licensed, rightsEvidenceReference: null }, { platform: "youtube_shorts" }).allowed, false);
   assert.equal(assessAssetRights(licensed, { platform: "youtube_shorts" }).allowed, true);
+  assert.equal(assessAssetRights({ ...licensed, rightsStatus: "public_domain", rightsEvidenceReference: null }).allowed, false);
+  assert.equal(assessAssetRights({ ...licensed, rightsEvidenceUrl: "http://example.com/license" }).allowed, false);
 });
 
 test("standalone viral re-edit selects high-value transcript windows and preserves source timestamps", () => {

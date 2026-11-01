@@ -23,6 +23,14 @@ test("identifies promising niches only with repeated creator and regional eviden
   assert.ok(result.categories[0].uniqueCreators >= 5);
 });
 
+test("excludes full broadcasts from niche category samples", () => {
+  const candidates = Array.from({ length: 15 }, (_, i) => video(String(i), "20", i));
+  candidates.push({ ...video("full-match", "20", 99), title: "Full Match: entire football game" });
+  const result = researchNiches({ candidates });
+  assert.equal(result.categories[0].sampleSize, 15);
+  assert.equal(result.excludedCandidateCount, 1);
+});
+
 test("does not recommend a niche from a single viral outlier", () => {
   const discovery = { candidates: [{
     id: "youtube:one", platform: "youtube", categoryId: "23", title: "Funny viral moment",

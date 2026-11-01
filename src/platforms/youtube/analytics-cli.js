@@ -16,16 +16,17 @@ try {
     fetchYouTubeAnalyticsReport({
       accessToken: token.accessToken, startDate: iso(start), endDate: iso(end),
       metrics: "views,engagedViews,estimatedMinutesWatched,averageViewDuration,averageViewPercentage,likes,comments,shares,subscribersGained",
-      filters: undefined
+      filters: "creatorContentType==SHORTS"
     }).catch(error => ({ status: "unavailable", error: error.message })),
     fetchYouTubeAnalyticsReport({
       accessToken: token.accessToken,
       startDate: iso(new Date(end.getTime() - 364 * 86400000)), endDate: iso(end),
-      metrics: "views,estimatedMinutesWatched,averageViewDuration,likes,comments,shares,subscribersGained"
+      metrics: "views,estimatedMinutesWatched,averageViewDuration,likes,comments,shares,subscribersGained",
+      filters: "creatorContentType==VIDEO_ON_DEMAND"
     }),
     fetchYouTubeAnalyticsReport({
       accessToken: token.accessToken, startDate: iso(start), endDate: iso(end),
-      dimensions: "video",
+      dimensions: "video,creatorContentType",
       metrics: "views,likes,comments,shares,subscribersGained,estimatedMinutesWatched,averageViewDuration,averageViewPercentage",
       sort: "-views", maxResults: 200
     })
@@ -34,7 +35,7 @@ try {
     fetchedAt: new Date().toISOString(),
     reportingLagDays: 2,
     reportingWindows: { last90Days: { startDate: iso(start), endDate: iso(end) }, last365Days: { startDate: iso(new Date(end.getTime() - 364 * 86400000)), endDate: iso(end) } },
-    channelLast90Days: rowsToObjects(shorts),
+    shortsLast90Days: rowsToObjects(shorts),
     channelLast365Days: rowsToObjects(longForm),
     topVideosLast90Days: rowsToObjects(topVideos),
     source: "YouTube Analytics API",

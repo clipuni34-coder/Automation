@@ -53,6 +53,19 @@ function angleFor(candidate, format) {
   return templates[format];
 }
 
+function selectChannel(candidate, profiles, fallback) {
+  const text = `${candidate.title ?? ""} ${candidate.description ?? ""}`.toLowerCase();
+  const matches = profiles
+    .filter(profile => profile.status === "active" && Array.isArray(profile.nicheKeywords) && profile.nicheKeywords.length)
+    .map(profile => ({
+      profile,
+      score: profile.nicheKeywords.reduce((count, keyword) => count + (text.includes(String(keyword).toLowerCase()) ? 1 : 0), 0)
+    }))
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score);
+  return matches[0]?.profile ?? fallback;
+}
+
 function safeSource(candidate) {
   return {
     platform: candidate.platform ?? "unknown",
@@ -89,15 +102,19 @@ export function buildDailyPlan({ discovery, history = EMPTY, now = new Date(), c
 
   const priorIds = new Set((history.plans ?? []).flatMap((plan) => plan.recommendations ?? []).map((item) => item.candidateId));
   const eligible = rankedUnique.filter(({ candidate }) => !priorIds.has(candidate.id));
-  const channel = channelProfiles[0] ?? {
+  const fallbackChannel = {
     id: "channel-lab",
     name: "Channel research lab",
     niche: "unselected",
     status: "exploration",
     note: "Temporary research bucket; niche selection is intentionally deferred until evidence is collected."
   };
+  const activeProfiles = channelProfiles.filter(profile => profile.status === "active");
+  const profilesUsed = activeProfiles.length ? activeProfiles : [fallbackChannel];
 
-  const recommendations = eligible.slice(0, 5).map(({ candidate, format, score, components }, index) => ({
+  const recommendations = eligible.slice(0, 5).map(({ candidate, format, score, components }, index) => {
+    const channel = selectChannel(candidate, activeProfiles, fallbackChannel);
+    return ({
     rank: index + 1,
     candidateId: candidate.id,
     title: candidate.title,
@@ -116,13 +133,14 @@ export function buildDailyPlan({ discovery, history = EMPTY, now = new Date(), c
     source: safeSource(candidate),
     channelId: channel.id,
     status: "research_recommended"
-  }));
+  });
+  });
 
   const plan = {
     id: `daily-${timestamp.toISOString().slice(0, 10)}`,
     generatedAt: timestamp.toISOString(),
     timezone: "UTC",
-    channelProfilesUsed: channelProfiles.length ? channelProfiles : [channel],
+    channelProfilesUsed: profilesUsed,
     discoveryRunAt: discovery?.runs?.at(-1)?.completedAt ?? null,
     coverage: {
       candidateCount: candidates.length,

@@ -285,6 +285,7 @@ jobs:
           PRODUCE_VIDEOS: ${{ vars.PRODUCE_VIDEOS || 'false' }}
           YOUTUBE_AUTO_PUBLISH: ${{ vars.YOUTUBE_AUTO_PUBLISH || 'false' }}
           SYNC_YOUTUBE_ANALYTICS: ${{ vars.SYNC_YOUTUBE_ANALYTICS || 'false' }}
+          SYNC_YOUTUBE_COMMENTS: ${{ vars.SYNC_YOUTUBE_COMMENTS || 'false' }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
           YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
         run: |

@@ -87,7 +87,8 @@ export function researchNiches(discovery, { generatedAt = new Date().toISOString
   const categories = [...byCategory.entries()].map(([categoryId, candidates]) => ({
     categoryId,
     niche: CATEGORY_NAMES[categoryId] ?? `YouTube category ${categoryId}`,
-    ...nicheStats(candidates)
+    ...nicheStats(candidates),
+    temporalConfidence: (discovery?.runs?.length ?? 0) >= 3 ? "medium" : "low"
   })).sort((a, b) => b.opportunityScore - a.opportunityScore);
 
   const promising = categories.filter(item => item.decision === "promising_to_test").slice(0, 5);
@@ -97,6 +98,7 @@ export function researchNiches(discovery, { generatedAt = new Date().toISOString
     categoryId: item.categoryId,
     opportunityScore: item.opportunityScore,
     confidence: item.confidence,
+    temporalConfidence: item.temporalConfidence,
     evidence: {
       sampleSize: item.sampleSize,
       uniqueCreators: item.uniqueCreators,
@@ -119,6 +121,7 @@ export function researchNiches(discovery, { generatedAt = new Date().toISOString
     recommendations,
     constraints: [
       "These are relative opportunity signals from the collected YouTube most-popular charts, not estimates of total addressable audience, RPM or guaranteed growth.",
+      "Sample confidence measures cross-sectional creator/region breadth only. Temporal confidence remains low until at least three discovery runs show persistence.",
       "A promising category requires multiple videos, creators and regions; a single breakout cannot determine a niche.",
       "Run a small channel pilot and compare actual retention, subscriber conversion and production cost before creating several channels.",
       "Google Trends RSS signals are not yet joined to category-level video performance in this score.",

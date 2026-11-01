@@ -44,7 +44,7 @@ test("storyboard falls back to locally generated original graphics when no visua
       topic: "Test topic",
       outputDir: dir,
       apiKey: "",
-      pexelsApiKey: ""
+      pixabayApiKey: ""
     });
     assert.equal(assets.length, 2);
     assert.ok(assets.every(asset => asset.sourceType === "original_graphic"));

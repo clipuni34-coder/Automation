@@ -5,6 +5,7 @@ import { generateNarration } from "./voice.js";
 import { generateStoryboardAssets } from "./visuals.js";
 import { buildOriginalRenderManifest } from "./plan-manifest.js";
 import { renderShortVideo } from "./render.js";
+import { buildPublishingPackage } from "../packaging/package.js";
 
 function run(command, args) {
   return new Promise((resolvePromise, reject) => {
@@ -43,7 +44,7 @@ else {
     const manifestPath = join(outputDir, "render-manifest.json");
     await writeFile(manifestPath, JSON.stringify(manifest, null, 2), { mode: 0o600 });
     const rendered = await renderShortVideo(manifest);
-    const packageData = { status: "rendered", title: editorial.workingTitle ?? brief.topic, topic: brief.topic ?? null, platform: manifest.targetPlatform, videoPath: rendered.outputPath, durationSeconds: rendered.durationSeconds, width: rendered.width, height: rendered.height, videoCodec: rendered.videoCodec, audioCodec: rendered.audioCodec, sourceAudioPreserved: rendered.sourceAudioPreserved, visualAssets: assets.map(asset => ({ sourceType: asset.sourceType, sourceUrl: asset.sourceUrl ?? null, license: asset.license ?? null, creator: asset.attribution?.creator ?? null, generationModel: asset.generationModel ?? null })), manualPublishingApprovalRequired: true };
+    const packageData = buildPublishingPackage({ brief, renderResult: rendered, assets });
     const packagePath = join(outputDir, "publishing-package.json");
     await writeFile(packagePath, JSON.stringify(packageData, null, 2), { mode: 0o600 });
     console.log(JSON.stringify({ status: "rendered", videoPath: rendered.outputPath, packagePath, scenes: rendered.scenes, durationSeconds: rendered.durationSeconds, sourceAudioPreserved: rendered.sourceAudioPreserved }, null, 2));

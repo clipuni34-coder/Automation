@@ -124,6 +124,37 @@ The production layer now accepts either a still image or an actual video file fo
 Configure `PEXELS_API_KEY` as a GitHub Actions secret or runtime environment variable. Pexels currently states that new API-key issuance is paused, so this integration is implemented but cannot be live-tested until an API key is available. Pexels also requires a prominent link to Pexels and recommends creator attribution; production packages must preserve and display those credits. The Pexels API is not a source of permission to reuse arbitrary viral creator videos: reference videos remain analysis-only unless separate rights are established.
 
 
+## Viral standalone re-edits and creator compilations
+
+Two additional editorial planners are available:
+
+- `npm run reedit -- reedit-input.json` builds a standalone viral-video re-edit decision list from timed transcript segments. It ranks hook, emotion, curiosity, payoff and clarity signals, selects non-overlapping moments within a target duration, and emits cut timestamps, caption text and edit treatments. A public reference-only video can produce an analysis-only plan; it cannot pass the renderer's rights gate.
+- `npm run compile-clips -- compilation-input.json` builds a ranked multi-creator/multi-source compilation plan. It requires original intro and outro commentary and checks each clip's documented permission/license, permitted platform and expiry. It rejects unapproved clips rather than silently using them.
+
+For third-party creator footage, a usable source record must include `rightsStatus` (`permission_granted`, `licensed`, `public_domain`, or `owned_by_user`), an HTTPS `sourceUrl`, `allowedPlatforms`, and a `rightsEvidenceReference` or `rightsEvidenceUrl` for permission/license-based use. The renderer now blocks `creator_clip` scenes without this evidence. A source URL, public availability, creator credit, or an edit alone is not proof of permission. Platform-specific rights and copyright exceptions still require case-by-case review.
+
+These planners currently produce edit/compilation plans, not automatically downloaded creator footage or final edited MP4s. YouTube Data API metadata is used for discovery/reference only; it does not provide a general video-download capability. The next production work is authorized media intake, transcript/visual moment detection, plan-to-render integration, word-level captions, sound design and independent QC.
+
+Example standalone re-edit input:
+
+```json
+{
+  "source": {
+    "sourceUrl": "https://media.example/authorized-source.mp4",
+    "durationSeconds": 120,
+    "rightsStatus": "licensed",
+    "rightsEvidenceReference": "license-record-123",
+    "allowedPlatforms": ["youtube_shorts"]
+  },
+  "targetDurationSeconds": 35,
+  "transcriptSegments": [
+    { "start": 18, "end": 25, "text": "The surprising reveal", "signals": { "hook": 8, "emotion": 9, "curiosity": 8, "payoff": 9, "clarity": 8 } }
+  ]
+}
+```
+
+Example compilation input must contain at least two individually cleared clips plus original `introCommentary` and `outroCommentary`.
+
 ## Automatic narration
 
 A Gemini 3.8 TTS adapter now converts the exact creative-brief script into WAV narration. It supports a directed speaking style and a selected built-in voice, validates the returned WAV signature, and stops immediately on quota exhaustion rather than burning requests through repeated model retries. The primary model is `gemini-3.8-flash-tts`; the Lite model is tried only when the primary model is unavailable. Both calls use the configured `GEMINI_API_KEY`.

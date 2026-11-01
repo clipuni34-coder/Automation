@@ -122,3 +122,16 @@ Configure `PEXELS_API_KEY` as a GitHub Actions secret or runtime environment var
 The production layer now accepts either a still image or an actual video file for each storyboard scene. The Pexels adapter searches the official Pexels video API for portrait live-action footage, retains creator/provider attribution and the Pexels License label, and downloads only HTTPS video files hosted on Pexels subdomains with a configurable size cap. The renderer trims and crops video scenes into the vertical timeline and overlays the same timed captions and narration track.
 
 Configure `PEXELS_API_KEY` as a GitHub Actions secret or runtime environment variable. Pexels currently states that new API-key issuance is paused, so this integration is implemented but cannot be live-tested until an API key is available. Pexels also requires a prominent link to Pexels and recommends creator attribution; production packages must preserve and display those credits. The Pexels API is not a source of permission to reuse arbitrary viral creator videos: reference videos remain analysis-only unless separate rights are established.
+
+
+## Automatic narration
+
+A Gemini 3.8 TTS adapter now converts the exact creative-brief script into WAV narration. It supports a directed speaking style and a selected built-in voice, validates the returned WAV signature, and stops immediately on quota exhaustion rather than burning requests through repeated model retries. The primary model is `gemini-3.8-flash-tts`; the Lite model is tried only when the primary model is unavailable. Both calls use the configured `GEMINI_API_KEY`.
+
+Run it against a generated creative brief:
+
+```bash
+npm run voice -- research-topic.creative.json output/narration.wav
+```
+
+Provider request and failure paths are covered by mocked tests; a live synthesis run still depends on available Gemini TTS quota. This produces AI narration, not a cloned human voice. The video can still use real human footage as its visuals.

@@ -60,7 +60,7 @@ export function buildOriginalRenderManifest({ brief, assets, audioPath, outputPa
     const end = Number((totalDurationSeconds * (index + 1) / count).toFixed(3));
     const beatIndex = beats.length ? Math.min(beats.length - 1, Math.floor(index * beats.length / count)) : -1;
     const caption = beatIndex >= 0 ? conciseCaption(beats[beatIndex].caption ?? beats[beatIndex].narration, String(visualPlan[index].visual ?? "Watch what happens")) : conciseCaption(visualPlan[index].visual);
-    const scene = { ...asset, start, end, caption, sourceAudioVolume: 0.35 };
+    const scene = { ...asset, start, end, caption, visualDescription: String(visualPlan[index].visual ?? visualPlan[index].description ?? "").slice(0, 500), narrationContext: String(beats[beatIndex]?.narration ?? visualPlan[index].notes ?? "").slice(0, 700), sourceAudioVolume: 0.35 };
     if (asset.sourceType === "generated_visual" && (!asset.generationModel || !asset.generationPrompt)) throw new Error("Generated visual scene " + (index + 1) + " is missing generation provenance");
     if (asset.sourceType === "licensed_stock" && (!asset.sourceUrl || !asset.license)) throw new Error("Licensed visual scene " + (index + 1) + " is missing license provenance");
     return scene;

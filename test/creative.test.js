@@ -45,7 +45,9 @@ test("creative provider returns validated structured plan from Gemini", async ()
   const result = await generateEditorialPlan({ dossier, geminiApiKey: "test-key", fetchImpl });
   assert.equal(result.status, "ok");
   assert.equal(result.provider, "gemini");
-  assert.equal(result.plan.scriptBeats.length, 3);\n  assert.match(result.plan.fullScript, /octopus/i);\n  assert.equal(result.plan.estimatedDurationSeconds, 35);
+  assert.equal(result.plan.scriptBeats.length, 3);
+  assert.match(result.plan.fullScript, /octopus/i);
+  assert.equal(result.plan.estimatedDurationSeconds, 35);
   assert.equal(result.plan.claimsToVerify[0], validPlan.claimsToVerify[0]);
 });
 

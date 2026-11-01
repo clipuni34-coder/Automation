@@ -159,6 +159,18 @@ Example standalone re-edit input:
 
 Example compilation input must contain at least two individually cleared clips plus original `introCommentary` and `outroCommentary`.
 
+## End-to-end original video production
+
+A complete original-video production command now connects the creative brief, Gemini narration, Gemini-generated 9:16 storyboard images (Nano Banana 2.1), and FFmpeg rendering:
+
+```bash
+npm run produce -- research-topic.creative.json output/research-topic
+```
+
+The command generates narration first, measures its actual duration, creates up to eight original visual scenes with model/prompt provenance, builds a render manifest, renders the vertical MP4, probes the output, and saves a publishing-package JSON. If Gemini image generation fails and `PEXELS_API_KEY` is configured, the visual adapter can fall back to Pexels licensed stock footage. Generated visuals are illustrative, not evidence of real events or real people, and carry Google's SynthID watermark. Source-video audio is retained where present and mixed below narration; use `preserveSourceAudio: false` in a render manifest to disable it.
+
+The scheduled workflow does not spend image/TTS quota automatically by default. To opt in, add a GitHub Actions repository **variable** named `PRODUCE_VIDEOS` with value `true`. The workflow will then render available briefs and upload MP4s plus production packages as a 14-day artifact. Gemini image and TTS API usage may consume free-tier quota or incur charges depending on the Google AI plan; check your current API pricing and limits before enabling unattended production. Publishing remains disabled and requires separate platform integration and approval.
+
 ## Automatic narration
 
 A Gemini 3.8 TTS adapter now converts the exact creative-brief script into WAV narration. It supports a directed speaking style and a selected built-in voice, validates the returned WAV signature, and stops immediately on quota exhaustion rather than burning requests through repeated model retries. The primary model is `gemini-3.8-flash-tts`; the Lite model is tried only when the primary model is unavailable. Both calls use the configured `GEMINI_API_KEY`.

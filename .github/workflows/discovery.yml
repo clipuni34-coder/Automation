@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       produce_videos:
-        description: "Generate narrated vertical MP4s for the best brief (uses Gemini image/TTS quota)."
+        description: "Generate a vertical MP4 for the best brief (Gemini image quota may be used; local Kokoro TTS is the fallback)."
         required: false
         type: boolean
         default: false

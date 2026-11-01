@@ -109,7 +109,7 @@ test("creative provider retries a busy Gemini model and falls back to another Fl
   const result = await generateEditorialPlan({ dossier, geminiApiKey: "test-key", fetchImpl });
   assert.equal(result.status, "ok");
   assert.equal(result.provider, "gemini");
-  assert.deepEqual(requestedModels, ["gemini-3.8-flash", "gemini-3.8-flash", "gemini-3.7-flash"]);
+  assert.deepEqual(requestedModels, ["gemini-3.8-flash", "gemini-3.8-flash", "gemini-3.6-flash"]);
 });
 
 test("creative provider falls back to the next Gemini model after a timeout", async () => {
@@ -129,7 +129,7 @@ test("creative provider falls back to the next Gemini model after a timeout", as
   };
   const result = await generateEditorialPlan({ dossier, geminiApiKey: "test-key", fetchImpl });
   assert.equal(result.status, "ok");
-  assert.deepEqual(requestedModels, ["gemini-3.8-flash", "gemini-3.7-flash"]);
+  assert.deepEqual(requestedModels, ["gemini-3.8-flash", "gemini-3.6-flash"]);
 });
 
 test("creative provider stops Gemini retries on exhausted daily quota and uses configured OpenAI fallback", async () => {
@@ -154,8 +154,8 @@ test("creative provider stops Gemini retries on exhausted daily quota and uses c
   });
   assert.equal(result.status, "ok");
   assert.equal(result.provider, "openai");
-  assert.equal(calls.length, 2);
-  assert.equal(calls.filter((url) => url.includes("generativelanguage")).length, 1);
+  assert.equal(calls.length, 3);
+  assert.equal(calls.filter((url) => url.includes("generativelanguage")).length, 2);
 });
 
 test("creative provider reports quota exhaustion without repeated Gemini model calls when no fallback is configured", async () => {
@@ -171,5 +171,19 @@ test("creative provider reports quota exhaustion without repeated Gemini model c
     generateEditorialPlan({ dossier, geminiApiKey: "gemini-key", fetchImpl }),
     /Gemini quota exhausted/
   );
-  assert.equal(calls, 1);
+  assert.equal(calls, 2);
+});
+
+test("creative provider uses Gemini Flash-Lite when the primary model daily quota is exhausted", async () => {
+  const models = [];
+  const fetchImpl = async (url) => {
+    const model = url.split("/models/")[1]?.split(":")[0];
+    models.push(model);
+    if (model === "gemini-3.8-flash") return { ok: false, status: 429, text: async () => "RESOURCE_EXHAUSTED: daily quota exceeded" };
+    return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(validPlan) }] } }] }) };
+  };
+  const result = await generateEditorialPlan({ dossier, geminiApiKey: "test-key", fetchImpl });
+  assert.equal(result.status, "ok");
+  assert.equal(result.provider, "gemini");
+  assert.deepEqual(models, ["gemini-3.8-flash", "gemini-3.5-flash-lite"]);
 });

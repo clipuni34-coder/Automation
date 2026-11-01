@@ -174,9 +174,9 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
         run: |
-          if [ -z "$GEMINI_API_KEY" ]; then
-            echo "::warning::GEMINI_API_KEY is required for narration; skipping video production."
-            exit 0
+          if [ ! -s models/kokoro/kokoro-v1.0.onnx ] || [ ! -s models/kokoro/voices-v1.0.bin ]; then
+            echo "::error::Kokoro fallback model is missing; narration cannot be generated without a working TTS provider."
+            exit 1
           fi
 
           shopt -s nullglob

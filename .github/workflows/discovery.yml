@@ -25,6 +25,13 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Restore previous discovery observations
+        uses: actions/cache@v4
+        with:
+          path: data/discovery.json
+          key: discovery-history-${{ github.run_id }}
+          restore-keys: |
+            discovery-history-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:

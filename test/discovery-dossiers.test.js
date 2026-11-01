@@ -17,6 +17,15 @@ test("builds cautious dossiers from high-scoring public discovery candidates", (
   assert.match(result[0].summary, /not independently fact-checked/);
 });
 
+test("does not create dossiers for full broadcasts or official music videos", () => {
+  const result = buildDiscoveryDossiers({ candidates: [
+    { id: "match", title: "Full Match: Team A vs Team B", sourceUrl: "https://youtube.com/watch?v=1", platform: "youtube", score: 90 },
+    { id: "music", title: "Official Music Video", sourceUrl: "https://youtube.com/watch?v=2", platform: "youtube", score: 85 },
+    { id: "science", title: "Why octopuses change colour", sourceUrl: "https://youtube.com/watch?v=3", platform: "youtube", score: 70 }
+  ] });
+  assert.deepEqual(result.map(item => item.candidateId), ["science"]);
+});
+
 test("deduplicates topics and writes safe, deterministic dossier filenames", async () => {
   const dir = await mkdtemp(join(tmpdir(), "discovery-dossiers-"));
   try {

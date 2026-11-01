@@ -104,6 +104,27 @@ test("renderer accepts licensed real video footage as a scene", { skip: !hasFfmp
   }
 });
 
+test("renderer pads short stock footage to the planned scene duration", { skip: !hasFfmpeg }, async () => {
+  const dir = await mkdtemp(join(tmpdir(), "automation-short-footage-"));
+  try {
+    const videoPath = join(dir, "short-stock.mp4");
+    const audioPath = join(dir, "narration.wav");
+    const outputPath = join(dir, "padded.mp4");
+    const video = spawnSync("ffmpeg", ["-y", "-v", "error", "-f", "lavfi", "-i", "testsrc=size=360x640:rate=24:duration=1.2", "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", videoPath]);
+    assert.equal(video.status, 0, video.stderr?.toString());
+    const audio = spawnSync("ffmpeg", ["-y", "-v", "error", "-f", "lavfi", "-i", "sine=frequency=440:duration=2", "-c:a", "pcm_s16le", audioPath]);
+    assert.equal(audio.status, 0, audio.stderr?.toString());
+    const result = await renderShortVideo({
+      outputPath, audioPath,
+      scenes: [{ videoPath, start: 0, end: 2, caption: "Footage is shorter than the scene.", sourceType: "licensed_stock", sourceUrl: "https://example.com/stock", license: "Test license" }]
+    });
+    assert.equal(result.status, "rendered");
+    assert.ok(Math.abs(result.durationSeconds - 2) < 0.25, "output should match the planned two-second scene");
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test("renderer blocks creator footage without explicit rights evidence", async () => {
   await assert.rejects(renderShortVideo({
     audioPath: "/missing/audio.wav",

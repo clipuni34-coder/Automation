@@ -91,3 +91,26 @@ test("renderer blocks creator footage without explicit rights evidence", async (
       rightsStatus: "reference_only", allowedPlatforms: ["youtube_shorts"] }]
   }), /Asset rights check failed/);
 });
+
+test("renderer preserves authorized source-video audio and mixes narration", { skip: !hasFfmpeg }, async () => {
+  const dir = await mkdtemp(join(tmpdir(), "automation-source-audio-"));
+  try {
+    const videoPath = join(dir, "source-with-audio.mp4");
+    const audioPath = join(dir, "narration.wav");
+    const outputPath = join(dir, "mixed.mp4");
+    const source = spawnSync("ffmpeg", ["-y", "-v", "error", "-f", "lavfi", "-i", "testsrc=size=360x640:rate=24:duration=2", "-f", "lavfi", "-i", "sine=frequency=330:duration=2", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-shortest", videoPath]);
+    assert.equal(source.status, 0, source.stderr?.toString());
+    const narration = spawnSync("ffmpeg", ["-y", "-v", "error", "-f", "lavfi", "-i", "sine=frequency=660:duration=2", "-c:a", "pcm_s16le", audioPath]);
+    assert.equal(narration.status, 0, narration.stderr?.toString());
+    const result = await renderShortVideo({
+      outputPath, audioPath, preserveSourceAudio: true,
+      scenes: [{ videoPath, sourceIn: 0.5, sourceOut: 2, start: 0, end: 1.5, caption: "Original sound retained", sourceType: "licensed_stock", sourceUrl: "https://www.pexels.com/video/example/", license: "Pexels License" }]
+    });
+    assert.equal(result.status, "rendered");
+    assert.equal(result.sourceAudioPreserved, true);
+    assert.equal(result.audioCodec, "aac");
+    assert.ok(Math.abs(result.durationSeconds - 1.5) < 0.5);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});

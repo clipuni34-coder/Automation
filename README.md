@@ -216,3 +216,7 @@ Both paths intentionally require source media already obtained through a permitt
 ## Monetization-first channel growth
 
 The strategy layer now includes a YouTube YPP threshold calculator (including Nigeria's expanded YPP milestones), video monetization preflight checks, platform-metric normalization and sample-size-aware creative experiment suggestions. See [YouTube growth and monetization operating rules](docs/YOUTUBE_GROWTH_AND_MONETIZATION.md). These tools track progress and policy risks; they do not guarantee virality or YPP acceptance. Live channel analytics and publishing still require the channel owner's OAuth authorization and are not yet connected.
+
+### Narration fallback without paid TTS quota
+
+If Gemini TTS is unavailable or quota-limited, production falls back to Kokoro-82M through the CPU ONNX runtime. The production workflow installs the runtime, downloads the official model/voice files, verifies SHA-256 hashes and performs a real WAV smoke test. The model weights are Apache-2.0; the kokoro-onnx runtime is MIT. Default local voice is af_heart (American English); set KOKORO_VOICE to another supported voice when needed. This avoids making narration dependent on paid TTS calls, at the cost of a one-time ~350MB model download and CPU synthesis time.

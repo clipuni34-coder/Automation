@@ -13,7 +13,7 @@ const candidate = (id, title, score = 80, rightsStatus = "reference_only") => ({
 test("classifies broad content formats without forcing a single niche", () => {
   assert.equal(classifyFormat(candidate("a", "Roblox streamer makes impossible comeback")), "gaming_highlight");
   assert.equal(classifyFormat(candidate("b", "Top 10 unbelievable football goals")), "sports_moment");
-  assert.equal(classifyFormat(candidate("c", "The funniest unexpected street interview")), "funny_or_surprising_moment");
+  assert.equal(classifyFormat(candidate("c", "The funniest unexpected street prank")), "funny_or_surprising_moment");
   assert.equal(classifyFormat(candidate("d", "How the ocean creates giant waves")), "ranked_explainer");
 });
 

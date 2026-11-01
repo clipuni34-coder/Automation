@@ -35,6 +35,17 @@ Working branch: `autonomous-viral-discovery`
 
 - Authorized local-media re-edit now has a single end-to-end CLI path: rights gate → timed transcript scoring → strongest-moment selection → vertical MP4 render → ffprobe QC. CI includes a real FFmpeg fixture test, including preservation of source audio.
 
+## Latest end-to-end audit — 2026-11-01
+
+- Discovery workflow run `41284910642` completed successfully on `autonomous-viral-discovery`: 4,442 observations, 2,000 ranked candidates, 1,667 topic clusters, a daily plan, niche report and three research dossiers were archived.
+- YouTube discovery coverage was partial: 149 of 180 region/category requests succeeded and 31 failed. The scan is a sample, not complete YouTube coverage.
+- The run did **not** generate a creative brief: `OPENROUTER_API_KEY` was absent, while Gemini and OpenAI creative calls were disabled by their explicit opt-in variables. No video was rendered, no YouTube channel analytics were synced, and no upload was attempted.
+- The run found no active channel profile or configured expected YouTube channel ID. The temporary `channel-lab` is a research placeholder, not a real channel.
+- Research dossiers now retain the matched discovery candidate's ID, source URL, creator, category, observed metrics and explicit reference-only rights status.
+- Dossier selection now weighs independent publisher diversity and substantive source excerpts alongside discovery opportunity. This is a research-triage heuristic, not automatic fact verification.
+- Complete matches/games/episodes, official music videos, obvious full broadcasts and common fan-edit patterns are now excluded from daily editorial shortlists, research dossier generation and niche samples. Remaining reference videos are still not reusable without permission.
+- A workflow-readiness report is now produced so a green discovery run cannot be mistaken for completed creative production or publishing.
+
 ## Not finished yet
 - The new strategy planner is a first editorial-decision slice, not yet a self-improving channel strategist: it does not yet ingest channel analytics, measure trend saturation over longer windows, or learn from published-post outcomes.
 

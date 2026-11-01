@@ -112,7 +112,7 @@ export async function generateNarration({
     }
   }
   try {
-    const local = await generateKokoroNarration({ text: narration, outputPath, voice: localVoice });
+    const local = await localGenerator({ text: narration, outputPath, voice: localVoice });
     if (local.status === "generated") return { ...local, fallbackReason: errors.join("; ") || "Gemini TTS unavailable" };
   } catch (error) {
     errors.push(error.message);

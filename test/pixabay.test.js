@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { searchPixabayVideos, downloadPixabayVideo } from "../src/production/pixabay.js";
+import { searchPixabayVideos, downloadPixabayVideo, scorePixabayRelevance } from "../src/production/pixabay.js";
 
 const sample = {
   totalHits: 1,
@@ -73,4 +73,18 @@ test("Pixabay download enforces provider host, video content and byte limit", as
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+test("Pixabay relevance gate accepts matching scene tags and rejects unrelated footage", () => {
+  const relevant = scorePixabayRelevance("baseball catcher throwing runner", { tags: "baseball, catcher, sport, pitcher" });
+  assert.equal(relevant.relevant, true);
+  assert.deepEqual(relevant.matchedTerms, ["baseball", "catcher"]);
+  const unrelated = scorePixabayRelevance("baseball catcher throwing runner", { tags: "credit card finance banking" });
+  assert.equal(unrelated.relevant, false);
+  assert.equal(unrelated.matchedTerms.length, 0);
+});
+
+test("Pixabay relevance gate fails closed when a search query has no meaningful terms", () => {
+  const result = scorePixabayRelevance("cinematic vertical footage", { tags: "cinematic vertical footage" });
+  assert.equal(result.relevant, false);
 });

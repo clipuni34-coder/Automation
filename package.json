@@ -25,6 +25,7 @@
     "youtube-upload": "node src/platforms/youtube/upload-cli.js",
     "youtube-analytics": "node src/platforms/youtube/analytics-cli.js",
     "research-niches": "node src/strategy/niche-cli.js",
-    "create-dossiers": "node src/research/discovery-dossiers-cli.js"
+    "create-dossiers": "node src/research/discovery-dossiers-cli.js",
+    "select-best-dossier": "node src/creative/select-best-dossier.js"
   }
 }

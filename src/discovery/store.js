@@ -1,17 +1,19 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 
-const EMPTY = { version: 1, observations: [], candidates: [], runs: [] };
+const EMPTY = { version: 2, observations: [], candidates: [], topicClusters: [], runs: [] };
 
 export async function readDiscoveryStore(filePath) {
   try {
     const parsed = JSON.parse(await readFile(filePath, "utf8"));
-    if (parsed.version !== 1) throw new Error("Unsupported discovery store version");
+    if (![1, 2].includes(parsed.version)) throw new Error("Unsupported discovery store version");
     return {
       ...EMPTY,
       ...parsed,
+      version: 2,
       observations: Array.isArray(parsed.observations) ? parsed.observations : [],
       candidates: Array.isArray(parsed.candidates) ? parsed.candidates : [],
+      topicClusters: Array.isArray(parsed.topicClusters) ? parsed.topicClusters : [],
       runs: Array.isArray(parsed.runs) ? parsed.runs : []
     };
   } catch (error) {

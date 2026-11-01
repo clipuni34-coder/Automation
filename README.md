@@ -195,3 +195,12 @@ The new `npm run reedit-render -- input.json` command connects rights validation
 Required input fields: `sourceLocalPath`, `outputPath`, `source` (HTTPS source URL, duration, approved `rightsStatus`, evidence reference/URL and `allowedPlatforms`), and `transcriptSegments` (start/end/text and optional 0–10 hook, emotion, curiosity, payoff and clarity signals). The command rejects reference-only YouTube/TikTok/Instagram discoveries. YouTube Data API returns metadata, not downloadable video bytes; this workflow intentionally does not scrape or bypass platform access controls. The source file and evidence must be supplied through a permitted/authorized route.
 
 Run `npm run reedit-render -- authorized-reedit-input.json`. A real FFmpeg end-to-end fixture test is included in `npm test`.
+
+
+### Render authorized re-edits and ranked compilations
+
+For a standalone source video you own or have explicit reuse permission for, `npm run reedit-render -- authorized-reedit-input.json` now runs the full local path from timed transcript and rights evidence through moment ranking, cut-list creation, vertical MP4 rendering and ffprobe QC. If no narration file is supplied, it creates a silent audio bed and retains the source video's audio when present. This is a usable local-media intake path, not an upload UI or automatic speech-recognition service.
+
+The compilation CLI now also renders when `mediaAssets` maps each approved clip ID to a local file. It can generate a silent bed if no narration is supplied, retains source audio, ranks the cleared moments, and displays the supplied original intro/outro framing as opening/closing captions. These captions are on-screen text, not spoken commentary.
+
+Both paths intentionally require source media already obtained through a permitted route. The discovery connectors return YouTube reference metadata; they do not provide downloadable YouTube media. TikTok/Instagram discovery and automated creator-permission acquisition are not implemented. Do not use a reference URL as permission to download or republish.

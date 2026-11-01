@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { refreshYouTubeAccessToken, uploadYouTubeVideo } from "./publisher.js";
+import { refreshYouTubeAccessToken, uploadYouTubeVideo, waitForYouTubeProcessing } from "./publisher.js";
 
 const packagePath = process.argv[2];
 if (!packagePath) {
@@ -30,9 +30,11 @@ if (!packagePath) {
         categoryId: process.env.YOUTUBE_CATEGORY_ID ?? "22"
       }
     });
+    const processing = await waitForYouTubeProcessing({ videoId: result.videoId, accessToken: token.accessToken });
+    const completed = { ...result, ...processing, status: "processing_complete", processedAt: new Date().toISOString() };
     const outputPath = absolutePackagePath.replace(/\.json$/i, ".youtube-upload.json");
-    await writeFile(outputPath, JSON.stringify({ uploadedAt: new Date().toISOString(), ...result }, null, 2) + "\n", { mode: 0o600 });
-    console.log(JSON.stringify({ ...result, outputPath }, null, 2));
+    await writeFile(outputPath, JSON.stringify(completed, null, 2) + "\n", { mode: 0o600 });
+    console.log(JSON.stringify({ ...completed, outputPath }, null, 2));
   } catch (error) {
     console.error(JSON.stringify({ status: "not_uploaded", error: error.message }));
     process.exitCode = 1;

@@ -169,7 +169,7 @@ test("creative provider reports quota exhaustion without repeated Gemini model c
   };
   await assert.rejects(
     generateEditorialPlan({ dossier, geminiApiKey: "gemini-key", fetchImpl }),
-    /Gemini quota exhausted/
+    /primary quota exhausted/
   );
   assert.equal(calls, 2);
 });

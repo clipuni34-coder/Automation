@@ -38,6 +38,7 @@ export function buildOriginalRenderManifest({ brief, assets, audioPath, outputPa
   if (!audioPath || !outputPath || !Number.isFinite(totalDurationSeconds) || totalDurationSeconds <= 0) throw new Error("Narration path, output path and positive audio duration are required");
   const beats = Array.isArray(editorial.scriptBeats) ? editorial.scriptBeats : [];
   const count = assets.length;
+  const visualPlan = editorial.visualPlan.slice(0, count);
   const scenes = assets.map((asset, index) => {
     const start = Number((totalDurationSeconds * index / count).toFixed(3));
     const end = Number((totalDurationSeconds * (index + 1) / count).toFixed(3));

@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { refreshYouTubeAccessToken, uploadYouTubeVideo, waitForYouTubeProcessing } from "./publisher.js";
+import { refreshYouTubeAccessToken, uploadYouTubeVideo, waitForYouTubeProcessing, getAuthorizedYouTubeChannel } from "./publisher.js";
 
 const packagePath = process.argv[2];
 if (!packagePath) {
@@ -21,6 +21,12 @@ if (!packagePath) {
     }
     const videoPath = resolve(dirname(absolutePackagePath), pkg.video.path);
     const token = await refreshYouTubeAccessToken();
+    const authorizedChannel = await getAuthorizedYouTubeChannel({ accessToken: token.accessToken });
+    const expectedChannelId = pkg.channelId ?? process.env.YOUTUBE_EXPECTED_CHANNEL_ID;
+    if (!expectedChannelId) throw new Error("Expected channel ID is missing. Configure YOUTUBE_EXPECTED_CHANNEL_ID or include channelId in the package.");
+    if (authorizedChannel.channelId !== expectedChannelId) {
+      throw new Error(`OAuth token is connected to channel ${authorizedChannel.channelId} (${authorizedChannel.title}), not expected channel ${expectedChannelId}; refusing to upload to the wrong channel.`);
+    }
     const result = await uploadYouTubeVideo({
       videoPath,
       accessToken: token.accessToken,
@@ -31,7 +37,7 @@ if (!packagePath) {
       }
     });
     const processing = await waitForYouTubeProcessing({ videoId: result.videoId, accessToken: token.accessToken });
-    const completed = { ...result, ...processing, status: "processing_complete", processedAt: new Date().toISOString() };
+    const completed = { ...result, ...processing, authorizedChannel, status: "processing_complete", processedAt: new Date().toISOString() };
     const outputPath = absolutePackagePath.replace(/\.json$/i, ".youtube-upload.json");
     await writeFile(outputPath, JSON.stringify(completed, null, 2) + "\n", { mode: 0o600 });
     console.log(JSON.stringify({ ...completed, outputPath }, null, 2));

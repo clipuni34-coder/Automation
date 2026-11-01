@@ -81,3 +81,13 @@ test("renderer accepts licensed real video footage as a scene", { skip: !hasFfmp
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test("renderer blocks creator footage without explicit rights evidence", async () => {
+  await assert.rejects(renderShortVideo({
+    audioPath: "/missing/audio.wav",
+    targetPlatform: "youtube_shorts",
+    scenes: [{ videoPath: "/missing/creator.mp4", start: 0, end: 2, caption: "Creator moment",
+      sourceType: "creator_clip", sourceUrl: "https://example.com/video", license: "Creator permission",
+      rightsStatus: "reference_only", allowedPlatforms: ["youtube_shorts"] }]
+  }), /Asset rights check failed/);
+});

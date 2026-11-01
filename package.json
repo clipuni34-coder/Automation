@@ -11,6 +11,7 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "discover": "node src/discovery/cli.js",
-    "test": "node --test"
+    "test": "node --test",
+    "research": "node src/research/cli.js"
   }
 }

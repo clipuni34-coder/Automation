@@ -1,4 +1,4 @@
-import { collectYouTubeGlobal } from "./sources/youtube.js";
+import { collectYouTubeGlobal, searchYouTubeVideos } from "./sources/youtube.js";
 import { collectRssFeeds } from "./sources/rss.js";
 import { readDiscoveryStore, writeDiscoveryStore } from "./store.js";
 import { scoreCandidate, topicKey } from "./scoring.js";
@@ -19,11 +19,12 @@ export async function runDiscovery({
       categories: config.categories,
       concurrency: config.youtubeConcurrency ?? 5
     }),
-    (collectors.rss ?? collectRssFeeds)({ feedUrls: config.rssFeeds ?? [] })
+    (collectors.rss ?? collectRssFeeds)({ feedUrls: config.rssFeeds ?? [] }),
+    (collectors.youtubeSearch ?? searchYouTubeVideos)({ apiKey: config.youtubeApiKey, queries: config.searchQueries ?? [], maxResults: config.searchMaxResults ?? 20, order: config.searchOrder ?? "viewCount", regionCode: config.searchRegion ?? "US" })
   ]);
 
   const sources = sourceResults.map((result, index) => {
-    const name = index === 0 ? "youtube" : "rss";
+    const name = ["youtube", "rss", "youtube_search"][index] ?? "unknown";
     return result.status === "fulfilled"
       ? result.value
       : { source: name, status: "error", items: [], error: result.reason?.message ?? "Unknown error" };

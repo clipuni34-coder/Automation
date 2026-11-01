@@ -48,3 +48,10 @@ test("compilation ranks cleared creator moments and blocks unlicensed-only clips
 test("compilation requires original framing commentary", () => {
   assert.throws(() => buildCompilationPlan({ clips: [], introCommentary: "", outroCommentary: "" }), /at least two/);
 });
+
+test("compilation refuses to exceed its requested duration", () => {
+  const clip = { sourceUrl: "https://media.example/clip.mp4", rightsStatus: "permission_granted", rightsEvidenceReference: "permission-2", allowedPlatforms: ["youtube_shorts"], start: 0, end: 20 };
+  const plan = buildCompilationPlan({ introCommentary: "Intro", outroCommentary: "Outro", targetDurationSeconds: 30, clips: [{ ...clip, sourceId: "one" }, { ...clip, sourceId: "two" }] });
+  assert.equal(plan.status, "blocked_duration");
+  assert.deepEqual(plan.sequence, []);
+});

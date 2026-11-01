@@ -74,3 +74,4 @@ test("creative provider rejects incomplete model output", async () => {
     /missing targetAudience/
   );
 });
+\n\ntest("creative provider targets the currently recommended Gemini Flash model", async () => {\n  let requestedUrl = "";\n  const fetchImpl = async (url) => {\n    requestedUrl = url;\n    return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(validPlan) }] } }] }) };\n  };\n  await generateEditorialPlan({ dossier, geminiApiKey: "test-key", fetchImpl });\n  assert.match(requestedUrl, /models\\/gemini-3\\.8-flash:generateContent/);\n});\n

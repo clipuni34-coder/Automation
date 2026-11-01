@@ -1,5 +1,6 @@
 const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
-const GEMINI_MODELS = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash"];
+const GEMINI_MODELS = ["gemini-3.8-flash", "gemini-3.6-flash"];
+const GEMINI_QUOTA_FALLBACK_MODEL = "gemini-3.5-flash-lite";
 const OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
 function extractJson(text) {
@@ -109,7 +110,14 @@ async function callGemini(prompt, apiKey, fetchImpl, timeoutMs) {
         const timedOut = error.name === "AbortError" || /aborted|timeout/i.test(error.message);
         const quotaExhausted = /quota exceeded|free.?tier.*limit|resource_exhausted|retry in \\d+h/i.test(error.message);
         if (quotaExhausted) {
-          throw new Error(`Gemini quota exhausted; stopping Gemini model retries to avoid wasting requests. ${error.message.slice(0, 700)}`);
+          if (model !== GEMINI_QUOTA_FALLBACK_MODEL) {
+            try {
+              return await callGeminiModel(prompt, apiKey, fetchImpl, timeoutMs, GEMINI_QUOTA_FALLBACK_MODEL);
+            } catch (fallbackError) {
+              throw new Error("Gemini primary quota exhausted and " + GEMINI_QUOTA_FALLBACK_MODEL + " fallback failed. " + fallbackError.message.slice(0, 700));
+            }
+          }
+          throw new Error("Gemini quota exhausted; stopping Gemini model retries to avoid wasting requests. " + error.message.slice(0, 700));
         }
         if (!transientHttp && !timedOut) throw error;
         if (transientHttp && attempt === 0) await new Promise((resolve) => setTimeout(resolve, 1500));

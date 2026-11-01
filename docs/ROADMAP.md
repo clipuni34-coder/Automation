@@ -43,6 +43,18 @@
 - [ ] Add independent editorial, factual, audio, visual and technical QC.
 - [ ] Implement repair/rerender or reject loop.
 
+## Phase 4B — Viral re-editing and compilations
+- [x] Define a rights evidence gate for owned, licensed, permission-granted and public-domain media.
+- [x] Build a standalone-video re-edit planner using timed transcript windows and hook/emotion/curiosity/payoff/clarity scores.
+- [x] Build a ranked compilation planner with original framing commentary and per-clip rights checks.
+- [x] Enforce creator-clip rights evidence in the FFmpeg renderer.
+- [x] Add CLI commands and unit tests for re-edit and compilation planning.
+- [ ] Add official API search for arbitrary keywords/creators beyond most-popular chart sampling.
+- [ ] Add authorized creator media intake and secure cloud asset storage.
+- [ ] Add automatic transcription and visual/audio moment detection on authorized source media.
+- [ ] Connect planner output directly to render manifests, including multiple source files, cut points, commentary, sound design and dynamic captions.
+- [ ] Add creator permission-request/expiry/revocation workflow and evidence storage.
+
 ## Phase 5 — Platform connections and publishing
 - [ ] Verify official API capabilities, OAuth scopes, account eligibility and review requirements.
 - [ ] Implement independent platform adapters and capability flags.

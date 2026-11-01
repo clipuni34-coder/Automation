@@ -37,8 +37,8 @@
 - [ ] Keep predictions and confidence separate from observed facts.
 
 ## Phase 4 — Original video production
-- [x] Select FFmpeg as the first renderer and verify it with a real integration render in CI.\n- [ ] Select and test narration generation and rights-cleared visual asset generation/sourcing adapters.
-- [x] Build initial still-scene timeline assembly, subtle motion, scene-timed captions, narration-audio muxing and MP4 export.\n- [ ] Add automated voiceover generation, dynamic B-roll acquisition/generation, word-timed captions and sound design.
+- [x] Select FFmpeg as the first renderer and verify it with a real integration render in CI.\n- [x] Implement a Pexels live-action video search/download adapter with license and creator attribution metadata (live API test pending API key availability).
+- [x] Build mixed still-image/live-action scene timeline assembly, subtle still motion, scene-timed captions, narration-audio muxing and MP4 export.\n- [ ] Add automated voiceover generation, additional dynamic B-roll acquisition/generation, word-timed captions and sound design.
 - [x] Render and probe 1080×1920, 30fps H.264/AAC fast-start MP4 output.\n- [ ] Add platform-specific variants and frame-rate/source adaptation.
 - [ ] Add independent editorial, factual, audio, visual and technical QC.
 - [ ] Implement repair/rerender or reject loop.

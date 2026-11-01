@@ -113,6 +113,17 @@ jobs:
           YOUTUBE_ANALYTICS_PATH: data/youtube-analytics.json
         run: npm run youtube-analytics
 
+      - name: Sync authorized YouTube comment inbox
+        if: vars.SYNC_YOUTUBE_COMMENTS == 'true'
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+          YOUTUBE_COMMENTS_PATH: data/youtube-comment-inbox.json
+          YOUTUBE_COMMENTS_MAX_RESULTS: '50'
+        run: npm run youtube-comments
+
       - name: Research the three strongest qualified candidates
         env:
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
@@ -304,6 +315,7 @@ jobs:
             videoProduction: hasVideo ? 'rendered' : process.env.PRODUCE_VIDEOS === 'true' ? 'enabled_but_no_video_rendered' : 'disabled',
             activeChannelProfiles: configuredChannels,
             youtubeAnalytics: process.env.SYNC_YOUTUBE_ANALYTICS === 'true' ? 'enabled_check_snapshot' : 'not_connected_or_disabled',
+            youtubeComments: process.env.SYNC_YOUTUBE_COMMENTS === 'true' ? 'enabled_check_inbox_artifact' : 'disabled_or_not_connected',
             youtubePublishing: process.env.YOUTUBE_AUTO_PUBLISH === 'true' && process.env.YOUTUBE_REFRESH_TOKEN && process.env.YOUTUBE_EXPECTED_CHANNEL_ID
               ? 'enabled_check_upload_confirmations' : 'disabled_or_missing_channel_oauth',
             publicationSafety: 'No upload is reported unless a YouTube upload confirmation artifact exists.'
@@ -373,6 +385,13 @@ jobs:
           name: youtube-analytics
           path: data/youtube-analytics.json
           retention-days: 30
+      - name: Save YouTube comment inbox and reply drafts
+        if: always() && hashFiles('data/youtube-comment-inbox.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: youtube-comment-inbox
+          path: data/youtube-comment-inbox.json
+          retention-days: 14
       - name: Save workflow readiness report
         if: always() && hashFiles('data/workflow-readiness.json') != ''
         uses: actions/upload-artifact@v4

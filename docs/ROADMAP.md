@@ -30,7 +30,7 @@
 ## Phase 3 — Research and editorial intelligence
 - [x] Implement a bounded claim ledger with deduplication, query fallback and explicit unresolved states.
 - [x] Extract selected HTTPS source pages through Tavily for passage-level human review.
-- [ ] Verify claim-to-passage support, contradiction and ambiguity with an auditable editorial decision.
+- [x] Add advisory claim-to-passage support, contradiction, ambiguity and not-addressed assessments with source-linked passages; human editorial review remains mandatory and claims stay unverified.
 - [ ] Generate multiple creative angles and hooks.
 - [ ] Build retention-aware script/storyboard and timed edit decision list.
 - [ ] Add rights/provenance checks for every media asset.

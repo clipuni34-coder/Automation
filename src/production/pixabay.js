@@ -1,6 +1,6 @@
 const API = "https://pixabay.com/api/videos/";
 const MAX_DOWNLOAD_BYTES = 120 * 1024 * 1024;
-const VISUAL_STOP_WORDS = new Set(["a","an","the","and","or","of","to","in","on","at","for","with","from","show","shows","showing","scene","visual","footage","video","shot","image","cinematic","dramatic","close","wide","camera","view","background","person","people","man","woman","someone","something","their","this","that","into","while","during","about","after","before","over","under","against","near","around"]);
+const VISUAL_STOP_WORDS = new Set(["a","an","the","and","or","of","to","in","on","at","for","with","from","show","shows","showing","scene","visual","footage","video","shot","image","cinematic","dramatic","close","wide","camera","view","background","person","people","man","woman","someone","something","their","this","that","into","while","during","about","after","before","over","under","against","near","around","vertical","portrait","professional","high","quality","natural","realistic","lighting","color","crisp","details"]);
 
 function visualTerms(value) {
   return [...new Set(String(value ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").split(/\s+/)

@@ -11,7 +11,11 @@ const result = await runDiscovery({
     regions: list(process.env.DISCOVERY_REGIONS, DEFAULT_REGIONS),
     categories: list(process.env.DISCOVERY_CATEGORIES, DEFAULT_CATEGORIES),
     youtubeConcurrency: Number(process.env.DISCOVERY_CONCURRENCY ?? 5),
-    rssFeeds: (process.env.RSS_FEEDS ?? "").split(",").map((value) => value.trim()).filter(Boolean)
+    rssFeeds: (process.env.RSS_FEEDS ?? "").split(",").map((value) => value.trim()).filter(Boolean),
+    searchQueries: (process.env.DISCOVERY_SEARCH_QUERIES ?? "").split("|").map((value) => value.trim()).filter(Boolean),
+    searchMaxResults: Number(process.env.DISCOVERY_SEARCH_MAX_RESULTS ?? 20),
+    searchOrder: process.env.DISCOVERY_SEARCH_ORDER ?? "viewCount",
+    searchRegion: process.env.DISCOVERY_SEARCH_REGION ?? "US"
   },
   storePath: process.env.DISCOVERY_STORE_PATH ?? "data/discovery.json"
 });

@@ -1,0 +1,47 @@
+name: Discovery scan
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: "YouTube discovery region (ISO 3166-1 alpha-2)"
+        required: false
+        default: "NG"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: discovery-scan
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run discovery
+        env:
+          YOUTUBE_DATA_API_KEY: ${{ secrets.YOUTUBE_DATA_API_KEY }}
+          DISCOVERY_REGION: ${{ inputs.region || 'NG' }}
+          DISCOVERY_STORE_PATH: data/discovery.json
+        run: |
+          if [ -z "$YOUTUBE_DATA_API_KEY" ]; then
+            echo "::error::YOUTUBE_DATA_API_KEY is missing. Add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          npm run discover
+      - name: Save discovery results
+        if: always() && hashFiles('data/discovery.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: discovery-results
+          path: data/discovery.json
+          retention-days: 14

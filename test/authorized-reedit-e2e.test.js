@@ -1,0 +1,67 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { spawnSync } from "node:child_process";
+import { runAuthorizedReedit } from "../src/clips/authorized-reedit.js";
+
+const hasFfmpeg = spawnSync("ffmpeg", ["-version"], { stdio: "ignore" }).status === 0;
+
+test("authorized source re-edit runs from timed transcript through real vertical MP4", { skip: !hasFfmpeg }, async () => {
+  const dir = await mkdtemp(join(tmpdir(), "authorized-reedit-e2e-"));
+  try {
+    const sourceLocalPath = join(dir, "source.mp4");
+    const outputPath = join(dir, "re-edited.mp4");
+    const source = spawnSync("ffmpeg", ["-y", "-v", "error",
+      "-f", "lavfi", "-i", "testsrc=size=480x640:rate=24:duration=8",
+      "-f", "lavfi", "-i", "sine=frequency=330:duration=8",
+      "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-shortest", sourceLocalPath
+    ]);
+    assert.equal(source.status, 0, source.stderr?.toString());
+    const result = await runAuthorizedReedit({
+      sourceLocalPath,
+      outputPath,
+      platform: "youtube_shorts",
+      source: {
+        sourceUrl: "https://creator.example/authorized/source.mp4",
+        title: "Authorized fixture",
+        creator: "Test creator",
+        durationSeconds: 8,
+        rightsStatus: "permission_granted",
+        rightsEvidenceReference: "fixture-consent-record",
+        allowedPlatforms: ["youtube_shorts"]
+      },
+      targetDurationSeconds: 5,
+      transcriptSegments: [
+        { id: "setup", start: 0, end: 2, text: "The story starts here", signals: { hook: 2, clarity: 7 } },
+        { id: "payoff", start: 4, end: 7, text: "And then the unexpected payoff happens", signals: { hook: 9, emotion: 9, curiosity: 9, payoff: 10, clarity: 9 } }
+      ]
+    });
+    assert.equal(result.status, "completed");
+    assert.equal(result.plan.status, "edit_plan_ready");
+    assert.equal(result.plan.editDecisionList[0].segmentId, "payoff");
+    assert.equal(result.rendered.width, 1080);
+    assert.equal(result.rendered.height, 1920);
+    assert.equal(result.rendered.videoCodec, "h264");
+    assert.equal(result.rendered.audioCodec, "aac");
+    assert.equal(result.rendered.sourceAudioPreserved, true);
+    const stat = await readFile(outputPath);
+    assert.ok(stat.length > 10000);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("end-to-end re-edit refuses reference-only viral source footage", async () => {
+  await assert.rejects(runAuthorizedReedit({
+    sourceLocalPath: "/not-read-before-rights-check.mp4",
+    outputPath: "/tmp/blocked.mp4",
+    source: {
+      sourceUrl: "https://youtube.com/watch?v=reference-only",
+      durationSeconds: 20,
+      rightsStatus: "reference_only"
+    },
+    transcriptSegments: [{ start: 1, end: 3, text: "A moment", signals: { hook: 9 } }]
+  }), /Rights|access|ENOENT/i);
+});

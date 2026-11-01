@@ -113,15 +113,16 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
       const duration = (scene.end - scene.start).toFixed(3);
       const label = "sourceAudio" + index;
       if (sourceAudioAvailable[index]) {
-        const volume = Math.max(0, Math.min(2, Number(scene.sourceAudioVolume ?? 0.65)));
-        filters.push("[" + index + ":a:0]atrim=duration=" + duration + ",asetpts=PTS-STARTPTS,volume=" + volume + "[" + label + "]");
+        const volume = Math.max(0, Math.min(2, Number(scene.sourceAudioVolume ?? 0.35)));
+        filters.push("[" + index + ":a:0]atrim=duration=" + duration + ",asetpts=PTS-STARTPTS,aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,volume=" + volume + "[" + label + "]");
       } else {
         filters.push("anullsrc=channel_layout=stereo:sample_rate=48000,atrim=duration=" + duration + ",asetpts=PTS-STARTPTS[" + label + "]");
       }
       audioLabels.push("[" + label + "]");
     });
     filters.push(audioLabels.join("") + "concat=n=" + manifest.scenes.length + ":v=0:a=1[sourceAudio]");
-    filters.push("[sourceAudio][" + audioIndex + ":a:0]amix=inputs=2:duration=first:dropout_transition=2,alimiter=limit=0.95[aout]");
+    filters.push("[" + audioIndex + ":a:0]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo[narration]");
+    filters.push("[sourceAudio][narration]amix=inputs=2:duration=first:dropout_transition=2,alimiter=limit=0.95[aout]");
   }
   args.push("-filter_complex", filters.join(";"), "-map", "[vout]", "-map", preserveSourceAudio ? "[aout]" : String(audioIndex) + ":a:0",
     "-t", duration.toFixed(3), "-r", String(FPS), "-c:v", "libx264", "-preset", "veryfast",

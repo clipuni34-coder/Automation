@@ -31,6 +31,7 @@ jobs:
           path: |
             data/discovery.json
             data/strategy.json
+            data/niche-research.json
             data/youtube-analytics.json
           key: discovery-history-${{ github.run_id }}
           restore-keys: |
@@ -95,6 +96,12 @@ jobs:
           DISCOVERY_STORE_PATH: data/discovery.json
           STRATEGY_STORE_PATH: data/strategy.json
         run: npm run daily-plan
+
+      - name: Research best YouTube channel niches
+        env:
+          DISCOVERY_STORE_PATH: data/discovery.json
+          NICHE_RESEARCH_PATH: data/niche-research.json
+        run: npm run research-niches
 
       - name: Sync authorized YouTube channel analytics
         if: vars.SYNC_YOUTUBE_ANALYTICS == 'true'
@@ -232,6 +239,13 @@ jobs:
           name: daily-editorial-plan
           path: data/strategy.json
           retention-days: 14
+      - name: Save channel niche research
+        if: always() && hashFiles('data/niche-research.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: channel-niche-research
+          path: data/niche-research.json
+          retention-days: 30
       - name: Save YouTube analytics snapshot
         if: always() && hashFiles('data/youtube-analytics.json') != ''
         uses: actions/upload-artifact@v4

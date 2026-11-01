@@ -7,6 +7,7 @@ import { buildOriginalRenderManifest } from "./plan-manifest.js";
 import { renderShortVideo } from "./render.js";
 import { buildPublishingPackage } from "../packaging/package.js";
 import { reviewSceneVisualSemantics } from "./semantic-visual-qc.js";
+import { readContentHistory } from "../strategy/content-history.js";
 
 function run(command, args) {
   return new Promise((resolvePromise, reject) => {
@@ -57,7 +58,9 @@ else {
     rendered.visualQuality = quality;
     const qualityPath = join(outputDir, "quality-report.json");
     await writeFile(qualityPath, JSON.stringify(quality, null, 2), { mode: 0o600 });
-    const packageData = buildPublishingPackage({ brief, renderResult: rendered, assets });
+    const historyPath = process.env.CONTENT_HISTORY_PATH ?? "data/content-history.json";
+    const contentHistory = await readContentHistory(historyPath);
+    const packageData = buildPublishingPackage({ brief, renderResult: rendered, assets, recentContent: contentHistory.uploads });
     const packagePath = join(outputDir, "publishing-package.json");
     await writeFile(packagePath, JSON.stringify(packageData, null, 2), { mode: 0o600 });
     console.log(JSON.stringify({ status: "rendered", videoPath: rendered.outputPath, packagePath, qualityPath, visualQualityStatus: rendered.visualQuality.status, visualQualityScore: rendered.visualQuality.score, visualQualityWarnings: rendered.visualQuality.warnings, semanticReviewStatus: semanticReview.status, semanticScenesPassed: semanticReview.passedScenes ?? 0, semanticScenesFailed: semanticReview.failedScenes ?? 0, scenes: rendered.scenes, durationSeconds: rendered.durationSeconds, sourceAudioPreserved: rendered.sourceAudioPreserved }, null, 2));

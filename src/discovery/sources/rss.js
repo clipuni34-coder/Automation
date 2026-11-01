@@ -40,7 +40,9 @@ export function parseFeed(xml, feedUrl) {
     const linkText = readTag(block, "link");
     const link = decodeXml(linkTag?.[1] ?? linkText ?? "").trim();
     const guid = decodeXml(readTag(block, "guid") ?? readTag(block, "id") ?? link ?? `${feedUrl}#${index}`);
-    const publishedAt = readTag(block, "pubDate") ?? readTag(block, "published") ?? readTag(block, "updated") ?? null;
+    const rawPublishedAt = readTag(block, "pubDate") ?? readTag(block, "published") ?? readTag(block, "updated") ?? null;
+    const parsedDate = rawPublishedAt ? Date.parse(rawPublishedAt) : Number.NaN;
+    const publishedAt = Number.isFinite(parsedDate) ? new Date(parsedDate).toISOString() : null;
     return {
       id: `rss:${guid}`,
       platform: "rss",

@@ -55,6 +55,7 @@ jobs:
           DISCOVERY_SEARCH_ORDER: 'viewCount'
           DISCOVERY_SEARCH_REGION: 'US'
           DISCOVERY_CONCURRENCY: '5'
+          RSS_FEEDS: ${{ vars.RSS_FEEDS || 'https://trends.google.com/trending/rss?geo=NG,https://trends.google.com/trending/rss?geo=US,https://trends.google.com/trending/rss?geo=GB,https://trends.google.com/trending/rss?geo=IN,https://trends.google.com/trending/rss?geo=ZA,https://trends.google.com/trending/rss?geo=CA,https://trends.google.com/trending/rss?geo=AU' }}
           DISCOVERY_STORE_PATH: data/discovery.json
         run: |
           if [ -z "$YOUTUBE_DATA_API_KEY" ]; then

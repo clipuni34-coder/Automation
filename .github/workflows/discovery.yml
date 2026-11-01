@@ -140,6 +140,15 @@ jobs:
           done < <(jq -r '[.candidates[] | select(.decision == "needs_research" and (.score // 0) >= 35) | .title] | unique | .[:3][]' "$DISCOVERY_STORE_PATH")
 
           echo "Research dossiers created: $count"
+      - name: Select strongest daily research dossier
+        id: select_dossier
+        env:
+          DISCOVERY_STORE_PATH: data/discovery.json
+        run: |
+          best_dossier=$(npm run --silent select-best-dossier)
+          echo "path=$best_dossier" >> "$GITHUB_OUTPUT"
+          if [ -n "$best_dossier" ]; then echo "Selected dossier: $best_dossier"; else echo "No eligible research dossier found."; fi
+
       - name: Generate original creative briefs
         env:
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
@@ -147,6 +156,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL: 'openrouter/free'
+          SELECTED_DOSSIER: ${{ steps.select_dossier.outputs.path }}
           CREATIVE_LANGUAGE: ${{ vars.CREATIVE_LANGUAGE || 'English' }}
         run: |
           if [ -z "$GEMINI_API_KEY" ] && [ -z "$OPENAI_API_KEY" ] && [ -z "$OPENROUTER_API_KEY" ]; then
@@ -154,29 +164,16 @@ jobs:
             exit 0
           fi
 
-          shopt -s nullglob
-          dossiers=(research-*.json)
-          if [ ${#dossiers[@]} -eq 0 ]; then
+          if [ -z "$SELECTED_DOSSIER" ] || [ ! -s "$SELECTED_DOSSIER" ]; then
             echo "No research dossiers available for creative reasoning."
             exit 0
           fi
 
-          # Generate one strongest candidate per daily run to conserve free-tier model quota.
-          if [ ${#dossiers[@]} -gt 1 ]; then
-            dossiers=("${dossiers[0]}")
+          if npm run create-brief -- "$SELECTED_DOSSIER"; then
+            echo "Creative brief generated from $SELECTED_DOSSIER"
+          else
+            echo "::warning::Creative generation failed for $SELECTED_DOSSIER; preserving the research dossier."
           fi
-
-          generated=0
-          failed=0
-          for dossier in "${dossiers[@]}"; do
-            if npm run create-brief -- "$dossier"; then
-              generated=$((generated + 1))
-            else
-              failed=$((failed + 1))
-              echo "::warning::Creative generation failed for $dossier; preserving other results and continuing."
-            fi
-          done
-          echo "Creative briefs generated: $generated; failed: $failed"
       - name: Render original videos when explicitly enabled
         if: vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true
         env:

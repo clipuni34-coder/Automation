@@ -17,6 +17,7 @@
 ## Phase 2 — Discovery foundation
 - [x] Define initial source collector contracts and provenance fields.
 - [x] Implement official YouTube regional most-popular chart connector.
+- [x] Implement bounded official YouTube keyword/video search with recent-upload filter and reference-only rights status.
 - [x] Implement configurable public RSS/Atom feed connector.
 - [x] Store observations, candidates, run history and source status in a local JSON store.
 - [x] Deduplicate repeated source IDs and retain first-seen timestamps.
@@ -24,7 +25,7 @@
 - [x] Add explainable recency, engagement, velocity and data-completeness scoring.
 - [ ] Add topic-level clustering across different videos and sources.
 - [ ] Add saturation, trend lifecycle and rejection-reason analysis.
-- [ ] Add more compliant source adapters after access/terms verification.
+- [ ] Add compliant TikTok and Instagram discovery adapters after access/terms verification.
 - [ ] Add scheduled, durable discovery runs and operational monitoring.
 
 ## Phase 3 — Research and editorial intelligence

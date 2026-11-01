@@ -1,4 +1,6 @@
 const API_ROOT = "https://www.googleapis.com/youtube/v3";
+export const DEFAULT_REGIONS = ["US", "GB", "CA", "AU", "IN", "NG", "ZA", "BR", "MX", "DE", "JP", "KR"];
+export const DEFAULT_CATEGORIES = ["1", "2", "10", "15", "17", "19", "20", "22", "23", "24", "25", "26", "27", "28", "29"];
 
 export async function collectYouTubePopular({
   apiKey,
@@ -6,30 +8,107 @@ export async function collectYouTubePopular({
   maxResults = 50,
   fetchImpl = fetch
 } = {}) {
-  if (!apiKey) return { source: "youtube", status: "not_configured", items: [] };
+  return collectYouTubeGlobal({
+    apiKey,
+    regions: [regionCode],
+    categories: [],
+    maxResults,
+    fetchImpl
+  });
+}
 
+export async function collectYouTubeGlobal({
+  apiKey,
+  regions = DEFAULT_REGIONS,
+  categories = DEFAULT_CATEGORIES,
+  maxResults = 50,
+  concurrency = 5,
+  fetchImpl = fetch
+} = {}) {
+  if (!apiKey) return { source: "youtube", status: "not_configured", items: [], requests: 0 };
+  const regionList = [...new Set(regions.map((value) => String(value).trim().toUpperCase()).filter(Boolean))];
+  const categoryList = [...new Set(categories.map((value) => String(value).trim()).filter(Boolean))];
+  if (!regionList.length) throw new Error("At least one YouTube region is required");
+  const jobs = regionList.flatMap((regionCode) =>
+    (categoryList.length ? categoryList : [null]).map((categoryId) => ({ regionCode, categoryId }))
+  );
+  const results = new Array(jobs.length);
+  let cursor = 0;
+
+  async function worker() {
+    while (true) {
+      const index = cursor++;
+      if (index >= jobs.length) return;
+      const job = jobs[index];
+      try {
+        results[index] = { ...job, ...(await fetchChart({
+          ...job, apiKey, maxResults, fetchImpl
+        })) };
+      } catch (error) {
+        results[index] = { ...job, error: error.message };
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(Math.max(1, concurrency), jobs.length) }, worker));
+
+  const byId = new Map();
+  const failures = [];
+  for (const result of results) {
+    if (result.error) {
+      failures.push({ regionCode: result.regionCode, categoryId: result.categoryId, error: result.error });
+      continue;
+    }
+    for (const video of result.items) {
+      const previous = byId.get(video.id);
+      if (previous) {
+        if (!previous.seenInRegions.includes(result.regionCode)) previous.seenInRegions.push(result.regionCode);
+        if (result.categoryId && !previous.seenInCategories.includes(result.categoryId)) {
+          previous.seenInCategories.push(result.categoryId);
+        }
+      } else {
+        byId.set(video.id, {
+          ...video,
+          seenInRegions: [result.regionCode],
+          seenInCategories: result.categoryId ? [result.categoryId] : []
+        });
+      }
+    }
+  }
+
+  const items = [...byId.values()];
+  return {
+    source: "youtube",
+    status: failures.length === 0 ? "ok" : items.length ? "partial" : "error",
+    items,
+    requests: jobs.length,
+    successfulRequests: jobs.length - failures.length,
+    failedRequests: failures.length,
+    regions: regionList,
+    categories: categoryList,
+    failures: failures.slice(0, 20)
+  };
+}
+
+async function fetchChart({ regionCode, categoryId, apiKey, maxResults, fetchImpl }) {
   const url = new URL(`${API_ROOT}/videos`);
-  url.search = new URLSearchParams({
-    key: apiKey,
+  const params = {
     part: "snippet,statistics,contentDetails",
     chart: "mostPopular",
     regionCode,
     maxResults: String(Math.min(50, Math.max(1, maxResults)))
-  });
-
+  };
+  if (categoryId) params.videoCategoryId = categoryId;
+  url.search = new URLSearchParams(params);
   const response = await fetchImpl(url, {
-    headers: { accept: "application/json" },
-    signal: AbortSignal.timeout(15000)
+    headers: { accept: "application/json", "x-goog-api-key": apiKey },
+    signal: AbortSignal.timeout(20000)
   });
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
-    throw new Error(`YouTube API returned ${response.status}: ${detail.slice(0, 240)}`);
+    throw new Error(`YouTube API returned ${response.status}: ${detail.slice(0, 180)}`);
   }
-
   const payload = await response.json();
   return {
-    source: "youtube",
-    status: "ok",
     items: (payload.items ?? []).map((video) => ({
       id: `youtube:${video.id}`,
       platform: "youtube",
@@ -39,14 +118,14 @@ export async function collectYouTubePopular({
       title: video.snippet?.title ?? "",
       description: video.snippet?.description ?? "",
       publishedAt: video.snippet?.publishedAt ?? null,
-      categoryId: video.snippet?.categoryId ?? null,
+      categoryId: video.snippet?.categoryId ?? categoryId ?? null,
       metrics: {
         views: numberOrNull(video.statistics?.viewCount),
         likes: numberOrNull(video.statistics?.likeCount),
         comments: numberOrNull(video.statistics?.commentCount)
       },
       observedAt: new Date().toISOString(),
-      collectionMethod: "YouTube Data API videos.list chart=mostPopular",
+      collectionMethod: "YouTube Data API videos.list mostPopular by region and category",
       rightsStatus: "reference_only"
     }))
   };

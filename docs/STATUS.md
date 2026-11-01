@@ -5,6 +5,9 @@ Working branch: `autonomous-viral-discovery`
 
 ## Working and tested
 
+- An autonomous daily editorial planner now ranks unique discovery candidates, assigns provisional content formats (gaming, creator moments, sports, food, rankings/explainers, funny/surprising moments and general story explainers), explains selection evidence, and produces a short recommendation list plus a backlog. It deliberately leaves channel niches unselected until research supports a decision.
+- The daily planner preserves source provenance and explicitly marks public creator videos as research references unless a separate rights status is verified. It is deterministic and does not require an LLM API call.
+
 - YouTube discovery uses the official Data API: regional/category most-popular charts plus bounded keyword searches for recent videos. Keyword results are references only, not reusable media.
 - Tavily research creates dossiers and extracts source passages. Search excerpts and model assessments remain advisory; factual claims are not automatically marked verified.
 - Gemini creative generation has a Gemini 3.5 Flash-Lite fallback when Gemini 3.8 Flash reaches its daily request quota. Scheduled runs create one English-language brief per run to reduce quota pressure; discovery runs only on the daily schedule or manual dispatch, not on code pushes.
@@ -26,6 +29,7 @@ Working branch: `autonomous-viral-discovery`
 - Authorized local-media re-edit now has a single end-to-end CLI path: rights gate → timed transcript scoring → strongest-moment selection → vertical MP4 render → ffprobe QC. CI includes a real FFmpeg fixture test, including preservation of source audio.
 
 ## Not finished yet
+- The new strategy planner is a first editorial-decision slice, not yet a self-improving channel strategist: it does not yet ingest channel analytics, measure trend saturation over longer windows, or learn from published-post outcomes.
 
 - TikTok and Instagram discovery adapters using approved platform access.
 - A user-facing authorized creator-media upload/intake and secure storage flow. Current re-edit/compilation CLIs accept local media paths; public YouTube/TikTok/Instagram URLs are not automatically downloaded or republished.

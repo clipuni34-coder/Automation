@@ -51,7 +51,7 @@ test("creative provider falls back to OpenAI if Gemini fails", async () => {
   let calls = 0;
   const fetchImpl = async (url) => {
     calls += 1;
-    if (url.includes("generativelanguage")) return { ok: false, status: 503 };
+    if (url.includes("generativelanguage")) return { ok: false, status: 400, text: async () => "Invalid request" };
     return {
       ok: true,
       json: async () => ({ choices: [{ message: { content: JSON.stringify(validPlan) } }] })
@@ -87,4 +87,23 @@ test("creative provider targets the currently recommended Gemini Flash model", a
   };
   await generateEditorialPlan({ dossier, geminiApiKey: "test-key", fetchImpl });
   assert.match(requestedUrl, /models\/gemini-3\.8-flash:generateContent/);
+});
+
+test("creative provider retries a busy Gemini model and falls back to another Flash model", async () => {
+  const requestedModels = [];
+  const fetchImpl = async (url) => {
+    const model = url.match(/models\\/([^/:]+)/)?.[1];
+    requestedModels.push(model);
+    if (model === "gemini-3.8-flash") {
+      return { ok: false, status: 503, text: async () => "temporarily unavailable" };
+    }
+    return {
+      ok: true,
+      json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(validPlan) }] } }] })
+    };
+  };
+  const result = await generateEditorialPlan({ dossier, geminiApiKey: "test-key", fetchImpl });
+  assert.equal(result.status, "ok");
+  assert.equal(result.provider, "gemini");
+  assert.deepEqual(requestedModels, ["gemini-3.8-flash", "gemini-3.8-flash", "gemini-3.7-flash"]);
 });

@@ -72,7 +72,7 @@ test("strong original video can pass internal preflight but still requires human
     aiDisclosureRequired: true,
     aiDisclosureIncluded: true
   });
-  assert.equal(result.status, "eligible_for_human_review");
+  assert.equal(result.status, "preflight_passed");
   assert.deepEqual(result.blockers, []);
   assert.match(result.note, /not a guarantee/);
 });

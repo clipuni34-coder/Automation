@@ -46,7 +46,7 @@ function audioFromResponse(payload) {
 
 export async function generateNarration({
   text, outputPath = "narration.wav", style = "Natural, engaging, confident short-form documentary narrator. Clear diction, conversational pacing, expressive but not exaggerated.",
-  voice = "Kore", apiKey = process.env.GEMINI_API_KEY ?? "", fetchImpl = fetch, timeoutMs = 120000,
+  voice = "Kore", apiKey = process.env.ENABLE_GEMINI_TTS === "true" ? (process.env.GEMINI_API_KEY ?? "") : "", fetchImpl = fetch, timeoutMs = 120000,
   localVoice = process.env.KOKORO_VOICE ?? "af_heart", localGenerator = generateKokoroNarration
 } = {}) {
   const narration = String(text ?? "").trim();

@@ -1,8 +1,6 @@
 name: Discovery scan
 
 on:
-  push:
-    branches: [autonomous-viral-discovery]
   workflow_dispatch:
     inputs:
       produce_videos:

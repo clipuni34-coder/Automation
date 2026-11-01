@@ -56,8 +56,8 @@
 - [x] Enforce creator-clip rights evidence in the FFmpeg renderer.
 - [x] Add CLI commands and unit tests for re-edit and compilation planning.
 - [ ] Add official API search for arbitrary keywords/creators beyond most-popular chart sampling.
-- [ ] Add authorized creator media intake and secure cloud asset storage.
-- [ ] Add automatic transcription and visual/audio moment detection on authorized source media.
+- [ ] Add a user-facing authorized creator-media upload/intake flow and secure cloud asset storage.
+- [ ] Add automatic transcription and visual/audio moment detection on authorized source media; current re-edit CLI consumes timed transcripts.
 - [x] Connect standalone re-edit and creator-compilation plans to render manifests with source cut points and local authorized media paths.
 - [ ] Add timed commentary placement, sound design and dynamic captions for compilation edits.
 - [ ] Add creator permission-request/expiry/revocation workflow and evidence storage.

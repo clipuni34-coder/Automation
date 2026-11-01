@@ -24,7 +24,10 @@ console.log(JSON.stringify({
     platform: item.platform,
     score: item.score,
     confidence: item.confidence,
+    momentum: item.momentum,
     evidence: item.evidence,
+    decision: item.decision,
+    decisionReasons: item.decisionReasons,
     regions: item.seenInRegions ?? [],
     categories: item.seenInCategories ?? [],
     url: item.sourceUrl

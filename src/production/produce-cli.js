@@ -44,9 +44,11 @@ else {
     const manifestPath = join(outputDir, "render-manifest.json");
     await writeFile(manifestPath, JSON.stringify(manifest, null, 2), { mode: 0o600 });
     const rendered = await renderShortVideo(manifest);
+    const qualityPath = join(outputDir, "quality-report.json");
+    await writeFile(qualityPath, JSON.stringify(rendered.visualQuality, null, 2), { mode: 0o600 });
     const packageData = buildPublishingPackage({ brief, renderResult: rendered, assets });
     const packagePath = join(outputDir, "publishing-package.json");
     await writeFile(packagePath, JSON.stringify(packageData, null, 2), { mode: 0o600 });
-    console.log(JSON.stringify({ status: "rendered", videoPath: rendered.outputPath, packagePath, scenes: rendered.scenes, durationSeconds: rendered.durationSeconds, sourceAudioPreserved: rendered.sourceAudioPreserved }, null, 2));
+    console.log(JSON.stringify({ status: "rendered", videoPath: rendered.outputPath, packagePath, qualityPath, visualQualityStatus: rendered.visualQuality.status, visualQualityScore: rendered.visualQuality.score, visualQualityWarnings: rendered.visualQuality.warnings, scenes: rendered.scenes, durationSeconds: rendered.durationSeconds, sourceAudioPreserved: rendered.sourceAudioPreserved }, null, 2));
   } catch (error) { console.error(JSON.stringify({ status: "failed", error: error.message })); process.exitCode = 1; }
 }

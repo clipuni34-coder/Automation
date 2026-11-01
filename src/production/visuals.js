@@ -91,7 +91,7 @@ export async function generateGeminiImage({ prompt, outputPath, apiKey = process
   } finally { clearTimeout(timer); }
 }
 
-export async function generateStoryboardAssets({ visualPlan, topic, outputDir = "output/visuals", apiKey = process.env.GEMINI_API_KEY ?? "", pixabayApiKey = process.env.PIXABAY_API_KEY ?? "", fetchImpl = fetch, maxScenes = 6, style = "Cinematic editorial illustration, cohesive visual language, vivid but natural color, realistic lighting, crisp details." } = {}) {
+export async function generateStoryboardAssets({ visualPlan, topic, outputDir = "output/visuals", apiKey = process.env.ENABLE_GEMINI_IMAGE_GENERATION === "true" ? (process.env.GEMINI_API_KEY ?? "") : "", pixabayApiKey = process.env.PIXABAY_API_KEY ?? "", fetchImpl = fetch, maxScenes = 6, style = "Cinematic editorial illustration, cohesive visual language, vivid but natural color, realistic lighting, crisp details." } = {}) {
   if (!Array.isArray(visualPlan) || visualPlan.length < 1) throw new Error("A non-empty visualPlan is required");
   const selected = visualPlan.slice(0, Math.max(1, Math.min(6, maxScenes)));
   await mkdir(resolve(outputDir), { recursive: true });

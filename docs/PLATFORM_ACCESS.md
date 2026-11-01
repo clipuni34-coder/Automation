@@ -47,8 +47,9 @@ Official references: [Meta Instagram API documentation](https://www.postman.com/
 
 ## Safety defaults
 
-- No platform receives a video automatically.
+- No platform receives a video automatically by default.
+- YouTube channel-level unattended publishing is only enabled after the owner explicitly configures OAuth and turns on the required auto-publish and public-publish flags; each package must independently pass its editorial, rights and technical gates.
+- Other platforms remain disabled until their official API permissions, account eligibility and per-platform consent requirements are implemented and verified.
 - The publisher must check that the current package has rights-cleared assets and a verified MP4.
-- The user must explicitly approve the target platform, caption, privacy setting and publish action.
 - A successful upload is not treated as a published post until the platform returns a confirmed published state.
 - OAuth tokens are stored only as secrets and never logged.

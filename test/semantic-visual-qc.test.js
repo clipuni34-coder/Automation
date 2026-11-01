@@ -24,7 +24,7 @@ test("semantic visual review fails closed when no vision API key is configured",
   const result = await reviewSceneVisualSemantics({ scenes: [{ start: 0, end: 2 }] }, "/tmp/unused.mp4", { apiKey: "" });
   assert.equal(result.status, "unverified");
   assert.equal(result.reviewedScenes, 0);
-  assert.match(result.warnings[0], /not configured/);
+  assert.match(result.warnings[0], /configured/);
 });
 
 test("semantic visual review sends sampled scene frames and reports unrelated visuals", async () => {

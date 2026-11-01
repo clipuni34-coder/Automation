@@ -102,3 +102,30 @@ test("Gemini TTS uses lite model when the primary daily quota is exhausted", asy
     assert.deepEqual(models, ["gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts"]);
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
+
+test("Gemini quota exhaustion falls back to the local Kokoro voice provider", async () => {
+  let calls = 0;
+  const result = await generateNarration({
+    text: "This is a sufficiently long narration for local Kokoro fallback testing.",
+    outputPath: join(tmpdir(), "unused-kokoro.wav"),
+    apiKey: "test-key",
+    fetchImpl: async () => { calls += 1; return new Response("daily quota exceeded", { status: 429 }); },
+    localGenerator: async ({ text, outputPath, voice }) => ({
+      status: "generated", provider: "kokoro-onnx", textLength: text.length, outputPath, voice, format: "wav"
+    })
+  });
+  assert.equal(calls, 2);
+  assert.equal(result.provider, "kokoro-onnx");
+  assert.equal(result.voice, "af_heart");
+  assert.match(result.fallbackReason, /quota exceeded/i);
+});
+
+test("local Kokoro can provide narration when no cloud API key is configured", async () => {
+  const result = await generateNarration({
+    text: "This is a sufficiently long narration for local-only speech synthesis testing.",
+    apiKey: "",
+    localGenerator: async () => ({ status: "generated", provider: "kokoro-onnx", format: "wav" })
+  });
+  assert.equal(result.status, "generated");
+  assert.equal(result.provider, "kokoro-onnx");
+});

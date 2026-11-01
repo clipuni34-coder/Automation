@@ -186,6 +186,8 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_VISION_MODEL: 'openrouter/free'
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
           ENABLE_GEMINI_TTS: ${{ vars.ENABLE_GEMINI_TTS || 'false' }}
           ENABLE_GEMINI_IMAGE_GENERATION: ${{ vars.ENABLE_GEMINI_IMAGE_GENERATION || 'false' }}

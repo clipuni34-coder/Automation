@@ -123,7 +123,7 @@ export async function generateStoryboardAssets({ visualPlan, topic, outputDir = 
           const { asset, match } = ranked[0];
           const destination = join(resolve(outputDir), "scene-" + String(index + 1).padStart(2, "0") + ".mp4");
           const downloaded = await downloadPixabayVideo(asset, destination, { fetchImpl });
-          assets.push({ videoPath: downloaded.path, sourceType: "licensed_stock", sourceUrl: downloaded.sourceUrl, license: downloaded.license, attribution: downloaded.attribution, visualMatch: { query, score: match.score, matchedTerms: match.matchedTerms, requestedTerms: match.requestedTerms } });
+          assets.push({ videoPath: downloaded.path, sourceType: "licensed_stock", sourceUrl: downloaded.sourceUrl, license: downloaded.license, attribution: downloaded.attribution, tagRelevance: { query, score: match.score, matchedTerms: match.matchedTerms, requestedTerms: match.requestedTerms } });
           continue;
         }
         console.warn("No Pixabay footage passed the visual relevance check for scene " + (index + 1) + "; refusing unrelated stock and using an original graphic. Search terms: " + scorePixabayRelevance(query, {}).requestedTerms.join(", "));

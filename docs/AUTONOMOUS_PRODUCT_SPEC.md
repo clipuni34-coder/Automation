@@ -47,6 +47,14 @@ Reject weak, stale, misleading, rights-unclear or low-confidence candidates. The
 - Block production/publication if essential assets have unclear rights.
 - Never remove watermarks to disguise another creator's work or create a near-identical unauthorized copy.
 
+### 4B. Standalone viral re-editing and compilations
+The system supports three editorial formats and selects among them based on opportunity and rights:
+- **Standalone re-edit:** analyze a high-performing reference video, identify its strongest complete moments, and create a distinct edit plan with tighter pacing, stronger truthful opening, context-preserving cuts, captions and original commentary where it adds value.
+- **Creator compilation:** assemble separately authorized moments from one or more creators into a ranked story (for example, a top-moments format), with original intro, context between moments, escalation and payoff.
+- **Original video:** create a new treatment from research, licensed/owned/generated visuals, animation and narration.
+
+Reference-only videos may be analyzed through permitted metadata/transcripts but are not renderable source media. Each third-party clip must pass the asset rights gate independently, including permission/license evidence, platform scope and expiry. Credit and editing do not themselves establish permission. The planner must not assume that a compilation or re-edit is legally transformative; legal exceptions are jurisdiction- and fact-specific.
+
 ### 5. Creative strategy
 Generate several genuinely different angles and hooks. Select a treatment based on:
 - first-second / first-three-second clarity;

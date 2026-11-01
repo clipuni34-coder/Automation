@@ -43,11 +43,13 @@ export async function reviewSceneVisualSemantics(manifest, videoPath, {
     for (const [index, scene] of scenes.entries()) {
       const midpoint = Math.max(0, (Number(scene.start) + Number(scene.end)) / 2);
       const framePath = join(dir, "scene-" + (index + 1) + ".jpg");
+      // Keep this outside try so the failure handler can always report the scene
+      // description even when frame extraction or the OpenAI request fails.
+      const description = String(scene.visualDescription ?? scene.narrationContext ?? scene.caption ?? "").slice(0, 700);
       try {
         await run(ffmpegPath, ["-hide_banner", "-loglevel", "error", "-ss", String(midpoint), "-i", resolve(videoPath), "-frames:v", "1", "-vf", "scale=512:-2", "-q:v", "5", "-y", framePath]);
         const bytes = await readFile(framePath);
         if (bytes.length < 1000 || bytes.length > 5 * 1024 * 1024) throw new Error("Sampled frame is empty or too large");
-        const description = String(scene.visualDescription ?? scene.narrationContext ?? scene.caption ?? "").slice(0, 700);
         const response = await fetchImpl("https://api.openai.com/v1/chat/completions", {
           method: "POST",
           headers: { authorization: "Bearer " + apiKey, "content-type": "application/json" },

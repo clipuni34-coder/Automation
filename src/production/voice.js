@@ -64,7 +64,10 @@ export async function generateNarration({
       await writeFile(outputPath, bytes, { mode: 0o600 });
       return { status: "generated", provider: "gemini", model, outputPath, bytes: bytes.length, format: "wav", voice };
     } catch (error) {
-      if (error.message.startsWith("TTS_QUOTA:")) throw new Error(error.message.slice(10));
+      if (error.message.startsWith("TTS_QUOTA:")) {
+        if (model !== MODELS.at(-1)) { errors.push(error.message.slice(10)); continue; }
+        throw new Error(error.message.slice(10));
+      }
       if (error.name === "AbortError") errors.push("Gemini TTS request timed out");
       else if (!errors.includes(error.message)) errors.push(error.message);
       if (/quota|resource_exhausted/i.test(error.message)) break;

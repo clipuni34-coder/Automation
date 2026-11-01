@@ -67,4 +67,4 @@ npm test
 
 ## Project status
 
-The discovery foundation is an early, tested-by-unit-tests code slice; live provider access still requires configuration and has not been verified in this repository environment. Research verification, multi-source topic clustering, saturation analysis, production, platform OAuth, publishing and analytics remain future phases. See [the roadmap](docs/ROADMAP.md).
+The discovery foundation is tested by unit tests and has completed a live YouTube chart scan. A first source-grounded research adapter now uses Tavily Search API to collect linked source excerpts into a provenance-preserving dossier. Search excerpts are deliberately marked unverified; claim verification and AI editorial reasoning are not implemented yet. Video production, platform OAuth, publishing and analytics remain future phases. See [the roadmap](docs/ROADMAP.md).

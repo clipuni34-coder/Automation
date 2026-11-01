@@ -2,14 +2,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { fetchYouTubeAnalyticsReport, rowsToObjects } from "../src/platforms/youtube/analytics.js";
 
-test("requests authorized channel analytics with content type filters", async () => {
+test("requests authorized channel analytics using the supported creatorContentType dimension", async () => {
   let requestedUrl;
   const report = await fetchYouTubeAnalyticsReport({
     accessToken: "token",
     startDate: "2026-08-01",
     endDate: "2026-10-30",
-    dimensions: "video,creatorContentType",
-    filters: "creatorContentType==SHORTS",
+    dimensions: "creatorContentType",
     metrics: "views,averageViewPercentage",
     sort: "-views",
     fetchImpl: async url => {
@@ -20,7 +19,8 @@ test("requests authorized channel analytics with content type filters", async ()
       }) };
     }
   });
-  assert.equal(requestedUrl.searchParams.get("filters"), "creatorContentType==SHORTS");
+  assert.equal(requestedUrl.searchParams.get("dimensions"), "creatorContentType");
+  assert.equal(requestedUrl.searchParams.has("filters"), false);
   assert.equal(requestedUrl.searchParams.get("ids"), "channel==MINE");
   assert.equal(report.rows.length, 1);
   assert.deepEqual(rowsToObjects(report), [{ video: "video123", views: 5000, averageViewPercentage: 78.5 }]);

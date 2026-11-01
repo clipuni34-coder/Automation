@@ -71,7 +71,7 @@ test("Gemini TTS falls back to lite model only for unavailable model responses",
   }
 });
 
-test("Gemini TTS fails closed without a key and does not retry quota failures", async () => {
+test("Gemini TTS fails closed without a key and tries lite once after primary quota exhaustion", async () => {
   const missing = await generateNarration({ text: "This is a sufficiently long narration for missing key testing.", apiKey: "" });
   assert.equal(missing.status, "not_configured");
   let calls = 0;
@@ -80,5 +80,25 @@ test("Gemini TTS fails closed without a key and does not retry quota failures", 
     outputPath: join(tmpdir(), "unused-voice-quota.wav"), apiKey: "test-key",
     fetchImpl: async () => { calls += 1; return new Response("quota exceeded", { status: 429 }); }
   }), /quota exceeded/i);
-  assert.equal(calls, 1);
+  assert.equal(calls, 2);
+});
+
+test("Gemini TTS uses lite model when the primary daily quota is exhausted", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "voice-quota-fallback-"));
+  const models = [];
+  try {
+    const result = await generateNarration({
+      text: "This is a sufficiently long narration for daily quota fallback testing.",
+      outputPath: join(dir, "voice.wav"), apiKey: "test-key",
+      fetchImpl: async (_url, options) => {
+        const model = JSON.parse(options.body).model;
+        models.push(model);
+        if (model === "gemini-3.8-flash-tts") return new Response("daily quota exceeded", { status: 429 });
+        return new Response(JSON.stringify({ output_audio: { data: fakeWav().toString("base64") } }), { status: 200 });
+      }
+    });
+    assert.equal(result.status, "generated");
+    assert.equal(result.model, "gemini-3.8-flash-lite-tts");
+    assert.deepEqual(models, ["gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts"]);
+  } finally { await rm(dir, { recursive: true, force: true }); }
 });

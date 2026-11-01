@@ -105,6 +105,45 @@ jobs:
             fi
           done
           echo "Creative briefs generated: $generated; failed: $failed"
+      - name: Render original videos when explicitly enabled
+        if: vars.PRODUCE_VIDEOS == 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        run: |
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "::warning::GEMINI_API_KEY is required for narration; skipping video production."
+            exit 0
+          fi
+
+          shopt -s nullglob
+          briefs=(research-*.creative.json)
+          if [ ${#briefs[@]} -eq 0 ]; then
+            echo "No creative briefs available for production."
+            exit 0
+          fi
+
+          rendered=0
+          failed=0
+          for brief in "${briefs[@]}"; do
+            output_dir="output/${brief%.json}"
+            if npm run produce -- "$brief" "$output_dir"; then
+              rendered=$((rendered + 1))
+            else
+              failed=$((failed + 1))
+              echo "::warning::Video production failed for $brief; continuing."
+            fi
+          done
+          echo "Videos rendered: $rendered; failed: $failed"
+
+      - name: Save rendered videos and production packages
+        if: always() && hashFiles('output/**/short.mp4') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-videos
+          path: output/
+          retention-days: 14
+
       - name: Save creative briefs
         if: always() && hashFiles('research-*.creative.json') != ''
         uses: actions/upload-artifact@v4

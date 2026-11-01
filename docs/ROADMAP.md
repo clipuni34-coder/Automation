@@ -70,7 +70,7 @@
 - [ ] Enable unattended scheduling only where platform rules and explicit user configuration permit it.
 
 ## Phase 6 — Analytics and learning
-- [ ] Collect only metrics available and permitted through each platform.
+- [x] Add platform-metric normalization for retention, engagement, viewed-versus-swiped, CTR and subscriber gains, plus sample-size-aware experiment suggestions.\n- [x] Add a YouTube monetization threshold calculator distinguishing Nigeria's expanded YPP entry from full ad-revenue eligibility.\n- [x] Add a fail-closed video monetization preflight for rights evidence, original contribution, transformation, repetition, fact review, metadata and required synthetic-media disclosure.\n- [ ] Collect only metrics available and permitted through each platform.
 - [ ] Store source/timestamp for platform-reported metrics.
 - [ ] Separate measured metrics from internal heuristic scores.
 - [ ] Build sample-size-aware experiments for hooks, formats, pacing and topics; use outcome data to learn channel-specific strategy.

@@ -136,3 +136,47 @@ function numberOrNull(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
+
+export async function searchYouTubeVideos({
+  apiKey, queries = [], maxResults = 20, order = "viewCount", regionCode = "US", fetchImpl = fetch
+} = {}) {
+  if (!apiKey) return { source: "youtube_search", status: "not_configured", items: [], requests: 0 };
+  const terms = [...new Set(queries.map(value => String(value).trim()).filter(Boolean))].slice(0, 5);
+  if (!terms.length) return { source: "youtube_search", status: "not_configured", items: [], requests: 0 };
+  if (!["date", "rating", "relevance", "viewCount"].includes(order)) throw new Error("Unsupported YouTube search order");
+  const itemsById = new Map();
+  const failures = [];
+  let requests = 0;
+  for (const query of terms) {
+    try {
+      const searchUrl = new URL(`${API_ROOT}/search`);
+      searchUrl.search = new URLSearchParams({ part: "snippet", type: "video", q: query, order, regionCode, maxResults: String(Math.max(1, Math.min(50, maxResults))) });
+      const searchResponse = await fetchImpl(searchUrl, { headers: { accept: "application/json", "x-goog-api-key": apiKey }, signal: AbortSignal.timeout(20000) });
+      requests++;
+      if (!searchResponse.ok) throw new Error(`YouTube search returned HTTP ${searchResponse.status}`);
+      const searchPayload = await searchResponse.json();
+      const found = (searchPayload.items ?? []).filter(item => item.id?.videoId).slice(0, 50);
+      if (!found.length) continue;
+      const detailsUrl = new URL(`${API_ROOT}/videos`);
+      detailsUrl.search = new URLSearchParams({ part: "snippet,statistics,contentDetails", id: found.map(item => item.id.videoId).join(",") });
+      const detailsResponse = await fetchImpl(detailsUrl, { headers: { accept: "application/json", "x-goog-api-key": apiKey }, signal: AbortSignal.timeout(20000) });
+      requests++;
+      if (!detailsResponse.ok) throw new Error(`YouTube video details returned HTTP ${detailsResponse.status}`);
+      const details = await detailsResponse.json();
+      for (const video of details.items ?? []) {
+        if (!video.id || !video.snippet?.title) continue;
+        itemsById.set(video.id, {
+          id: `youtube:${video.id}`, platform: "youtube", sourceUrl: `https://www.youtube.com/watch?v=${video.id}`,
+          creator: video.snippet.channelTitle ?? null, creatorId: video.snippet.channelId ?? null,
+          title: video.snippet.title, description: video.snippet.description ?? "",
+          publishedAt: video.snippet.publishedAt ?? null, categoryId: video.snippet.categoryId ?? null,
+          metrics: { views: numberOrNull(video.statistics?.viewCount), likes: numberOrNull(video.statistics?.likeCount), comments: numberOrNull(video.statistics?.commentCount) },
+          observedAt: new Date().toISOString(), collectionMethod: "YouTube Data API search.list and videos.list",
+          searchQueries: [query], rightsStatus: "reference_only"
+        });
+      }
+    } catch (error) { failures.push({ query, error: error.message }); }
+  }
+  const items = [...itemsById.values()];
+  return { source: "youtube_search", status: failures.length ? (items.length ? "partial" : "error") : "ok", items, requests, queries: terms, failures };
+}

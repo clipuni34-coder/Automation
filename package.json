@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Personal social media automation for YouTube, Instagram, and TikTok.",
+  "description": "Personal autonomous social media discovery and automation.",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
+    "discover": "node src/discovery/cli.js",
     "test": "node --test"
   }
 }

@@ -101,9 +101,9 @@ export function auditVideoForMonetization({
   };
   const blockers = Object.entries(checks).filter(([, passed]) => !passed).map(([name]) => name);
   return {
-    status: blockers.length ? "blocked_pending_review" : "eligible_for_human_review",
+    status: blockers.length ? "blocked_pending_review" : "preflight_passed",
     checks,
     blockers,
-    note: "This is an internal preflight, not a guarantee of copyright clearance, advertiser suitability or YouTube monetization approval. Human review is required."
+    note: "This is an internal preflight, not a guarantee of copyright clearance, advertiser suitability or YouTube monetization approval. Ambiguous or unsupported cases must remain held for human review."
   };
 }

@@ -50,7 +50,7 @@ test("Gemini TTS saves returned WAV audio and sends style/voice controls", async
   }
 });
 
-test("Gemini TTS falls back to lite model only for unavailable model responses", async () => {
+test("Gemini TTS falls back to lite model only for unavailable model responses", async () => {\n  const dir = await mkdtemp(join(tmpdir(), "voice-fallback-"));
   const models = [];
   const result = await generateNarration({
     text: "This is a sufficiently long narration for model fallback testing.",

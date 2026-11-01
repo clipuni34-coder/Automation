@@ -2,6 +2,15 @@
 
 Publishing is deliberately disabled. Discovery API keys are not sufficient to publish to user accounts; each platform requires account authorization and app configuration.
 
+## Discovery access limitations
+
+- YouTube public discovery currently uses the official Data API for popular charts and bounded keyword searches. Its search endpoint has a separate daily quota bucket; keep query counts bounded and monitor the Google Cloud quota page.
+- TikTok's Research API is not a general-purpose creator trend API. TikTok says Research Tools are for approved qualifying researchers and nonprofit/academic research use; access requires an application and approval. It should not be assumed available to this personal creator workflow.
+- TikTok's standard user-authorized video query API is for retrieving videos belonging to the authorizing user; it is not a general public-video search endpoint. The Content Posting API is a separate capability and does not provide broad trend discovery.
+- Until an eligible, approved discovery route is available, the system must not claim full TikTok coverage. It can use TikTok references supplied through permitted means and research public trend signals from other sources.
+
+Official references: [YouTube API quota costs](https://developers.google.com/youtube/data/determine_quota_cost), [TikTok Research Tools eligibility](https://developers.tiktok.com/products/research-api/), [TikTok Research API overview](https://developers.tiktok.com/docs/en/about-research-api), [TikTok user video query](https://developers.tiktok.com/docs/en/tiktok-api-v2-video-query).
+
 ## YouTube Shorts
 
 - Create a Google Cloud OAuth 2.0 client for the application.

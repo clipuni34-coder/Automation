@@ -14,4 +14,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm test
+      - name: Install FFmpeg for render integration tests\n        run: |\n          sudo apt-get update\n          sudo apt-get install -y ffmpeg\n      - run: npm test

@@ -78,7 +78,10 @@ async function callGemini(prompt, apiKey, fetchImpl, timeoutMs) {
       }),
       signal: controller.signal
     });
-    if (!response.ok) {\n      const detail = await response.text().catch(() => "");\n      throw new Error(`Gemini returned HTTP ${response.status}${detail ? `: ${detail.slice(0, 1200)}` : ""}`);\n    }
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      throw new Error(`Gemini returned HTTP ${response.status}${detail ? `: ${detail.slice(0, 1200)}` : ""}`);
+    }
     const payload = await response.json();
     const text = payload.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("");
     if (!text) throw new Error("Gemini returned an empty response");

@@ -50,20 +50,25 @@ test("Gemini TTS saves returned WAV audio and sends style/voice controls", async
   }
 });
 
-test("Gemini TTS falls back to lite model only for unavailable model responses", async () => {\n  const dir = await mkdtemp(join(tmpdir(), "voice-fallback-"));
+test("Gemini TTS falls back to lite model only for unavailable model responses", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "voice-fallback-"));
   const models = [];
-  const result = await generateNarration({
-    text: "This is a sufficiently long narration for model fallback testing.",
-    outputPath: join(tmpdir(), "unused-voice-fallback.wav"), apiKey: "test-key",
-    fetchImpl: async (_url, options) => {
-      const model = JSON.parse(options.body).model;
-      models.push(model);
-      if (models.length === 1) return new Response("model not found", { status: 404 });
-      return new Response(JSON.stringify({ output_audio: { data: fakeWav().toString("base64") } }), { status: 200 });
-    }
-  });
-  assert.equal(result.model, "gemini-3.8-flash-lite-tts");
-  assert.deepEqual(models, ["gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts"]);
+  try {
+    const result = await generateNarration({
+      text: "This is a sufficiently long narration for model fallback testing.",
+      outputPath: join(dir, "voice.wav"), apiKey: "test-key",
+      fetchImpl: async (_url, options) => {
+        const model = JSON.parse(options.body).model;
+        models.push(model);
+        if (models.length === 1) return new Response("model not found", { status: 404 });
+        return new Response(JSON.stringify({ output_audio: { data: fakeWav().toString("base64") } }), { status: 200 });
+      }
+    });
+    assert.equal(result.model, "gemini-3.8-flash-lite-tts");
+    assert.deepEqual(models, ["gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts"]);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });
 
 test("Gemini TTS fails closed without a key and does not retry quota failures", async () => {

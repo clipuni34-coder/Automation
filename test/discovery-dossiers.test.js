@@ -14,7 +14,7 @@ test("builds cautious dossiers from high-scoring public discovery candidates", (
   assert.equal(result[0].researchStatus, "discovery_metadata_only");
   assert.equal(result[0].evidence[0].verification, "unverified_search_result");
   assert.equal(result[0].evidence[0].rightsStatus, "reference_only");
-  assert.ok(result[0].limitations.some(item => item.includes("not independently fact-checked")));
+  assert.match(result[0].summary, /not independently fact-checked/);
 });
 
 test("deduplicates topics and writes safe, deterministic dossier filenames", async () => {

@@ -12,6 +12,7 @@ Working branch: `autonomous-viral-discovery`
 - Official YouTube OAuth token refresh, channel-identity verification, resumable video upload and processing-status polling are wired into the scheduled workflow behind channel-level opt-in. Packages are auto-approved only when rights, original contribution, factual claims, metadata, cross-channel duplicate detection and semantic visual QC all pass. Successful uploads are recorded in persistent content history.
 - Potentially billable Gemini/OpenAI creative, TTS, image and vision calls are now disabled by default and require explicit per-provider workflow variables. OpenRouter free vision QC is the no-paid semantic scene-check path.
 - Official YouTube Analytics report retrieval is implemented for Shorts and long-form windows plus top videos. Scheduled sync is optional and archives a metrics snapshot; no account is connected yet.
+- YouTube comment inbox retrieval and conservative reply drafting are implemented behind `SYNC_YOUTUBE_COMMENTS=true`. Spam/abusive comments are held; the workflow saves drafts only and does not publish replies.
 
 - Scheduled discovery now also samples public Google Trends Trending Now RSS feeds for NG, US, GB, IN, ZA, CA and AU; these are limited search-interest signals, not a full Trends API or video virality measure.
 - YouTube discovery uses the official Data API: regional/category most-popular charts plus bounded keyword searches for recent videos. Keyword results are references only, not reusable media.
@@ -52,7 +53,7 @@ Working branch: `autonomous-viral-discovery`
 
 - The owner must create each YouTube channel in YouTube/Google and authorize the app. The YouTube Data API does not provide a general channel-creation endpoint. No channel ID, refresh token, or active channel profile was present in the latest discovery run.
 - The workflow has no OpenRouter API secret. Gemini and OpenAI secrets exist in GitHub Actions, but creative calls are deliberately disabled. No paid provider will be enabled without the owner's explicit approval.
-- YouTube comment inbox monitoring, moderation and authentic reply workflows are not implemented yet. Artificial likes, views, subscribers, comments or watch time will not be generated; organic engagement cannot be guaranteed.
+- The comment inbox and reply-draft stage is implemented but has not been live-tested against an authorized channel. Public reply posting and a human approval interface are not enabled. Artificial likes, views, subscribers, comments or watch time will not be generated; organic engagement cannot be guaranteed.
 - No live render, upload, or channel analytics sync has been verified for this account. The workflow currently defaults to discovery-only.
 
 ## Not finished yet
@@ -65,6 +66,7 @@ Working branch: `autonomous-viral-discovery`
 - Full word-level captions, sound design, A/B MP4 variants and deeper editorial QC.
 - Live channel OAuth consent/credential setup, end-to-end upload testing, channel identity validation, approval automation and persistent analytics learning.
 - A persistent user-facing dashboard/upload workflow.
+- Live YouTube comment sync and owner-approved reply publishing (requires the appropriate OAuth comment scope and an approval interface).
 
 ## Production safety
 

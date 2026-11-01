@@ -197,8 +197,8 @@ async function callOpenRouter(prompt, apiKey, fetchImpl, timeoutMs, model = proc
 
 export async function generateEditorialPlan({
   dossier,
-  geminiApiKey = process.env.GEMINI_API_KEY ?? "",
-  openaiApiKey = process.env.OPENAI_API_KEY ?? "",
+  geminiApiKey = process.env.ENABLE_GEMINI_CREATIVE === "true" ? (process.env.GEMINI_API_KEY ?? "") : "",
+  openaiApiKey = process.env.ENABLE_OPENAI_CREATIVE === "true" ? (process.env.OPENAI_API_KEY ?? "") : "",
   openrouterApiKey = process.env.OPENROUTER_API_KEY ?? "",
   openrouterModel = process.env.OPENROUTER_MODEL ?? "openrouter/free",
   fetchImpl = fetch,

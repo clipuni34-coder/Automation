@@ -228,3 +228,7 @@ Each scheduled discovery run also groups YouTube trend observations by category,
 ### Free creative-model fallback
 
 Creative briefs now try Gemini, then OpenAI, then OpenRouter's free-model router (`openrouter/free`). The workflow hard-locks the OpenRouter fallback to the free router or a `:free` model ID, so it will not silently call a paid model. OpenRouter's free tier is rate-limited (currently 50 requests/day on a free account); one brief per scheduled run is intentionally conservative. Add `OPENROUTER_API_KEY` as a GitHub Actions secret to use this fallback. If Tavily is unavailable, the workflow still creates clearly labelled discovery-only dossiers, but those are metadata leads rather than independent fact-checked research.
+
+### No surprise paid API calls
+
+Gemini creative, Gemini TTS, Gemini image generation, OpenAI creative and OpenAI vision QC are disabled by default. They only run when the matching GitHub Actions variable is explicitly set to `true`. The normal no-paid path is OpenRouter's free-model router for creative briefs, Kokoro local TTS, Pixabay stock where relevant, and original local graphics. This keeps the workflow from silently consuming paid API credits.

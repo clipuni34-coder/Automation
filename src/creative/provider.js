@@ -33,7 +33,9 @@ function validatePlan(plan) {
     targetAudience: String(plan.targetAudience).slice(0, 300),
     recommendedAngle: String(plan.recommendedAngle).slice(0, 1000),
     alternativeAngles: Array.isArray(plan.alternativeAngles) ? plan.alternativeAngles.slice(0, 3) : [],
-    hookOptions: plan.hookOptions.slice(0, 5).map((item) => String(item).slice(0, 500)),\n    fullScript: plan.fullScript.trim().slice(0, 12000),\n    estimatedDurationSeconds: Math.max(10, Math.min(180, Number(plan.estimatedDurationSeconds) || 45)),
+    hookOptions: plan.hookOptions.slice(0, 5).map((item) => String(item).slice(0, 500)),
+    fullScript: plan.fullScript.trim().slice(0, 12000),
+    estimatedDurationSeconds: Math.max(10, Math.min(180, Number(plan.estimatedDurationSeconds) || 45)),
     scriptBeats: plan.scriptBeats.slice(0, 12).map((beat) => ({
       time: String(beat.time ?? "").slice(0, 40),
       purpose: String(beat.purpose ?? "").slice(0, 160),

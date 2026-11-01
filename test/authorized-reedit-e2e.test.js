@@ -53,15 +53,24 @@ test("authorized source re-edit runs from timed transcript through real vertical
   }
 });
 
-test("end-to-end re-edit refuses reference-only viral source footage", async () => {
-  await assert.rejects(runAuthorizedReedit({
-    sourceLocalPath: "/not-read-before-rights-check.mp4",
-    outputPath: "/tmp/blocked.mp4",
-    source: {
-      sourceUrl: "https://youtube.com/watch?v=reference-only",
-      durationSeconds: 20,
-      rightsStatus: "reference_only"
-    },
-    transcriptSegments: [{ start: 1, end: 3, text: "A moment", signals: { hook: 9 } }]
-  }), /Rights|access|ENOENT/i);
+test("reference-only discovered videos stay analysis-only and are never rendered", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "reference-only-reedit-"));
+  try {
+    const sourceLocalPath = join(dir, "reference.mp4");
+    await writeFile(sourceLocalPath, "not rendered");
+    const result = await runAuthorizedReedit({
+      sourceLocalPath,
+      outputPath: join(dir, "blocked.mp4"),
+      source: {
+        sourceUrl: "https://youtube.com/watch?v=reference-only",
+        durationSeconds: 20,
+        rightsStatus: "reference_only"
+      },
+      transcriptSegments: [{ start: 1, end: 3, text: "A moment", signals: { hook: 9 } }]
+    });
+    assert.equal(result.status, "analysis_only");
+    assert.equal(result.rendered, null);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });

@@ -45,3 +45,18 @@ test("original creative brief maps generated visuals to timed vertical render sc
   assert.equal(manifest.scenes[1].end, 40);
   assert.equal(manifest.scenes[0].caption, "First line");
 });
+
+
+test("original render manifest prefers concise editorial beat captions over full narration", async () => {
+  const { buildOriginalRenderManifest } = await import("../src/production/plan-manifest.js");
+  const manifest = buildOriginalRenderManifest({
+    brief: { topic: "Sports", editorial: {
+      visualPlan: [{ visual: "A dramatic stadium crowd" }],
+      scriptBeats: [{ narration: "A long spoken sentence that explains the entire surprising moment in detail for the audience.", caption: "Nobody expected this!" }]
+    } },
+    assets: [{ imagePath: "/assets/one.ppm", sourceType: "original_graphic" }],
+    audioPath: "/audio/voice.wav", outputPath: "/out/short.mp4", totalDurationSeconds: 12
+  });
+  assert.equal(manifest.scenes[0].caption, "Nobody expected this!");
+  assert.ok(manifest.scenes[0].caption.length <= 52);
+});

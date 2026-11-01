@@ -32,9 +32,9 @@ The service currently exposes:
 
 ## First discovery engine slice
 
-The initial discovery CLI collects:
-- YouTube's regional most-popular video chart through the official YouTube Data API v3 (requires `YOUTUBE_DATA_API_KEY`).
-- Public RSS/Atom feeds listed in `RSS_FEEDS` (comma-separated).
+The discovery CLI currently samples YouTube's most-popular charts through the official YouTube Data API v3 across 12 regions (US, GB, CA, AU, IN, NG, ZA, BR, MX, DE, JP and KR) and 15 category IDs spanning film, autos, music, pets, sports, travel, gaming, people/blogs, comedy, entertainment, news, how-to, education, science/technology and nonprofits. It makes up to 180 chart requests per scan, deduplicates videos found in multiple regions/categories, and records coverage metadata. The region/category lists can be overridden with `DISCOVERY_REGIONS` and `DISCOVERY_CATEGORIES`. This is a broad sample of popular-chart videos, not every video uploaded to YouTube or every country.
+
+It also collects public RSS/Atom feeds listed in `RSS_FEEDS` (comma-separated), when configured.
 
 Run it:
 
@@ -51,9 +51,9 @@ Candidate scores are transparent heuristics, not predictions of virality. First-
 1. Create a Google Cloud project.
 2. Enable YouTube Data API v3.
 3. Create an API key and set `YOUTUBE_DATA_API_KEY` in your deployment environment.
-4. Set `DISCOVERY_REGION=NG` (or another supported two-letter region code).
+4. Set `DISCOVERY_REGIONS=US,GB,CA,AU,IN,NG,ZA,BR,MX,DE,JP,KR` and optionally `DISCOVERY_CATEGORIES=1,2,10,15,17,19,20,22,23,24,25,26,27,28,29`.
 
-YouTube's `videos.list` `mostPopular` chart is used initially; broader keyword discovery and other platform connectors will be added after quota and source-quality tests.
+YouTube's `videos.list` `mostPopular` chart is sampled by region and category. This does not cover all uploads, private/unlisted videos, or all regional trends. Keyword-based discovery and other platform connectors remain future work.
 
 ### RSS setup
 

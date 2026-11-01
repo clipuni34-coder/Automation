@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
-import { searchPixabayVideos, downloadPixabayVideo } from "./pixabay.js";
+import { searchPixabayVideos, downloadPixabayVideo, scorePixabayRelevance } from "./pixabay.js";
 
 const GEMINI_IMAGE_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
 const IMAGE_MODEL = "gemini-nano-banana-2.1";
@@ -114,16 +114,19 @@ export async function generateStoryboardAssets({ visualPlan, topic, outputDir = 
     }
     if (pixabayApiKey) {
       try {
-        const query = String(item.visual ?? item.description ?? topic ?? "cinematic vertical footage").slice(0, 160);
-        const found = await searchPixabayVideos({ query, apiKey: pixabayApiKey, fetchImpl, perPage: 5 });
-        if (found.videos.length) {
-          const asset = found.videos[0];
+        const query = String(item.visual ?? item.description ?? topic ?? "").slice(0, 160);
+        const found = await searchPixabayVideos({ query, apiKey: pixabayApiKey, fetchImpl, perPage: 20 });
+        const ranked = found.videos.map((asset) => ({ asset, match: scorePixabayRelevance(query, asset) }))
+          .filter((candidate) => candidate.match.relevant)
+          .sort((a, b) => b.match.score - a.match.score || (b.asset.file.width * b.asset.file.height) - (a.asset.file.width * a.asset.file.height));
+        if (ranked.length) {
+          const { asset, match } = ranked[0];
           const destination = join(resolve(outputDir), "scene-" + String(index + 1).padStart(2, "0") + ".mp4");
           const downloaded = await downloadPixabayVideo(asset, destination, { fetchImpl });
-          assets.push({ videoPath: downloaded.path, sourceType: "licensed_stock", sourceUrl: downloaded.sourceUrl, license: downloaded.license, attribution: downloaded.attribution });
+          assets.push({ videoPath: downloaded.path, sourceType: "licensed_stock", sourceUrl: downloaded.sourceUrl, license: downloaded.license, attribution: downloaded.attribution, visualMatch: { query, score: match.score, matchedTerms: match.matchedTerms, requestedTerms: match.requestedTerms } });
           continue;
         }
-        console.warn("No Pixabay stock footage found for scene " + (index + 1) + "; using an original graphic.");
+        console.warn("No Pixabay footage passed the visual relevance check for scene " + (index + 1) + "; refusing unrelated stock and using an original graphic. Search terms: " + scorePixabayRelevance(query, {}).requestedTerms.join(", "));
       } catch (error) {
         console.warn("Pixabay unavailable for scene " + (index + 1) + "; using an original graphic: " + error.message);
       }

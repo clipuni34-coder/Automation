@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { refreshYouTubeAccessToken, uploadYouTubeVideo, waitForYouTubeProcessing, getAuthorizedYouTubeChannel } from "./publisher.js";
+import { recordPublishedContent } from "../../strategy/content-history.js";
 
 const packagePath = process.argv[2];
 if (!packagePath) {
@@ -15,6 +16,8 @@ if (!packagePath) {
       throw new Error("Package is not approved for autonomous upload. It must pass the monetization preflight and editorial approval workflow first.");
     }
     if (pkg.quality?.visualQualityStatus !== "passed") throw new Error("Video quality status must be passed before upload.");
+    if (pkg.monetizationPreflight?.status !== "preflight_passed" || pkg.monetizationPreflight?.blockers?.length) throw new Error("Monetization and rights preflight has not passed.");
+    if (pkg.contentDistinctness?.distinct !== true || !pkg.contentFingerprint) throw new Error("Content originality check has not passed.");
     const privacyStatus = process.env.YOUTUBE_PUBLISH_PRIVACY ?? "private";
     if (privacyStatus === "public" && process.env.YOUTUBE_ALLOW_PUBLIC_PUBLISH !== "true") {
       throw new Error("Public upload is disabled. Set YOUTUBE_ALLOW_PUBLIC_PUBLISH=true after completing an unlisted/private test.");
@@ -37,7 +40,21 @@ if (!packagePath) {
       }
     });
     const processing = await waitForYouTubeProcessing({ videoId: result.videoId, accessToken: token.accessToken });
-    const completed = { ...result, ...processing, authorizedChannel, status: "processing_complete", processedAt: new Date().toISOString() };
+    let contentHistoryStatus = "not_recorded";
+    try {
+      await recordPublishedContent(process.env.CONTENT_HISTORY_PATH ?? "data/content-history.json", {
+        channelId: authorizedChannel.channelId,
+        videoId: result.videoId,
+        fingerprint: pkg.contentFingerprint,
+        scriptTokens: pkg.contentTokens ?? [],
+        title: pkg.title
+      });
+      contentHistoryStatus = "recorded";
+    } catch (historyError) {
+      contentHistoryStatus = "failed";
+      console.error("Warning: upload succeeded but content history could not be saved: " + historyError.message);
+    }
+    const completed = { ...result, ...processing, authorizedChannel, contentHistoryStatus, status: "processing_complete", processedAt: new Date().toISOString() };
     const outputPath = absolutePackagePath.replace(/\.json$/i, ".youtube-upload.json");
     await writeFile(outputPath, JSON.stringify(completed, null, 2) + "\n", { mode: 0o600 });
     console.log(JSON.stringify({ ...completed, outputPath }, null, 2));

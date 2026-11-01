@@ -1,4 +1,4 @@
-import { collectYouTubePopular } from "./sources/youtube.js";
+import { collectYouTubeGlobal } from "./sources/youtube.js";
 import { collectRssFeeds } from "./sources/rss.js";
 import { readDiscoveryStore, writeDiscoveryStore } from "./store.js";
 import { scoreCandidate, topicKey } from "./scoring.js";
@@ -13,9 +13,11 @@ export async function runDiscovery({
   const store = await readDiscoveryStore(storePath);
   const timestamp = now().toISOString();
   const sourceResults = await Promise.allSettled([
-    (collectors.youtube ?? collectYouTubePopular)({
+    (collectors.youtube ?? collectYouTubeGlobal)({
       apiKey: config.youtubeApiKey,
-      regionCode: config.regionCode ?? "NG"
+      regions: config.regions,
+      categories: config.categories,
+      concurrency: config.youtubeConcurrency ?? 5
     }),
     (collectors.rss ?? collectRssFeeds)({ feedUrls: config.rssFeeds ?? [] })
   ]);
@@ -79,15 +81,15 @@ export async function runDiscovery({
       discovered: incoming.length,
       accepted: observations.length,
       topicCount: topicClusters.length,
-      sources: sources.map(({ source, status, error }) => ({ source, status, ...(error ? { error } : {}) }))
+      sources: sources.map(({ source, status, error, requests, successfulRequests, failedRequests, regions, categories }) => ({ source, status, ...(error ? { error } : {}), ...(requests !== undefined ? { requests, successfulRequests, failedRequests, regions, categories } : {}) }))
     }].slice(-500)
   };
 
   await writeDiscoveryStore(storePath, nextStore);
   return {
     run: nextStore.runs.at(-1),
-    sources: sources.map(({ source, status, error, items }) => ({
-      source, status, count: items?.length ?? 0, ...(error ? { error } : {})
+    sources: sources.map(({ source, status, error, items, requests, successfulRequests, failedRequests, regions, categories }) => ({
+      source, status, count: items?.length ?? 0, ...(error ? { error } : {}), ...(requests !== undefined ? { requests, successfulRequests, failedRequests, regions, categories } : {})
     })),
     topicClusters,
     candidates: reviewedCandidates,

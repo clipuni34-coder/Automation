@@ -133,3 +133,16 @@ export async function waitForYouTubeProcessing({
   }
   throw new Error(`YouTube video processing did not complete after ${maxAttempts} checks; inspect the video in YouTube Studio before retrying.`);
 }
+
+export async function getAuthorizedYouTubeChannel({ accessToken, fetchImpl = fetch } = {}) {
+  if (!accessToken) throw new Error("accessToken is required.");
+  const url = new URL("https://www.googleapis.com/youtube/v3/channels");
+  url.searchParams.set("part", "id,snippet");
+  url.searchParams.set("mine", "true");
+  const response = await fetchImpl(url, { headers: { authorization: `Bearer ${accessToken}` } });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(`Could not verify authorized YouTube channel: HTTP ${response.status}: ${payload.error?.message ?? "unknown error"}`);
+  const channels = payload.items ?? [];
+  if (channels.length !== 1) throw new Error(`Expected exactly one authorized YouTube channel, received ${channels.length}. Use a dedicated OAuth authorization for the intended channel.`);
+  return { channelId: channels[0].id, title: channels[0].snippet?.title ?? null };
+}

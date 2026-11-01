@@ -35,7 +35,7 @@ export function buildPublishingPackage({ brief, renderResult, assets = [], recen
   const titleTokens = tokenizeScript(title);
   const scriptTokens = new Set(tokenizeScript(script));
   const titleOverlap = titleTokens.filter(token => scriptTokens.has(token)).length;
-  const metadataAccurate = Boolean(title && title.length <= 100 && titleOverlap >= Math.min(2, titleTokens.length));
+  const metadataAccurate = Boolean(title && title.length <= 100 && titleTokens.length > 0 && titleOverlap >= Math.min(2, titleTokens.length));
   const narrativePresent = script.length >= 250 && Array.isArray(editorial.visualPlan) && editorial.visualPlan.length >= 3;
   const factualClaimsVerified = claims.length === 0 || (
     editorial.claimLedger?.verifiedClaims === claims.length &&

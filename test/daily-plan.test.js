@@ -38,3 +38,19 @@ test("does not repeat candidates already recommended in saved plan history", () 
   const result = buildDailyPlan({ discovery, history, now: new Date("2026-11-01T09:00:00.000Z") });
   assert.equal(result.latestPlan.recommendations.length, 0);
 });
+
+test("routes recommendations independently to matching active channel niches", () => {
+  const discovery = { candidates: [
+    candidate("game", "Roblox streamer makes an impossible comeback"),
+    candidate("food", "Street food chef creates a giant sandwich")
+  ] };
+  const channelProfiles = [
+    { id: "gaming-channel", name: "Gaming", status: "active", niche: "gaming", nicheKeywords: ["roblox", "gaming"] },
+    { id: "food-channel", name: "Food", status: "active", niche: "food", nicheKeywords: ["food", "chef", "recipe"] }
+  ];
+  const result = buildDailyPlan({ discovery, channelProfiles, now: new Date("2026-11-01T09:00:00.000Z") });
+  const assigned = Object.fromEntries(result.latestPlan.recommendations.map(item => [item.candidateId, item.channelId]));
+  assert.equal(assigned.game, "gaming-channel");
+  assert.equal(assigned.food, "food-channel");
+  assert.equal(result.latestPlan.channelProfilesUsed.length, 2);
+});

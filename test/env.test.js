@@ -7,6 +7,8 @@ test("uses safe defaults", () => {
     nodeEnv: "development",
     port: 3000,
     tavilyApiKey: "",
+    geminiApiKey: "",
+    openaiApiKey: "",
     requirePublishApproval: true
   });
 });
@@ -21,6 +23,8 @@ test("parses configured port, research key and approval flag", () => {
     nodeEnv: "test",
     port: 4100,
     tavilyApiKey: "research-key",
+    geminiApiKey: "",
+    openaiApiKey: "",
     requirePublishApproval: false
   });
 });

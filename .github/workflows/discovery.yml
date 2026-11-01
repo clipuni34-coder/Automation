@@ -32,6 +32,7 @@ jobs:
             data/discovery.json
             data/strategy.json
             data/niche-research.json
+            data/content-history.json
             data/youtube-analytics.json
           key: discovery-history-${{ github.run_id }}
           restore-keys: |
@@ -192,6 +193,9 @@ jobs:
           ENABLE_GEMINI_TTS: ${{ vars.ENABLE_GEMINI_TTS || 'false' }}
           ENABLE_GEMINI_IMAGE_GENERATION: ${{ vars.ENABLE_GEMINI_IMAGE_GENERATION || 'false' }}
           ENABLE_OPENAI_VISION_QC: ${{ vars.ENABLE_OPENAI_VISION_QC || 'false' }}
+          YOUTUBE_AUTO_PUBLISH: ${{ vars.YOUTUBE_AUTO_PUBLISH || 'false' }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+          CONTENT_HISTORY_PATH: data/content-history.json
         run: |
           if [ ! -s models/kokoro/kokoro-v1.0.onnx ] || [ ! -s models/kokoro/voices-v1.0.bin ]; then
             echo "::error::Kokoro fallback model is missing; narration cannot be generated without a working TTS provider."
@@ -221,6 +225,51 @@ jobs:
             echo "::error::One or more video production jobs failed. Review the rendered-videos artifact and logs."
             exit 1
           fi
+
+      - name: Publish only fully approved videos to YouTube
+        if: vars.YOUTUBE_AUTO_PUBLISH == 'true' && (vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true)
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+          YOUTUBE_AUTO_PUBLISH: ${{ vars.YOUTUBE_AUTO_PUBLISH || 'false' }}
+          YOUTUBE_ALLOW_PUBLIC_PUBLISH: ${{ vars.YOUTUBE_ALLOW_PUBLIC_PUBLISH || 'false' }}
+          YOUTUBE_PUBLISH_PRIVACY: ${{ vars.YOUTUBE_PUBLISH_PRIVACY || 'private' }}
+          CONTENT_HISTORY_PATH: data/content-history.json
+        run: |
+          if [ -z "$YOUTUBE_REFRESH_TOKEN" ] || [ -z "$YOUTUBE_EXPECTED_CHANNEL_ID" ]; then
+            echo "::warning::YouTube OAuth refresh token or expected channel ID is missing; no uploads will be attempted."
+            exit 0
+          fi
+          shopt -s globstar nullglob
+          packages=(output/**/publishing-package.json)
+          uploaded=0
+          held=0
+          failed=0
+          for package in "${packages[@]}"; do
+            if jq -e '.publication.status == "approved_for_upload" and .publication.manualApprovalRequired == false and .quality.visualQualityStatus == "passed" and .monetizationPreflight.status == "preflight_passed" and (.monetizationPreflight.blockers | length) == 0 and .contentDistinctness.distinct == true' "$package" >/dev/null; then
+              if npm run youtube-upload -- "$package"; then
+                uploaded=$((uploaded + 1))
+              else
+                failed=$((failed + 1))
+                echo "::error::Upload failed for $package"
+              fi
+            else
+              held=$((held + 1))
+              echo "Holding $package: one or more originality, rights, factual, or visual gates did not pass."
+            fi
+          done
+          echo "YouTube uploads completed: $uploaded; held for quality/policy gates: $held; failed: $failed"
+          if [ "$failed" -gt 0 ]; then exit 1; fi
+
+      - name: Save YouTube upload confirmations
+        if: always() && hashFiles('output/**/publishing-package.youtube-upload.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: youtube-upload-confirmations
+          path: output/**/publishing-package.youtube-upload.json
+          retention-days: 30
 
       - name: Save rendered videos and production packages
         if: always() && hashFiles('output/**/short.mp4') != ''

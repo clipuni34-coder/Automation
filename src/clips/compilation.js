@@ -12,10 +12,19 @@ export function buildCompilationPlan({ title, clips, platform = "youtube_shorts"
   const ranked = [...unique.values()].map(clip => {
     const rights = assessAssetRights(clip, { platform });
     return { ...clip, rights, score: Number(clip.score) || 0 };
-  }).filter(clip => clip.rights.allowed).sort((a,b) => b.score - a.score || a.start - b.start).slice(0, Math.max(2, Math.min(20, maxClips)));
-  if (ranked.length < 2) return { mode: "viral_compilation", status: "blocked_rights", title: title ?? "Untitled compilation", rejectedCount: clips.length - ranked.length, requiredRights: "Two or more individually cleared source clips are required", clips: [] };
+  }).filter(clip => clip.rights.allowed).sort((a,b) => b.score - a.score || a.start - b.start);
+  const target = Math.max(15, Math.min(90, Number(targetDurationSeconds) || 55));
+  const limit = Math.max(2, Math.min(20, Number(maxClips) || 10));
+  const selected = [];
+  let used = 0;
+  for (const clip of ranked) {
+    const duration = clip.end - clip.start;
+    if (selected.length >= limit || used + duration > target) continue;
+    selected.push(clip); used += duration;
+  }
+  if (selected.length < 2) return { mode: "viral_compilation", status: "blocked_rights", title: title ?? "Untitled compilation", rejectedCount: clips.length - selected.length, requiredRights: "Two or more individually cleared source clips are required", clips: [] };
   let remaining = Math.max(15, Math.min(90, Number(targetDurationSeconds) || 55));
   const intro = String(introCommentary).trim(), outro = String(outroCommentary).trim();
-  const entries = ranked.map((clip, index) => ({ rank: index + 1, sourceId: clip.sourceId, sourceUrl: clip.sourceUrl, creator: clip.creator ?? null, start: clip.start, end: clip.end, score: clip.score, rightsStatus: clip.rightsStatus, rightsEvidenceReference: clip.rightsEvidenceReference ?? null, rightsEvidenceUrl: clip.rightsEvidenceUrl ?? null, allowedPlatforms: clip.allowedPlatforms ?? [], expiresAt: clip.expiresAt ?? null, license: clip.license ?? "Authorized source media", commentaryPrompt: clip.editorialContext ?? "Explain why this moment earns its place and add context." }));
-  return { mode: "viral_compilation", status: "compilation_plan_ready", title: title ?? "Top moments", platform, targetDurationSeconds: remaining, introCommentary: intro, outroCommentary: outro, sequence: entries, structure: ["Original hook and premise", "Ranked moments with brief original commentary/context", "Escalating sequence with strongest payoff near the end", "Original closing line and audience prompt"], rightsPolicy: "Only sequence entries with individually approved rights evidence. A plan is not permission to download or publish source media." };
+  const entries = selected.map((clip, index) => ({ rank: index + 1, sourceId: clip.sourceId, sourceUrl: clip.sourceUrl, creator: clip.creator ?? null, start: clip.start, end: clip.end, score: clip.score, rightsStatus: clip.rightsStatus, rightsEvidenceReference: clip.rightsEvidenceReference ?? null, rightsEvidenceUrl: clip.rightsEvidenceUrl ?? null, allowedPlatforms: clip.allowedPlatforms ?? [], expiresAt: clip.expiresAt ?? null, license: clip.license ?? "Authorized source media", commentaryPrompt: clip.editorialContext ?? "Explain why this moment earns its place and add context." }));
+  return { mode: "viral_compilation", status: "compilation_plan_ready", title: title ?? "Top moments", platform, targetDurationSeconds: Number(used.toFixed(2)), requestedTargetDurationSeconds: target, introCommentary: intro, outroCommentary: outro, sequence: entries, structure: ["Original hook and premise", "Ranked moments with brief original commentary/context", "Escalating sequence with strongest payoff near the end", "Original closing line and audience prompt"], rightsPolicy: "Only sequence entries with individually approved rights evidence. A plan is not permission to download or publish source media." };
 }

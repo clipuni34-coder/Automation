@@ -19,7 +19,10 @@ function validatePlan(plan) {
   if (!Array.isArray(plan.hookOptions) || plan.hookOptions.length < 2) {
     throw new Error("Creative plan must include at least two hook options");
   }
-  if (typeof plan.fullScript !== "string" || plan.fullScript.trim().length < 80) {\n    throw new Error("Creative plan must include a complete narration script of at least 80 characters");\n  }\n  if (!Array.isArray(plan.scriptBeats) || plan.scriptBeats.length < 3) {
+  if (typeof plan.fullScript !== "string" || plan.fullScript.trim().length < 80) {
+    throw new Error("Creative plan must include a complete narration script of at least 80 characters");
+  }
+  if (!Array.isArray(plan.scriptBeats) || plan.scriptBeats.length < 3) {
     throw new Error("Creative plan must include at least three script beats");
   }
   if (!Array.isArray(plan.visualPlan) || !Array.isArray(plan.claimsToVerify)) {

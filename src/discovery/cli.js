@@ -1,9 +1,16 @@
 import { runDiscovery } from "./engine.js";
+import { DEFAULT_CATEGORIES, DEFAULT_REGIONS } from "./sources/youtube.js";
+
+const list = (value, fallback) => value
+  ? value.split(",").map((item) => item.trim()).filter(Boolean)
+  : fallback;
 
 const result = await runDiscovery({
   config: {
     youtubeApiKey: process.env.YOUTUBE_DATA_API_KEY,
-    regionCode: process.env.DISCOVERY_REGION ?? "NG",
+    regions: list(process.env.DISCOVERY_REGIONS, DEFAULT_REGIONS),
+    categories: list(process.env.DISCOVERY_CATEGORIES, DEFAULT_CATEGORIES),
+    youtubeConcurrency: Number(process.env.DISCOVERY_CONCURRENCY ?? 5),
     rssFeeds: (process.env.RSS_FEEDS ?? "").split(",").map((value) => value.trim()).filter(Boolean)
   },
   storePath: process.env.DISCOVERY_STORE_PATH ?? "data/discovery.json"
@@ -18,7 +25,9 @@ console.log(JSON.stringify({
     score: item.score,
     confidence: item.confidence,
     evidence: item.evidence,
+    regions: item.seenInRegions ?? [],
+    categories: item.seenInCategories ?? [],
     url: item.sourceUrl
   })),
-  note: "First observations cannot establish growth velocity. RSS/video items are discovery references, not reusable media."
+  note: "Global regional/category coverage is a discovery sample, not all videos uploaded to YouTube. First observations cannot establish growth velocity. Reference videos are not reusable media."
 }, null, 2));

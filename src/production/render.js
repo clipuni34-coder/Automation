@@ -45,8 +45,8 @@ function validateManifest(manifest) {
   if (!manifest.audioPath) throw new Error("A narration audioPath is required");
   let previousEnd = 0;
   for (const [index, scene] of manifest.scenes.entries()) {
-    if (!scene.imagePath || !Number.isFinite(scene.start) || !Number.isFinite(scene.end) || scene.start < 0 || scene.end <= scene.start) {
-      throw new Error(`Scene ${index + 1} needs an imagePath and a valid positive start/end time`);
+    if ((!scene.imagePath && !scene.videoPath) || (scene.imagePath && scene.videoPath) || !Number.isFinite(scene.start) || !Number.isFinite(scene.end) || scene.start < 0 || scene.end <= scene.start) {
+      throw new Error(`Scene ${index + 1} needs exactly one imagePath or videoPath and a valid positive start/end time`);
     }
     if (Math.abs(scene.start - previousEnd) > 0.02) throw new Error("Scenes must be chronological and contiguous, starting at 0 seconds");
     previousEnd = scene.end;
@@ -76,13 +76,13 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
   const outputPath = resolve(manifest.outputPath ?? "output.mp4");
   const audioPath = resolve(manifest.audioPath);
   await access(audioPath);
-  for (const scene of manifest.scenes) await access(resolve(scene.imagePath));
+  for (const scene of manifest.scenes) await access(resolve(scene.videoPath ?? scene.imagePath));
   await mkdir(dirname(outputPath), { recursive: true });
   const assPath = `${outputPath}.captions.ass`;
   await writeFile(assPath, buildAss(manifest.scenes, duration), { mode: 0o600 });
 
   const args = ["-y", "-hide_banner", "-loglevel", "error"];
-  for (const scene of manifest.scenes) args.push("-loop", "1", "-framerate", String(FPS), "-t", (scene.end - scene.start).toFixed(3), "-i", resolve(scene.imagePath));
+  for (const scene of manifest.scenes) { if (scene.videoPath) args.push("-stream_loop", "-1", "-an", "-i", resolve(scene.videoPath)); else args.push("-loop", "1", "-framerate", String(FPS), "-t", (scene.end - scene.start).toFixed(3), "-i", resolve(scene.imagePath)); }
   const audioIndex = manifest.scenes.length;
   args.push("-i", audioPath);
 
@@ -90,7 +90,7 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
   const videoLabels = [];
   manifest.scenes.forEach((scene, index) => {
     const label = `v${index}`;
-    filters.push(`[${index}:v]scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},zoompan=z='min(zoom+0.00035,1.06)':d=1:s=${WIDTH}x${HEIGHT}:fps=${FPS},setsar=1,format=yuv420p[${label}]`);
+    const duration = (scene.end - scene.start).toFixed(3);\n    const motion = scene.videoPath ? `trim=duration=${duration},setpts=PTS-STARTPTS,` : '';\n    const zoom = scene.videoPath ? '' : `,zoompan=z='min(zoom+0.00035,1.06)':d=1:s=${WIDTH}x${HEIGHT}:fps=${FPS}`;\n    filters.push(`[${index}:v]${motion}scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT}${zoom},fps=${FPS},setsar=1,format=yuv420p[${label}]`);
     videoLabels.push(`[${label}]`);
   });
   filters.push(`${videoLabels.join("")}concat=n=${manifest.scenes.length}:v=1:a=0,subtitles=filename='${assPath.replace(/\\/g, "/").replace(/:/g, "\\:")}',format=yuv420p[vout]`);

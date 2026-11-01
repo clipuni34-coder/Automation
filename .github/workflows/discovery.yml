@@ -31,6 +31,7 @@ jobs:
           path: |
             data/discovery.json
             data/strategy.json
+            data/youtube-analytics.json
           key: discovery-history-${{ github.run_id }}
           restore-keys: |
             discovery-history-

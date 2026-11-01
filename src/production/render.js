@@ -89,7 +89,6 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
   const filters = [];
   const videoLabels = [];
   manifest.scenes.forEach((scene, index) => {
-    const frames = Math.max(1, Math.round((scene.end - scene.start) * FPS));
     const label = `v${index}`;
     filters.push(`[${index}:v]scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},zoompan=z='min(zoom+0.00035,1.06)':d=1:s=${WIDTH}x${HEIGHT}:fps=${FPS},setsar=1,format=yuv420p[${label}]`);
     videoLabels.push(`[${label}]`);

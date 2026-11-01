@@ -63,3 +63,25 @@ test("local original graphic generator writes a valid PPM image", async () => {
     assert.ok(bytes.length > 1000000);
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
+
+
+test("storyboard stops retrying Gemini after a quota response", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "storyboard-quota-"));
+  try {
+    let calls = 0;
+    const assets = await generateStoryboardAssets({
+      visualPlan: [{ visual: "Scene one" }, { visual: "Scene two" }, { visual: "Scene three" }],
+      topic: "Test topic",
+      outputDir: dir,
+      apiKey: "test-key",
+      pixabayApiKey: "",
+      fetchImpl: async () => {
+        calls += 1;
+        return { ok: false, status: 429, text: async () => "RESOURCE_EXHAUSTED: quota exceeded" };
+      }
+    });
+    assert.equal(calls, 1);
+    assert.equal(assets.length, 3);
+    assert.ok(assets.every(asset => asset.sourceType === "original_graphic"));
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});

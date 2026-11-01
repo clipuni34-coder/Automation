@@ -85,3 +85,31 @@ test("storyboard stops retrying Gemini after a quota response", async () => {
     assert.ok(assets.every(asset => asset.sourceType === "original_graphic"));
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
+
+test("storyboard rejects unrelated Pixabay results instead of inserting them into the edit", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "storyboard-relevance-"));
+  try {
+    const unrelated = {
+      totalHits: 1,
+      hits: [{
+        id: 99, duration: 8, pageURL: "https://pixabay.com/videos/unrelated-99/",
+        tags: "credit card finance banking", user: "Creator",
+        videos: { large: { url: "https://cdn.pixabay.com/video/2024/01/01/99-large.mp4", width: 1920, height: 1080, size: 1000 } }
+      }]
+    };
+    const assets = await generateStoryboardAssets({
+      visualPlan: [{ visual: "baseball catcher throwing runner" }],
+      topic: "Baseball",
+      outputDir: dir,
+      apiKey: "",
+      pixabayApiKey: "test-key",
+      fetchImpl: async (url) => {
+        if (String(url).includes("api/videos")) return new Response(JSON.stringify(unrelated), { status: 200, headers: { "content-type": "application/json" } });
+        throw new Error("Unrelated Pixabay file must not be downloaded");
+      }
+    });
+    assert.equal(assets.length, 1);
+    assert.equal(assets[0].sourceType, "original_graphic");
+    assert.equal(assets[0].videoPath, undefined);
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});

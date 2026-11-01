@@ -220,3 +220,7 @@ The strategy layer now includes a YouTube YPP threshold calculator (including Ni
 ### Narration fallback without paid TTS quota
 
 If Gemini TTS is unavailable or quota-limited, production falls back to Kokoro-82M through the CPU ONNX runtime. The production workflow installs the runtime, downloads the official model/voice files, verifies SHA-256 hashes and performs a real WAV smoke test. The model weights are Apache-2.0; the kokoro-onnx runtime is MIT. Default local voice is af_heart (American English); set KOKORO_VOICE to another supported voice when needed. This avoids making narration dependent on paid TTS calls, at the cost of a one-time ~350MB model download and CPU synthesis time.
+
+### Autonomous channel niche research
+
+Each scheduled discovery run also groups YouTube trend observations by category, evaluates median opportunity/engagement/velocity, creator diversity and regional reach, and rejects one-video outliers. It archives a `channel-niche-research` report with pilot candidates only when enough repeated evidence exists. This is a starting point for choosing 2–4 distinct channels; it does not estimate guaranteed RPM or promise growth.

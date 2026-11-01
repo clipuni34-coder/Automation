@@ -23,7 +23,8 @@
 - [x] Deduplicate repeated source IDs and retain first-seen timestamps.
 - [x] Calculate view velocity only from repeated observations; label first observations low confidence.
 - [x] Add explainable recency, engagement, velocity and data-completeness scoring.
-- [x] Add initial evidence-based category niche research using repeated video, creator, engagement and regional observations; recommend pilots rather than treating a single breakout as proof.\n- [ ] Improve topic-level clustering across different videos and sources.
+- [x] Add initial evidence-based category niche research using repeated video, creator, engagement and regional observations; recommend pilots rather than treating a single breakout as proof.
+- [ ] Improve topic-level clustering across different videos and sources.
 - [ ] Add saturation, trend lifecycle and rejection-reason analysis.
 - [ ] Add compliant TikTok and Instagram discovery adapters after access/terms verification.
 - [x] Add a scheduled daily editorial-plan generation step and archive its output as a workflow artifact.

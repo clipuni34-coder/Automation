@@ -32,6 +32,7 @@ jobs:
             data/discovery.json
             data/strategy.json
             data/youtube-analytics.json
+            models/kokoro/
           key: discovery-history-${{ github.run_id }}
           restore-keys: |
             discovery-history-
@@ -46,6 +47,33 @@ jobs:
           sudo apt-get install -y ffmpeg
           ffmpeg -version
           ffprobe -version
+      - name: Cache Kokoro model files
+        if: vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true
+        uses: actions/cache@v4
+        with:
+          path: models/kokoro
+          key: kokoro-onnx-v1.0-${{ runner.os }}
+      - name: Install and verify local Kokoro TTS fallback
+        if: vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Download Kokoro model and verify checksums
+        if: vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true
+        run: |
+          python -m pip install --disable-pip-version-check kokoro-onnx==0.6.1 soundfile
+          mkdir -p models/kokoro
+          if [ ! -s models/kokoro/kokoro-v1.0.onnx ]; then
+            curl --fail --location --retry 3 --output models/kokoro/kokoro-v1.0.onnx https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.onnx
+          fi
+          if [ ! -s models/kokoro/voices-v1.0.bin ]; then
+            curl --fail --location --retry 3 --output models/kokoro/voices-v1.0.bin https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.0.bin
+          fi
+          echo "beb0d1848dee9a49da392cc3df26958d46cfa35d321edf434f52949153f0df3a  models/kokoro/kokoro-v1.0.onnx" | sha256sum --check
+          echo "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d  models/kokoro/voices-v1.0.bin" | sha256sum --check
+          printf '%s' '{"text":"This is a local narration test for the autonomous video production workflow. It checks the voice model before any video is rendered.","outputPath":"output/kokoro-smoke.wav","modelPath":"models/kokoro/kokoro-v1.0.onnx","voicesPath":"models/kokoro/voices-v1.0.bin","voice":"af_heart"}' | python scripts/kokoro_tts.py
+          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 output/kokoro-smoke.wav
       - name: Run global discovery
         env:
           YOUTUBE_DATA_API_KEY: ${{ secrets.YOUTUBE_DATA_API_KEY }}

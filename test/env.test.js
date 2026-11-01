@@ -6,18 +6,21 @@ test("uses safe defaults", () => {
   assert.deepEqual(loadConfig({}), {
     nodeEnv: "development",
     port: 3000,
+    tavilyApiKey: "",
     requirePublishApproval: true
   });
 });
 
-test("parses configured port and approval flag", () => {
+test("parses configured port, research key and approval flag", () => {
   assert.deepEqual(loadConfig({
     NODE_ENV: "test",
     PORT: "4100",
+    TAVILY_API_KEY: "research-key",
     REQUIRE_PUBLISH_APPROVAL: "false"
   }), {
     nodeEnv: "test",
     port: 4100,
+    tavilyApiKey: "research-key",
     requirePublishApproval: false
   });
 });

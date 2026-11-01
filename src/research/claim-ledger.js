@@ -21,9 +21,17 @@ export async function buildClaimLedger({ claims = [], search, maxClaims = MAX_CL
     .slice(0, Math.max(0, Math.min(MAX_CLAIMS, Number(maxClaims) || MAX_CLAIMS)));
   const ledger = [];
   for (const [index, claim] of uniqueClaims.entries()) {
-    const query = '"' + claim + '" official primary source evidence';
+    const query = claim.slice(0, 400);
     try {
-      const result = await search({ query });
+      let result = await search({ query });
+      // Exact/long claims can be too restrictive for search engines. Retry once
+      // with a shorter, unquoted query when the first search returns no leads.
+      if (result.status === "ok" && (!Array.isArray(result.results) || result.results.length === 0)) {
+        const fallbackQuery = claim.split(/[.!?;:]/)[0].trim().slice(0, 180) || claim.slice(0, 180);
+        if (fallbackQuery && fallbackQuery !== query) {
+          result = await search({ query: fallbackQuery });
+        }
+      }
       const sources = (Array.isArray(result.results) ? result.results : []).filter((item) => {
         try { return ["http:", "https:"].includes(new URL(item.url).protocol); } catch { return false; }
       }).slice(0, Math.max(1, Math.min(MAX_SOURCES_PER_CLAIM, Number(maxSourcesPerClaim) || MAX_SOURCES_PER_CLAIM)))

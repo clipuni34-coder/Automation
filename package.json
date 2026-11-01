@@ -20,6 +20,7 @@
     "compile-clips": "node src/clips/compilation-cli.js",
     "produce": "node src/production/produce-cli.js",
     "reedit-render": "node src/clips/reedit-render-cli.js",
-    "daily-plan": "node src/strategy/cli.js"
+    "daily-plan": "node src/strategy/cli.js",
+    "monetization-audit": "node src/strategy/monetization-audit-cli.js"
   }
 }

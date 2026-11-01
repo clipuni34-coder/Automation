@@ -56,3 +56,7 @@ export async function recordPublishedContent(path, item) {
   await writeFile(path, JSON.stringify(history, null, 2) + "\n", { mode: 0o600 });
   return history;
 }
+
+export function hasPublishedFingerprint(history, channelId, fingerprint) {
+  return Boolean(channelId && fingerprint && (history?.uploads ?? []).some(item => item.channelId === channelId && item.fingerprint === fingerprint));
+}

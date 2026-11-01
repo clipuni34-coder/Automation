@@ -14,6 +14,34 @@ test("ranks dossiers by discovery opportunity and evidence completeness", () => 
   assert.equal(result[0].opportunityScore, 90);
 });
 
+test("prefers independent, substantive research over social and reference-only snippets", () => {
+  const result = rankResearchDossiers([
+    {
+      path: "thin.json", topic: "Thin", candidateId: "thin",
+      evidence: [
+        { url: "https://www.youtube.com/watch?v=abc", sourceExcerpt: "short" },
+        { url: "https://www.instagram.com/example", sourceExcerpt: "short" },
+        { url: "https://www.reddit.com/r/example", sourceExcerpt: "short" }
+      ]
+    },
+    {
+      path: "broad.json", topic: "Broad", candidateId: "broad",
+      evidence: [
+        { url: "https://www.nature.com/articles/example", sourceExcerpt: "A".repeat(700), searchRelevance: 0.8 },
+        { url: "https://www.bbc.com/news/example", sourceExcerpt: "B".repeat(700), searchRelevance: 0.9 },
+        { url: "https://www.gov.uk/report", sourceExcerpt: "C".repeat(700), searchRelevance: 0.7 }
+      ]
+    }
+  ], { candidates: [
+    { id: "thin", score: 80 },
+    { id: "broad", score: 75 }
+  ] });
+  assert.equal(result[0].path, "broad.json");
+  assert.equal(result[0].independentPublisherCount, 3);
+  assert.equal(result[0].substantiveSourceCount, 3);
+  assert.match(result[0].rankingCaveat, /not independently verified/);
+});
+
 test("uses deterministic filename ordering when evidence scores tie", () => {
   const result = rankResearchDossiers([
     { path: "research-z.json", topic: "Same", evidence: [] },

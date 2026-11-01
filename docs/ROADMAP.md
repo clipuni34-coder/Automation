@@ -38,7 +38,7 @@
 - [ ] Keep predictions and confidence separate from observed facts.
 
 ## Phase 4 — Original video production
-- [x] Select FFmpeg as the first renderer and verify it with a real integration render in CI.\n- [x] Implement a Pexels live-action video search/download adapter with license and creator attribution metadata (live API test pending API key availability).
+- [x] Select FFmpeg as the first renderer and verify it with a real integration render in CI.\n- [x] Implement a Pixabay live-action video search/download adapter with license and creator attribution metadata (live API test pending API key availability).
 - [x] Build mixed still-image/live-action scene timeline assembly, subtle still motion, scene-timed captions, narration-audio muxing and MP4 export.
 - [x] Add Gemini Nano Banana image generation for original 9:16 storyboard visuals (live provider verification pending).
 - [x] Add Gemini 3.5 Flash-Lite fallback when Gemini 3.8 Flash daily request quota is exhausted; cap scheduled creative generation to one brief per run.

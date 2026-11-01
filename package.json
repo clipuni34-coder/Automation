@@ -1,0 +1,15 @@
+{
+  "name": "social-media-automation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Personal social media automation for YouTube, Instagram, and TikTok.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  }
+}

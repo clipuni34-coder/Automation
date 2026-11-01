@@ -65,3 +65,26 @@ test("rejects invalid resumable upload URLs and oversized media", async () => {
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test("polls until YouTube confirms video processing succeeded", async () => {
+  let attempts = 0;
+  const result = await (await import("../src/platforms/youtube/publisher.js")).waitForYouTubeProcessing({
+    videoId: "video123", accessToken: "token", maxAttempts: 3, intervalMs: 0, sleep: async () => {},
+    fetchImpl: async () => {
+      attempts += 1;
+      const processingStatus = attempts < 2 ? "processing" : "succeeded";
+      return { ok: true, json: async () => ({ items: [{ status: { uploadStatus: "processed", privacyStatus: "unlisted" }, processingDetails: { processingStatus } }] }) };
+    }
+  });
+  assert.equal(attempts, 2);
+  assert.equal(result.processingStatus, "succeeded");
+  assert.equal(result.privacyStatus, "unlisted");
+});
+
+test("does not report failed YouTube processing as success", async () => {
+  const { waitForYouTubeProcessing } = await import("../src/platforms/youtube/publisher.js");
+  await assert.rejects(waitForYouTubeProcessing({
+    videoId: "bad", accessToken: "token",
+    fetchImpl: async () => ({ ok: true, json: async () => ({ items: [{ processingDetails: { processingStatus: "failed" } }] }) })
+  }), /processing ended with status: failed/);
+});

@@ -17,9 +17,9 @@ Working branch: `autonomous-viral-discovery`
 
 ## Live verification
 
-- GitHub Actions discovery run `41270313064` completed successfully: YouTube discovery, Tavily research and creative generation steps ran.
-- A later successful discovery run `41270396012` produced three research dossiers and three creative briefs. No MP4 was rendered because production was not opted in.
-- GitHub Actions test run `41270471869` passed 64/64 tests, including FFmpeg integration tests for real video and source-audio mixing.
+- GitHub Actions discovery run `41270593093` completed successfully: YouTube discovery, Tavily research and one English-language creative brief were generated. The brief was titled “Why Are Some Catchers Giving Free Passes to Second Base?” and included a 45-second script, five visual scenes and two claims flagged for verification.
+- Earlier successful discovery run `41270396012` generated three research dossiers and three creative briefs. No MP4 was rendered because production was not opted in.
+- GitHub Actions test run `41270655201` passed 66/66 tests, including FFmpeg integration tests for real video and source-audio mixing.
 - Live Gemini image generation and TTS have not yet been verified end-to-end with the user's API quota.
 
 ## Not finished yet

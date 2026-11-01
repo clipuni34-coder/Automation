@@ -153,6 +153,10 @@ jobs:
             fi
           done
           echo "Videos rendered: $rendered; failed: $failed"
+          if [ "$failed" -gt 0 ]; then
+            echo "::error::One or more video production jobs failed. Review the rendered-videos artifact and logs."
+            exit 1
+          fi
 
       - name: Save rendered videos and production packages
         if: always() && hashFiles('output/**/short.mp4') != ''

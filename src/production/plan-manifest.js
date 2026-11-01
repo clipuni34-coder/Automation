@@ -1,5 +1,21 @@
 import { assertAssetRights } from "../rights/asset-rights.js";
 
+function conciseCaption(value, fallback = "Watch what happens") {
+  const text = String(value ?? "").replace(/\\s+/g, " ").trim();
+  if (!text) return fallback;
+  const firstSentence = text.split(/(?<=[.!?])\\s+/)[0];
+  const source = firstSentence.length <= 52 ? firstSentence : text;
+  if (source.length <= 52) return source;
+  const words = source.split(" ");
+  let result = "";
+  for (const word of words) {
+    const next = result ? result + " " + word : word;
+    if (next.length > 49) break;
+    result = next;
+  }
+  return (result || source.slice(0, 46)).replace(/[.,;:!?-]+$/, "") + "…";
+}
+
 function appendScene(scenes, clip, localPath, start, platform) {
   const sourceIn = Number(clip.start ?? clip.sourceIn);
   const sourceOut = Number(clip.end ?? clip.sourceOut);
@@ -8,7 +24,7 @@ function appendScene(scenes, clip, localPath, start, platform) {
   assertAssetRights(rightsAsset, { platform });
   const duration = sourceOut - sourceIn;
   const timelineStart = scenes.length ? scenes.at(-1).end : 0;
-  scenes.push({ videoPath: localPath, sourceIn, sourceOut, start: timelineStart, end: Number((timelineStart + duration).toFixed(3)), caption: clip.caption ?? clip.creator ?? "Moment", sourceType: "creator_clip", sourceUrl: clip.sourceUrl, license: clip.license ?? "Authorized source media", rightsStatus: clip.rightsStatus, rightsEvidenceUrl: clip.rightsEvidenceUrl ?? null, rightsEvidenceReference: clip.rightsEvidenceReference ?? null, allowedPlatforms: clip.allowedPlatforms, expiresAt: clip.expiresAt ?? null, creator: clip.creator ?? null });
+  scenes.push({ videoPath: localPath, sourceIn, sourceOut, start: timelineStart, end: Number((timelineStart + duration).toFixed(3)), caption: conciseCaption(clip.caption ?? clip.creator ?? "Moment"), sourceType: "creator_clip", sourceUrl: clip.sourceUrl, license: clip.license ?? "Authorized source media", rightsStatus: clip.rightsStatus, rightsEvidenceUrl: clip.rightsEvidenceUrl ?? null, rightsEvidenceReference: clip.rightsEvidenceReference ?? null, allowedPlatforms: clip.allowedPlatforms, expiresAt: clip.expiresAt ?? null, creator: clip.creator ?? null });
 }
 
 export function buildReeditRenderManifest({ plan, sourceLocalPath, audioPath, outputPath } = {}) {
@@ -43,7 +59,7 @@ export function buildOriginalRenderManifest({ brief, assets, audioPath, outputPa
     const start = Number((totalDurationSeconds * index / count).toFixed(3));
     const end = Number((totalDurationSeconds * (index + 1) / count).toFixed(3));
     const beatIndex = beats.length ? Math.min(beats.length - 1, Math.floor(index * beats.length / count)) : -1;
-    const caption = beatIndex >= 0 ? String(beats[beatIndex].narration ?? "").trim().slice(0, 180) : String(visualPlan[index].visual ?? "").slice(0, 180);
+    const caption = beatIndex >= 0 ? conciseCaption(beats[beatIndex].caption ?? beats[beatIndex].narration, String(visualPlan[index].visual ?? "Watch what happens")) : conciseCaption(visualPlan[index].visual);
     const scene = { ...asset, start, end, caption, sourceAudioVolume: 0.35 };
     if (asset.sourceType === "generated_visual" && (!asset.generationModel || !asset.generationPrompt)) throw new Error("Generated visual scene " + (index + 1) + " is missing generation provenance");
     if (asset.sourceType === "licensed_stock" && (!asset.sourceUrl || !asset.license)) throw new Error("Licensed visual scene " + (index + 1) + " is missing license provenance");

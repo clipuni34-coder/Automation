@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { generateGeminiImage, generateStoryboardAssets } from "../src/production/visuals.js";
+import { generateGeminiImage, generateStoryboardAssets, generateOriginalGraphic } from "../src/production/visuals.js";
 
 const jpeg = Buffer.concat([Buffer.from([255,216,255]), Buffer.alloc(1200, 1)]).toString("base64");
 
@@ -32,5 +32,34 @@ test("storyboard asset generator returns scene-by-scene image provenance", async
     const assets = await generateStoryboardAssets({ visualPlan: [{ visual: "A glowing planet" }, { visual: "A telescope" }], topic: "Astronomy", outputDir: dir, apiKey: "test-key", fetchImpl: async () => ({ ok: true, json: async () => ({ output_image: { data: jpeg, mime_type: "image/jpeg" } }) }) });
     assert.equal(assets.length, 2);
     assert.ok(assets.every(asset => asset.sourceType === "generated_visual" && asset.generationModel));
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+
+test("storyboard falls back to locally generated original graphics when no visual API is configured", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "storyboard-fallback-"));
+  try {
+    const assets = await generateStoryboardAssets({
+      visualPlan: [{ visual: "A dramatic reveal" }, { visual: "A surprising result" }],
+      topic: "Test topic",
+      outputDir: dir,
+      apiKey: "",
+      pexelsApiKey: ""
+    });
+    assert.equal(assets.length, 2);
+    assert.ok(assets.every(asset => asset.sourceType === "original_graphic"));
+    const header = (await readFile(assets[0].imagePath)).subarray(0, 2).toString("ascii");
+    assert.equal(header, "P6");
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+test("local original graphic generator writes a valid PPM image", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "local-graphic-"));
+  try {
+    const result = await generateOriginalGraphic({ outputPath: join(dir, "scene.png"), sceneIndex: 3 });
+    const bytes = await readFile(result.path);
+    assert.equal(result.provider, "local-graphics");
+    assert.equal(bytes.subarray(0, 2).toString("ascii"), "P6");
+    assert.ok(bytes.length > 1000000);
   } finally { await rm(dir, { recursive: true, force: true }); }
 });

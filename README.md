@@ -224,3 +224,7 @@ If Gemini TTS is unavailable or quota-limited, production falls back to Kokoro-8
 ### Autonomous channel niche research
 
 Each scheduled discovery run also groups YouTube trend observations by category, evaluates median opportunity/engagement/velocity, creator diversity and regional reach, and rejects one-video outliers. It archives a `channel-niche-research` report with pilot candidates only when enough repeated evidence exists. This is a starting point for choosing 2–4 distinct channels; it does not estimate guaranteed RPM or promise growth.
+
+### Free creative-model fallback
+
+Creative briefs now try Gemini, then OpenAI, then OpenRouter's free-model router (`openrouter/free`). The workflow hard-locks the OpenRouter fallback to the free router or a `:free` model ID, so it will not silently call a paid model. OpenRouter's free tier is rate-limited (currently 50 requests/day on a free account); one brief per scheduled run is intentionally conservative. Add `OPENROUTER_API_KEY` as a GitHub Actions secret to use this fallback. If Tavily is unavailable, the workflow still creates clearly labelled discovery-only dossiers, but those are metadata leads rather than independent fact-checked research.

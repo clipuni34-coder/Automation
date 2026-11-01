@@ -53,6 +53,17 @@ export function assessStoryboardVisualQuality(manifest) {
     if (duration < 1.1) penalize(5, label + " is very short and may be difficult to read.");
     if (scene.imagePath && duration > 7) penalize(4, label + " holds a still image for more than seven seconds.");
     if (scene.videoPath && duration > 10) penalize(3, label + " runs longer than ten seconds without a planned visual change.");
+    if (scene.sourceType === "licensed_stock") {
+      if (!scene.tagRelevance) {
+        penalize(12, label + " uses stock footage without recorded scene-keyword relevance evidence.");
+      } else {
+        checks.push(label + " has Pixabay tag-overlap evidence (not visual-semantic verification).");
+        warnings.push(label + " still requires a human relevance check; tag overlap cannot prove what the footage depicts.");
+      }
+    }
+    if (scene.sourceType === "original_graphic") {
+      penalize(8, label + " uses a generic fallback graphic rather than a scene-specific visual.");
+    }
     const caption = String(scene.caption ?? "").trim();
     if (caption.length > 90) penalize(5, label + " caption is too long for a quick mobile read.");
     else if (caption.length > 58) penalize(2, label + " caption may be dense on a phone screen.");
@@ -118,7 +129,8 @@ export async function buildVisualQualityReport(manifest, videoPath, options = {}
     warnings,
     limitations: [
       "This is an automated technical/editorial heuristic, not a human judgement of humour, emotional impact, factual accuracy or virality.",
-      "A passing report confirms basic pacing and encoded-frame checks; it does not prove that every visual is contextually relevant."
+      "Pixabay tag overlap is a conservative keyword heuristic, not computer-vision semantic verification; stock scenes still require a human relevance check.",
+      "A passing technical report does not prove that every visual is contextually relevant."
     ]
   };
 }

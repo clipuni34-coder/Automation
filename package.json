@@ -12,6 +12,7 @@
     "dev": "node --watch src/server.js",
     "discover": "node src/discovery/cli.js",
     "test": "node --test",
-    "research": "node src/research/cli.js"
+    "research": "node src/research/cli.js",
+    "create-brief": "node src/creative/cli.js"
   }
 }

@@ -6,6 +6,7 @@ import { generateStoryboardAssets } from "./visuals.js";
 import { buildOriginalRenderManifest } from "./plan-manifest.js";
 import { renderShortVideo } from "./render.js";
 import { buildPublishingPackage } from "../packaging/package.js";
+import { reviewSceneVisualSemantics } from "./semantic-visual-qc.js";
 
 function run(command, args) {
   return new Promise((resolvePromise, reject) => {
@@ -44,11 +45,21 @@ else {
     const manifestPath = join(outputDir, "render-manifest.json");
     await writeFile(manifestPath, JSON.stringify(manifest, null, 2), { mode: 0o600 });
     const rendered = await renderShortVideo(manifest);
+    const semanticReview = await reviewSceneVisualSemantics(manifest, rendered.outputPath);
+    const quality = {
+      ...rendered.visualQuality,
+      semanticReview,
+      status: rendered.visualQuality.status === "passed" && semanticReview.status === "passed" ? "passed" : "review",
+      score: Math.max(0, rendered.visualQuality.score - (semanticReview.status === "passed" ? 0 : semanticReview.status === "unverified" ? 15 : semanticReview.failedScenes * 20)),
+      warnings: [...rendered.visualQuality.warnings, ...semanticReview.warnings],
+      limitations: [...(rendered.visualQuality.limitations ?? []), "Vision-model frame checks sample one midpoint per scene; they are fallible and do not verify every frame or guarantee factual accuracy."]
+    };
+    rendered.visualQuality = quality;
     const qualityPath = join(outputDir, "quality-report.json");
-    await writeFile(qualityPath, JSON.stringify(rendered.visualQuality, null, 2), { mode: 0o600 });
+    await writeFile(qualityPath, JSON.stringify(quality, null, 2), { mode: "0600" });
     const packageData = buildPublishingPackage({ brief, renderResult: rendered, assets });
     const packagePath = join(outputDir, "publishing-package.json");
     await writeFile(packagePath, JSON.stringify(packageData, null, 2), { mode: 0o600 });
-    console.log(JSON.stringify({ status: "rendered", videoPath: rendered.outputPath, packagePath, qualityPath, visualQualityStatus: rendered.visualQuality.status, visualQualityScore: rendered.visualQuality.score, visualQualityWarnings: rendered.visualQuality.warnings, scenes: rendered.scenes, durationSeconds: rendered.durationSeconds, sourceAudioPreserved: rendered.sourceAudioPreserved }, null, 2));
+    console.log(JSON.stringify({ status: "rendered", videoPath: rendered.outputPath, packagePath, qualityPath, visualQualityStatus: rendered.visualQuality.status, visualQualityScore: rendered.visualQuality.score, visualQualityWarnings: rendered.visualQuality.warnings, semanticReviewStatus: semanticReview.status, semanticScenesPassed: semanticReview.passedScenes ?? 0, semanticScenesFailed: semanticReview.failedScenes ?? 0, scenes: rendered.scenes, durationSeconds: rendered.durationSeconds, sourceAudioPreserved: rendered.sourceAudioPreserved }, null, 2));
   } catch (error) { console.error(JSON.stringify({ status: "failed", error: error.message })); process.exitCode = 1; }
 }

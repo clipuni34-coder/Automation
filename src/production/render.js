@@ -25,7 +25,8 @@ function run(command, args, { timeoutMs = 180000 } = {}) {
 }
 
 function escapeAss(value) {
-  return String(value ?? "").replace(/\\/g, "\\\\").replace(/{/g, "\\{").replace(/}/g, "\\}").replace(/\r?\n/g, "\\N");
+  return String(value ?? "").replace(/\\/g, "\\\\").replace(/{/g, "\\{").replace(/}/g, "\\}").replace(/\r?
+/g, "\\N");
 }
 
 function assTime(seconds) {
@@ -68,7 +69,8 @@ function buildAss(scenes, duration) {
     "[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"
   ];
   const events = scenes.map((scene) => `Dialogue: 0,${assTime(scene.start)},${assTime(Math.min(scene.end, duration))},Caption,,0,0,0,,{\\an2}${escapeAss(scene.caption)}`);
-  return [...header, ...events, ""].join("\n");
+  return [...header, ...events, ""].join("
+");
 }
 
 export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprobePath = "ffprobe" } = {}) {
@@ -90,7 +92,10 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
   const videoLabels = [];
   manifest.scenes.forEach((scene, index) => {
     const label = `v${index}`;
-    const duration = (scene.end - scene.start).toFixed(3);\n    const motion = scene.videoPath ? `trim=duration=${duration},setpts=PTS-STARTPTS,` : '';\n    const zoom = scene.videoPath ? '' : `,zoompan=z='min(zoom+0.00035,1.06)':d=1:s=${WIDTH}x${HEIGHT}:fps=${FPS}`;\n    filters.push(`[${index}:v]${motion}scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT}${zoom},fps=${FPS},setsar=1,format=yuv420p[${label}]`);
+    const duration = (scene.end - scene.start).toFixed(3);
+    const motion = scene.videoPath ? `trim=duration=${duration},setpts=PTS-STARTPTS,` : '';
+    const zoom = scene.videoPath ? '' : `,zoompan=z='min(zoom+0.00035,1.06)':d=1:s=${WIDTH}x${HEIGHT}:fps=${FPS}`;
+    filters.push(`[${index}:v]${motion}scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT}${zoom},fps=${FPS},setsar=1,format=yuv420p[${label}]`);
     videoLabels.push(`[${label}]`);
   });
   filters.push(`${videoLabels.join("")}concat=n=${manifest.scenes.length}:v=1:a=0,subtitles=filename='${assPath.replace(/\\/g, "/").replace(/:/g, "\\:")}',format=yuv420p[vout]`);

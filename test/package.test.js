@@ -19,3 +19,13 @@ test("builds platform-specific draft metadata and preserves stock footage credit
 test("does not create a publishing package from an unverified render", () => {
   assert.throws(() => buildPublishingPackage({ brief: { topic: "test" }, renderResult: { status: "failed" } }), /verified rendered-video result/);
 });
+
+test("publishing package preserves scene-level semantic visual review findings", () => {
+  const semanticReview = { status: "review", reviewedScenes: 2, passedScenes: 1, failedScenes: 1, scenes: [{ scene: 2, relevant: false, reason: "Unrelated visual" }] };
+  const pkg = buildPublishingPackage({
+    brief: { topic: "Test", editorial: { workingTitle: "Test", fullScript: "A sufficiently long narration for this sample." } },
+    renderResult: { status: "rendered", outputPath: "/out/short.mp4", durationSeconds: 12, visualQuality: { status: "review", score: 60, warnings: ["Scene 2 failed semantic visual verification"], semanticReview } }
+  });
+  assert.deepEqual(pkg.quality.semanticReview, semanticReview);
+  assert.equal(pkg.quality.visualQualityStatus, "review");
+});

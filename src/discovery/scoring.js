@@ -91,10 +91,10 @@ export function scoreCandidate(candidate, previousObservations = []) {
 export function topicKey(title = "") {
   return title.toLowerCase()
     .normalize("NFKD")
-    .replace(/[\\u0300-\\u036f]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, " ")
     .trim()
-    .split(/\\s+/)
+    .split(/\s+/)
     .filter((word) => word.length > 2)
     .sort()
     .join(" ");

@@ -232,3 +232,5 @@ Creative briefs now try Gemini, then OpenAI, then OpenRouter's free-model router
 ### No surprise paid API calls
 
 Gemini creative, Gemini TTS, Gemini image generation, OpenAI creative and OpenAI vision QC are disabled by default. They only run when the matching GitHub Actions variable is explicitly set to `true`. The normal no-paid path is OpenRouter's free-model router for creative briefs, Kokoro local TTS, Pixabay stock where relevant, and original local graphics. This keeps the workflow from silently consuming paid API credits.
+
+The same OpenRouter free-model router is also used for scene-by-scene visual QC when OpenAI vision is not explicitly enabled. It receives sampled rendered frames and checks them against the planned scene; a failed or ambiguous scene blocks auto-publishing. Free routing is capped by OpenRouter's current free-tier limits, so large multi-channel production batches must be throttled.

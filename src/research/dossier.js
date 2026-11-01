@@ -18,8 +18,12 @@ export async function buildResearchDossier({
       id: reference.id ?? null,
       title: reference.title ?? null,
       url: reference.sourceUrl ?? null,
+      creator: reference.creator ?? null,
+      categoryId: reference.categoryId ?? null,
       metrics: reference.metrics ?? null,
-      publishedAt: reference.publishedAt ?? null
+      publishedAt: reference.publishedAt ?? null,
+      rightsStatus: reference.rightsStatus ?? "reference_only",
+      permittedUse: "research_reference_only"
     } : null,
     evidence: sources.map((source, index) => ({
       id: `source-${index + 1}`,
@@ -43,6 +47,7 @@ export async function buildResearchDossier({
       "Search excerpts are leads, not independently verified facts.",
       "Verify every factual claim against its original source before scripting or publication.",
       "Do not copy the reference video's script, footage, or distinctive creative expression.",
+      "The reference video is metadata for research only; its footage is not licensed by this dossier.",
       "No source results means research is unavailable; do not invent evidence."
     ]
   };

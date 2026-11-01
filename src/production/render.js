@@ -1,8 +1,9 @@
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, extname, resolve } from "node:path";
 import { spawn } from "node:child_process";
+import { assertAssetRights } from "../rights/asset-rights.js";
 
-const ALLOWED_SOURCE_TYPES = new Set(["original_graphic", "generated_visual", "public_domain", "licensed_stock"]);
+const ALLOWED_SOURCE_TYPES = new Set(["original_graphic", "generated_visual", "public_domain", "licensed_stock", "creator_clip"]);
 const WIDTH = 1080;
 const HEIGHT = 1920;
 const FPS = 30;
@@ -48,6 +49,7 @@ function validateManifest(manifest) {
     previousEnd = scene.end;
     if (!ALLOWED_SOURCE_TYPES.has(scene.sourceType)) throw new Error("Scene " + (index + 1) + " has an unapproved or missing asset sourceType");
     if (scene.sourceType !== "original_graphic" && (!scene.sourceUrl || !scene.license)) throw new Error("Scene " + (index + 1) + " must include sourceUrl and license provenance");
+    if (scene.sourceType === "creator_clip") assertAssetRights({ ...scene, durationSeconds: scene.end - scene.start }, { platform: manifest.targetPlatform ?? "youtube_shorts" });
   }
   return previousEnd;
 }
@@ -119,7 +121,7 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
     audioCodec: audio.codec_name,
     fps: video.r_frame_rate,
     scenes: manifest.scenes.length,
-    assetProvenance: manifest.scenes.map(({ sourceType, sourceUrl = null, license = null }) => ({ sourceType, sourceUrl, license }))
+    assetProvenance: manifest.scenes.map(({ sourceType, sourceUrl = null, license = null, rightsStatus = null, rightsEvidenceReference = null, creator = null }) => ({ sourceType, sourceUrl, license, rightsStatus, rightsEvidenceReference, creator }))
   };
 }
 

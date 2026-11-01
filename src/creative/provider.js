@@ -158,10 +158,49 @@ async function callOpenAI(prompt, apiKey, fetchImpl, timeoutMs) {
   }
 }
 
+async function callOpenRouter(prompt, apiKey, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "openrouter/free") {
+  if (model !== "openrouter/free" && !model.endsWith(":free")) {
+    throw new Error("OpenRouter fallback is restricted to explicitly free models; paid model calls are disabled.");
+  }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetchImpl("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${apiKey}`,
+        "content-type": "application/json",
+        "HTTP-Referer": "https://github.com/clipuni34-coder/Automation",
+        "X-Title": "Personal Autonomous Creator Workflow"
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0.7,
+        max_tokens: 6000,
+        messages: [
+          { role: "system", content: "Return only valid JSON. Do not invent facts. Follow the requested schema exactly." },
+          { role: "user", content: prompt }
+        ]
+      }),
+      signal: controller.signal
+    });
+    if (!response.ok) throw new Error(`OpenRouter returned HTTP ${response.status}: ${(await response.text()).slice(0, 700)}`);
+    const payload = await response.json();
+    const content = payload.choices?.[0]?.message?.content;
+    const text = Array.isArray(content) ? content.map(part => part.text ?? "").join("") : content;
+    if (!text) throw new Error("OpenRouter returned an empty response");
+    return extractJson(text);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export async function generateEditorialPlan({
   dossier,
   geminiApiKey = process.env.GEMINI_API_KEY ?? "",
   openaiApiKey = process.env.OPENAI_API_KEY ?? "",
+  openrouterApiKey = process.env.OPENROUTER_API_KEY ?? "",
+  openrouterModel = process.env.OPENROUTER_MODEL ?? "openrouter/free",
   fetchImpl = fetch,
   timeoutMs = 120000,
   outputLanguage = process.env.CREATIVE_LANGUAGE ?? "English"
@@ -169,13 +208,14 @@ export async function generateEditorialPlan({
   if (!dossier || typeof dossier !== "object" || !dossier.topic) {
     throw new Error("A research dossier with a topic is required");
   }
-  if (!geminiApiKey && !openaiApiKey) {
+  if (!geminiApiKey && !openaiApiKey && !openrouterApiKey) {
     return { status: "not_configured", provider: null, plan: null };
   }
   const prompt = buildPrompt(dossier, outputLanguage);
   const providers = [
     ...(geminiApiKey ? [["gemini", () => callGemini(prompt, geminiApiKey, fetchImpl, timeoutMs)]] : []),
-    ...(openaiApiKey ? [["openai", () => callOpenAI(prompt, openaiApiKey, fetchImpl, timeoutMs)]] : [])
+    ...(openaiApiKey ? [["openai", () => callOpenAI(prompt, openaiApiKey, fetchImpl, timeoutMs)]] : []),
+    ...(openrouterApiKey ? [["openrouter-free", () => callOpenRouter(prompt, openrouterApiKey, fetchImpl, timeoutMs, openrouterModel)]] : [])
   ];
   const errors = [];
   for (const [provider, invoke] of providers) {

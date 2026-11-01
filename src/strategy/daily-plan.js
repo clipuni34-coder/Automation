@@ -11,7 +11,7 @@ export function classifyFormat(candidate) {
     ["creator_moment", /ishowspeed|mrbeast|streamer|podcast|interview|reaction|creator|influencer/],
     ["sports_moment", /football|soccer|nba|basketball|ufc|boxing|tennis|goal|match|athlete|sports/],
     ["food_discovery", /food|recipe|cooking|chef|restaurant|street food|taste test/],
-    ["ranked_explainer", /top \d+|ranking|best .* ever|worst .* ever|facts|history|science|explained/],
+    ["ranked_explainer", /top \d+|ranking|best .* ever|worst .* ever|facts|history|science|explained|how /],
     ["funny_or_surprising_moment", /funny|hilarious|unexpected|surprising|caught on camera|fail|prank|wild moment/]
   ];
   return rules.find(([, pattern]) => pattern.test(text))?.[0] ?? "story_or_topic_explainer";

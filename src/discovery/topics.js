@@ -20,7 +20,7 @@ function similarity(left, right) {
   if (!a.size || !b.size) return 0;
   const shared = [...a].filter((word) => b.has(word)).length;
   const union = new Set([...a, ...b]).size;
-  return shared >= 2 && shared / union >= 0.25 ? shared / union : 0;
+  return shared >= 2 && shared / union >= 0.2 ? shared / union : 0;
 }
 
 function clusterId(label) {

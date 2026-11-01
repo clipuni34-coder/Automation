@@ -61,7 +61,7 @@ The scheduled workflow runs five bounded YouTube searches for recent viral/funny
 
 ### RSS setup
 
-Set `RSS_FEEDS` to comma-separated public feed URLs, for example feeds from reputable publishers and topic-specific sources you choose. Only use feeds whose access terms permit this use.
+The scheduled workflow now includes Google's public Trending Now RSS feeds for Nigeria, the US, UK, India, South Africa, Canada and Australia by default. These are lightweight search-interest signals (a small top-trends sample), not a complete trend database or proof that a video topic will perform. Override the defaults with the `RSS_FEEDS` Actions variable (comma-separated HTTPS feed URLs) to add or replace feeds. Only use feeds whose access terms permit this use.
 
 ## Tests
 

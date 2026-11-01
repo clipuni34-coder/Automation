@@ -71,3 +71,50 @@ test("OpenAI vision API errors are recorded without crashing the production pipe
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test("uses OpenRouter free multimodal vision when OpenAI vision is not enabled", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "semantic-qc-openrouter-"));
+  try {
+    const video = await createSampleVideo(dir);
+    let request;
+    const result = await reviewSceneVisualSemantics({
+      scenes: [{ start: 0, end: 2, visualDescription: "A red sports car on a race track", narrationContext: "The car speeds around the track." }]
+    }, video, {
+      apiKey: "",
+      openrouterApiKey: "free-router-key",
+      fetchImpl: async (url, options) => {
+        request = { url, headers: options.headers, body: JSON.parse(options.body) };
+        return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ relevant: true, confidence: 0.91, observed: "A sports car on a track", reason: "The frame visibly matches the planned scene." }) } }] }), { status: 200 });
+      }
+    });
+    assert.equal(request.url, "https://openrouter.ai/api/v1/chat/completions");
+    assert.equal(request.headers.authorization, "Bearer free-router-key");
+    assert.equal(request.body.model, "openrouter/free");
+    assert.equal(request.body.messages[1].content[1].type, "image_url");
+    assert.equal(result.provider, "openrouter-free");
+    assert.equal(result.status, "passed");
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("refuses paid OpenRouter vision models", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "semantic-qc-paid-guard-"));
+  try {
+    const video = await createSampleVideo(dir);
+    let called = false;
+    const result = await reviewSceneVisualSemantics({
+      scenes: [{ start: 0, end: 2, visualDescription: "A scene" }]
+    }, video, {
+      apiKey: "",
+      openrouterApiKey: "free-router-key",
+      openrouterModel: "openai/gpt-4.1",
+      fetchImpl: async () => { called = true; throw new Error("paid request attempted"); }
+    });
+    assert.equal(called, false);
+    assert.equal(result.status, "review");
+    assert.match(result.scenes[0].error, /restricted to explicitly free models/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});

@@ -28,7 +28,7 @@ export function buildPublishingPackage({ brief, renderResult, assets = [], recen
   const tags = hashtags(topic, title);
   const credits = assets.filter(asset => asset.sourceType === "licensed_stock").map(asset => ({ provider: asset.attribution?.provider ?? "Stock provider", creator: asset.attribution?.creator ?? null, sourceUrl: asset.sourceUrl, license: asset.license, providerUrl: asset.attribution?.providerUrl ?? null }));
   const channelId = editorial.channelId ?? brief.channelId ?? process.env.YOUTUBE_EXPECTED_CHANNEL_ID ?? null;
-  const priorForChannel = recentContent.filter(item => !channelId || item.channelId === channelId).slice(-20);
+  const priorForChannel = recentContent.slice(-50);
   const distinctness = assessContentDistinctness(script, priorForChannel);
   const assetProvenance = assets.map(assetRights);
   const claims = Array.isArray(editorial.claimsToVerify) ? editorial.claimsToVerify : [];

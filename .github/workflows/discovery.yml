@@ -64,8 +64,11 @@ jobs:
           while IFS= read -r topic; do
             [ -z "$topic" ] && continue
             echo "Researching qualified candidate $((count + 1)) of up to 3"
-            npm run research -- "$topic"
-            count=$((count + 1))
+            if npm run research -- "$topic"; then
+              count=$((count + 1))
+            else
+              echo "::warning::Research failed for one candidate; continuing with the remaining candidates."
+            fi
           done < <(jq -r '[.candidates[] | select(.decision == "needs_research" and (.score // 0) >= 35) | .title] | unique | .[:3][]' "$DISCOVERY_STORE_PATH")
 
           echo "Research dossiers created: $count"
@@ -86,9 +89,17 @@ jobs:
             exit 0
           fi
 
+          generated=0
+          failed=0
           for dossier in "${dossiers[@]}"; do
-            npm run create-brief -- "$dossier"
+            if npm run create-brief -- "$dossier"; then
+              generated=$((generated + 1))
+            else
+              failed=$((failed + 1))
+              echo "::warning::Creative generation failed for $dossier; preserving other results and continuing."
+            fi
           done
+          echo "Creative briefs generated: $generated; failed: $failed"
       - name: Save creative briefs
         if: always() && hashFiles('research-*.creative.json') != ''
         uses: actions/upload-artifact@v4

@@ -140,8 +140,8 @@ test("renderer preserves authorized source-video audio and mixes narration", { s
 
 test("caption layout wraps long text into readable two-line mobile cards with timed phrases", () => {
   const ass = buildAss([{ start: 0, end: 6, caption: "This is a longer sentence designed to test mobile caption wrapping and timed phrase display." }], 6);
-  const dialogue = ass.split("\\n").filter(line => line.startsWith("Dialogue:"));
+  const dialogue = ass.split("\n").filter(line => line.startsWith("Dialogue:"));
   assert.ok(dialogue.length > 1);
-  assert.ok(dialogue.some(line => line.includes("\\\\N")));
+  assert.ok(dialogue.some(line => line.includes("\\N")));
   assert.ok(dialogue.every(line => !line.includes("longer sentence designed to test mobile caption wrapping and timed phrase display")));
 });

@@ -107,3 +107,29 @@ export async function uploadYouTubeVideo({
     warning: "Upload acceptance is not the same as completed processing or monetization approval. Poll processing status before treating the video as ready."
   };
 }
+
+export async function waitForYouTubeProcessing({
+  videoId,
+  accessToken,
+  fetchImpl = fetch,
+  sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds)),
+  maxAttempts = 30,
+  intervalMs = 20000
+} = {}) {
+  if (!videoId || !accessToken) throw new Error("videoId and accessToken are required.");
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const url = new URL("https://www.googleapis.com/youtube/v3/videos");
+    url.searchParams.set("part", "status,processingDetails");
+    url.searchParams.set("id", videoId);
+    const response = await fetchImpl(url, { headers: { authorization: `Bearer ${accessToken}` } });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(`YouTube processing check failed: HTTP ${response.status}: ${payload.error?.message ?? "unknown error"}`);
+    const video = payload.items?.[0];
+    if (!video) throw new Error("YouTube did not return the uploaded video during processing check.");
+    const status = video.processingDetails?.processingStatus ?? "processing";
+    if (status === "succeeded") return { processingStatus: status, uploadStatus: video.status?.uploadStatus ?? "processed", privacyStatus: video.status?.privacyStatus ?? null };
+    if (status === "failed" || status === "terminated") throw new Error(`YouTube video processing ended with status: ${status}`);
+    if (attempt < maxAttempts) await sleep(intervalMs);
+  }
+  throw new Error(`YouTube video processing did not complete after ${maxAttempts} checks; inspect the video in YouTube Studio before retrying.`);
+}

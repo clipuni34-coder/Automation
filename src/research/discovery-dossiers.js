@@ -1,10 +1,11 @@
 import { createHash } from "node:crypto";
+import { assessCandidateSuitability } from "../strategy/candidate-suitability.js";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 export function buildDiscoveryDossiers(discovery, { maxDossiers = 3, minimumScore = 35, generatedAt = new Date().toISOString() } = {}) {
   const candidates = (discovery?.candidates ?? [])
-    .filter(item => item?.id && item?.title && item?.sourceUrl && Number(item.score ?? 0) >= minimumScore)
+    .filter(item => item?.id && item?.title && item?.sourceUrl && Number(item.score ?? 0) >= minimumScore && assessCandidateSuitability(item).eligible)
     .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
   const seen = new Set();
   const selected = [];

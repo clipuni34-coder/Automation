@@ -78,7 +78,7 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
   await writeFile(assPath, buildAss(manifest.scenes, duration), { mode: 0o600 });
 
   const args = ["-y", "-hide_banner", "-loglevel", "error"];
-  for (const scene of manifest.scenes) { if (scene.videoPath) args.push("-stream_loop", "-1", "-an", "-i", resolve(scene.videoPath)); else args.push("-loop", "1", "-framerate", String(FPS), "-t", (scene.end - scene.start).toFixed(3), "-i", resolve(scene.imagePath)); }
+  for (const scene of manifest.scenes) { if (scene.videoPath) args.push("-ss", String(scene.sourceIn ?? 0), "-t", (scene.end - scene.start).toFixed(3), "-an", "-i", resolve(scene.videoPath)); else args.push("-loop", "1", "-framerate", String(FPS), "-t", (scene.end - scene.start).toFixed(3), "-i", resolve(scene.imagePath)); }
   const audioIndex = manifest.scenes.length;
   args.push("-i", audioPath);
 

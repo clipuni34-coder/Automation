@@ -11,7 +11,8 @@ Working branch: `autonomous-viral-discovery`
 - Gemini TTS adapter now falls back once to the Lite TTS model on primary quota errors; Gemini Nano Banana 2.1 image-generation adapter is implemented. Both are covered by mocked tests.
 - FFmpeg renderer produces vertical 1080x1920 H.264/AAC MP4s and independently probes output. It can preserve source-video audio and mix it with narration.
 - Original-video production command connects narration, up to six storyboard visuals, rendering, QC and a platform-specific draft package.
-- Standalone re-edit and creator-compilation planners rank moments, preserve source timestamps, enforce rights evidence and can create render manifests for locally available authorized media.
+- Standalone re-edit now has an end-to-end CLI path: rights validation → timed transcript scoring → best-moment selection → 9:16 FFmpeg render → ffprobe QC. The CLI retains source audio when present and has a real CI fixture test.
+- Ranked creator compilations now render local rights-cleared media through the CLI, preserve source audio, add supplied intro/outro as opening/closing captions, and have a real CI fixture test.
 - Creator clips without approved rights status, evidence and target-platform permission are blocked at render time.
 - Publishing-package generation creates YouTube Shorts, TikTok and Instagram Reels draft copy, hashtags, hook options, thumbnail reference and stock-footage credits.
 
@@ -27,9 +28,9 @@ Working branch: `autonomous-viral-discovery`
 ## Not finished yet
 
 - TikTok and Instagram discovery adapters using approved platform access.
-- Authorized creator-media intake/storage. Public YouTube/TikTok/Instagram URLs are not automatically downloaded or republished.
-- Automated transcription and visual/audio moment detection for authorized creator videos.
-- Compilation commentary timing and more advanced edit treatments.
+- A user-facing authorized creator-media upload/intake and secure storage flow. Current re-edit/compilation CLIs accept local media paths; public YouTube/TikTok/Instagram URLs are not automatically downloaded or republished.
+- Automated transcription and visual/audio moment detection for authorized creator videos. Current re-edit CLI requires timed transcript segments and editorial signals as input.
+- Spoken compilation commentary timing and more advanced edit treatments. Current intro/outro are on-screen captions, not generated speech.
 - Full word-level captions, sound design, A/B MP4 variants and deeper editorial QC.
 - Platform OAuth integrations, publishing approvals and performance analytics/learning.
 - A persistent user-facing dashboard/upload workflow.

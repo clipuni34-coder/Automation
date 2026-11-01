@@ -40,6 +40,47 @@ test("first observation is explicitly low-confidence; repeated observation measu
   assert.equal(second.evidence.velocityMeasured, true);
 });
 
+
+test("flags a breakout candidate only after measured acceleration across three observations", () => {
+  const candidate = {
+    id: "youtube:breakout",
+    observedAt: "2026-11-01T03:00:00.000Z",
+    publishedAt: "2026-11-01T00:00:00.000Z",
+    title: "A fast-growing story",
+    sourceUrl: "https://youtube.com/watch?v=breakout",
+    creator: "Rising creator",
+    metrics: { views: 1500, likes: 90, comments: 20 }
+  };
+  const history = [
+    { id: candidate.id, observedAt: "2026-11-01T00:00:00.000Z", metrics: { views: 1000 } },
+    { id: candidate.id, observedAt: "2026-11-01T02:00:00.000Z", metrics: { views: 1200 } }
+  ];
+  const result = scoreCandidate(candidate, history);
+  assert.equal(result.confidence, "high");
+  assert.equal(result.evidence.viewsPerHour, 300);
+  assert.equal(result.evidence.previousViewsPerHour, 100);
+  assert.equal(result.evidence.accelerationRatio, 3);
+  assert.equal(result.evidence.breakoutSignal, true);
+});
+
+test("does not claim a breakout from a single prior observation", () => {
+  const candidate = {
+    id: "youtube:unverified",
+    observedAt: "2026-11-01T03:00:00.000Z",
+    publishedAt: "2026-11-01T00:00:00.000Z",
+    title: "Unverified growth",
+    sourceUrl: "https://youtube.com/watch?v=unverified",
+    creator: "Creator",
+    metrics: { views: 5000, likes: 200, comments: 20 }
+  };
+  const history = [
+    { id: candidate.id, observedAt: "2026-11-01T02:00:00.000Z", metrics: { views: 1000 } }
+  ];
+  const result = scoreCandidate(candidate, history);
+  assert.equal(result.confidence, "medium");
+  assert.equal(result.evidence.breakoutSignal, false);
+});
+
 test("discovery stores candidates, observations and source status", async (t) => {
   const directory = await mkdtemp(join(tmpdir(), "discovery-test-"));
   t.after(() => rm(directory, { recursive: true, force: true }));

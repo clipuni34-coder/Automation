@@ -35,3 +35,20 @@ test("claim ledger isolates a failed search and continues", async () => {
   assert.equal(ledger.claims[1].status, "needs_source_review");
   assert.equal(ledger.verifiedClaims, 0);
 });
+
+test("claim ledger retries an empty exact claim search with a shorter query", async () => {
+  const queries = [];
+  const ledger = await buildClaimLedger({
+    claims: ["A very long claim sentence. Additional details and context."],
+    search: async ({ query }) => {
+      queries.push(query);
+      if (queries.length === 1) return { status: "ok", results: [] };
+      return { status: "ok", results: [
+        { title: "Primary record", url: "https://example.gov/record", content: "Relevant source excerpt", score: 0.95 }
+      ] };
+    }
+  });
+  assert.equal(queries.length, 2);
+  assert.equal(ledger.claims[0].sources.length, 1);
+  assert.equal(ledger.claims[0].verificationDecision, "not_verified");
+});

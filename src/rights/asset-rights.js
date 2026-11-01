@@ -5,14 +5,14 @@ export function assessAssetRights(asset, { platform = null, now = new Date() } =
   if (!asset || typeof asset !== "object") return { allowed: false, status: "blocked", reasons: ["Asset record is missing"] };
   const rightsStatus = String(asset.rightsStatus ?? "unknown");
   if (!APPROVED_RIGHTS.has(rightsStatus)) reasons.push("Rights status is not approved");
-  if (rightsStatus === "permission_granted" || rightsStatus === "licensed") {
+  if (rightsStatus === "permission_granted" || rightsStatus === "licensed" || rightsStatus === "public_domain") {
     if (!asset.rightsEvidenceUrl && !asset.rightsEvidenceReference) reasons.push("Permission/license evidence reference is missing");
   }
   if (asset.sourceUrl) {
     try { if (new URL(asset.sourceUrl).protocol !== "https:") reasons.push("Source URL must use HTTPS"); }
     catch { reasons.push("Source URL is invalid"); }
   } else reasons.push("Original source URL is missing");
-  if (platform && Array.isArray(asset.allowedPlatforms) && !asset.allowedPlatforms.includes(platform)) reasons.push("Asset is not cleared for the requested platform");
+  if (asset.rightsEvidenceUrl) {\n    try { if (new URL(asset.rightsEvidenceUrl).protocol !== "https:") reasons.push("Rights evidence URL must use HTTPS"); }\n    catch { reasons.push("Rights evidence URL is invalid"); }\n  }\n  if (platform && Array.isArray(asset.allowedPlatforms) && !asset.allowedPlatforms.includes(platform)) reasons.push("Asset is not cleared for the requested platform");
   if (platform && !Array.isArray(asset.allowedPlatforms)) reasons.push("Allowed platforms are not documented");
   if (asset.expiresAt) {
     const expiry = Date.parse(asset.expiresAt);

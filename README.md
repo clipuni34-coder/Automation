@@ -67,7 +67,7 @@ npm test
 
 ## Project status
 
-The discovery foundation has completed live YouTube chart scans. Tavily research collects source excerpts and bounded page extractions; AI claim-to-source assessments are advisory only and never mark claims verified. A first FFmpeg renderer now assembles timed still-image scenes with subtle motion, timed captions, narration audio, and H.264/AAC vertical MP4 output. It enforces asset provenance metadata and probes the finished file independently. Automated narration generation, visual asset generation/sourcing, richer editing decisions, full editorial QC, publishing and analytics remain future work. See [the roadmap](docs/ROADMAP.md).
+The discovery foundation has completed live YouTube chart scans. Tavily research collects source excerpts and bounded page extractions; AI claim-to-source assessments are advisory only and never mark claims verified. A first FFmpeg renderer now assembles still-image and licensed live-action video scenes with timed captions, narration audio, and H.264/AAC vertical MP4 output. A Pexels adapter can search and download real footage while retaining the Pexels page, creator credit, and license metadata. Automated narration generation, other visual sourcing/generation, richer editing decisions, full editorial QC, publishing and analytics remain future work. See [the roadmap](docs/ROADMAP.md).
 
 
 ## First video renderer slice
@@ -108,3 +108,10 @@ npm run render -- render-manifest.json
 ```
 
 The current renderer outputs 1080×1920, 30fps, H.264 video, AAC audio, and fast-start MP4. It applies a restrained zoom to still images, burns scene-level captions, and checks codec, dimensions and duration with ffprobe. Captions currently follow storyboard scene timings; word-level karaoke timing is not implemented. Narration must already exist as an audio file; text-to-speech and automatic asset acquisition/generation are not yet implemented. This is a tested renderer component, not yet an autonomous end-to-end video producer.
+
+
+## Real human footage support
+
+The production layer now accepts either a still image or an actual video file for each storyboard scene. The Pexels adapter searches the official Pexels video API for portrait live-action footage, retains creator/provider attribution and the Pexels License label, and downloads only HTTPS video files hosted on Pexels subdomains with a configurable size cap. The renderer trims and crops video scenes into the vertical timeline and overlays the same timed captions and narration track.
+
+Configure `PEXELS_API_KEY` as a GitHub Actions secret or runtime environment variable. Pexels currently states that new API-key issuance is paused, so this integration is implemented but cannot be live-tested until an API key is available. Pexels also requires a prominent link to Pexels and recommends creator attribution; production packages must preserve and display those credits. The Pexels API is not a source of permission to reuse arbitrary viral creator videos: reference videos remain analysis-only unless separate rights are established.

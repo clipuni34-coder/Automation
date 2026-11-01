@@ -7,6 +7,7 @@ export async function fetchYouTubeAnalyticsReport({
   dimensions,
   metrics = "views,likes,comments,shares,subscribersGained,estimatedMinutesWatched,averageViewDuration,averageViewPercentage",
   sort,
+  filters,
   maxResults = 200,
   fetchImpl = fetch
 } = {}) {
@@ -21,6 +22,7 @@ export async function fetchYouTubeAnalyticsReport({
   });
   if (dimensions) params.set("dimensions", dimensions);
   if (sort) params.set("sort", sort);
+  if (filters) params.set("filters", filters);
   const response = await fetchImpl(`${ANALYTICS_ENDPOINT}?${params}`, {
     headers: { authorization: `Bearer ${accessToken}`, accept: "application/json" }
   });

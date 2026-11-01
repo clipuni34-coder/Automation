@@ -204,3 +204,7 @@ For a standalone source video you own or have explicit reuse permission for, `np
 The compilation CLI now also renders when `mediaAssets` maps each approved clip ID to a local file. It can generate a silent bed if no narration is supplied, retains source audio, ranks the cleared moments, and displays the supplied original intro/outro framing as opening/closing captions. These captions are on-screen text, not spoken commentary.
 
 Both paths intentionally require source media already obtained through a permitted route. The discovery connectors return YouTube reference metadata; they do not provide downloadable YouTube media. TikTok/Instagram discovery and automated creator-permission acquisition are not implemented. Do not use a reference URL as permission to download or republish.
+
+## Monetization-first channel growth
+
+The strategy layer now includes a YouTube YPP threshold calculator (including Nigeria's expanded YPP milestones), video monetization preflight checks, platform-metric normalization and sample-size-aware creative experiment suggestions. See [YouTube growth and monetization operating rules](docs/YOUTUBE_GROWTH_AND_MONETIZATION.md). These tools track progress and policy risks; they do not guarantee virality or YPP acceptance. Live channel analytics and publishing still require the channel owner's OAuth authorization and are not yet connected.

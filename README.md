@@ -67,4 +67,44 @@ npm test
 
 ## Project status
 
-The discovery foundation is tested by unit tests and has completed a live YouTube chart scan. A first source-grounded research adapter now uses Tavily Search API to collect linked source excerpts into a provenance-preserving dossier. Search excerpts are deliberately marked unverified; claim verification and AI editorial reasoning are not implemented yet. Video production, platform OAuth, publishing and analytics remain future phases. See [the roadmap](docs/ROADMAP.md).
+The discovery foundation has completed live YouTube chart scans. Tavily research collects source excerpts and bounded page extractions; AI claim-to-source assessments are advisory only and never mark claims verified. A first FFmpeg renderer now assembles timed still-image scenes with subtle motion, timed captions, narration audio, and H.264/AAC vertical MP4 output. It enforces asset provenance metadata and probes the finished file independently. Automated narration generation, visual asset generation/sourcing, richer editing decisions, full editorial QC, publishing and analytics remain future work. See [the roadmap](docs/ROADMAP.md).
+
+
+## First video renderer slice
+
+The renderer requires a narration audio file and a storyboard manifest with one still image per scene. Assets must be original graphics or generated visuals, or carry a source URL and license label for public-domain/licensed material. Reference creator footage is not accepted as a reusable asset by default.
+
+Example manifest:
+
+```json
+{
+  "outputPath": "output/short.mp4",
+  "audioPath": "assets/narration.wav",
+  "scenes": [
+    {
+      "imagePath": "assets/scene-01.png",
+      "start": 0,
+      "end": 5,
+      "caption": "An opening line that earns attention.",
+      "sourceType": "original_graphic"
+    },
+    {
+      "imagePath": "assets/scene-02.png",
+      "start": 5,
+      "end": 12,
+      "caption": "Build the explanation before the payoff.",
+      "sourceType": "licensed_stock",
+      "sourceUrl": "https://example.org/asset",
+      "license": "License name and permitted use"
+    }
+  ]
+}
+```
+
+Run with Node.js 22+ and FFmpeg (including the subtitles/libass filter):
+
+```bash
+npm run render -- render-manifest.json
+```
+
+The current renderer outputs 1080×1920, 30fps, H.264 video, AAC audio, and fast-start MP4. It applies a restrained zoom to still images, burns scene-level captions, and checks codec, dimensions and duration with ffprobe. Captions currently follow storyboard scene timings; word-level karaoke timing is not implemented. Narration must already exist as an audio file; text-to-speech and automatic asset acquisition/generation are not yet implemented. This is a tested renderer component, not yet an autonomous end-to-end video producer.

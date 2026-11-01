@@ -100,9 +100,11 @@ async function callGemini(prompt, apiKey, fetchImpl, timeoutMs) {
         return await callGeminiModel(prompt, apiKey, fetchImpl, timeoutMs, model);
       } catch (error) {
         errors.push(`${model} attempt ${attempt + 1}: ${error.message}`);
-        const transient = /HTTP (429|500|502|503|504)/.test(error.message);
-        if (!transient) throw error;
-        if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 1500));
+        const transientHttp = /HTTP (429|500|502|503|504)/.test(error.message);
+        const timedOut = error.name === "AbortError" || /aborted|timeout/i.test(error.message);
+        if (!transientHttp && !timedOut) throw error;
+        if (transientHttp && attempt === 0) await new Promise((resolve) => setTimeout(resolve, 1500));
+        if (timedOut) break;
       }
     }
   }

@@ -1,4 +1,4 @@
-const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent";
 const OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
 function extractJson(text) {
@@ -78,7 +78,7 @@ async function callGemini(prompt, apiKey, fetchImpl, timeoutMs) {
       }),
       signal: controller.signal
     });
-    if (!response.ok) throw new Error(`Gemini returned HTTP ${response.status}`);
+    if (!response.ok) {\n      const detail = await response.text().catch(() => "");\n      throw new Error(`Gemini returned HTTP ${response.status}${detail ? `: ${detail.slice(0, 1200)}` : ""}`);\n    }
     const payload = await response.json();
     const text = payload.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("");
     if (!text) throw new Error("Gemini returned an empty response");

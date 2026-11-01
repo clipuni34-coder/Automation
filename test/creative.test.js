@@ -197,3 +197,42 @@ test("creative briefs are written in the configured output language despite fore
   await generateEditorialPlan({ dossier: { topic: "Korean-language source title" }, geminiApiKey: "test-key", outputLanguage: "English", fetchImpl });
   assert.match(requestBody.contents[0].parts[0].text, /Write every field in English/);
 });
+
+test("creative provider uses the OpenRouter free-model router when it is the only configured provider", async () => {
+  let request;
+  const result = await generateEditorialPlan({
+    dossier, geminiApiKey: "", openaiApiKey: "", openrouterApiKey: "openrouter-test-key",
+    fetchImpl: async (url, options) => {
+      request = { url, options };
+      return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(validPlan) } }] }), { status: 200 });
+    }
+  });
+  assert.equal(result.status, "ok");
+  assert.equal(result.provider, "openrouter-free");
+  assert.equal(request.url, "https://openrouter.ai/api/v1/chat/completions");
+  assert.equal(request.options.headers.authorization, "Bearer openrouter-test-key");
+  assert.equal(JSON.parse(request.options.body).model, "openrouter/free");
+});
+
+test("OpenRouter creative fallback refuses paid models", async () => {
+  await assert.rejects(generateEditorialPlan({
+    dossier, geminiApiKey: "", openaiApiKey: "", openrouterApiKey: "test-key",
+    openrouterModel: "openai/gpt-4.1",
+    fetchImpl: async () => { throw new Error("A paid request must never be made"); }
+  }), /restricted to explicitly free models/);
+});
+
+test("creative provider falls back to OpenRouter free model after Gemini and OpenAI fail", async () => {
+  const calls = [];
+  const fetchImpl = async (url, options) => {
+    calls.push(url);
+    if (url.includes("generativelanguage")) return new Response("quota exceeded", { status: 429 });
+    if (url.includes("api.openai.com")) return new Response(JSON.stringify({ error: { message: "insufficient_quota" } }), { status: 429 });
+    return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(validPlan) } }] }), { status: 200 });
+  };
+  const result = await generateEditorialPlan({
+    dossier, geminiApiKey: "gemini-key", openaiApiKey: "openai-key", openrouterApiKey: "router-key", fetchImpl
+  });
+  assert.equal(result.provider, "openrouter-free");
+  assert.equal(calls.at(-1), "https://openrouter.ai/api/v1/chat/completions");
+});

@@ -12,6 +12,7 @@ function safeAssessment(value, claimLedger) {
     seen.add(item.claimId);
     const sourceIds = new Set(byId.get(item.claimId).sources.map((source) => source.id));
     assessments.push({
+      claimId: item.claimId,
       decision: item.decision,
       confidence: ["low", "medium", "high"].includes(item.confidence) ? item.confidence : "low",
       rationale: String(item.rationale ?? "").slice(0, 1200),

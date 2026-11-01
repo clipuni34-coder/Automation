@@ -71,7 +71,7 @@ function wrapCaption(value, maxChars = 30) {
   return lines;
 }
 
-function buildAss(scenes, duration) {
+export function buildAss(scenes, duration) {
   const header = [
     "[Script Info]", "ScriptType: v4.00+", "PlayResX: 1080", "PlayResY: 1920",
     "WrapStyle: 2", "ScaledBorderAndShadow: yes", "",

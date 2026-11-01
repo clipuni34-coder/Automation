@@ -14,7 +14,7 @@ Official references: [YouTube API quota costs](https://developers.google.com/you
 ## YouTube Shorts
 
 - Create a Google Cloud OAuth 2.0 client for the application.
-- Obtain offline user authorization for `https://www.googleapis.com/auth/youtube.upload` and `https://www.googleapis.com/auth/yt-analytics.readonly` (the Analytics reports endpoint also currently requires `https://www.googleapis.com/auth/youtube.readonly`).
+- Obtain offline user authorization for `https://www.googleapis.com/auth/youtube.upload` and `https://www.googleapis.com/auth/yt-analytics.readonly`.
 - Store `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET` and `YOUTUBE_REFRESH_TOKEN` as GitHub Actions secrets; never store them in source files. Enable the YouTube Analytics API and YouTube Data API v3 in the Google Cloud project.
 - The repository now has a guarded resumable upload adapter (`npm run youtube-upload -- <publishing-package.json>`) that polls YouTube until processing succeeds or fails, and an optional Analytics sync (`npm run youtube-analytics`). The upload CLI refuses to publish unless `YOUTUBE_AUTO_PUBLISH=true`, the package is explicitly `approved_for_upload`, editorial approval is cleared, visual QC passed, and public posting has the additional `YOUTUBE_ALLOW_PUBLIC_PUBLISH=true` guard. The first upload should remain private/unlisted for verification.
 - To enable the scheduled Analytics snapshot after adding the three secrets, set the Actions repository variable `SYNC_YOUTUBE_ANALYTICS=true`. It archives a 30-day analytics snapshot; YouTube Analytics data commonly lags by 48–72 hours.

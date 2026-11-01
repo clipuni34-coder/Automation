@@ -46,7 +46,7 @@ test("reports partial coverage when one region/category request fails", async ()
     if (new URL(url).searchParams.get("regionCode") === "GB") {
       return { ok: false, status: 403, text: async () => "quota or region error" };
     }
-    return { ok: true, json: async () => ({ items: [] }) };
+    return { ok: true, json: async () => ({ items: [{ id: "available-video", snippet: { title: "Example", channelTitle: "Channel", publishedAt: "2026-10-31T00:00:00Z" }, statistics: { viewCount: "10" } }] }) };
   };
   const result = await collectYouTubeGlobal({
     apiKey: "test-key",

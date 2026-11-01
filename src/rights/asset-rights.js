@@ -12,7 +12,11 @@ export function assessAssetRights(asset, { platform = null, now = new Date() } =
     try { if (new URL(asset.sourceUrl).protocol !== "https:") reasons.push("Source URL must use HTTPS"); }
     catch { reasons.push("Source URL is invalid"); }
   } else reasons.push("Original source URL is missing");
-  if (asset.rightsEvidenceUrl) {\n    try { if (new URL(asset.rightsEvidenceUrl).protocol !== "https:") reasons.push("Rights evidence URL must use HTTPS"); }\n    catch { reasons.push("Rights evidence URL is invalid"); }\n  }\n  if (platform && Array.isArray(asset.allowedPlatforms) && !asset.allowedPlatforms.includes(platform)) reasons.push("Asset is not cleared for the requested platform");
+  if (asset.rightsEvidenceUrl) {
+    try { if (new URL(asset.rightsEvidenceUrl).protocol !== "https:") reasons.push("Rights evidence URL must use HTTPS"); }
+    catch { reasons.push("Rights evidence URL is invalid"); }
+  }
+  if (platform && Array.isArray(asset.allowedPlatforms) && !asset.allowedPlatforms.includes(platform)) reasons.push("Asset is not cleared for the requested platform");
   if (platform && !Array.isArray(asset.allowedPlatforms)) reasons.push("Allowed platforms are not documented");
   if (asset.expiresAt) {
     const expiry = Date.parse(asset.expiresAt);

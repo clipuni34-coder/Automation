@@ -23,6 +23,7 @@
     "daily-plan": "node src/strategy/cli.js",
     "monetization-audit": "node src/strategy/monetization-audit-cli.js",
     "youtube-upload": "node src/platforms/youtube/upload-cli.js",
-    "youtube-analytics": "node src/platforms/youtube/analytics-cli.js"
+    "youtube-analytics": "node src/platforms/youtube/analytics-cli.js",
+    "research-niches": "node src/strategy/niche-cli.js"
   }
 }

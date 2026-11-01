@@ -21,7 +21,7 @@ concurrency:
 jobs:
   discover:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -32,7 +32,9 @@ jobs:
       - name: Run discovery
         env:
           YOUTUBE_DATA_API_KEY: ${{ secrets.YOUTUBE_DATA_API_KEY }}
-          DISCOVERY_REGION: ${{ inputs.region || 'NG' }}
+          DISCOVERY_REGIONS: ${{ vars.DISCOVERY_REGIONS || 'US,GB,CA,AU,IN,NG,ZA,BR,MX,DE,JP,KR' }}
+          DISCOVERY_CATEGORIES: ${{ vars.DISCOVERY_CATEGORIES || '1,2,10,15,17,19,20,22,23,24,25,26,27,28,29' }}
+          DISCOVERY_CONCURRENCY: '5'
           DISCOVERY_STORE_PATH: data/discovery.json
         run: |
           if [ -z "$YOUTUBE_DATA_API_KEY" ]; then

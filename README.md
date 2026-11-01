@@ -53,7 +53,11 @@ Candidate scores are transparent heuristics, not predictions of virality. First-
 3. Create an API key and set `YOUTUBE_DATA_API_KEY` in your deployment environment.
 4. Set `DISCOVERY_REGIONS=US,GB,CA,AU,IN,NG,ZA,BR,MX,DE,JP,KR` and optionally `DISCOVERY_CATEGORIES=1,2,10,15,17,19,20,22,23,24,25,26,27,28,29`.
 
-YouTube's `videos.list` `mostPopular` chart is sampled by region and category. This does not cover all uploads, private/unlisted videos, or all regional trends. Keyword-based discovery and other platform connectors remain future work.
+YouTube's `videos.list` `mostPopular` chart is sampled by region and category. This does not cover all uploads, private/unlisted videos, or all regional trends. Optional keyword/creator-oriented YouTube search is now available through the official Search and Videos APIs. Set `DISCOVERY_SEARCH_QUERIES` to up to five terms separated by `|`; the scheduled workflow uses five broad recent-video searches by default. Search results are reference-only and cannot be downloaded/reused through this connector. Each `search.list` call consumes substantially more quota than a `videos.list` chart request, so keep the query list bounded. TikTok and Instagram discovery connectors remain future work.
+
+### Keyword and creator search setup
+
+The scheduled workflow runs five bounded YouTube searches for recent viral/funny, reaction, gaming, sports and real-life moments. Override these in GitHub repository Settings → Secrets and variables → Actions → Variables by adding `DISCOVERY_SEARCH_QUERIES`, with up to five search terms separated by `|`. Searches default to videos published in the last 30 days and sort by view count; this is a discovery heuristic, not proof of virality. YouTube search results are references only.
 
 ### RSS setup
 
@@ -67,7 +71,7 @@ npm test
 
 ## Project status
 
-The discovery foundation has completed live YouTube chart scans. Tavily research collects source excerpts and bounded page extractions; AI claim-to-source assessments are advisory only and never mark claims verified. A first FFmpeg renderer now assembles still-image and licensed live-action video scenes with timed captions, narration audio, and H.264/AAC vertical MP4 output. A Pexels adapter can search and download real footage while retaining the Pexels page, creator credit, and license metadata. Automated narration generation, other visual sourcing/generation, richer editing decisions, full editorial QC, publishing and analytics remain future work. See [the roadmap](docs/ROADMAP.md).
+The discovery foundation has completed live YouTube chart scans. Tavily research collects source excerpts and bounded page extractions; AI claim-to-source assessments are advisory only and never mark claims verified. A first FFmpeg renderer now assembles still-image and licensed live-action video scenes with timed captions, narration audio, and H.264/AAC vertical MP4 output. A Pexels adapter can search and download real footage while retaining the Pexels page, creator credit, and license metadata. Gemini TTS narration is implemented. Rights-aware standalone re-edit and ranked creator-compilation planners now produce edit decision lists, and creator clips are blocked at render time unless rights evidence and platform scope are present. Automated transcript/visual moment detection, authorized creator-media intake, direct planner-to-render integration, advanced editing, full editorial QC, publishing and analytics remain future work. See [the roadmap](docs/ROADMAP.md).
 
 
 ## First video renderer slice

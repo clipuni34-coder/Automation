@@ -5,8 +5,13 @@ function safeVideoFile(video) {
   const variants = [video.videos?.large, video.videos?.medium, video.videos?.small, video.videos?.tiny]
     .filter((file) => file?.url && Number(file.width) > 0 && Number(file.height) > 0)
     .sort((a, b) => (b.width * b.height) - (a.width * a.height));
-  const file = variants.find((item) => item.width >= 720 && item.height >= 720) ?? variants[0];
-  if (!file) return null;
+  // Prefer the highest-resolution variant that fits our download budget.
+  // Pixabay may return a very large "large" file while offering a suitable
+  // medium/small alternative for the same stock clip.
+  const affordable = variants.filter((item) => !Number.isFinite(Number(item.size)) || Number(item.size) <= MAX_DOWNLOAD_BYTES);
+  const candidates = affordable.length ? affordable : variants;
+  const file = candidates.find((item) => item.width >= 720 && item.height >= 720) ?? candidates[0];
+  if (!file || Number(file.size) > MAX_DOWNLOAD_BYTES) return null;
   const url = new URL(file.url);
   if (url.protocol !== "https:" || !(url.hostname === "pixabay.com" || url.hostname.endsWith(".pixabay.com"))) return null;
   return { url: url.toString(), width: file.width, height: file.height, size: file.size ?? null };

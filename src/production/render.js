@@ -56,16 +56,42 @@ function validateManifest(manifest) {
   return previousEnd;
 }
 
+function wrapCaption(value, maxChars = 30) {
+  const words = String(value ?? "").trim().split(/\\s+/).filter(Boolean);
+  const lines = [];
+  let line = "";
+  for (const word of words) {
+    const next = line ? line + " " + word : word;
+    if (next.length > maxChars && line) {
+      lines.push(line);
+      line = word;
+    } else line = next;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
 function buildAss(scenes, duration) {
   const header = [
     "[Script Info]", "ScriptType: v4.00+", "PlayResX: 1080", "PlayResY: 1920",
     "WrapStyle: 2", "ScaledBorderAndShadow: yes", "",
     "[V4+ Styles]",
     "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
-    "Style: Caption,DejaVu Sans,68,&H00FFFFFF,&H0000FFFF,&H00101010,&H99000000,1,0,0,0,100,100,0,0,1,5,1,2,90,90,250,1", "",
+    "Style: Caption,DejaVu Sans,60,&H00FFFFFF,&H0000FFFF,&H00101010,&HCC101010,1,0,0,0,100,100,0,0,3,2,1,2,100,100,330,1", "",
     "[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"
   ];
-  const events = scenes.map((scene) => "Dialogue: 0," + assTime(scene.start) + "," + assTime(Math.min(scene.end, duration)) + ",Caption,,0,0,0,,{\\an2}" + escapeAss(scene.caption));
+  const events = [];
+  for (const scene of scenes) {
+    const lines = wrapCaption(scene.caption, 30);
+    const chunks = [];
+    for (let index = 0; index < lines.length; index += 2) chunks.push(lines.slice(index, index + 2).join("\\N"));
+    const chunkDuration = (scene.end - scene.start) / Math.max(1, chunks.length);
+    chunks.forEach((chunk, index) => {
+      const start = scene.start + chunkDuration * index;
+      const end = Math.min(scene.end, start + chunkDuration + 0.04);
+      events.push("Dialogue: 0," + assTime(start) + "," + assTime(end) + ",Caption,,0,0,0,,{\\\\an2}" + escapeAss(chunk));
+    });
+  }
   return [...header, ...events, ""].join(String.fromCharCode(10));
 }
 

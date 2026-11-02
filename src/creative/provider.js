@@ -117,7 +117,7 @@ async function callGeminiModel(prompt, apiKey, fetchImpl, timeoutMs, model) {
 async function callGemini(prompt, apiKey, fetchImpl, timeoutMs) {
   const errors = [];
   for (const model of GEMINI_MODELS) {
-    for (let attempt = 0; attempt < 2; attempt += 1) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
         return await callGeminiModel(prompt, apiKey, fetchImpl, timeoutMs, model);
       } catch (error) {
@@ -136,9 +136,28 @@ async function callGemini(prompt, apiKey, fetchImpl, timeoutMs) {
           throw new Error("Gemini quota exhausted; stopping Gemini model retries to avoid wasting requests. " + error.message.slice(0, 700));
         }
         if (!transientHttp && !timedOut) throw error;
-        if (transientHttp && attempt === 0) await new Promise((resolve) => setTimeout(resolve, 1500));
+        if (transientHttp && attempt < 2) {
+          // Respect a provider outage with bounded exponential backoff.
+          // A short delay is often insufficient for transient Gemini 503 bursts.
+          const retryAfter = Number(error.retryAfterSeconds);
+          const delayMs = Number.isFinite(retryAfter) && retryAfter > 0
+            ? Math.min(retryAfter * 1000, 15000)
+            : [2000, 6000][attempt];
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        }
         if (timedOut) break;
       }
+    }
+  }
+
+  // If all primary Flash models are temporarily unavailable (not quota-exhausted),
+  // make one final attempt on Flash-Lite before declaring creative generation failed.
+  const transientOutage = errors.some((entry) => /HTTP (500|502|503|504)|aborted|timeout/i.test(entry));
+  if (transientOutage) {
+    try {
+      return await callGeminiModel(prompt, apiKey, fetchImpl, timeoutMs, GEMINI_QUOTA_FALLBACK_MODEL);
+    } catch (fallbackError) {
+      errors.push(`${GEMINI_QUOTA_FALLBACK_MODEL} outage fallback: ${fallbackError.message}`);
     }
   }
   throw new Error(errors.join("; "));

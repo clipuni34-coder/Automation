@@ -70,7 +70,7 @@
 - [x] Add Faster-Whisper word-timed transcription support to the authorized re-edit CLI and FFmpeg scene-change/silence analysis as candidate-level signals; synthetic-media integration verifies the FFmpeg signal path.
 - [ ] Verify Faster-Whisper against a real authorized source and expand visual analysis beyond scene cuts (e.g. speaker/subject tracking and action cues).
 - [x] Connect standalone re-edit and creator-compilation plans to render manifests with source cut points and local authorized media paths.
-- [ ] Add timed commentary placement, sound design and dynamic captions for compilation edits.
+- [ ] Add timed commentary placement and sound design for compilation edits; standalone re-edits now have word-timed karaoke captions and score-triggered punch-ins.
 - [ ] Add creator permission-request/expiry/revocation workflow and evidence storage.
 
 ## Phase 5 — Platform connections and publishing

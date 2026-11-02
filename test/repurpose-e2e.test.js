@@ -38,6 +38,7 @@ test("authorized repurposing pipeline scores timed words and renders original so
       source: {
         sourceUrl: "https://media.example/owned-source.mp4",
         title: "Synthetic authorised test footage",
+        durationSeconds: 8,
         rightsStatus: "owned_by_user",
         allowedPlatforms: ["youtube_shorts"]
       },

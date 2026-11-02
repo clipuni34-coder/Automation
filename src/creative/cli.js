@@ -25,9 +25,28 @@ if (!inputPath) {
         claims: result.plan.claimsToVerify, search: searchTopic, extract: extractSources
       });
 
+      // Keep the revision prompt bounded while retaining opened source passages.
+      const revisionLedger = {
+        ...firstPassLedger,
+        claims: firstPassLedger.claims.map((claim) => ({
+          ...claim,
+          sources: (claim.sources ?? []).slice(0, 3).map((source) => ({
+            ...source,
+            sourceExcerpt: String(source.sourceExcerpt ?? "").slice(0, 500),
+            extractedContent: String(source.extractedContent ?? "").slice(0, 3500)
+          }))
+        }))
+      };
+      const revisionDraft = {
+        workingTitle: result.plan.workingTitle,
+        recommendedAngle: result.plan.recommendedAngle,
+        fullScript: result.plan.fullScript,
+        claimsToVerify: result.plan.claimsToVerify
+      };
+
       // Pass 2 rewrites against opened source text, not discovery snippets or model memory.
       const groundedResult = await generateEditorialPlan({
-        dossier: { ...dossier, claimEvidenceLedger: firstPassLedger, firstPassEditorialDraft: result.plan }
+        dossier: { ...dossier, claimEvidenceLedger: revisionLedger, firstPassEditorialDraft: revisionDraft }
       });
       if (groundedResult.status !== "ok") {
         throw new Error("Evidence-grounded revision did not complete; refusing to save a production brief.");

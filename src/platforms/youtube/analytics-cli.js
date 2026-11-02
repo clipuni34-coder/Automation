@@ -12,32 +12,71 @@ start365.setUTCDate(start365.getUTCDate() - 364);
 const iso = date => date.toISOString().slice(0, 10);
 const outputPath = resolve(process.env.YOUTUBE_ANALYTICS_PATH ?? "data/youtube-analytics.json");
 
+function aggregateByCreatorContentType(rows) {
+  const groups = new Map();
+  for (const row of rows) {
+    const type = row.creatorContentType ?? "UNKNOWN";
+    const group = groups.get(type) ?? {
+      creatorContentType: type,
+      views: 0,
+      engagedViews: 0,
+      estimatedMinutesWatched: 0,
+      _viewDurationWeighted: 0,
+      _viewPercentageWeighted: 0,
+      _viewsForAverages: 0
+    };
+    const views = Number(row.views ?? 0);
+    group.views += views;
+    group.engagedViews += Number(row.engagedViews ?? 0);
+    group.estimatedMinutesWatched += Number(row.estimatedMinutesWatched ?? 0);
+    group._viewDurationWeighted += Number(row.averageViewDuration ?? 0) * views;
+    group._viewPercentageWeighted += Number(row.averageViewPercentage ?? 0) * views;
+    group._viewsForAverages += views;
+    groups.set(type, group);
+  }
+  return [...groups.values()].map(group => {
+    const count = group._viewsForAverages;
+    return {
+      creatorContentType: group.creatorContentType,
+      views: group.views,
+      engagedViews: group.engagedViews,
+      estimatedMinutesWatched: group.estimatedMinutesWatched,
+      ...(count > 0 ? {
+        averageViewDuration: group._viewDurationWeighted / count,
+        averageViewPercentage: group._viewPercentageWeighted / count
+      } : {})
+    };
+  });
+}
+
 try {
   const token = await refreshYouTubeAccessToken();
   const [contentTypes90d, contentTypes365d, channelEngagement90d, topVideos90d] = await Promise.all([
     fetchYouTubeAnalyticsReport({
       accessToken: token.accessToken, startDate: iso(start90), endDate: iso(end),
-      dimensions: "creatorContentType",
+      // creatorContentType is only supported as an optional dimension on time-based
+      // channel reports, so include the required day dimension and aggregate locally.
+      dimensions: "day,creatorContentType",
       metrics: "views,engagedViews,estimatedMinutesWatched,averageViewDuration,averageViewPercentage"
-    }),
+    }).catch(error => { throw new Error(`90-day content-type report: ${error.message}`); }),
     fetchYouTubeAnalyticsReport({
       accessToken: token.accessToken, startDate: iso(start365), endDate: iso(end),
-      dimensions: "creatorContentType",
+      dimensions: "day,creatorContentType",
       metrics: "views,engagedViews,estimatedMinutesWatched"
-    }),
+    }).catch(error => { throw new Error(`365-day content-type report: ${error.message}`); }),
     fetchYouTubeAnalyticsReport({
       accessToken: token.accessToken, startDate: iso(start90), endDate: iso(end),
       metrics: "views,likes,comments,shares,subscribersGained,estimatedMinutesWatched,averageViewDuration"
-    }),
+    }).catch(error => { throw new Error(`channel engagement report: ${error.message}`); }),
     fetchYouTubeAnalyticsReport({
       accessToken: token.accessToken, startDate: iso(start90), endDate: iso(end),
       dimensions: "video,creatorContentType",
       metrics: "views,engagedViews,likes,comments,shares,subscribersGained,estimatedMinutesWatched,averageViewDuration,averageViewPercentage",
       sort: "-views", maxResults: 200
-    })
+    }).catch(error => { throw new Error(`top-videos report: ${error.message}`); })
   ]);
-  const types90 = rowsToObjects(contentTypes90d);
-  const types365 = rowsToObjects(contentTypes365d);
+  const types90 = aggregateByCreatorContentType(rowsToObjects(contentTypes90d));
+  const types365 = aggregateByCreatorContentType(rowsToObjects(contentTypes365d));
   const shorts90 = types90.find(row => row.creatorContentType === "SHORTS") ?? {};
   const longForm365 = types365.find(row => row.creatorContentType === "VIDEO_ON_DEMAND") ?? {};
   const result = {

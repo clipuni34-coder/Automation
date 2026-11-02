@@ -55,7 +55,7 @@ if (!inputPath) {
       const evidenceHeldPlan = applyEditorialEvidenceHold({ plan: groundedResult.plan, claimLedger });
       const editorial = {
         ...dossier.editorial, ...evidenceHeldPlan, claimLedger, evidenceReadiness,
-        status: "brief_generated", provider: result.provider,
+        status: "brief_generated", provider: groundedResult.provider,
         generatedAt: new Date().toISOString(),
         humanEditorialReview: dossier.editorial?.humanEditorialReview ?? null
       };
@@ -71,7 +71,8 @@ if (!inputPath) {
       await writeFile(outputPath, JSON.stringify(output, null, 2) + "\n", { mode: 0o600 });
       console.log(JSON.stringify({
         status: "ok", topic: dossier.topic, provider: groundedResult.provider, outputPath,
-        claims: claimLedger.totalClaims, extractedSources: claimLedger.sourceExtraction.extracted,\n        evidenceReadiness: evidenceReadiness.status,
+        claims: claimLedger.totalClaims, extractedSources: claimLedger.sourceExtraction.extracted,
+        evidenceReadiness: evidenceReadiness.status,
         extractionStatus: claimLedger.sourceExtraction.status,
         productionGate: editorial.productionGate.status,
         productionEligible: editorial.productionGate.productionEligible,

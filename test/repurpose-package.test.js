@@ -23,8 +23,9 @@ test("builds platform-specific draft metadata from selected source moments", () 
   assert.equal(result.manualPublishingApprovalRequired, true);
   assert.equal(result.title, "Why this surprising moment matters");
   assert.equal(result.platformPackages.youtube_shorts.title, result.title);
-  assert.ok(result.platformPackages.tiktok.hashtags.includes("#TikTok"));
-  assert.ok(result.platformPackages.instagram_reels.hashtags.includes("#Reels"));
+  assert.ok(result.platformPackages.youtube_shorts.hashtags.includes("#Shorts"));
+  assert.equal(result.platformPackages.tiktok, undefined);
+  assert.equal(result.platformPackages.instagram_reels, undefined);
   assert.equal(result.thumbnailPath, "short.thumbnail.jpg");
   assert.equal(result.editRationale.selectedMomentCount, 2);
   assert.equal(result.quality.visualQualityStatus, "passed");

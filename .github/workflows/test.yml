@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [main, autonomous-viral-discovery]
+    branches: [main, autonomous-viral-discovery, editorial-evidence-hold]
   pull_request:
     branches: [main]
 

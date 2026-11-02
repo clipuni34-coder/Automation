@@ -46,3 +46,20 @@ test("fails closed when ledger is missing or pages were not extracted", () => {
   assert.equal(report.status, "insufficient");
   assert.equal(report.claims[0].openedSourceCount, 0);
 });
+
+test("requires every numeric literal and rejects social subdomains", () => {
+  const numericClaim = "Brian Scalabrine averaged 3.1 points and 2.0 rebounds per game";
+  const incomplete = passage + " His scoring and rebounding were discussed.";
+  const report = evaluateEvidenceReadiness({ claims: [{ id: "c2", claim: numericClaim, sources: [
+    { id: "s1", url: "https://stats-one.example/player", extractionStatus: "opened", extractedContent: incomplete },
+    { id: "s2", url: "https://stats-two.example/player", extractionStatus: "opened", extractedContent: incomplete }
+  ] }] });
+  assert.equal(report.status, "insufficient");
+  assert.deepEqual(report.claims[0].sourceChecks[0].missingNumbers, ["3.1", "2.0"]);
+
+  const social = evaluateEvidenceReadiness({ claims: [{ id: "c3", claim: "Brian Scalabrine played professional basketball in the NBA", sources: [
+    { id: "s3", url: "https://m.wikipedia.org/wiki/Brian_Scalabrine", extractionStatus: "opened", extractedContent: passage },
+    { id: "s4", url: "https://www.example.org/player", extractionStatus: "opened", extractedContent: passage }
+  ] }] });
+  assert.equal(social.claims[0].sourceChecks[0].eligibleDomain, false);
+});

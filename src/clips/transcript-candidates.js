@@ -49,7 +49,7 @@ export function buildTranscriptCandidates(words, { minSeconds = 2, maxSeconds = 
         id: "moment-" + (groups.length + 1), start, end, text,
         words: current.map(item => ({ ...item })),
         signals: scoreSignals(text, duration, current, mediaSignals ? summarizeMomentSignals({ start, end }, mediaSignals) : {}),
-        scoringMethod: "local_lexical_heuristic"
+        scoringMethod: mediaSignals ? "local_lexical_heuristic_plus_ffmpeg_media_signals" : "local_lexical_heuristic"
       });
     }
     current = [];

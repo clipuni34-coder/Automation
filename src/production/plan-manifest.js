@@ -24,14 +24,17 @@ function appendScene(scenes, clip, localPath, start, platform) {
   assertAssetRights(rightsAsset, { platform });
   const duration = sourceOut - sourceIn;
   const timelineStart = scenes.length ? scenes.at(-1).end : 0;
-  scenes.push({ videoPath: localPath, sourceIn, sourceOut, start: timelineStart, end: Number((timelineStart + duration).toFixed(3)), caption: conciseCaption(clip.caption ?? clip.creator ?? "Moment"), sourceType: "creator_clip", sourceUrl: clip.sourceUrl, license: clip.license ?? "Authorized source media", rightsStatus: clip.rightsStatus, rightsEvidenceUrl: clip.rightsEvidenceUrl ?? null, rightsEvidenceReference: clip.rightsEvidenceReference ?? null, allowedPlatforms: clip.allowedPlatforms, expiresAt: clip.expiresAt ?? null, creator: clip.creator ?? null });
+  scenes.push({ videoPath: localPath, sourceIn, sourceOut, start: timelineStart, end: Number((timelineStart + duration).toFixed(3)), caption: conciseCaption(clip.caption ?? clip.creator ?? "Moment"), wordTimings: clip.wordTimings ?? [], punchIn: clip.treatment?.punchIn === true, sourceType: "creator_clip", sourceUrl: clip.sourceUrl, license: clip.license ?? "Authorized source media", rightsStatus: clip.rightsStatus, rightsEvidenceUrl: clip.rightsEvidenceUrl ?? null, rightsEvidenceReference: clip.rightsEvidenceReference ?? null, allowedPlatforms: clip.allowedPlatforms, expiresAt: clip.expiresAt ?? null, creator: clip.creator ?? null });
 }
 
 export function buildReeditRenderManifest({ plan, sourceLocalPath, audioPath, outputPath } = {}) {
   if (plan?.mode !== "standalone_reedit" || plan.status !== "edit_plan_ready" || !plan.rights?.allowed) throw new Error("A rights-approved standalone re-edit plan is required");
   if (!audioPath || !outputPath) throw new Error("Narration audioPath and outputPath are required");
   const scenes = [];
-  for (const segment of plan.editDecisionList) appendScene(scenes, { ...plan.source, start: segment.sourceIn, end: segment.sourceOut, caption: segment.caption }, sourceLocalPath, 0, plan.platform);
+  for (const segment of plan.editDecisionList) {
+    const wordTimings = (segment.wordTimings ?? []).map((word) => ({ text: word.word ?? word.text, start: Number(word.start) - segment.sourceIn, end: Number(word.end) - segment.sourceIn }));
+    appendScene(scenes, { ...plan.source, start: segment.sourceIn, end: segment.sourceOut, caption: segment.caption, wordTimings, treatment: segment.treatment }, sourceLocalPath, 0, plan.platform);
+  }
   return { outputPath, audioPath, targetPlatform: plan.platform, scenes };
 }
 

@@ -109,7 +109,7 @@ test("creative provider retries a busy Gemini model and falls back to another Fl
   const result = await generateEditorialPlan({ dossier, geminiApiKey: "test-key", fetchImpl });
   assert.equal(result.status, "ok");
   assert.equal(result.provider, "gemini");
-  assert.deepEqual(requestedModels, ["gemini-3.8-flash", "gemini-3.8-flash", "gemini-3.6-flash"]);
+  assert.deepEqual(requestedModels, ["gemini-3.8-flash", "gemini-3.8-flash", "gemini-3.8-flash", "gemini-3.6-flash"]);
 });
 
 test("creative provider falls back to the next Gemini model after a timeout", async () => {

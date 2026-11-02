@@ -6,6 +6,7 @@ test("builds platform-specific draft metadata from selected source moments", () 
   const plan = {
     mode: "standalone_reedit",
     status: "edit_plan_ready",
+    platform: "youtube_shorts",
     source: { title: "Original source", creator: "Creator", sourceUrl: "https://example.org/source", rightsStatus: "licensed", rightsEvidenceUrl: "https://example.org/license", allowedPlatforms: ["youtube_shorts"] },
     openingHook: { sourceIn: 12, sourceOut: 17, score: 8.4 },
     editDecisionList: [

@@ -45,7 +45,7 @@ export function buildViralReport(discovery, strategy = {}, generatedAt = new Dat
     </article>`;
   }).join("\n");
   const topics = clusters.map((item) => `<div class="topic"><div><b>${escapeHtml(item.label)}</b><small>${number(item.candidateCount)} references · ${number(item.distinctCreatorCount)} creators</small></div><span class="pill">${escapeHtml(item.lifecycle || "unknown")}</span><span class="pill">${escapeHtml(item.saturation || "unknown")} saturation</span><strong>${number(item.averageOpportunityScore)}/100</strong></div>`).join("\n");
-  const recommendations = (strategy?.recommendations ?? []).slice(0, 5).map((item) =>
+  const recommendations = (strategy?.latestPlan?.recommendations ?? strategy?.recommendations ?? []).slice(0, 5).map((item) =>
     `<li><b>${escapeHtml(item.title || item.topic || "Editorial opportunity")}</b><span>${escapeHtml(item.reason || item.creativeAngle || item.angle || item.format || "Review source evidence before reuse.")}</span></li>`
   ).join("\n");
   const discovered = candidates.length;

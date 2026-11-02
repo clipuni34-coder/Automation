@@ -609,6 +609,7 @@ jobs:
           name: repurposed-short
           path: |
             output/repurposed/short.mp4
+            output/repurposed/short.thumbnail.jpg
             output/repurposed/result.json
             output/repurposed/short.mp4.transcript.json
           retention-days: 14

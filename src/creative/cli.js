@@ -7,6 +7,7 @@ import { buildClaimLedger } from "../research/claim-ledger.js";
 import { assessClaimEvidence } from "../research/evidence-assessment.js";
 import { evaluateProductionGate } from "./production-gate.js";
 import { applyEditorialEvidenceHold } from "./evidence-hold.js";
+import { evaluateEvidenceReadiness } from "../research/evidence-readiness.js";
 
 const inputPath = process.argv[2];
 if (!inputPath) {
@@ -19,8 +20,22 @@ if (!inputPath) {
     if (result.status !== "ok") {
       console.log(JSON.stringify({ status: result.status, topic: dossier.topic }));
     } else {
-      const claimLedger = await buildClaimLedger({
+      // Pass 1 proposes a story and identifies its factual claims.
+      const firstPassLedger = await buildClaimLedger({
         claims: result.plan.claimsToVerify, search: searchTopic, extract: extractSources
+      });
+
+      // Pass 2 rewrites against opened source text, not discovery snippets or model memory.
+      const groundedResult = await generateEditorialPlan({
+        dossier: { ...dossier, claimEvidenceLedger: firstPassLedger, firstPassEditorialDraft: result.plan }
+      });
+      if (groundedResult.status !== "ok") {
+        throw new Error("Evidence-grounded revision did not complete; refusing to save a production brief.");
+      }
+
+      // Re-check the claims in the revised script, because the model may have changed them.
+      const claimLedger = await buildClaimLedger({
+        claims: groundedResult.plan.claimsToVerify, search: searchTopic, extract: extractSources
       });
       const evidenceAssessment = await assessClaimEvidence({ claimLedger });
       const assessedById = new Map(evidenceAssessment.claims.map((item) => [item.claimId, item.assessment]));
@@ -36,9 +51,10 @@ if (!inputPath) {
         model: evidenceAssessment.model ?? null, error: evidenceAssessment.error ?? null,
         policy: "AI evidence relationships are advisory only. No claim is verified without human editorial review."
       };
-      const evidenceHeldPlan = applyEditorialEvidenceHold({ plan: result.plan, claimLedger });
+      const evidenceReadiness = evaluateEvidenceReadiness(claimLedger);
+      const evidenceHeldPlan = applyEditorialEvidenceHold({ plan: groundedResult.plan, claimLedger });
       const editorial = {
-        ...dossier.editorial, ...evidenceHeldPlan, claimLedger,
+        ...dossier.editorial, ...evidenceHeldPlan, claimLedger, evidenceReadiness,
         status: "brief_generated", provider: result.provider,
         generatedAt: new Date().toISOString(),
         humanEditorialReview: dossier.editorial?.humanEditorialReview ?? null
@@ -54,8 +70,8 @@ if (!inputPath) {
       const outputPath = resolve(inputPath.replace(/\.json$/i, "") + ".creative.json");
       await writeFile(outputPath, JSON.stringify(output, null, 2) + "\n", { mode: 0o600 });
       console.log(JSON.stringify({
-        status: "ok", topic: dossier.topic, provider: result.provider, outputPath,
-        claims: claimLedger.totalClaims, extractedSources: claimLedger.sourceExtraction.extracted,
+        status: "ok", topic: dossier.topic, provider: groundedResult.provider, outputPath,
+        claims: claimLedger.totalClaims, extractedSources: claimLedger.sourceExtraction.extracted,\n        evidenceReadiness: evidenceReadiness.status,
         extractionStatus: claimLedger.sourceExtraction.status,
         productionGate: editorial.productionGate.status,
         productionEligible: editorial.productionGate.productionEligible,

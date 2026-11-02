@@ -27,7 +27,7 @@ export function buildViralReport(discovery, strategy = {}, generatedAt = new Dat
     const evidence = item.evidence ?? {};
     const metrics = item.metrics ?? {};
     const score = Number(item.score ?? 0);
-    const momentum = item.momentum ?? "unverified";
+    const momentum = String(item.momentum ?? "unverified");
     const title = escapeHtml(item.title || "Untitled video");
     const creator = escapeHtml(item.creator || "Creator not identified");
     const link = url ? `<a class="source" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Open source ↗</a>` : '<span class="muted">No safe source link</span>';
@@ -46,7 +46,7 @@ export function buildViralReport(discovery, strategy = {}, generatedAt = new Dat
   }).join("\n");
   const topics = clusters.map((item) => `<div class="topic"><div><b>${escapeHtml(item.label)}</b><small>${number(item.candidateCount)} references · ${number(item.distinctCreatorCount)} creators</small></div><span class="pill">${escapeHtml(item.lifecycle || "unknown")}</span><span class="pill">${escapeHtml(item.saturation || "unknown")} saturation</span><strong>${number(item.averageOpportunityScore)}/100</strong></div>`).join("\n");
   const recommendations = (strategy?.recommendations ?? []).slice(0, 5).map((item) =>
-    `<li><b>${escapeHtml(item.title || item.topic || "Editorial opportunity")}</b><span>${escapeHtml(item.reason || item.angle || item.format || "Review source evidence before reuse.")}</span></li>`
+    `<li><b>${escapeHtml(item.title || item.topic || "Editorial opportunity")}</b><span>${escapeHtml(item.reason || item.creativeAngle || item.angle || item.format || "Review source evidence before reuse.")}</span></li>`
   ).join("\n");
   const discovered = candidates.length;
   const measured = candidates.filter((item) => item.evidence?.velocityMeasured).length;

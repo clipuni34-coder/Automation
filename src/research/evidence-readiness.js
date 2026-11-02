@@ -78,7 +78,7 @@ export function evaluateEvidenceReadiness(claimLedger, { minIndependentDomains =
     const reasons = [];
     if (opened.length === 0) reasons.push("No original source page was successfully opened.");
     if (supporting.length === 0) reasons.push("No eligible opened passage contains enough claim-specific wording and all numeric details.");
-    if (domains.length < minIndependentDomains) reasons.push(\`Fewer than \${minIndependentDomains} eligible domains contain claim-traceable passages.\`);
+    if (domains.length < minIndependentDomains) reasons.push(`Fewer than ${minIndependentDomains} eligible domains contain claim-traceable passages.`);
     const status = reasons.length ? "insufficient_for_editorial_review" : "evidence_pack_ready_for_human_review";
     return {
       claimId: claim.id,

@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { buildTranscriptCandidates } from "../src/clips/transcript-candidates.js";
 import { buildReeditPlan } from "../src/creative/reedit.js";
+import { buildReeditRenderManifest } from "../src/production/plan-manifest.js";
 
 const words = [
   { word: "Why", start: 0, end: 0.4 },
@@ -39,9 +40,12 @@ test("re-edit planner uses media signals as a modest tie-breaker without overrid
     },
     transcriptSegments: [
       { id: "low-activity", start: 0, end: 5, text: "A complete explanation.", signals: { ...common, visualActivity: 2, speechContinuity: 6 } },
-      { id: "high-activity", start: 10, end: 15, text: "A complete explanation.", signals: { ...common, visualActivity: 10, speechContinuity: 10 } }
+      { id: "high-activity", start: 10, end: 15, text: "A complete explanation.", words: [{ word: "A", start: 10.2, end: 10.4 }, { word: "complete", start: 10.4, end: 10.8 }], signals: { ...common, visualActivity: 10, speechContinuity: 10 } }
     ],
     targetDurationSeconds: 15
   });
   assert.equal(plan.openingHook.segmentId, "high-activity");
+  const manifest = buildReeditRenderManifest({ plan, sourceLocalPath: "/source.mp4", audioPath: "/silent.wav", outputPath: "/output.mp4" });
+  assert.equal(manifest.scenes[0].punchIn, true);
+  assert.deepEqual(manifest.scenes[0].wordTimings, [{ text: "A", start: 0.1999999999999993, end: 0.40000000000000036 }, { text: "complete", start: 0.40000000000000036, end: 0.8000000000000007 }]);
 });

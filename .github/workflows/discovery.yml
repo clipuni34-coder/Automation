@@ -551,13 +551,6 @@ jobs:
           key: faster-whisper-base-${{ runner.os }}-v1
       - name: Install transcription dependency
         run: python -m pip install --disable-pip-version-check -r requirements/repurposing.txt
-      - name: Download rights-cleared source video
-        env:
-          REPURPOSE_SOURCE_URL: ${{ inputs.repurpose_source_url }}
-          REPURPOSE_SOURCE_PATH: work/source-media.bin
-          MEDIA_SOURCE_ALLOWED_HOSTS: ${{ vars.MEDIA_SOURCE_ALLOWED_HOSTS || 'dropbox.com,dropboxusercontent.com,drive.google.com,drive.usercontent.google.com,storage.googleapis.com' }}
-          MEDIA_MAX_UPLOAD_MB: ${{ vars.MEDIA_MAX_UPLOAD_MB || '2048' }}
-        run: node scripts/download-authorized-source.js
       - name: Validate rights declaration and prepare re-edit job
         env:
           REPURPOSE_SOURCE_URL: ${{ inputs.repurpose_source_url }}
@@ -598,6 +591,13 @@ jobs:
           };
           writeFileSync('repurpose-input.json', JSON.stringify(input, null, 2), { mode: 0o600 });
           NODE
+      - name: Download rights-cleared source video
+        env:
+          REPURPOSE_SOURCE_URL: ${{ inputs.repurpose_source_url }}
+          REPURPOSE_SOURCE_PATH: work/source-media.bin
+          MEDIA_SOURCE_ALLOWED_HOSTS: ${{ vars.MEDIA_SOURCE_ALLOWED_HOSTS || 'dropbox.com,dropboxusercontent.com,drive.google.com,drive.usercontent.google.com,storage.googleapis.com' }}
+          MEDIA_MAX_UPLOAD_MB: ${{ vars.MEDIA_MAX_UPLOAD_MB || '2048' }}
+        run: node scripts/download-authorized-source.js
       - name: Transcribe, analyse, select moments and render
         run: |
           npm run repurpose -- repurpose-input.json output/repurposed/result.json

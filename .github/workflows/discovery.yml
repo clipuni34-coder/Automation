@@ -4,7 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       produce_videos:
-        description: "Generate a vertical MP4 for the best brief (Gemini image quota may be used; local Kokoro TTS is the fallback)."
+        description: "Generate a vertical MP4."
+        required: false
+        type: boolean
+        default: false
+      render_preapproved_brief:
+        description: "Render the exact McLintock brief approved by the channel owner."
+        required: false
+        type: boolean
+        default: false
+      publish_videos:
+        description: "Explicitly allow YouTube uploads. Leave off for a test render."
         required: false
         type: boolean
         default: false
@@ -13,6 +23,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: discovery-scan
@@ -193,6 +204,25 @@ jobs:
           else
             echo "::warning::Creative generation failed for $SELECTED_DOSSIER; preserving the research dossier."
           fi
+      - name: Restore and record the exact approved McLintock brief
+        if: inputs.render_preapproved_brief == true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p approved-artifact
+          curl --fail --location --retry 3 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/13153578471/zip" \
+            --output /tmp/approved-creative-brief.zip
+          unzip -q /tmp/approved-creative-brief.zip -d approved-artifact
+          brief=$(find approved-artifact -maxdepth 2 -type f -name '*.creative.json' -print -quit)
+          if [ -z "$brief" ]; then
+            echo "::error::The approved creative brief artifact could not be found."
+            exit 1
+          fi
+          node scripts/approve-mclintock-brief.mjs "$brief" research-approved-mclintock.creative.json
+
       - name: Render original videos when explicitly enabled
         if: vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true
         env:
@@ -214,7 +244,11 @@ jobs:
           fi
 
           shopt -s nullglob
-          briefs=(research-*.creative.json)
+          if [ "${{ inputs.render_preapproved_brief }}" = "true" ]; then
+            briefs=(research-approved-mclintock.creative.json)
+          else
+            briefs=(research-*.creative.json)
+          fi
           if [ ${#briefs[@]} -eq 0 ]; then
             echo "No creative briefs available for production."
             exit 0
@@ -238,7 +272,7 @@ jobs:
           fi
 
       - name: Publish only fully approved videos to YouTube
-        if: vars.YOUTUBE_AUTO_PUBLISH == 'true' && (vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true)
+        if: inputs.publish_videos == true && vars.YOUTUBE_AUTO_PUBLISH == 'true' && (vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true)
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
@@ -285,6 +319,7 @@ jobs:
           PRODUCE_VIDEOS: ${{ vars.PRODUCE_VIDEOS || 'false' }}
           YOUTUBE_AUTO_PUBLISH: ${{ vars.YOUTUBE_AUTO_PUBLISH || 'false' }}
           INPUT_PRODUCE_VIDEOS: ${{ inputs.produce_videos || false }}
+          INPUT_RENDER_APPROVED_BRIEF: ${{ inputs.render_preapproved_brief || false }}
           SYNC_YOUTUBE_ANALYTICS: ${{ vars.SYNC_YOUTUBE_ANALYTICS || 'false' }}
           SYNC_YOUTUBE_COMMENTS: ${{ vars.SYNC_YOUTUBE_COMMENTS || 'false' }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
@@ -298,7 +333,9 @@ jobs:
             (process.env.ENABLE_OPENAI_CREATIVE === 'true' && Boolean(process.env.OPENAI_API_KEY)) ||
             Boolean(process.env.OPENROUTER_API_KEY);
           const { readdirSync } = await import('node:fs');
-          const briefNames = readdirSync('.').filter(name => /^research-.*\.creative\.json$/i.test(name));
+          const briefNames = process.env.INPUT_RENDER_APPROVED_BRIEF === 'true'
+            ? ['research-approved-mclintock.creative.json'].filter(name => existsSync(name))
+            : readdirSync('.').filter(name => /^research-.*\.creative\.json$/i.test(name));
           const hasBrief = briefNames.length > 0;
           const briefGates = briefNames.map(name => {
             try {

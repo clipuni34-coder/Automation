@@ -236,3 +236,29 @@ test("creative provider falls back to OpenRouter free model after Gemini and Ope
   assert.equal(result.provider, "openrouter-free");
   assert.equal(calls.at(-1), "https://openrouter.ai/api/v1/chat/completions");
 });
+
+test("creative provider uses Gemini Flash-Lite after all primary Flash models hit a transient outage", async () => {
+  const requestedModels = [];
+  const fetchImpl = async (url) => {
+    const model = url.split("/models/")[1]?.split(":")[0];
+    requestedModels.push(model);
+    if (model !== "gemini-3.5-flash-lite") {
+      return { ok: false, status: 503, headers: { get: () => null }, text: async () => "temporarily unavailable" };
+    }
+    return {
+      ok: true,
+      json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(validPlan) }] } }] })
+    };
+  };
+  const result = await generateEditorialPlan({
+    dossier, geminiApiKey: "test-key", fetchImpl, sleepImpl: async () => {}
+  });
+  assert.equal(result.status, "ok");
+  assert.equal(result.provider, "gemini");
+  assert.deepEqual(requestedModels, [
+    "gemini-3.8-flash", "gemini-3.8-flash", "gemini-3.8-flash",
+    "gemini-3.6-flash", "gemini-3.6-flash", "gemini-3.6-flash",
+    "gemini-3.5-flash-lite"
+  ]);
+});
+

@@ -158,6 +158,12 @@ jobs:
           DISCOVERY_STORE_PATH: data/discovery.json
           STRATEGY_STORE_PATH: data/strategy.json
         run: npm run daily-plan
+      - name: Build mobile-friendly viral discovery report
+        env:
+          DISCOVERY_STORE_PATH: data/discovery.json
+          STRATEGY_STORE_PATH: data/strategy.json
+          VIRAL_REPORT_PATH: data/viral-discovery-report.html
+        run: npm run viral-report
 
       - name: Research best YouTube channel niches
         env:
@@ -457,6 +463,13 @@ jobs:
           name: creative-briefs
           path: research-*.creative.json
           retention-days: 14
+      - name: Save mobile viral discovery report
+        if: always() && hashFiles('data/viral-discovery-report.html') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: viral-discovery-report
+          path: data/viral-discovery-report.html
+          retention-days: 30
       - name: Save discovery results
         if: always() && hashFiles('data/discovery.json') != ''
         uses: actions/upload-artifact@v4

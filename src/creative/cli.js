@@ -54,7 +54,10 @@ if (!inputPath) {
       console.log(JSON.stringify({
         status: "ok", topic: dossier.topic, provider: result.provider, outputPath,
         claims: claimLedger.totalClaims, extractedSources: claimLedger.sourceExtraction.extracted,
-        extractionStatus: claimLedger.sourceExtraction.status
+        extractionStatus: claimLedger.sourceExtraction.status,
+        productionGate: editorial.productionGate.status,
+        productionEligible: editorial.productionGate.productionEligible,
+        holdReasons: editorial.productionGate.reasons
       }));
     }
   } catch (error) {

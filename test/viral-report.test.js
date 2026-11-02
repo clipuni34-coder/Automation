@@ -25,7 +25,7 @@ test("viral report includes ranked evidence and only safe HTTPS source links", (
     topicClusters: [{ label: "Football highlights", candidateCount: 5, distinctCreatorCount: 3, lifecycle: "active", saturation: "moderate", averageOpportunityScore: 70 }]
   }, { recommendations: [{ title: "Football trend", reason: "Find a differentiated angle" }] }, "2026-11-02T00:00:00.000Z");
   assert.match(html, /Fast-growing video/);
-  assert.match(html, /https://youtube.com\/watch/);
+  assert.match(html, /https:\/\/youtube\.com\/watch/);
   assert.doesNotMatch(html, /href="javascript:/);
   assert.match(html, /&lt;script&gt;/);
   assert.match(html, /Breakout candidate/);

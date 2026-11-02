@@ -14,6 +14,8 @@ export function evaluateProductionGate({ editorial = {}, claimLedger = null } = 
   const unresolvedClaims = Number(claimLedger?.unresolvedClaims ?? ledgerClaims.length);
 
   if (claims.length > 0) reasons.push("The brief still lists factual claims requiring verification.");
+  if (editorial.scriptReadiness?.held === true) reasons.push("The script is held by the editorial evidence safeguard.");
+  if (typeof editorial.fullScript !== "string" || editorial.fullScript.trim().length < 40) reasons.push("No cleared narration script is available for production.");
   if (!claimLedger || !Array.isArray(claimLedger.claims)) {
     reasons.push("A claim ledger is missing.");
   } else if (totalClaims !== verifiedClaims || unresolvedClaims !== 0) {

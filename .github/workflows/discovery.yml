@@ -509,7 +509,7 @@ jobs:
 
 
   repurpose:
-    if: inputs.repurpose_source_url != ''
+    if: github.event_name == 'workflow_dispatch' && inputs.repurpose_source_url != ''
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:

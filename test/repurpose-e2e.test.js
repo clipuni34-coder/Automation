@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { buildTranscriptCandidates } from "../src/clips/transcript-candidates.js";
+import { analyzeMediaSignals } from "../src/clips/media-signals.js";
 import { runAuthorizedReedit } from "../src/clips/authorized-reedit.js";
 
 const hasFfmpeg = spawnSync("ffmpeg", ["-version"], { stdio: "ignore" }).status === 0;
@@ -29,7 +30,12 @@ test("authorized repurposing pipeline scores timed words and renders original so
       ["The", 4.0, 4.3], ["result", 4.3, 4.8], ["was", 4.8, 5.1],
       ["incredible!", 5.1, 6.2]
     ].map(([word, start, end]) => ({ word, start, end }));
-    const candidates = buildTranscriptCandidates(transcriptWords, { minSeconds: 1.5 });
+    const mediaSignals = analyzeMediaSignals(sourcePath, { durationSeconds: 8 });
+    assert.equal(mediaSignals.engine, "ffmpeg");
+    assert.equal(mediaSignals.audioPresent, true);
+    assert.ok(Array.isArray(mediaSignals.sceneChanges));
+    const candidates = buildTranscriptCandidates(transcriptWords, { minSeconds: 1.5, mediaSignals });
+    assert.ok(candidates.every((candidate) => Number.isFinite(candidate.signals.visualActivity)));
     assert.equal(candidates.length, 2);
 
     const result = await runAuthorizedReedit({

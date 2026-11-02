@@ -70,8 +70,10 @@ try {
     }).catch(error => { throw new Error(`channel engagement report: ${error.message}`); }),
     fetchYouTubeAnalyticsReport({
       accessToken: token.accessToken, startDate: iso(start90), endDate: iso(end),
-      dimensions: "video,creatorContentType",
-      metrics: "views,engagedViews,likes,comments,shares,subscribersGained,estimatedMinutesWatched,averageViewDuration,averageViewPercentage",
+      // Keep this request to the documented core top-videos combination.
+      // The previous expanded metric/dimension combination was rejected with HTTP 400.
+      dimensions: "video",
+      metrics: "views,estimatedMinutesWatched,averageViewDuration",
       sort: "-views", maxResults: 200
     }).catch(error => { throw new Error(`top-videos report: ${error.message}`); })
   ]);

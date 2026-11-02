@@ -64,7 +64,8 @@
 - [x] Enforce creator-clip rights evidence in the FFmpeg renderer.
 - [x] Add CLI commands and unit tests for re-edit and compilation planning.
 - [x] Add bounded official YouTube Search API discovery for recent keyword/creator searches beyond most-popular chart sampling.
-- [ ] Add a user-facing authorized creator-media upload/intake flow and secure cloud asset storage.
+- [x] Add manual workflow-dispatch intake for direct HTTPS source media, rights attestation, host allowlisting, redirect/DNS validation, download caps, processing and result artifacts.
+- [ ] Add direct iPhone file upload and durable private cloud asset storage; current intake accepts public direct-download URLs only.
 - [x] Add Faster-Whisper word-timed transcription support to the authorized re-edit CLI and FFmpeg scene-change/silence analysis as candidate-level signals; synthetic-media integration verifies the FFmpeg signal path.
 - [ ] Verify Faster-Whisper against a real authorized source and expand visual analysis beyond scene cuts (e.g. speaker/subject tracking and action cues).
 - [x] Connect standalone re-edit and creator-compilation plans to render manifests with source cut points and local authorized media paths.

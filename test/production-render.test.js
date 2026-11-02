@@ -185,3 +185,30 @@ test("word-timed captions render timed karaoke groups instead of scene-wide stat
   assert.ok(dialogue[0].includes("{\\\\k30}it"));
   assert.ok(!dialogue[0].includes("Fallback caption"));
 });
+
+test("renderer applies punch-in crop and word-timed captions to authorized source footage", { skip: !hasFfmpeg }, async () => {
+  const dir = await mkdtemp(join(tmpdir(), "automation-viral-edit-"));
+  try {
+    const videoPath = join(dir, "source.mp4");
+    const audioPath = join(dir, "audio.wav");
+    const outputPath = join(dir, "edited.mp4");
+    const source = spawnSync("ffmpeg", ["-y", "-v", "error", "-f", "lavfi", "-i", "testsrc=size=360x640:rate=24:duration=2", "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", videoPath]);
+    assert.equal(source.status, 0, source.stderr?.toString());
+    const audio = spawnSync("ffmpeg", ["-y", "-v", "error", "-f", "lavfi", "-i", "sine=frequency=440:duration=2", "-c:a", "pcm_s16le", audioPath]);
+    assert.equal(audio.status, 0, audio.stderr?.toString());
+    const result = await renderShortVideo({
+      outputPath, audioPath,
+      scenes: [{
+        videoPath, start: 0, end: 2, caption: "Fallback only",
+        wordTimings: [{ text: "Watch", start: 0.1, end: 0.45 }, { text: "this", start: 0.45, end: 0.8 }],
+        punchIn: true,
+        sourceType: "licensed_stock", sourceUrl: "https://example.org/source.mp4", license: "Test license"
+      }]
+    });
+    assert.equal(result.status, "rendered");
+    assert.equal(result.width, 1080);
+    assert.equal(result.height, 1920);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});

@@ -118,3 +118,33 @@ test("refuses paid OpenRouter vision models", async () => {
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+
+test("uses opt-in Gemini vision with the existing Gemini API key", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "semantic-qc-gemini-"));
+  try {
+    const video = await createSampleVideo(dir);
+    let request;
+    const result = await reviewSceneVisualSemantics({
+      scenes: [{ start: 0, end: 2, visualDescription: "A western rancher facing a cowboy at a dusty ranch", narrationContext: "A tense western confrontation." }]
+    }, video, {
+      apiKey: "",
+      openrouterApiKey: "",
+      geminiApiKey: "gemini-test-key",
+      fetchImpl: async (url, options) => {
+        request = { url, headers: options.headers, body: JSON.parse(options.body) };
+        return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify({ relevant: true, confidence: 0.93, observed: "A rancher and cowboy facing each other", reason: "The frame visibly contains the described western standoff." }) }] } }] }), { status: 200 });
+      }
+    });
+    assert.match(request.url, /models\/gemini-3\.8-flash:generateContent$/);
+    assert.equal(request.headers["x-goog-api-key"], "gemini-test-key");
+    assert.equal(request.body.contents[0].parts[1].inline_data.mime_type, "image/jpeg");
+    assert.ok(request.body.contents[0].parts[1].inline_data.data.length > 1000);
+    assert.equal(result.provider, "gemini");
+    assert.equal(result.model, "gemini-3.8-flash");
+    assert.equal(result.status, "passed");
+    assert.equal(result.reviewedScenes, 1);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});

@@ -9,6 +9,7 @@ import { buildPublishingPackage } from "../packaging/package.js";
 import { reviewSceneVisualSemantics } from "./semantic-visual-qc.js";
 import { readContentHistory } from "../strategy/content-history.js";
 import { evaluateProductionGate } from "../creative/production-gate.js";
+import { assertProductionVisualQuality } from "./production-quality-gate.js";
 
 function run(command, args) {
   return new Promise((resolvePromise, reject) => {
@@ -68,6 +69,9 @@ else {
     const packageData = buildPublishingPackage({ brief, renderResult: rendered, assets, recentContent: contentHistory.uploads });
     const packagePath = join(outputDir, "publishing-package.json");
     await writeFile(packagePath, JSON.stringify(packageData, null, 2), { mode: 0o600 });
+    // A technically valid MP4 is not production-ready when visuals are weak or unverified.
+    // Preserve the review artifacts, but fail this workflow step so downstream publishing cannot run.
+    assertProductionVisualQuality(quality);
     console.log(JSON.stringify({ status: "rendered", videoPath: rendered.outputPath, packagePath, qualityPath, visualQualityStatus: rendered.visualQuality.status, visualQualityScore: rendered.visualQuality.score, visualQualityWarnings: rendered.visualQuality.warnings, semanticReviewStatus: semanticReview.status, semanticScenesPassed: semanticReview.passedScenes ?? 0, semanticScenesFailed: semanticReview.failedScenes ?? 0, scenes: rendered.scenes, durationSeconds: rendered.durationSeconds, sourceAudioPreserved: rendered.sourceAudioPreserved }, null, 2));
   } catch (error) { console.error(JSON.stringify({ status: "failed", error: error.message })); process.exitCode = 1; }
 }

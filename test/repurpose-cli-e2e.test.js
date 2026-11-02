@@ -50,7 +50,8 @@ test("repurpose CLI produces an MP4, thumbnail, transcript evidence and posting 
     assert.equal(result.postingPackage.status, "draft");
     assert.equal(result.postingPackage.manualPublishingApprovalRequired, true);
     assert.ok(result.postingPackage.platformPackages.youtube_shorts.title);
-    assert.ok(result.postingPackage.platformPackages.tiktok.caption);
+    assert.ok(result.postingPackage.platformPackages.youtube_shorts.description);
+    assert.equal(result.postingPackage.platformPackages.tiktok, undefined);
     assert.ok(result.postingPackage.thumbnailPath);
     await stat(outputPath);
     await stat(result.postingPackage.thumbnailPath);

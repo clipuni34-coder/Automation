@@ -2,6 +2,7 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { buildTranscriptCandidates } from "./transcript-candidates.js";
+import { analyzeMediaSignals } from "./media-signals.js";
 import { runAuthorizedReedit } from "./authorized-reedit.js";
 
 function fail(message) { throw new Error(message); }
@@ -24,6 +25,12 @@ if (!inputPath) {
     const durationSeconds = Number(probe.stdout.trim());
     if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) fail("Source video has no valid duration.");
 
+    const mediaSignals = input.mediaAnalysis === false ? null : analyzeMediaSignals(sourceLocalPath, {
+      ffmpegPath: input.ffmpegPath ?? "ffmpeg",
+      ffprobePath: input.ffprobePath ?? "ffprobe",
+      durationSeconds
+    });
+
     let words = input.transcriptWords;
     let transcriptPath = input.transcriptPath ? resolve(input.transcriptPath) : null;
     if (!Array.isArray(words) || words.length === 0) {
@@ -38,7 +45,7 @@ if (!inputPath) {
       words = saved.words;
     }
 
-    const candidates = buildTranscriptCandidates(words, input.candidateOptions ?? {});
+    const candidates = buildTranscriptCandidates(words, { ...(input.candidateOptions ?? {}), mediaSignals });
     const source = { ...input.source, durationSeconds };
     const result = await runAuthorizedReedit({
       sourceLocalPath,
@@ -60,7 +67,13 @@ if (!inputPath) {
         transcriptPath,
         wordCount: words.length,
         candidateCount: candidates.length,
-        scoringMethod: "local_lexical_heuristic"
+        scoringMethod: "local_lexical_heuristic_plus_ffmpeg_media_signals",
+        mediaAnalysis: mediaSignals ? {
+          engine: mediaSignals.engine,
+          sceneChangeCount: mediaSignals.sceneChanges.length,
+          silenceIntervalCount: mediaSignals.silenceIntervals.length,
+          audioPresent: mediaSignals.audioPresent
+        } : { status: "disabled" }
       }
     }, null, 2));
     console.log(JSON.stringify({

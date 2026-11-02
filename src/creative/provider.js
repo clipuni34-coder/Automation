@@ -52,6 +52,11 @@ function validatePlan(plan) {
     })),
     callToAction: String(plan.callToAction ?? "").slice(0, 300),
     claimsToVerify: plan.claimsToVerify.slice(0, 20).map((claim) => String(claim).slice(0, 500)),
+    evidenceMap: Array.isArray(plan.evidenceMap) ? plan.evidenceMap.slice(0, 30).map((item) => ({
+      claimId: String(item.claimId ?? "").slice(0, 80),
+      sourceIds: Array.isArray(item.sourceIds) ? item.sourceIds.slice(0, 8).map((id) => String(id).slice(0, 80)) : [],
+      supportedNarration: String(item.supportedNarration ?? "").slice(0, 500)
+    })) : [],
     originalityNotes: String(plan.originalityNotes ?? "").slice(0, 800),
     uncertaintyNotes: String(plan.uncertaintyNotes ?? "").slice(0, 800)
   };

@@ -27,6 +27,7 @@
     "research-niches": "node src/strategy/niche-cli.js",
     "create-dossiers": "node src/research/discovery-dossiers-cli.js",
     "select-best-dossier": "node src/creative/select-best-dossier.js",
-    "youtube-comments": "node src/platforms/youtube/comments-cli.js"
+    "youtube-comments": "node src/platforms/youtube/comments-cli.js",
+    "repurpose": "node src/clips/repurpose-cli.js"
   }
 }

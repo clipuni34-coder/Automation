@@ -82,6 +82,37 @@ export function buildAss(scenes, duration) {
   ];
   const events = [];
   for (const scene of scenes) {
+    const timedWords = (scene.wordTimings ?? []).filter((word) =>
+      String(word.text ?? word.word ?? "").trim() &&
+      Number.isFinite(Number(word.start)) && Number.isFinite(Number(word.end)) &&
+      Number(word.start) >= 0 && Number(word.end) > Number(word.start) && Number(word.end) <= scene.end - scene.start + 0.05
+    );
+    if (timedWords.length) {
+      let group = [];
+      let groupLength = 0;
+      const flush = () => {
+        if (!group.length) return;
+        const eventStart = scene.start + Number(group[0].start);
+        const eventEnd = scene.start + Number(group.at(-1).end);
+        const karaoke = group.map((word, index) => {
+          const next = group[index + 1];
+          const span = next ? Math.max(Number(word.end), Number(next.start)) - Number(word.start) : Number(word.end) - Number(word.start);
+          const centiseconds = Math.max(1, Math.round(span * 100));
+          return "{\\\\k" + centiseconds + "}" + escapeAss(word.text ?? word.word);
+        }).join(" ");
+        events.push("Dialogue: 0," + assTime(eventStart) + "," + assTime(eventEnd) + ",Caption,,0,0,0,,{\\\\an2}" + karaoke);
+        group = [];
+        groupLength = 0;
+      };
+      for (const word of timedWords) {
+        const text = String(word.text ?? word.word).trim();
+        if (group.length && (group.length >= 5 || groupLength + text.length + 1 > 30)) flush();
+        group.push(word);
+        groupLength += text.length + (group.length > 1 ? 1 : 0);
+      }
+      flush();
+      continue;
+    }
     const lines = wrapCaption(scene.caption, 30);
     const chunks = [];
     for (let index = 0; index < lines.length; index += 2) chunks.push(lines.slice(index, index + 2).join("\\N"));
@@ -128,8 +159,11 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
     const label = `v${index}`;
     const duration = (scene.end - scene.start).toFixed(3);
     const motion = scene.videoPath ? `trim=duration=${duration},setpts=PTS-STARTPTS,tpad=stop_mode=clone:stop_duration=${duration},trim=duration=${duration},` : '';
-    const zoom = scene.videoPath ? '' : `,zoompan=z='min(zoom+0.00035,1.06)':d=1:s=${WIDTH}x${HEIGHT}:fps=${FPS}`;
-    filters.push(`[${index}:v]${motion}scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT}${zoom},fps=${FPS},setsar=1,format=yuv420p[${label}]`);
+    const zoom = scene.videoPath ? '' : `,zoompan=z='min(zoom+0.00035,${scene.punchIn ? "1.12" : "1.06"})':d=1:s=${WIDTH}x${HEIGHT}:fps=${FPS}`;
+    const punchIn = scene.videoPath && scene.punchIn
+      ? `,scale=trunc(iw*1.12/2)*2:trunc(ih*1.12/2)*2,crop=${WIDTH}:${HEIGHT}`
+      : "";
+    filters.push(`[${index}:v]${motion}scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT}${punchIn}${zoom},fps=${FPS},setsar=1,format=yuv420p[${label}]`);
     videoLabels.push(`[${label}]`);
   });
   filters.push(`${videoLabels.join("")}concat=n=${manifest.scenes.length}:v=1:a=0,subtitles=filename='${assPath.replace(/\\/g, "/").replace(/:/g, "\\:")}',format=yuv420p[vout]`);

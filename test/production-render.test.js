@@ -166,3 +166,22 @@ test("caption layout wraps long text into readable two-line mobile cards with ti
   assert.ok(dialogue.some(line => line.includes("\\N")));
   assert.ok(dialogue.every(line => !line.includes("longer sentence designed to test mobile caption wrapping and timed phrase display")));
 });
+
+test("word-timed captions render timed karaoke groups instead of scene-wide static captions", () => {
+  const ass = buildAss([{
+    start: 2, end: 5, caption: "Fallback caption",
+    wordTimings: [
+      { text: "Wait", start: 0.25, end: 0.5 },
+      { text: "for", start: 0.5, end: 0.7 },
+      { text: "it", start: 0.7, end: 1.0 }
+    ]
+  }], 5);
+  const dialogue = ass.split("\n").filter(line => line.startsWith("Dialogue:"));
+  assert.equal(dialogue.length, 1);
+  assert.ok(dialogue[0].includes("0:00:02.25"));
+  assert.ok(dialogue[0].includes("0:00:03.00"));
+  assert.ok(dialogue[0].includes("{\\\\k25}Wait"));
+  assert.ok(dialogue[0].includes("{\\\\k20}for"));
+  assert.ok(dialogue[0].includes("{\\\\k30}it"));
+  assert.ok(!dialogue[0].includes("Fallback caption"));
+});

@@ -75,6 +75,8 @@ The discovery foundation has completed live YouTube chart scans. A deterministic
 
 
 
+The scheduled discovery workflow also builds a self-contained mobile-friendly `viral-discovery-report.html` and uploads it as the `viral-discovery-report` artifact. It shows ranked source references, measured growth velocity, breakout flags, topic lifecycle/saturation, confidence and score explanations. It is a report of reference videos and evidence, not a downloader or a claim that a source is reusable.
+
 ## Authorized viral-video re-edit
 
 The `Discovery scan` workflow now has a separate manual **Repurpose an authorized source video** job. On the selected feature branch, provide a direct public HTTPS link to a downloadable video file, explicitly declare the reuse rights, choose the permitted destination platform and target duration, and start the workflow. The job downloads the source through a host allowlist, validates every redirect and public DNS resolution, enforces a configurable size limit, runs Faster-Whisper word-timed transcription, detects FFmpeg scene changes and silence intervals, ranks transcript moments, renders a vertical MP4, and saves the MP4 plus its editorial evidence as the `repurposed-short` artifact.

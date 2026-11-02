@@ -6,21 +6,21 @@ const STOP_WORDS = new Set([
   "the", "their", "them", "they", "this", "to", "was", "were", "with", "you", "your"
 ]);
 const NON_INDEPENDENT_HOSTS = [
-  /(^|\\.)instagram\\.com$/,
-  /(^|\\.)facebook\\.com$/,
-  /(^|\\.)tiktok\\.com$/,
-  /(^|\\.)youtube\\.com$/,
-  /(^|\\.)youtu\\.be$/,
-  /(^|\\.)reddit\\.com$/,
-  /(^|\\.)x\\.com$/,
-  /(^|\\.)twitter\\.com$/,
-  /(^|\\.)threads\\.net$/,
-  /(^|\\.)wikipedia\\.org$/,
-  /(^|\\.)wikimedia\\.org$/
+  /(^|\.)instagram\.com$/,
+  /(^|\.)facebook\.com$/,
+  /(^|\.)tiktok\.com$/,
+  /(^|\.)youtube\.com$/,
+  /(^|\.)youtu\.be$/,
+  /(^|\.)reddit\.com$/,
+  /(^|\.)x\.com$/,
+  /(^|\.)twitter\.com$/,
+  /(^|\.)threads\.net$/,
+  /(^|\.)wikipedia\.org$/,
+  /(^|\.)wikimedia\.org$/
 ];
 
 function hostnameOf(value) {
-  try { return new URL(value).hostname.toLowerCase().replace(/^www\\./, ""); }
+  try { return new URL(value).hostname.toLowerCase().replace(/^www\./, ""); }
   catch { return ""; }
 }
 
@@ -42,7 +42,7 @@ function assessDirectSupport(claimText, passage) {
   const normalizedPassage = String(passage ?? "").toLowerCase();
   const terms = significantTerms(claimText);
   const matchedTerms = terms.filter((term) => normalizedPassage.includes(term));
-  const numbers = String(claimText ?? "").match(/\\b\\d+(?:\\.\\d+)?%?\\b/g) ?? [];
+  const numbers = String(claimText ?? "").match(/\b\d+(?:\.\d+)?%?\b/g) ?? [];
   const missingNumbers = numbers.filter((number) => !normalizedPassage.includes(number.toLowerCase()));
   const coverage = terms.length ? matchedTerms.length / terms.length : 0;
   return {
@@ -54,9 +54,9 @@ function assessDirectSupport(claimText, passage) {
 }
 
 /**
- * Deterministic evidence-pack readiness audit. It never verifies claims.
- * Search snippets, social posts, encyclopedias and numeric mismatches cannot
- * satisfy its minimum claim-support coverage.
+ * Deterministic evidence-pack readiness audit. Search snippets, social posts,
+ * encyclopedias and numeric mismatches cannot satisfy minimum source coverage.
+ * It never establishes truth; human review remains mandatory.
  */
 export function evaluateEvidenceReadiness(claimLedger, { minIndependentDomains = MIN_INDEPENDENT_DOMAINS } = {}) {
   const claims = Array.isArray(claimLedger?.claims) ? claimLedger.claims : [];
@@ -78,7 +78,7 @@ export function evaluateEvidenceReadiness(claimLedger, { minIndependentDomains =
     const reasons = [];
     if (opened.length === 0) reasons.push("No original source page was successfully opened.");
     if (supporting.length === 0) reasons.push("No eligible opened passage contains enough claim-specific wording and all numeric details.");
-    if (domains.length < minIndependentDomains) reasons.push(`Fewer than ${minIndependentDomains} eligible domains contain claim-traceable passages.`);
+    if (domains.length < minIndependentDomains) reasons.push(\`Fewer than \${minIndependentDomains} eligible domains contain claim-traceable passages.\`);
     const status = reasons.length ? "insufficient_for_editorial_review" : "evidence_pack_ready_for_human_review";
     return {
       claimId: claim.id,

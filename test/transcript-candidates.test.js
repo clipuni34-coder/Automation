@@ -16,7 +16,7 @@ test("word timestamps become chronological moments with visible heuristic scores
     { word: "was", start: 3.6, end: 3.8 },
     { word: "incredible!", start: 3.8, end: 4.8 }
   ];
-  const moments = buildTranscriptCandidates(words);
+  const moments = buildTranscriptCandidates(words, { minSeconds: 1.5 });
   assert.equal(moments.length, 2);
   assert.equal(moments[0].text, "Wait until you see what happens next.");
   assert.equal(moments[0].start, 0);

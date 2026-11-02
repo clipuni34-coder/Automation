@@ -11,7 +11,10 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     const text = String(segment.text ?? "").trim();
     if (!text) throw new Error("Transcript segment " + (index + 1) + " has no text");
     const signals = segment.signals ?? {};
-    const score = clamp((Number(signals.hook) || 0) * 0.25 + (Number(signals.emotion) || 0) * 0.2 + (Number(signals.curiosity) || 0) * 0.2 + (Number(signals.payoff) || 0) * 0.2 + (Number(signals.clarity) || 0) * 0.15, 0, 10);
+    const hasMediaSignals = Number.isFinite(signals.visualActivity) && Number.isFinite(signals.speechContinuity);
+    const score = clamp(hasMediaSignals
+      ? (Number(signals.hook) || 0) * 0.225 + (Number(signals.emotion) || 0) * 0.18 + (Number(signals.curiosity) || 0) * 0.18 + (Number(signals.payoff) || 0) * 0.18 + (Number(signals.clarity) || 0) * 0.135 + signals.visualActivity * 0.05 + signals.speechContinuity * 0.05
+      : (Number(signals.hook) || 0) * 0.25 + (Number(signals.emotion) || 0) * 0.2 + (Number(signals.curiosity) || 0) * 0.2 + (Number(signals.payoff) || 0) * 0.2 + (Number(signals.clarity) || 0) * 0.15, 0, 10);
     return { id: segment.id ?? "segment-" + (index + 1), start, end, text, score: Number(score.toFixed(2)), index };
   });
   const maxDuration = clamp(Number(targetDurationSeconds) || 45, 15, 90);

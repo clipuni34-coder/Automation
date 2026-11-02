@@ -45,3 +45,14 @@ test("fails closed when the claim ledger is missing but claims are listed", () =
   assert.equal(result.fullScript, "");
   assert.equal(result.scriptReadiness.status, "held_for_fact_check");
 });
+
+test("holds a complete-sounding script when the model omits its claim inventory", () => {
+  const result = applyEditorialEvidenceHold({
+    plan: { workingTitle: "An interesting story", fullScript: "This narration contains factual statements but lists no claims.", claimsToVerify: [] },
+    claimLedger: { totalClaims: 0, verifiedClaims: 0, unresolvedClaims: 0, claims: [] },
+    now: () => "2026-11-02T00:00:00.000Z"
+  });
+  assert.equal(result.scriptReadiness.status, "held_for_fact_check");
+  assert.equal(result.fullScript, "");
+  assert.match(result.reviewOnlyDraft.reason, /no factual-claim inventory/i);
+});

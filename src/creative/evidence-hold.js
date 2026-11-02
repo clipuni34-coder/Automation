@@ -11,7 +11,9 @@ export function applyEditorialEvidenceHold({ plan = {}, claimLedger = null, now 
   const unresolved = claims.filter((claim) => claim?.verificationDecision !== "verified_by_human");
   const listedClaims = Array.isArray(plan.claimsToVerify) ? plan.claimsToVerify : [];
   const unresolvedCount = Number(claimLedger?.unresolvedClaims ?? unresolved.length);
-  const needsHold = listedClaims.length > 0 || unresolvedCount > 0 || unresolved.length > 0;
+  const hasNarration = typeof plan.fullScript === "string" && plan.fullScript.trim().length >= 40;
+  const missingClaimInventory = hasNarration && listedClaims.length === 0 && claims.length === 0;
+  const needsHold = missingClaimInventory || listedClaims.length > 0 || unresolvedCount > 0 || unresolved.length > 0;
 
   if (!needsHold) {
     return { ...plan, scriptReadiness: { status: "ready_for_human_editorial_approval", held: false, unresolvedClaims: 0 } };
@@ -20,7 +22,7 @@ export function applyEditorialEvidenceHold({ plan = {}, claimLedger = null, now 
   const reviewOnlyDraft = {
     status: "not_for_production",
     storedAt: now(),
-    reason: "Factual claims remain unverified. This model-generated copy is preserved for human review only and must not be rendered, scheduled, or published.",
+    reason: missingClaimInventory\n      ? "The model supplied narration but no factual-claim inventory. The script is held until an editor identifies and reviews its factual claims."\n      : "Factual claims remain unverified. This model-generated copy is preserved for human review only and must not be rendered, scheduled, or published.",
     workingTitle: plan.workingTitle ?? "",
     targetAudience: plan.targetAudience ?? "",
     recommendedAngle: plan.recommendedAngle ?? "",
@@ -46,8 +48,8 @@ export function applyEditorialEvidenceHold({ plan = {}, claimLedger = null, now 
     scriptReadiness: {
       status: "held_for_fact_check",
       held: true,
-      unresolvedClaims: Math.max(unresolvedCount, unresolved.length, listedClaims.length),
-      reason: "The production-facing script, hooks, visuals, and CTA were cleared because their factual claims have not received human verification."
+      unresolvedClaims: Math.max(unresolvedCount, unresolved.length, listedClaims.length, missingClaimInventory ? 1 : 0),
+      reason: missingClaimInventory\n        ? "The production-facing script was cleared because no factual-claim inventory was supplied."\n        : "The production-facing script, hooks, visuals, and CTA were cleared because their factual claims have not received human verification."
     }
   };
 }

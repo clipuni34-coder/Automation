@@ -3,6 +3,7 @@ import { dirname, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { buildTranscriptCandidates } from "./transcript-candidates.js";
 import { analyzeMediaSignals } from "./media-signals.js";
+import { buildRepurposePackage } from "./repurpose-package.js";
 import { runAuthorizedReedit } from "./authorized-reedit.js";
 
 function fail(message) { throw new Error(message); }
@@ -83,7 +84,9 @@ if (!inputPath) {
       candidates: candidates.length,
       selectedMoments: result.plan?.editDecisionList?.length ?? 0,
       transcription: Array.isArray(input.transcriptWords) ? "provided" : "faster-whisper",
-      rights: result.plan?.rights?.status ?? "blocked"
+      rights: result.plan?.rights?.status ?? "blocked",
+      thumbnailPath,
+      postingPackage: postingPackage ? "created" : "not_created"
     }, null, 2));
     if (result.status !== "completed") process.exitCode = 2;
   } catch (error) {

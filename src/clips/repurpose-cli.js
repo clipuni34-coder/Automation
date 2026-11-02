@@ -59,10 +59,21 @@ if (!inputPath) {
       ffmpegPath: input.ffmpegPath ?? "ffmpeg",
       ffprobePath: input.ffprobePath ?? "ffprobe"
     });
+    let thumbnailPath = null;
+    if (result.status === "completed") {
+      const thumbnail = resolve(input.thumbnailPath ?? input.outputPath.replace(/\.[^.]+$/i, ".thumbnail.jpg"));
+      const frameTime = Math.max(0, Math.min(1.5, (result.rendered?.durationSeconds ?? 3) / 2));
+      const extracted = spawnSync(input.ffmpegPath ?? "ffmpeg", ["-y", "-hide_banner", "-loglevel", "error", "-ss", String(frameTime), "-i", result.outputPath, "-frames:v", "1", "-q:v", "2", thumbnail], { stdio: "ignore" });
+      if (extracted.status === 0) thumbnailPath = thumbnail;
+    }
+    const postingPackage = result.status === "completed"
+      ? buildRepurposePackage({ plan: result.plan, renderResult: result.rendered, thumbnailPath })
+      : null;
     const output = resolve(process.argv[3] ?? inputPath.replace(/\.json$/i, ".repurpose-result.json"));
     await mkdir(dirname(output), { recursive: true });
     await writeFile(output, JSON.stringify({
       ...result,
+      postingPackage,
       transcription: {
         engine: Array.isArray(input.transcriptWords) ? "provided_word_timestamps" : "faster-whisper",
         transcriptPath,

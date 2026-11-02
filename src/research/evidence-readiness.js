@@ -1,7 +1,7 @@
 const MIN_INDEPENDENT_DOMAINS = 2;
 
 function hostnameOf(value) {
-  try { return new URL(value).hostname.toLowerCase().replace(/^www\\./, ""); }
+  try { return new URL(value).hostname.toLowerCase().replace(/^www\./, ""); }
   catch { return ""; }
 }
 

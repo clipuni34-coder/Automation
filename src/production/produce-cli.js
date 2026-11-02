@@ -8,6 +8,7 @@ import { renderShortVideo } from "./render.js";
 import { buildPublishingPackage } from "../packaging/package.js";
 import { reviewSceneVisualSemantics } from "./semantic-visual-qc.js";
 import { readContentHistory } from "../strategy/content-history.js";
+import { evaluateProductionGate } from "../creative/production-gate.js";
 
 function run(command, args) {
   return new Promise((resolvePromise, reject) => {
@@ -36,6 +37,10 @@ else {
     const brief = JSON.parse(await readFile(resolve(briefPath), "utf8"));
     const editorial = brief.editorial ?? brief;
     if (!editorial.fullScript || !Array.isArray(editorial.visualPlan)) throw new Error("Creative brief must include a fullScript and visualPlan");
+    const productionGate = evaluateProductionGate({ editorial, claimLedger: editorial.claimLedger });
+    if (!productionGate.productionEligible) {
+      throw new Error("Production blocked by editorial safety gate: " + productionGate.reasons.join(" "));
+    }
     await mkdir(outputDir, { recursive: true });
     const narrationPath = join(outputDir, "narration.wav");
     const narration = await generateNarration({ text: editorial.fullScript, outputPath: narrationPath });

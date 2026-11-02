@@ -117,7 +117,7 @@ async function callGeminiModel(prompt, apiKey, fetchImpl, timeoutMs, model) {
   }
 }
 
-async function callGemini(prompt, apiKey, fetchImpl, timeoutMs) {
+async function callGemini(prompt, apiKey, fetchImpl, timeoutMs, sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))) {
   const errors = [];
   for (const model of GEMINI_MODELS) {
     for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -146,7 +146,7 @@ async function callGemini(prompt, apiKey, fetchImpl, timeoutMs) {
           const delayMs = Number.isFinite(retryAfter) && retryAfter > 0
             ? Math.min(retryAfter * 1000, 15000)
             : [2000, 6000][attempt];
-          await new Promise((resolve) => setTimeout(resolve, delayMs));
+          await sleep(delayMs);
         }
         if (timedOut) break;
       }
@@ -239,6 +239,7 @@ export async function generateEditorialPlan({
   openrouterModel = process.env.OPENROUTER_MODEL ?? "openrouter/free",
   fetchImpl = fetch,
   timeoutMs = 120000,
+  sleepImpl,
   outputLanguage = process.env.CREATIVE_LANGUAGE ?? "English"
 } = {}) {
   if (!dossier || typeof dossier !== "object" || !dossier.topic) {
@@ -249,7 +250,7 @@ export async function generateEditorialPlan({
   }
   const prompt = buildPrompt(dossier, outputLanguage);
   const providers = [
-    ...(geminiApiKey ? [["gemini", () => callGemini(prompt, geminiApiKey, fetchImpl, timeoutMs)]] : []),
+    ...(geminiApiKey ? [["gemini", () => callGemini(prompt, geminiApiKey, fetchImpl, timeoutMs, sleepImpl)]] : []),
     ...(openaiApiKey ? [["openai", () => callOpenAI(prompt, openaiApiKey, fetchImpl, timeoutMs)]] : []),
     ...(openrouterApiKey ? [["openrouter-free", () => callOpenRouter(prompt, openrouterApiKey, fetchImpl, timeoutMs, openrouterModel)]] : [])
   ];

@@ -4,6 +4,8 @@ import { evaluateProductionGate } from "../src/creative/production-gate.js";
 
 const approved = {
   claimsToVerify: [],
+  fullScript: "A reviewed narration script with sufficient content for production.",
+  scriptReadiness: { status: "ready_for_human_editorial_approval", held: false, unresolvedClaims: 0 },
   briefDigest: "sha256:exact-brief",
   humanEditorialReview: {
     status: "approved",

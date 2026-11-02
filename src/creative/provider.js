@@ -103,7 +103,10 @@ async function callGeminiModel(prompt, apiKey, fetchImpl, timeoutMs, model) {
     });
     if (!response.ok) {
       const detail = await response.text().catch(() => "");
-      throw new Error(`Gemini returned HTTP ${response.status}${detail ? `: ${detail.slice(0, 1200)}` : ""}`);
+      const error = new Error(`Gemini returned HTTP ${response.status}${detail ? `: ${detail.slice(0, 1200)}` : ""}`);
+      const retryAfter = Number(response.headers?.get?.("retry-after"));
+      if (Number.isFinite(retryAfter) && retryAfter > 0) error.retryAfterSeconds = retryAfter;
+      throw error;
     }
     const payload = await response.json();
     const text = payload.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("");

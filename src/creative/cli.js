@@ -6,6 +6,7 @@ import { searchTopic, extractSources } from "../research/tavily.js";
 import { buildClaimLedger } from "../research/claim-ledger.js";
 import { assessClaimEvidence } from "../research/evidence-assessment.js";
 import { evaluateProductionGate } from "./production-gate.js";
+import { applyEditorialEvidenceHold } from "./evidence-hold.js";
 
 const inputPath = process.argv[2];
 if (!inputPath) {
@@ -35,8 +36,9 @@ if (!inputPath) {
         model: evidenceAssessment.model ?? null, error: evidenceAssessment.error ?? null,
         policy: "AI evidence relationships are advisory only. No claim is verified without human editorial review."
       };
+      const evidenceHeldPlan = applyEditorialEvidenceHold({ plan: result.plan, claimLedger });
       const editorial = {
-        ...dossier.editorial, ...result.plan, claimLedger,
+        ...dossier.editorial, ...evidenceHeldPlan, claimLedger,
         status: "brief_generated", provider: result.provider,
         generatedAt: new Date().toISOString(),
         humanEditorialReview: dossier.editorial?.humanEditorialReview ?? null

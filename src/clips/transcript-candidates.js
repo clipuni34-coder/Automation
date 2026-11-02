@@ -1,10 +1,11 @@
+import { summarizeMomentSignals } from "./media-signals.js";
 const HOOK = /\b(why|how|what if|never|nobody|everyone|secret|truth|mistake|shocking|impossible|actually|wait|stop|listen|here is|here's)\b/i;
 const CURIOSITY = /\b(why|how|what|when|where|secret|reason|because|but|except|until|unless)\b/i;
 const EMOTION = /\b(love|hate|fear|afraid|angry|furious|cry|tears|laugh|funny|scared|shocked|surprised|incredible|terrible|beautiful|disaster|win|lost|fail|success)\b/i;
 const PAYOFF = /\b(so|therefore|that means|the result|in the end|finally|turns out|which is why|because of that|here's what happened|and then)\b/i;
 const FILLER = /\b(um|uh|erm|you know|like|basically|actually)\b/gi;
 
-function scoreSignals(text, duration, words) {
+function scoreSignals(text, duration, words, media = {}) {
   const normalized = text.trim();
   const count = words.length;
   const density = count / Math.max(duration, 0.5);
@@ -14,7 +15,7 @@ function scoreSignals(text, duration, words) {
   const payoff = Math.min(10, (PAYOFF.test(normalized) ? 6 : 2) + (/[.!]$/.test(normalized) ? 2 : 0) + (count >= 6 ? 2 : 0));
   const fillerCount = (normalized.match(FILLER) ?? []).length;
   const clarity = Math.max(1, Math.min(10, 8 - fillerCount - (count > 34 ? 2 : 0) - (density < 0.7 ? 1 : 0)));
-  return { hook, curiosity, emotion, payoff, clarity };
+  return { hook, curiosity, emotion, payoff, clarity, visualActivity: media.visualActivity ?? null, speechContinuity: media.speechContinuity ?? null, silenceRatio: media.silenceRatio ?? null, sceneChangeCount: media.sceneChangeCount ?? 0 };
 }
 
 /**
@@ -22,7 +23,7 @@ function scoreSignals(text, duration, words) {
  * Scores are transparent lexical/structural heuristics, not claims of true emotion
  * or guaranteed audience retention. The original word timings are retained.
  */
-export function buildTranscriptCandidates(words, { minSeconds = 2, maxSeconds = 11, maxWords = 32 } = {}) {
+export function buildTranscriptCandidates(words, { minSeconds = 2, maxSeconds = 11, maxWords = 32, mediaSignals = null } = {}) {
   if (!Array.isArray(words) || words.length === 0) throw new Error("A non-empty word-timestamp array is required");
   const clean = words.map((item, index) => {
     const start = Number(item.start), end = Number(item.end);
@@ -47,7 +48,7 @@ export function buildTranscriptCandidates(words, { minSeconds = 2, maxSeconds = 
       groups.push({
         id: "moment-" + (groups.length + 1), start, end, text,
         words: current.map(item => ({ ...item })),
-        signals: scoreSignals(text, duration, current),
+        signals: scoreSignals(text, duration, current, mediaSignals ? summarizeMomentSignals({ start, end }, mediaSignals) : {}),
         scoringMethod: "local_lexical_heuristic"
       });
     }

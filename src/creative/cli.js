@@ -1,9 +1,11 @@
 import { readFile, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import { generateEditorialPlan } from "./provider.js";
 import { searchTopic, extractSources } from "../research/tavily.js";
 import { buildClaimLedger } from "../research/claim-ledger.js";
 import { assessClaimEvidence } from "../research/evidence-assessment.js";
+import { evaluateProductionGate } from "./production-gate.js";
 
 const inputPath = process.argv[2];
 if (!inputPath) {
@@ -33,14 +35,20 @@ if (!inputPath) {
         model: evidenceAssessment.model ?? null, error: evidenceAssessment.error ?? null,
         policy: "AI evidence relationships are advisory only. No claim is verified without human editorial review."
       };
-      const output = {
-        ...dossier,
-        editorial: {
-          ...dossier.editorial, ...result.plan, claimLedger,
-          status: "brief_generated", provider: result.provider,
-          generatedAt: new Date().toISOString()
-        }
+      const editorial = {
+        ...dossier.editorial, ...result.plan, claimLedger,
+        status: "brief_generated", provider: result.provider,
+        generatedAt: new Date().toISOString(),
+        humanEditorialReview: dossier.editorial?.humanEditorialReview ?? null
       };
+      // Bind any later human approval to this exact brief, not just the topic.
+      const digestInput = JSON.stringify({ topic: dossier.topic, editorial: {
+        ...editorial, briefDigest: undefined, productionGate: undefined,
+        humanEditorialReview: undefined
+      } });
+      editorial.briefDigest = "sha256:" + createHash("sha256").update(digestInput).digest("hex");
+      editorial.productionGate = evaluateProductionGate({ editorial, claimLedger });
+      const output = { ...dossier, editorial };
       const outputPath = resolve(inputPath.replace(/\.json$/i, "") + ".creative.json");
       await writeFile(outputPath, JSON.stringify(output, null, 2) + "\n", { mode: 0o600 });
       console.log(JSON.stringify({

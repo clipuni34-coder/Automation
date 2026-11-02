@@ -18,6 +18,52 @@ on:
         required: false
         type: boolean
         default: false
+      repurpose_source_url:
+        description: "Direct public HTTPS video-file link for footage you own or are authorized to reuse."
+        required: false
+        type: string
+      repurpose_rights_status:
+        description: "Rights declaration for the source footage. Do not select a status you cannot substantiate."
+        required: false
+        type: choice
+        options:
+          - not_authorized
+          - owned_by_user
+          - permission_granted
+          - licensed
+          - public_domain
+        default: not_authorized
+      repurpose_rights_evidence_url:
+        description: "HTTPS link to permission, license, or public-domain evidence (required except for footage you own)."
+        required: false
+        type: string
+      repurpose_platform:
+        description: "Platform the source rights permit."
+        required: false
+        type: choice
+        options:
+          - youtube_shorts
+          - instagram_reels
+          - tiktok
+        default: youtube_shorts
+      repurpose_target_seconds:
+        description: "Target duration for the finished short."
+        required: false
+        type: choice
+        options:
+          - "30"
+          - "45"
+          - "60"
+          - "90"
+        default: "45"
+      repurpose_title:
+        description: "Optional source-video title."
+        required: false
+        type: string
+      repurpose_creator:
+        description: "Optional original creator name."
+        required: false
+        type: string
   schedule:
     - cron: '0 9 * * *'
 
@@ -53,7 +99,7 @@ jobs:
         with:
           node-version: 22
       - name: Ensure FFmpeg is available for video rendering
-        if: vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true
+        if: vars.ENABLE_ORIGINAL_AI_CONTENT == 'true' && (vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true)
         run: |
           if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
             echo "Runner FFmpeg is already installed; skipping package installation."
@@ -64,18 +110,18 @@ jobs:
           ffmpeg -version
           ffprobe -version
       - name: Cache Kokoro model files
-        if: vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true
+        if: vars.ENABLE_ORIGINAL_AI_CONTENT == 'true' && (vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true)
         uses: actions/cache@v4
         with:
           path: models/kokoro
           key: kokoro-onnx-v1.0-${{ runner.os }}
       - name: Set up Python 3.12 for Kokoro TTS
-        if: vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true
+        if: vars.ENABLE_ORIGINAL_AI_CONTENT == 'true' && (vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true)
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Download Kokoro model and verify checksums
-        if: vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true
+        if: vars.ENABLE_ORIGINAL_AI_CONTENT == 'true' && (vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true)
         run: |
           python -m pip install --disable-pip-version-check kokoro-onnx==0.6.1 soundfile
           mkdir -p models/kokoro
@@ -181,6 +227,7 @@ jobs:
           if [ -n "$best_dossier" ]; then echo "Selected dossier: $best_dossier"; else echo "No eligible research dossier found."; fi
 
       - name: Generate original creative briefs
+        if: vars.ENABLE_ORIGINAL_AI_CONTENT == 'true'
         env:
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -209,7 +256,7 @@ jobs:
             echo "::warning::Creative generation failed for $SELECTED_DOSSIER; preserving the research dossier."
           fi
       - name: Restore and record the exact approved McLintock brief
-        if: inputs.render_preapproved_brief == true
+        if: vars.ENABLE_ORIGINAL_AI_CONTENT == 'true' && inputs.render_preapproved_brief == true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -228,7 +275,7 @@ jobs:
           node scripts/approve-mclintock-brief.mjs "$brief" research-approved-mclintock.creative.json
 
       - name: Render original videos when explicitly enabled
-        if: vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true
+        if: vars.ENABLE_ORIGINAL_AI_CONTENT == 'true' && (vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -277,7 +324,7 @@ jobs:
           fi
 
       - name: Publish only fully approved videos to YouTube
-        if: inputs.publish_videos == true && vars.YOUTUBE_AUTO_PUBLISH == 'true' && (vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true)
+        if: vars.ENABLE_ORIGINAL_AI_CONTENT == 'true' && inputs.publish_videos == true && vars.YOUTUBE_AUTO_PUBLISH == 'true' && (vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true)
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
@@ -458,4 +505,97 @@ jobs:
         with:
           name: research-dossiers
           path: research-*.json
+          retention-days: 14
+
+
+  repurpose:
+    if: inputs.repurpose_source_url != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    steps:
+      - name: Check out selected branch
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Set up Python for Faster-Whisper
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          ffmpeg -version
+          ffprobe -version
+      - name: Cache Faster-Whisper model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface/hub
+          key: faster-whisper-base-${{ runner.os }}-v1
+      - name: Install transcription dependency
+        run: python -m pip install --disable-pip-version-check -r requirements/repurposing.txt
+      - name: Download rights-cleared source video
+        env:
+          REPURPOSE_SOURCE_URL: ${{ inputs.repurpose_source_url }}
+          REPURPOSE_SOURCE_PATH: work/source-media.bin
+          MEDIA_SOURCE_ALLOWED_HOSTS: ${{ vars.MEDIA_SOURCE_ALLOWED_HOSTS || 'dropbox.com,dropboxusercontent.com,drive.google.com,drive.usercontent.google.com,storage.googleapis.com' }}
+          MEDIA_MAX_UPLOAD_MB: ${{ vars.MEDIA_MAX_UPLOAD_MB || '2048' }}
+        run: node scripts/download-authorized-source.js
+      - name: Validate rights declaration and prepare re-edit job
+        env:
+          REPURPOSE_SOURCE_URL: ${{ inputs.repurpose_source_url }}
+          REPURPOSE_RIGHTS_STATUS: ${{ inputs.repurpose_rights_status }}
+          REPURPOSE_RIGHTS_EVIDENCE_URL: ${{ inputs.repurpose_rights_evidence_url }}
+          REPURPOSE_PLATFORM: ${{ inputs.repurpose_platform }}
+          REPURPOSE_TARGET_SECONDS: ${{ inputs.repurpose_target_seconds }}
+          REPURPOSE_TITLE: ${{ inputs.repurpose_title }}
+          REPURPOSE_CREATOR: ${{ inputs.repurpose_creator }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { writeFileSync } from 'node:fs';
+          const rightsStatus = process.env.REPURPOSE_RIGHTS_STATUS || 'not_authorized';
+          const approved = new Set(['owned_by_user', 'permission_granted', 'licensed', 'public_domain']);
+          if (!approved.has(rightsStatus)) throw new Error('Source is not authorised for reuse; choose an accurate rights declaration.');
+          const evidence = process.env.REPURPOSE_RIGHTS_EVIDENCE_URL || '';
+          if (rightsStatus !== 'owned_by_user') {
+            let url;
+            try { url = new URL(evidence); } catch { throw new Error('Rights evidence URL is required for permission, licensed, or public-domain footage.'); }
+            if (url.protocol !== 'https:') throw new Error('Rights evidence URL must use HTTPS.');
+          }
+          const platform = process.env.REPURPOSE_PLATFORM;
+          if (!['youtube_shorts', 'instagram_reels', 'tiktok'].includes(platform)) throw new Error('Unsupported target platform.');
+          const input = {
+            sourceLocalPath: 'work/source-media.bin',
+            outputPath: 'output/repurposed/short.mp4',
+            source: {
+              sourceUrl: process.env.REPURPOSE_SOURCE_URL,
+              title: process.env.REPURPOSE_TITLE || 'Authorized source video',
+              creator: process.env.REPURPOSE_CREATOR || null,
+              rightsStatus,
+              rightsEvidenceUrl: evidence || undefined,
+              allowedPlatforms: [platform]
+            },
+            targetDurationSeconds: Number(process.env.REPURPOSE_TARGET_SECONDS || 45),
+            platform,
+            whisperModel: 'base'
+          };
+          writeFileSync('repurpose-input.json', JSON.stringify(input, null, 2), { mode: 0o600 });
+          NODE
+      - name: Transcribe, analyse, select moments and render
+        run: |
+          npm run repurpose -- repurpose-input.json output/repurposed/result.json
+          ffprobe -v error -show_entries stream=codec_name,width,height -show_entries format=duration -of json output/repurposed/short.mp4
+      - name: Save finished repurposed video and editorial evidence
+        if: always() && hashFiles('output/repurposed/short.mp4') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: repurposed-short
+          path: |
+            output/repurposed/short.mp4
+            output/repurposed/result.json
+            output/repurposed/short.mp4.transcript.json
           retention-days: 14

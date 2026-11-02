@@ -8,7 +8,7 @@ export async function fetchYouTubeAnalyticsReport({
   metrics = "views,likes,comments,shares,subscribersGained,estimatedMinutesWatched,averageViewDuration,averageViewPercentage",
   sort,
   filters,
-  maxResults = 200,
+  maxResults,
   fetchImpl = fetch
 } = {}) {
   if (!accessToken || !startDate || !endDate) throw new Error("accessToken, startDate and endDate are required.");
@@ -17,12 +17,16 @@ export async function fetchYouTubeAnalyticsReport({
     ids: "channel==MINE",
     startDate,
     endDate,
-    metrics,
-    maxResults: String(Math.max(1, Math.min(200, maxResults)))
+    metrics
   });
   if (dimensions) params.set("dimensions", dimensions);
   if (sort) params.set("sort", sort);
   if (filters) params.set("filters", filters);
+  // maxResults is only required/appropriate for report types that define a row limit
+  // (for example, top-video reports). Do not attach it to every channel report.
+  if (maxResults !== undefined && maxResults !== null) {
+    params.set("maxResults", String(Math.max(1, Math.min(200, maxResults))));
+  }
   const response = await fetchImpl(`${ANALYTICS_ENDPOINT}?${params}`, {
     headers: { authorization: `Bearer ${accessToken}`, accept: "application/json" }
   });

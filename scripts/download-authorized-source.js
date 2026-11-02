@@ -61,7 +61,7 @@ export async function downloadAuthorizedSource(sourceUrl, destination, {
   let response;
   for (let redirect = 0; redirect <= maxRedirects; redirect++) {
     const url = await validateSourceUrl(current, allowedHosts, resolveHost);
-    response = await fetchImpl(url, { redirect: "manual", signal: AbortSignal.timeout(120_000) });
+    response = await fetchImpl(url, { redirect: "manual", signal: AbortSignal.timeout(30 * 60 * 1000) });
     if ([301, 302, 303, 307, 308].includes(response.status)) {
       const location = response.headers.get("location");
       if (!location || redirect === maxRedirects) throw new Error("Source download exceeded the redirect limit");

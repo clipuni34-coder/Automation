@@ -69,3 +69,13 @@ test("production gate rejects approval copied from a different brief", () => {
   assert.equal(result.productionEligible, false);
   assert.ok(result.reasons.some((reason) => /exact brief/.test(reason)));
 });
+
+test("production gate refuses a script held by the evidence safeguard", () => {
+  const result = evaluateProductionGate({
+    editorial: { ...approved, scriptReadiness: { status: "held_for_fact_check", held: true }, fullScript: "" },
+    claimLedger: cleanLedger
+  });
+  assert.equal(result.productionEligible, false);
+  assert.ok(result.reasons.some((reason) => /script is held/.test(reason)));
+  assert.ok(result.reasons.some((reason) => /No cleared narration/.test(reason)));
+});

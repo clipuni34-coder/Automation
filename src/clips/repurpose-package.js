@@ -28,7 +28,9 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
     plan.source?.sourceUrl ? "Source: " + plan.source.sourceUrl : ""
   ].filter(Boolean).join("\n\n").slice(0, 4500);
   const hashtagText = [plan.source?.title, ...transcript].filter(Boolean).join(" ");
-  const platforms = ["youtube_shorts", "tiktok", "instagram_reels"];
+  const platform = plan.platform;
+  if (!["youtube_shorts", "tiktok", "instagram_reels"].includes(platform) || !(plan.source?.allowedPlatforms ?? []).includes(platform)) throw new Error("A posting package can only be created for a platform cleared by the source rights record.");
+  const platforms = [platform];
   const platformPackages = Object.fromEntries(platforms.map((platform) => {
     const tags = makeHashtags(hashtagText, platform);
     return [platform, platform === "youtube_shorts"

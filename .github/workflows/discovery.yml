@@ -284,6 +284,7 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PRODUCE_VIDEOS: ${{ vars.PRODUCE_VIDEOS || 'false' }}
           YOUTUBE_AUTO_PUBLISH: ${{ vars.YOUTUBE_AUTO_PUBLISH || 'false' }}
+          INPUT_PRODUCE_VIDEOS: ${{ inputs.produce_videos || false }}
           SYNC_YOUTUBE_ANALYTICS: ${{ vars.SYNC_YOUTUBE_ANALYTICS || 'false' }}
           SYNC_YOUTUBE_COMMENTS: ${{ vars.SYNC_YOUTUBE_COMMENTS || 'false' }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
@@ -296,9 +297,16 @@ jobs:
             (process.env.ENABLE_GEMINI_CREATIVE === 'true' && Boolean(process.env.GEMINI_API_KEY)) ||
             (process.env.ENABLE_OPENAI_CREATIVE === 'true' && Boolean(process.env.OPENAI_API_KEY)) ||
             Boolean(process.env.OPENROUTER_API_KEY);
-          const creativeFiles = ['research-*.creative.json'];
           const { readdirSync } = await import('node:fs');
-          const hasBrief = readdirSync('.').some(name => /^research-.*\.creative\.json$/i.test(name));
+          const briefNames = readdirSync('.').filter(name => /^research-.*\.creative\.json$/i.test(name));
+          const hasBrief = briefNames.length > 0;
+          const briefGates = briefNames.map(name => {
+            try {
+              const brief = JSON.parse(readFileSync(name, 'utf8'));
+              return brief.editorial?.productionGate ?? { status: 'held', productionEligible: false, reasons: ['Missing production gate; manual review required.'] };
+            } catch { return { status: 'held', productionEligible: false, reasons: ['Brief could not be parsed.'] }; }
+          });
+          const eligibleBriefs = briefGates.filter(gate => gate.productionEligible === true).length;
           const hasVideo = existsSync('output') && readdirSync('output', { withFileTypes: true }).some(entry => entry.isDirectory() && existsSync(`output/${entry.name}/short.mp4`));
           let configuredChannels = 0;
           try {
@@ -313,7 +321,9 @@ jobs:
             nicheResearch: files('data/niche-research.json') ? 'completed' : 'missing',
             researchDossiers: readdirSync('.').filter(name => /^research-.*\.json$/i.test(name) && !/\.creative\.json$/i.test(name)).length,
             creativeBriefs: hasBrief ? 'generated' : creativeEnabled ? 'not_generated_check_logs' : 'blocked_missing_free_provider_key_or_paid_provider_opt_in',
-            videoProduction: hasVideo ? 'rendered' : process.env.PRODUCE_VIDEOS === 'true' ? 'enabled_but_no_video_rendered' : 'disabled',
+            creativeProductionGate: !hasBrief ? 'not_run' : eligibleBriefs === briefGates.length ? 'passed' : 'held_for_editorial_review',
+            productionEligibleBriefs: eligibleBriefs,
+            videoProduction: hasVideo ? 'rendered' : process.env.PRODUCE_VIDEOS === 'true' || process.env.INPUT_PRODUCE_VIDEOS === 'true' ? 'enabled_but_no_video_rendered' : 'disabled',
             activeChannelProfiles: configuredChannels,
             youtubeAnalytics: process.env.SYNC_YOUTUBE_ANALYTICS === 'true' ? 'enabled_check_snapshot' : 'not_connected_or_disabled',
             youtubeComments: process.env.SYNC_YOUTUBE_COMMENTS === 'true' ? 'enabled_check_inbox_artifact' : 'disabled_or_not_connected',

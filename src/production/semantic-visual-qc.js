@@ -30,6 +30,7 @@ function parseJson(text) {
  */
 export async function reviewSceneVisualSemantics(manifest, videoPath, {
   apiKey = process.env.ENABLE_OPENAI_VISION_QC === "true" ? (process.env.OPENAI_API_KEY ?? "") : "",
+  geminiApiKey = process.env.ENABLE_GEMINI_VISION_QC === "true" ? (process.env.GEMINI_API_KEY ?? "") : "",
   openrouterApiKey = process.env.OPENROUTER_API_KEY ?? "",
   openrouterModel = process.env.OPENROUTER_VISION_MODEL ?? "openrouter/free",
   fetchImpl = fetch,
@@ -37,7 +38,7 @@ export async function reviewSceneVisualSemantics(manifest, videoPath, {
   timeoutMs = 90000
 } = {}) {
   const scenes = Array.isArray(manifest?.scenes) ? manifest.scenes : [];
-  if (!apiKey && !openrouterApiKey) return { status: "unverified", provider: null, reviewedScenes: 0, scenes: [], warnings: ["No authorized vision provider is configured; scene meaning was not visually verified."] };
+  if (!apiKey && !openrouterApiKey && !geminiApiKey) return { status: "unverified", provider: null, reviewedScenes: 0, scenes: [], warnings: ["No authorized vision provider is configured; scene meaning was not visually verified."] };
   if (!scenes.length) return { status: "unverified", provider: "openai", reviewedScenes: 0, scenes: [], warnings: ["No scenes were available for semantic review."] };
   const dir = await mkdtemp(join(tmpdir(), "scene-semantic-qc-"));
   const results = [];
@@ -56,7 +57,7 @@ export async function reviewSceneVisualSemantics(manifest, videoPath, {
           { type: "text", text: "Planned scene: " + description + "\nNarration context: " + String(scene.narrationContext ?? "").slice(0, 700) + "\nDoes this actual frame visibly match the planned scene? Judge only visible evidence." },
           { type: "image_url", image_url: { url: "data:image/jpeg;base64," + bytes.toString("base64"), detail: "low" } }
         ];
-        let response, provider, model;
+        let response, provider, model, responsePayload;
         if (apiKey) {
           provider = "openai";
           model = "gpt-4.1-mini";
@@ -72,7 +73,7 @@ export async function reviewSceneVisualSemantics(manifest, videoPath, {
             }),
             signal: AbortSignal.timeout(timeoutMs)
           });
-        } else {
+        } else if (openrouterApiKey) {
           if (openrouterModel !== "openrouter/free" && !openrouterModel.endsWith(":free")) {
             throw new Error("OpenRouter vision QC is restricted to explicitly free models.");
           }
@@ -95,10 +96,28 @@ export async function reviewSceneVisualSemantics(manifest, videoPath, {
             }),
             signal: AbortSignal.timeout(timeoutMs)
           });
+        } else {
+          provider = "gemini";
+          model = "gemini-3.8-flash";
+          response = await fetchImpl("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent", {
+            method: "POST",
+            headers: { "x-goog-api-key": geminiApiKey, "content-type": "application/json" },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: "You are a strict visual quality inspector. Judge only visible evidence in the supplied frame. Do not infer unseen action or context. Return JSON only with relevant (boolean), confidence (0 to 1), observed (short string), reason (short string). Mark relevant false if the image is generic, unrelated, ambiguous, or does not visibly support the planned scene." }] },
+              contents: [{ role: "user", parts: [
+                { text: "Planned scene: " + description + "\nNarration context: " + String(scene.narrationContext ?? "").slice(0, 700) + "\nDoes this actual frame visibly match the planned scene?" },
+                { inline_data: { mime_type: "image/jpeg", data: bytes.toString("base64") } }
+              ] }],
+              generationConfig: { responseMimeType: "application/json", temperature: 0, maxOutputTokens: 180 }
+            }),
+            signal: AbortSignal.timeout(timeoutMs)
+          });
         }
         if (!response.ok) throw new Error(provider + " vision returned HTTP " + response.status + ": " + (await response.text()).slice(0, 500));
         const payload = await response.json();
-        const raw = payload.choices?.[0]?.message?.content;
+        const raw = provider === "gemini"
+          ? payload.candidates?.[0]?.content?.parts?.map(part => part.text ?? "").join("")
+          : payload.choices?.[0]?.message?.content;
         const verdict = parseJson(raw);
         const confidence = Math.max(0, Math.min(1, Number(verdict.confidence) || 0));
         const relevant = verdict.relevant === true && confidence >= 0.65;
@@ -112,5 +131,7 @@ export async function reviewSceneVisualSemantics(manifest, videoPath, {
   }
   const failed = results.filter(item => !item.relevant);
   const warnings = failed.map(item => "Scene " + item.scene + " failed semantic visual verification" + (item.reason ? ": " + item.reason : item.error ? ": " + item.error : "."));
-  return { status: failed.length ? "review" : "passed", provider: apiKey ? "openai" : "openrouter-free", model: apiKey ? "gpt-4.1-mini" : openrouterModel, reviewedScenes: results.length, passedScenes: results.length - failed.length, failedScenes: failed.length, scenes: results, warnings };
+  const selectedProvider = apiKey ? "openai" : openrouterApiKey ? "openrouter-free" : "gemini";
+  const selectedModel = apiKey ? "gpt-4.1-mini" : openrouterApiKey ? openrouterModel : "gemini-3.8-flash";
+  return { status: failed.length ? "review" : "passed", provider: selectedProvider, model: selectedModel, reviewedScenes: results.length, passedScenes: results.length - failed.length, failedScenes: failed.length, scenes: results, warnings };
 }

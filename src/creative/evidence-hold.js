@@ -22,7 +22,9 @@ export function applyEditorialEvidenceHold({ plan = {}, claimLedger = null, now 
   const reviewOnlyDraft = {
     status: "not_for_production",
     storedAt: now(),
-    reason: missingClaimInventory\n      ? "The model supplied narration but no factual-claim inventory. The script is held until an editor identifies and reviews its factual claims."\n      : "Factual claims remain unverified. This model-generated copy is preserved for human review only and must not be rendered, scheduled, or published.",
+    reason: missingClaimInventory
+      ? "The model supplied narration but no factual-claim inventory. The script is held until an editor identifies and reviews its factual claims."
+      : "Factual claims remain unverified. This model-generated copy is preserved for human review only and must not be rendered, scheduled, or published.",
     workingTitle: plan.workingTitle ?? "",
     targetAudience: plan.targetAudience ?? "",
     recommendedAngle: plan.recommendedAngle ?? "",
@@ -49,7 +51,9 @@ export function applyEditorialEvidenceHold({ plan = {}, claimLedger = null, now 
       status: "held_for_fact_check",
       held: true,
       unresolvedClaims: Math.max(unresolvedCount, unresolved.length, listedClaims.length, missingClaimInventory ? 1 : 0),
-      reason: missingClaimInventory\n        ? "The production-facing script was cleared because no factual-claim inventory was supplied."\n        : "The production-facing script, hooks, visuals, and CTA were cleared because their factual claims have not received human verification."
+      reason: missingClaimInventory
+        ? "The production-facing script was cleared because no factual-claim inventory was supplied."
+        : "The production-facing script, hooks, visuals, and CTA were cleared because their factual claims have not received human verification."
     }
   };
 }

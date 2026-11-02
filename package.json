@@ -28,6 +28,7 @@
     "create-dossiers": "node src/research/discovery-dossiers-cli.js",
     "select-best-dossier": "node src/creative/select-best-dossier.js",
     "youtube-comments": "node src/platforms/youtube/comments-cli.js",
-    "repurpose": "node src/clips/repurpose-cli.js"
+    "repurpose": "node src/clips/repurpose-cli.js",
+    "viral-report": "node src/discovery/viral-report.js"
   }
 }

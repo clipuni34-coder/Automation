@@ -48,6 +48,10 @@ export function assessStoryboardVisualQuality(manifest) {
     if (treatment) motionTreatmentCounts[treatment] = (motionTreatmentCounts[treatment] ?? 0) + 1;
   }
   const motionTreatmentVariety = Object.keys(motionTreatmentCounts).length;
+  const sourceVisualCutCount = scenes.filter(scene => scene.visualCutAtStart === true).length;
+  if (sourceVisualCutCount > 0) checks.push(sourceVisualCutCount + " scene boundary/boundaries align with detected cuts in the original footage.");
+  const longestCreatorScene = Math.max(0, ...scenes.filter(scene => scene.sourceType === "creator_clip" && scene.videoPath)
+    .map(scene => Number(scene.end) - Number(scene.start)).filter(Number.isFinite));
   if (scenes.length >= 3 && motionTreatmentVariety === 1) {
     penalize(4, "Every scene uses the same framing treatment; vary push, hold and payoff framing where the story supports it.");
   } else if (motionTreatmentVariety >= 2) {
@@ -73,7 +77,7 @@ export function assessStoryboardVisualQuality(manifest) {
     const label = "Scene " + (index + 1);
     if (duration < 1.1) penalize(5, label + " is very short and may be difficult to read.");
     if (scene.imagePath && duration > 7) penalize(4, label + " holds a still image for more than seven seconds.");
-    if (scene.videoPath && duration > 10) penalize(3, label + " runs longer than ten seconds without a planned visual change.");
+    if (scene.videoPath && duration > 8) penalize(3, label + " runs longer than eight seconds without a planned visual change.");
     if (scene.sourceType === "licensed_stock") {
       if (!scene.tagRelevance) {
         penalize(12, label + " uses stock footage without recorded scene-keyword relevance evidence.");
@@ -102,7 +106,7 @@ export function assessStoryboardVisualQuality(manifest) {
     status: score >= 85 ? "good" : score >= 70 ? "review" : "weak",
     checks,
     warnings,
-    metrics: { sceneCount: scenes.length, uniqueAssets: uniquePaths.size, repeatedAssets: repeatedCount, stillScenes: stillCount, videoScenes: videoCount, motionTreatmentVariety, motionTreatmentCounts, averageEditorialScore }
+    metrics: { sceneCount: scenes.length, uniqueAssets: uniquePaths.size, repeatedAssets: repeatedCount, stillScenes: stillCount, videoScenes: videoCount, motionTreatmentVariety, motionTreatmentCounts, sourceVisualCutCount, longestCreatorScene: Number(longestCreatorScene.toFixed(2)), averageEditorialScore }
   };
 }
 

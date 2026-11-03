@@ -2,7 +2,7 @@ import { assertAssetRights } from "../rights/asset-rights.js";
 
 function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 
-export function buildReeditPlan({ source, transcriptSegments, targetDurationSeconds = 45, platform = "youtube_shorts", minMomentScore = 4.8, minimumMoments = 1 } = {}) {
+export function buildReeditPlan({ source, transcriptSegments, targetDurationSeconds = 45, platform = "youtube_shorts", minMomentScore = 0, minimumMoments = 1 } = {}) {
   if (!source?.sourceUrl || !Number.isFinite(source.durationSeconds) || source.durationSeconds <= 0) throw new Error("A source video URL and positive durationSeconds are required");
   if (!Array.isArray(transcriptSegments) || transcriptSegments.length === 0) throw new Error("Timed transcript segments are required to plan a meaningful re-edit");
   const segments = transcriptSegments.map((segment, index) => {
@@ -30,8 +30,11 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     if (selected.some(item => segment.start < item.end && segment.end > item.start)) continue;
     selected.push(segment); used += length;
   }
-  if (selected.length < Math.max(1, Number(minimumMoments) || 1)) {
-    return { mode: "standalone_reedit", status: "editorial_review_required", source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds }, platform, targetDurationSeconds: 0, rights: { allowed: false, status: "not_editorially_qualified", reasons: ["Too few transcript moments met the minimum editorial score of " + threshold.toFixed(1) + "/10; do not auto-render weak material."] }, editorialQuality: { status: "insufficient_moments", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length }, editDecisionList: [], editorialNotes: ["This source did not contain enough strong standalone moments for an automatic short. Review the candidate list or choose a stronger source."] };
+  const averageSelectedScore = selected.length ? Number((selected.reduce((sum, item) => sum + item.score, 0) / selected.length).toFixed(2)) : 0;
+  const minimumAverageScore = 3.5;
+  if (selected.length < Math.max(1, Number(minimumMoments) || 1) || averageSelectedScore < minimumAverageScore) {
+    const referenceOnly = source.rightsStatus === "reference_only";
+    return { mode: "standalone_reedit", status: referenceOnly ? "analysis_only" : "editorial_review_required", source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds }, platform, targetDurationSeconds: 0, rights: { allowed: false, status: referenceOnly ? "reference_only" : "not_editorially_qualified", reasons: [referenceOnly ? "Reference-only videos may be analyzed but not rendered or republished." : "Selected moments did not meet the minimum editorial quality gate (average " + averageSelectedScore.toFixed(2) + "/10; minimum " + minimumAverageScore.toFixed(1) + "/10). Do not auto-render weak material."] }, editorialQuality: { status: selected.length < Math.max(1, Number(minimumMoments) || 1) ? "insufficient_moments" : "low_average_score", minimumScore: threshold, minimumAverageScore, averageSelectedScore, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length }, editDecisionList: [], editorialNotes: ["This source did not contain enough strong standalone moments for an automatic short. Review the candidate list or choose a stronger source."] };
   }
   // Select by score, but never reorder the creator's dialogue: preserve the original story chronology.
   const ordered = [...selected].sort((a,b) => a.start - b.start || a.end - b.end);
@@ -40,7 +43,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   return {
     mode: "standalone_reedit", status: rights.allowed ? "edit_plan_ready" : "analysis_only",
     source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds, rightsStatus: source.rightsStatus, rightsEvidenceUrl: source.rightsEvidenceUrl ?? null, rightsEvidenceReference: source.rightsEvidenceReference ?? null, allowedPlatforms: source.allowedPlatforms ?? [], expiresAt: source.expiresAt ?? null, license: source.license ?? "Authorized source media" },
-    rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore: Number((selected.reduce((sum, item) => sum + item.score, 0) / selected.length).toFixed(2)) },
+    rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore },
     openingHook: { segmentId: opening.id, sourceIn: opening.start, sourceOut: opening.end, score: opening.score },
     editDecisionList: ordered.map((segment, index) => ({ order: index + 1, segmentId: segment.id, sourceIn: segment.start, sourceOut: segment.end, durationSeconds: Number((segment.end-segment.start).toFixed(2)), caption: segment.text, score: segment.score, wordTimings: segment.words, treatment: { pacing: "tight", captions: "word_timed_karaoke", punchIn: segment.score >= 7, transition: index ? "hard_cut" : "cold_open" } })),
     editorialNotes: ["Preserve original dialogue chronology; do not move a later sentence ahead of its context.", "Select the strongest complete moments within the requested duration.", "Remove dead air only where meaning and context remain intact.", "Use original narration/commentary where it adds genuine explanation or critique.", "Do not imply that reframing or captions alone create permission to reuse the source."]

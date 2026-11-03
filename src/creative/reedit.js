@@ -232,7 +232,10 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   };
   const opening = ordered[0];
   // Prefer a curiosity-led teaser so the opening creates an information gap.
-  const hookCandidate = [...ordered].sort((a, b) => {
+  const semanticHookCandidate = semanticWindowQualified
+    ? ordered.find(item => item.id === semanticWindow.hookSegmentId)
+    : null;
+  const hookCandidate = semanticHookCandidate ?? [...ordered].sort((a, b) => {
     const value = item => item.signals.hook * 0.45 + item.signals.curiosity * 0.4 + item.signals.clarity * 0.15 - item.signals.payoff * 0.2;
     return value(b) - value(a) || b.score - a.score || a.start - b.start;
   })[0];

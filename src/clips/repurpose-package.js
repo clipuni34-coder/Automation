@@ -30,7 +30,11 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
   const hashtagText = [plan.source?.title, ...transcript].filter(Boolean).join(" ");
   const platform = plan.platform;
   if (!["youtube_shorts", "tiktok", "instagram_reels"].includes(platform) || !(plan.source?.allowedPlatforms ?? []).includes(platform)) throw new Error("A posting package can only be created for a platform cleared by the source rights record.");
-  const averageEditorialScore = Number(plan.editorialQuality?.averageSelectedScore ?? 0);\n  const visualReviewRequired = renderResult.visualQuality?.status !== "passed";\n  const editorialReviewRequired = !Number.isFinite(averageEditorialScore) || averageEditorialScore < 5.5;\n  const editorialApprovalRequired = visualReviewRequired || editorialReviewRequired;\n  const platforms = [platform];
+  const averageEditorialScore = Number(plan.editorialQuality?.averageSelectedScore ?? 0);
+  const visualReviewRequired = renderResult.visualQuality?.status !== "passed";
+  const editorialReviewRequired = !Number.isFinite(averageEditorialScore) || averageEditorialScore < 5.5;
+  const editorialApprovalRequired = visualReviewRequired || editorialReviewRequired;
+  const platforms = [platform];
   const platformPackages = Object.fromEntries(platforms.map((platform) => {
     const tags = makeHashtags(hashtagText, platform);
     return [platform, platform === "youtube_shorts"
@@ -38,8 +42,17 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
       : { caption: clean([title, ...transcript].join("\n\n"), 2100), hashtags: tags }];
   }));
   return {
-    status: "draft",
+    status: editorialApprovalRequired ? "editorial_review_required" : "draft",
     manualPublishingApprovalRequired: true,
+    editorialApproval: {
+      status: editorialApprovalRequired ? "review_required" : "eligible_for_human_approval",
+      approved: false,
+      humanReviewRequired: true,
+      reasons: [
+        ...(visualReviewRequired ? ["Visual quality review has not passed."] : []),
+        ...(editorialReviewRequired ? ["Editorial score is missing or below the 5.5/10 threshold."] : [])
+      ]
+    },
     title,
     source: {
       title: plan.source?.title ?? null,
@@ -71,7 +84,8 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
       technicalRenderStatus: renderResult.status,
       visualQualityStatus: renderResult.visualQuality?.status ?? "not_run",
       visualQualityScore: renderResult.visualQuality?.score ?? null,
-      visualQualityWarnings: renderResult.visualQuality?.warnings ?? [],\n      averageEditorialScore: Number.isFinite(averageEditorialScore) ? averageEditorialScore : null
+      visualQualityWarnings: renderResult.visualQuality?.warnings ?? [],
+      averageEditorialScore: Number.isFinite(averageEditorialScore) ? averageEditorialScore : null
     },
     note: "This is a draft posting package. Performance is not guaranteed; verify context, rights, title accuracy and platform requirements before posting."
   };

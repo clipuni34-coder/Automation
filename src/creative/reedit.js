@@ -22,6 +22,44 @@ function classifyBeat(text, signals = {}) {
   return "context";
 }
 
+function selectTightSemanticWindow(windowSegments, semanticWindow, transitions, maxDuration, maxSourceSpan) {
+  const hookIndex = windowSegments.findIndex(item => item.id === semanticWindow.hookSegmentId);
+  const payoffIndex = windowSegments.findIndex(item => item.id === semanticWindow.payoffSegmentId);
+  if (hookIndex < 0 || payoffIndex <= hookIndex) return { segments: windowSegments, trimmed: false, reason: "invalid_hook_payoff_bounds" };
+  const transitionByPair = new Map((transitions ?? []).map(item => [item.fromSegmentId + "->" + item.toSegmentId, item]));
+  let best = null;
+  for (let left = 0; left <= hookIndex; left += 1) {
+    for (let right = payoffIndex; right < windowSegments.length; right += 1) {
+      const candidate = windowSegments.slice(left, right + 1);
+      if (candidate.length < 3) continue;
+      const duration = candidate.reduce((sum, item) => sum + item.end - item.start, 0);
+      const sourceSpan = candidate.at(-1).end - candidate[0].start;
+      if (duration > maxDuration || sourceSpan > maxSourceSpan) continue;
+      const path = candidate.slice(0, -1).map((item, index) => transitionByPair.get(item.id + "->" + candidate[index + 1].id));
+      if (path.some(item => !item || item.relationship !== "connected" || Number(item.confidence) < 0.7)) continue;
+      const averageScore = candidate.reduce((sum, item) => sum + item.score, 0) / candidate.length;
+      const roles = new Set(candidate.map(item => item.semanticAssessment?.role).filter(Boolean));
+      const storyCoverage = ["setup", "tension"].filter(role => roles.has(role)).length;
+      const durationFit = Math.min(duration / 24, 1);
+      const utility = averageScore + storyCoverage * 0.2 + durationFit * 0.1;
+      if (!best || utility > best.utility || (utility === best.utility && candidate.length < best.segments.length)) {
+        best = { segments: candidate, utility, averageScore, duration, storyCoverage };
+      }
+    }
+  }
+  if (!best) return { segments: windowSegments, trimmed: false, reason: "no_connected_hook_to_payoff_subwindow" };
+  return {
+    segments: best.segments,
+    trimmed: best.segments.length < windowSegments.length,
+    originalSegmentIds: windowSegments.map(item => item.id),
+    selectedSegmentIds: best.segments.map(item => item.id),
+    averageScore: Number(best.averageScore.toFixed(2)),
+    durationSeconds: Number(best.duration.toFixed(2)),
+    setupOrTensionRoles: best.storyCoverage,
+    method: "highest_quality_connected_contiguous_hook_to_payoff_subwindow"
+  };
+}
+
 function summarizeNarrativeStructure(segments) {
   const roles = ["hook", "tension", "payoff"];
   const evidence = roles.map(role => {
@@ -86,7 +124,10 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     && semanticWindowSegments.findIndex(item => item.id === semanticWindow.hookSegmentId) < semanticWindowSegments.findIndex(item => item.id === semanticWindow.payoffSegmentId)
     && semanticWindowDuration <= maxDuration
     && semanticWindowSourceSpan <= maxSourceSpan;
-  let bestWindow = semanticWindowQualified ? semanticWindowSegments : chronological;
+  const semanticWindowTrim = semanticWindowQualified
+    ? selectTightSemanticWindow(semanticWindowSegments, semanticWindow, narrativeSemanticAnalysis?.transitions, maxDuration, maxSourceSpan)
+    : null;
+  let bestWindow = semanticWindowQualified ? semanticWindowTrim.segments : chronological;
   let bestWindowUtility = semanticWindowQualified ? Number(semanticWindow.confidence) * 100 : -Infinity;
   if (!semanticWindowQualified) for (let left = 0; left < chronological.length; left += 1) {
     for (let right = left; right < chronological.length; right += 1) {
@@ -213,7 +254,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   return {
     mode: "standalone_reedit", status: rights.allowed ? "edit_plan_ready" : "analysis_only",
     source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds, rightsStatus: source.rightsStatus, rightsEvidenceUrl: source.rightsEvidenceUrl ?? null, rightsEvidenceReference: source.rightsEvidenceReference ?? null, allowedPlatforms: source.allowedPlatforms ?? [], expiresAt: source.expiresAt ?? null, license: source.license ?? "Authorized source media" },
-    rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore, sourceSpanSeconds, selectedDurationSeconds, sourceContinuity, selectionStrategy: semanticWindowQualified ? "semantic_complete_story_window" : semanticMomentById.size === segments.length ? "semantic_plus_heuristic_chronological_story_window" : "best_scoring_chronological_story_window", semanticStoryWindow: { qualified: semanticWindowQualified, arcStatus: semanticWindow?.arcStatus ?? "not_provided", confidence: semanticWindow?.confidence ?? null, summary: semanticWindow?.summary ?? null, selectedSegmentIds: semanticWindowQualified ? semanticWindow.segmentIds : [] }, semanticMomentAssessment: { status: semanticMomentById.size === segments.length ? "complete" : "not_complete", assessedMoments: semanticMomentById.size, totalMoments: segments.length, trustedMoments: segments.filter(item => item.semanticAssessment && Number(item.semanticAssessment.confidence) >= 0.7).length, scoreBlend: "55_percent_heuristic_45_percent_semantic_when_confidence_at_least_0.7" }, contextualStoryAnalysis, beatRoles: ordered.map(item => ({ segmentId: item.id, role: item.beatRole })), storyArcCoverage: new Set(ordered.map(item => item.beatRole)).size, narrativeStructure },
+    rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore, sourceSpanSeconds, selectedDurationSeconds, sourceContinuity, selectionStrategy: semanticWindowQualified ? "semantic_complete_story_window" : semanticMomentById.size === segments.length ? "semantic_plus_heuristic_chronological_story_window" : "best_scoring_chronological_story_window", semanticStoryWindow: { qualified: semanticWindowQualified, arcStatus: semanticWindow?.arcStatus ?? "not_provided", confidence: semanticWindow?.confidence ?? null, summary: semanticWindow?.summary ?? null, modelRecommendedSegmentIds: semanticWindowQualified ? semanticWindow.segmentIds : [], selectedSegmentIds: semanticWindowQualified ? semanticWindowTrim.selectedSegmentIds : [], trim: semanticWindowTrim }, semanticMomentAssessment: { status: semanticMomentById.size === segments.length ? "complete" : "not_complete", assessedMoments: semanticMomentById.size, totalMoments: segments.length, trustedMoments: segments.filter(item => item.semanticAssessment && Number(item.semanticAssessment.confidence) >= 0.7).length, scoreBlend: "55_percent_heuristic_45_percent_semantic_when_confidence_at_least_0.7" }, contextualStoryAnalysis, beatRoles: ordered.map(item => ({ segmentId: item.id, role: item.beatRole })), storyArcCoverage: new Set(ordered.map(item => item.beatRole)).size, narrativeStructure },
     openingHook: { segmentId: opening.id, sourceIn: opening.start, sourceOut: opening.end, score: opening.score },
     hookOverlay: teaserMoment ? { text: hookOverlayText, segmentId: teaserMoment.id, sourceIn: teaserMoment.start, score: teaserMoment.score, durationSeconds: 2.4, method: "explicit_curiosity_or_question_cue_without_dialogue_reordering" } : null,
     editDecisionList: ordered.map((segment, index) => ({ order: index + 1, segmentId: segment.id, sourceIn: segment.start, sourceOut: segment.end, durationSeconds: Number((segment.end-segment.start).toFixed(2)), caption: segment.text, score: segment.score, beatRole: segment.beatRole, wordTimings: segment.words, treatment: {

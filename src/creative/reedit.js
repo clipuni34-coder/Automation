@@ -165,7 +165,6 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     limitation: "This qualification uses adjacent lexical continuity only. A linked sequence is not proof of semantic coherence, and a disconnected sequence may still be coherent through paraphrase or implied references."
   };
   const opening = ordered[0];
-  const strongestMoment = [...ordered].sort((a, b) => b.score - a.score || a.start - b.start)[0];
   // Prefer a curiosity-led teaser so the opening creates an information gap.
   const hookCandidate = [...ordered].sort((a, b) => {
     const value = item => item.signals.hook * 0.45 + item.signals.curiosity * 0.4 + item.signals.clarity * 0.15 - item.signals.payoff * 0.2;

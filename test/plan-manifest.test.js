@@ -109,3 +109,56 @@ test("strongest quarter receives restrained punch-ins and caption whitespace is 
   assert.deepEqual(manifest.scenes.map(scene => scene.punchIn), [true, false, false]);
   assert.equal(manifest.scenes[0].caption, "Wait, this is surprising!");
 });
+
+test("re-edit renderer splits dialogue at verified source scene changes without losing word timing or order", () => {
+  const words = [
+    { word: "Watch", start: 10, end: 10.6 },
+    { word: "the", start: 10.6, end: 10.9 },
+    { word: "runner", start: 10.9, end: 11.7 },
+    { word: "reach", start: 16.1, end: 16.7 },
+    { word: "the", start: 16.7, end: 17 },
+    { word: "finish", start: 17, end: 17.8 }
+  ];
+  const plan = buildReeditPlan({
+    source: { ...rights, sourceUrl: "https://media.example/source.mp4", durationSeconds: 40 },
+    targetDurationSeconds: 15,
+    transcriptSegments: [{
+      id: "race-story", start: 10, end: 22,
+      text: "Watch the runner reach the finish.",
+      words,
+      signals: { hook: 9, emotion: 8, curiosity: 9, payoff: 8, clarity: 9 }
+    }]
+  });
+  const manifest = buildReeditRenderManifest({
+    plan, sourceLocalPath: "/assets/source.mp4",
+    audioPath: "/assets/voice.wav", outputPath: "/out/reedit.mp4",
+    visualCutPoints: [16]
+  });
+  assert.equal(manifest.scenes.length, 2);
+  assert.deepEqual(manifest.scenes.map(scene => [scene.sourceIn, scene.sourceOut]), [[10, 16], [16, 22]]);
+  assert.deepEqual(manifest.scenes.map(scene => scene.wordTimings.map(word => word.text)), [["Watch", "the", "runner"], ["reach", "the", "finish"]]);
+  assert.deepEqual(manifest.scenes.map(scene => scene.visualCutAtStart), [false, true]);
+  assert.deepEqual(manifest.scenes.map(scene => scene.visualBeatIndex), [1, 2]);
+  assert.equal(manifest.scenes[1].start, manifest.scenes[0].end);
+});
+
+test("re-edit renderer ignores source cuts that leave too little footage or no timed dialogue on one side", () => {
+  const plan = buildReeditPlan({
+    source: { ...rights, sourceUrl: "https://media.example/source.mp4", durationSeconds: 30 },
+    targetDurationSeconds: 15,
+    transcriptSegments: [{
+      id: "single-line", start: 5, end: 10,
+      text: "One complete line.",
+      words: [{ word: "One", start: 5, end: 5.8 }, { word: "complete", start: 6, end: 7 }, { word: "line", start: 7.2, end: 8 }],
+      signals: { hook: 9, emotion: 8, curiosity: 9, payoff: 8, clarity: 9 }
+    }]
+  });
+  const manifest = buildReeditRenderManifest({
+    plan, sourceLocalPath: "/assets/source.mp4",
+    audioPath: "/assets/voice.wav", outputPath: "/out/reedit.mp4",
+    visualCutPoints: [5.5, 8.9]
+  });
+  assert.equal(manifest.scenes.length, 1);
+  assert.equal(manifest.scenes[0].sourceIn, 5);
+  assert.equal(manifest.scenes[0].sourceOut, 10);
+});

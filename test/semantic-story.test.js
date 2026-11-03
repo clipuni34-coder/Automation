@@ -33,7 +33,7 @@ test("semantic story analysis treats uncertain transitions as requiring human re
     ok: true,
     json: async () => ({ choices: [{ message: { content: JSON.stringify({ transitions: [{
       fromSegmentId: "a", toSegmentId: "b", relationship: "uncertain", confidence: 0.55,
-      explanation: "The reference is unclear.", evidence: "they"
+      explanation: "The reference is unclear.", evidence: "They carried the injured"
     }] }) } }] })
   });
   const result = await analyzeSemanticStory([

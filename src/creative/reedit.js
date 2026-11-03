@@ -2,7 +2,7 @@ import { assertAssetRights } from "../rights/asset-rights.js";
 
 function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 
-export function buildReeditPlan({ source, transcriptSegments, targetDurationSeconds = 45, platform = "youtube_shorts", minMomentScore = 0, minimumMoments = 1 } = {}) {
+export function buildReeditPlan({ source, transcriptSegments, targetDurationSeconds = 45, platform = "youtube_shorts", minMomentScore = 4, minimumMoments = 1 } = {}) {
   if (!source?.sourceUrl || !Number.isFinite(source.durationSeconds) || source.durationSeconds <= 0) throw new Error("A source video URL and positive durationSeconds are required");
   if (!Array.isArray(transcriptSegments) || transcriptSegments.length === 0) throw new Error("Timed transcript segments are required to plan a meaningful re-edit");
   const segments = transcriptSegments.map((segment, index) => {

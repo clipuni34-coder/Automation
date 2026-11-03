@@ -82,3 +82,24 @@ test("semantic story analysis declines oversized transcript input before calling
   assert.equal(result.status, "input_too_large");
   assert.equal(called, false);
 });
+
+
+test("semantic story analysis validates per-moment scores and transcript evidence", async () => {
+  const fetchImpl = async () => ({
+    ok: true,
+    json: async () => ({ choices: [{ message: { content: JSON.stringify({
+      transitions: [{ fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.9, explanation: "Same rescue.", evidence: "They carried the injured climber" }],
+      momentAssessments: [
+        { segmentId: "a", compellingScore: 8.4, confidence: 0.88, role: "hook", selfContained: false, rationale: "Specific unanswered question.", evidence: "The rescue team reached the mountain" },
+        { segmentId: "b", compellingScore: 9.1, confidence: 0.91, role: "payoff", selfContained: true, rationale: "Clear outcome.", evidence: "They carried the injured climber to safety" }
+      ]
+    }) } }] })
+  });
+  const result = await analyzeSemanticStory([
+    { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
+    { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
+  ], { openaiApiKey: "test-key", geminiApiKey: "", fetchImpl });
+  assert.equal(result.momentAssessmentStatus, "complete");
+  assert.equal(result.momentAssessments[1].compellingScore, 9.1);
+  assert.equal(result.momentAssessments[1].selfContained, true);
+});

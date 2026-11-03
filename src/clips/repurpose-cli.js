@@ -57,6 +57,7 @@ if (!inputPath) {
       source,
       transcriptSegments: candidates,
       narrativeSemanticAnalysis,
+      mediaSignals,
       targetDurationSeconds: input.targetDurationSeconds ?? 45,
       platform: input.platform ?? "youtube_shorts"
     }, {
@@ -92,6 +93,7 @@ if (!inputPath) {
         scoringMethod: "local_lexical_heuristic_plus_ffmpeg_media_signals",
         mediaAnalysis: mediaSignals ? {
           engine: mediaSignals.engine,
+          sceneChanges: mediaSignals.sceneChanges,
           sceneChangeCount: mediaSignals.sceneChanges.length,
           silenceIntervalCount: mediaSignals.silenceIntervals.length,
           audioPresent: mediaSignals.audioPresent

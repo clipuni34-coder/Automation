@@ -51,3 +51,30 @@ test("long passages are split into bounded candidate windows", () => {
   assert.ok(moments.length >= 4);
   assert.ok(moments.every(moment => moment.end - moment.start <= 7));
 });
+
+
+test("ordinary so/because language is not misclassified as an editorial payoff", () => {
+  const words = [
+    { word: "I", start: 0, end: 0.2 },
+    { word: "did", start: 0.2, end: 0.5 },
+    { word: "that", start: 0.5, end: 0.8 },
+    { word: "so", start: 0.8, end: 1.0 },
+    { word: "we", start: 1.0, end: 1.2 },
+    { word: "could", start: 1.2, end: 1.5 },
+    { word: "finish.", start: 1.5, end: 2.1 },
+    { word: "I", start: 3, end: 3.2 },
+    { word: "stayed", start: 3.2, end: 3.6 },
+    { word: "because", start: 3.6, end: 4.0 },
+    { word: "it", start: 4.0, end: 4.2 },
+    { word: "mattered.", start: 4.2, end: 4.9 },
+    { word: "The", start: 6, end: 6.2 },
+    { word: "result", start: 6.2, end: 6.6 },
+    { word: "was", start: 6.6, end: 6.9 },
+    { word: "unexpected.", start: 6.9, end: 7.8 }
+  ];
+  const moments = buildTranscriptCandidates(words, { minSeconds: 1.5 });
+  assert.equal(moments.length, 3);
+  assert.equal(moments[0].signals.payoff, 1);
+  assert.equal(moments[1].signals.payoff, 1);
+  assert.equal(moments[2].signals.payoff, 7);
+});

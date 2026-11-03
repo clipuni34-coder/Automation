@@ -279,6 +279,7 @@ test("semantic story window trims redundant edges but preserves the validated ho
   assert.equal(plan.editorialQuality.semanticStoryWindow.trim.trimmed, true);
   assert.deepEqual(plan.editorialQuality.semanticStoryWindow.trim.selectedSegmentIds, ["hook", "setup", "payoff"]);
   assert.equal(plan.editorialQuality.semanticStoryWindow.qualified, true);
+  assert.equal(plan.hookOverlay.segmentId, "hook");
 });
 
 test("validated complete semantic story window takes priority over isolated score ranking", () => {

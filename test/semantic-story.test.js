@@ -44,6 +44,35 @@ test("semantic story analysis treats uncertain transitions as requiring human re
   assert.equal(result.qualified, false);
 });
 
+test("semantic story analysis accepts empty evidence for a disconnected pair but not a connected pair", async () => {
+  const segments = [
+    { id: "a", start: 0, end: 2, text: "From the Library of Congress in Washington, D.C." },
+    { id: "b", start: 3, end: 5, text: "We all must learn to do." }
+  ];
+  const disconnectedFetch = async () => ({
+    ok: true,
+    json: async () => ({ choices: [{ message: { content: JSON.stringify({ transitions: [{
+      fromSegmentId: "a", toSegmentId: "b", relationship: "disconnected", confidence: 0.96,
+      explanation: "The chunks do not provide evidence of the same story.", evidence: ""
+    }] }) } }] })
+  });
+  const disconnected = await analyzeSemanticStory(segments, { openaiApiKey: "test-key", geminiApiKey: "", fetchImpl: disconnectedFetch });
+  assert.equal(disconnected.status, "human_review_required");
+  assert.equal(disconnected.transitions[0].evidence, "");
+  assert.equal(disconnected.transitions[0].evidenceSegmentId, null);
+
+  const connectedFetch = async () => ({
+    ok: true,
+    json: async () => ({ choices: [{ message: { content: JSON.stringify({ transitions: [{
+      fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.96,
+      explanation: "Claims continuity without a quote.", evidence: ""
+    }] }) } }] })
+  });
+  const connected = await analyzeSemanticStory(segments, { openaiApiKey: "test-key", geminiApiKey: "", fetchImpl: connectedFetch });
+  assert.equal(connected.status, "provider_error");
+  assert.equal(connected.qualified, false);
+});
+
 test("semantic story analysis rejects incomplete model transition coverage", async () => {
   const fetchImpl = async () => ({
     ok: true,

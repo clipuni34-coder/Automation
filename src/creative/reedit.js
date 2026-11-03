@@ -85,7 +85,13 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   const sourceContinuity = Number((selectedDurationSeconds / Math.max(sourceSpanSeconds, 1)).toFixed(3));
   const opening = ordered[0];
   const strongestMoment = [...ordered].sort((a, b) => b.score - a.score || a.start - b.start)[0];
-  const hookSourceText = strongestMoment.text.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/)[0];
+  // Prefer a curiosity-led teaser so the opening creates an information gap.
+  const hookCandidate = [...ordered].sort((a, b) => {
+    const value = item => item.signals.hook * 0.45 + item.signals.curiosity * 0.4 + item.signals.clarity * 0.15 - item.signals.payoff * 0.2;
+    return value(b) - value(a) || b.score - a.score || a.start - b.start;
+  })[0];
+  const teaserMoment = hookCandidate.signals.hook + hookCandidate.signals.curiosity >= 6 ? hookCandidate : strongestMoment;
+  const hookSourceText = teaserMoment.text.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/)[0];
   let hookOverlayText = hookSourceText;
   if (hookOverlayText.length > 48) {
     const teaserWords = hookOverlayText.slice(0, 48).replace(/\s+\S*$/, "").trim().split(/\s+/);

@@ -61,9 +61,11 @@ if (!inputPath) {
       ffprobePath: input.ffprobePath ?? "ffprobe"
     });
     let thumbnailPath = null;
+    let thumbnailTimeSeconds = null;
     if (result.status === "completed") {
       const thumbnail = resolve(input.thumbnailPath ?? input.outputPath.replace(/\.[^.]+$/i, ".thumbnail.jpg"));
-      const frameTime = Math.max(0, Math.min(1.5, (result.rendered?.durationSeconds ?? 3) / 2));
+      const frameTime = selectThumbnailTime(result.plan, result.rendered?.durationSeconds ?? 0);
+      thumbnailTimeSeconds = frameTime;
       const extracted = spawnSync(input.ffmpegPath ?? "ffmpeg", ["-y", "-hide_banner", "-loglevel", "error", "-ss", String(frameTime), "-i", result.outputPath, "-frames:v", "1", "-q:v", "2", thumbnail], { stdio: "ignore" });
       if (extracted.status === 0) thumbnailPath = thumbnail;
     }

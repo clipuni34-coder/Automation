@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""CPU Whisper transcription with word-level timestamps for authorised source media."""
+"""CPU Whisper transcription with validated word-level timestamps for authorised source media."""
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -24,19 +25,30 @@ def main():
         str(source), beam_size=5, word_timestamps=True, vad_filter=True
     )
     words = []
+    dropped_word_count = 0
+    last_start = -1.0
     for segment in segments:
         for item in (segment.words or []):
             token = (item.word or "").strip()
-            if not token:
+            try:
+                start = float(item.start)
+                end = float(item.end)
+            except (TypeError, ValueError):
+                dropped_word_count += 1
                 continue
+            if not token or not math.isfinite(start) or not math.isfinite(end) or start < 0 or end <= start or start < last_start:
+                dropped_word_count += 1
+                continue
+            probability = float(item.probability) if item.probability is not None else None
             words.append({
                 "word": token,
-                "start": round(float(item.start), 3),
-                "end": round(float(item.end), 3),
-                "probability": round(float(item.probability), 4) if item.probability is not None else None,
+                "start": round(start, 3),
+                "end": round(end, 3),
+                "probability": round(probability, 4) if probability is not None and math.isfinite(probability) else None,
             })
+            last_start = start
     if not words:
-        raise SystemExit("Whisper returned no word-level timestamps; no edit was produced.")
+        raise SystemExit("Whisper returned no valid word-level timestamps; no edit was produced.")
     payload = {
         "status": "transcribed",
         "engine": "faster-whisper",
@@ -44,12 +56,13 @@ def main():
         "language": info.language,
         "languageProbability": round(float(info.language_probability), 4),
         "wordCount": len(words),
+        "droppedWordCount": dropped_word_count,
         "words": words,
     }
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps({k: payload[k] for k in ("status", "engine", "model", "language", "wordCount")}))
+    print(json.dumps({k: payload[k] for k in ("status", "engine", "model", "language", "wordCount", "droppedWordCount")}))
 
 if __name__ == "__main__":
     try:

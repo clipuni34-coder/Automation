@@ -40,7 +40,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   const ordered = [...selected].sort((a,b) => a.start - b.start || a.end - b.end);
   const opening = ordered[0];
   const strongestMoment = [...ordered].sort((a, b) => b.score - a.score || a.start - b.start)[0];
-  const hookOverlayText = strongestMoment.text.replace(/\\s+/g, " ").trim().split(/(?<=[.!?])\\s+/)[0].slice(0, 58).replace(/\\s+\\S*$/, "").trim();
+  const hookOverlayText = strongestMoment.text.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\\s+/)[0].slice(0, 58).replace(/\s+\S*$/, "").trim();
   // Reserve restrained punch-ins for the strongest quarter of selected moments;
   // do not manufacture motion on weak material just to make the edit look busy.
   const punchInLimit = ordered.length === 2 ? 2 : Math.max(1, Math.ceil(ordered.length * 0.25));

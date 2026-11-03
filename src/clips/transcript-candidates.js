@@ -7,6 +7,7 @@ const FILLER = /\b(um|uh|erm|you know|like|basically|actually)\b/gi;
 
 function scoreSignals(text, duration, words, media = {}) {
   const normalized = text.trim();
+  const explanatoryWhy = /^\\s*(that is why|that's why|this is why)\\b/i.test(normalized);
   const count = words.length;
   const density = count / Math.max(duration, 0.5);
   const hook = Math.min(10, (HOOK.test(normalized) ? 6 : 2) + (normalized.includes("?") ? 2 : 0) + (count >= 5 && count <= 24 ? 2 : 0));

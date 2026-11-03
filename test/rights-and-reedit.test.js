@@ -45,6 +45,20 @@ test("standalone re-edit prefers a coherent chronological story window over scat
   assert.equal(plan.editorialQuality.sourceContinuity, 1);
 });
 
+test("opening teaser truncation never leaves a dangling conjunction or preposition", () => {
+  const plan = buildReeditPlan({
+    source: licensed,
+    transcriptSegments: [{
+      id: "long-hook", start: 10, end: 20,
+      text: "That's why these children are practicing to duck and cover just as you do in your school.",
+      signals: { hook: 9, emotion: 9, curiosity: 9, payoff: 9, clarity: 9 }
+    }]
+  });
+  assert.ok(plan.hookOverlay.text.length <= 51);
+  assert.doesNotMatch(plan.hookOverlay.text, /\\b(and|or|but|to|of|for|with|as|because|that|from|by|in|on)\\.{0,3}$/i);
+  assert.match(plan.hookOverlay.text, /…$/);
+});
+
 test("reference-only standalone viral videos produce analysis-only plans", () => {
   const plan = buildReeditPlan({ source: { ...licensed, rightsStatus: "reference_only" }, transcriptSegments: [{ start: 1, end: 4, text: "A strong hook", signals: { hook: 9 } }] });
   assert.equal(plan.status, "analysis_only");

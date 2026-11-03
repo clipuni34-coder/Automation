@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { analyzeContextualStory } from "../src/creative/contextual-story.js";
 import { buildReeditPlan } from "../src/creative/reedit.js";
+import { buildRepurposePackage } from "../src/clips/repurpose-package.js";
 
 test("contextual story links a multi-chunk setup, obstacle, response and outcome", () => {
   const segments = [
@@ -68,6 +69,42 @@ test("an ordered hook-tension-payoff sequence is not context-qualified when its 
   assert.equal(plan.editorialQuality.narrativeStructure.contextualContinuityQualification.qualified, false);
   assert.equal(plan.editorialQuality.narrativeStructure.contextualContinuityQualification.status, "beat_sequence_has_disconnected_context");
   assert.equal(plan.editorialQuality.narrativeStructure.contextualContinuityQualification.disconnectedTransitions.length, 2);
+});
+
+test("posting package requires human review when ordered narrative beats are contextually disconnected", () => {
+  const plan = buildReeditPlan({
+    source: {
+      sourceUrl: "https://creator.example/disconnected-story.mp4",
+      durationSeconds: 30,
+      rightsStatus: "permission_granted",
+      rightsEvidenceReference: "test-consent",
+      allowedPlatforms: ["youtube_shorts"]
+    },
+    platform: "youtube_shorts",
+    targetDurationSeconds: 20,
+    transcriptSegments: [
+      { id: "hook", start: 0, end: 4, text: "Why did the astronomer study distant galaxies?", signals: { hook: 9, curiosity: 9, clarity: 9 } },
+      { id: "tension", start: 5, end: 9, text: "The hiker became trapped in a desert canyon.", signals: { emotion: 9, clarity: 9 } },
+      { id: "payoff", start: 10, end: 14, text: "The chef finally escaped the flooded kitchen.", signals: { payoff: 9, clarity: 9 } }
+    ]
+  });
+  const pkg = buildRepurposePackage({
+    plan,
+    renderResult: {
+      status: "rendered",
+      outputPath: "/tmp/test.mp4",
+      durationSeconds: 12,
+      width: 1080,
+      height: 1920,
+      videoCodec: "h264",
+      audioCodec: "aac",
+      sourceAudioPreserved: true,
+      visualQuality: { status: "passed", score: 95, warnings: [] }
+    }
+  });
+  assert.equal(pkg.status, "editorial_review_required");
+  assert.equal(pkg.editorialApproval.approved, false);
+  assert.ok(pkg.editorialApproval.reasons.some(reason => /adjacent context is disconnected/i.test(reason)));
 });
 
 test("re-edit plan exposes contextual evidence and keeps the human-review story caveat", () => {

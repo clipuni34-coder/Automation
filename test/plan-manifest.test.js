@@ -18,8 +18,8 @@ test("standalone re-edit plan maps approved source cut points into renderable sc
   assert.equal(manifest.scenes[1].start, 10);
   assert.equal(manifest.scenes[1].sourceIn, 50);
   assert.equal(manifest.scenes[0].sourceType, "creator_clip");
-  assert.equal(manifest.scenes[0].motionTreatment, manifest.scenes[0].punchIn ? "impact_punch_in" : "subtle_push");
-  assert.equal(manifest.scenes[1].motionTreatment, manifest.scenes[1].punchIn ? "impact_punch_in" : "subtle_push");
+  assert.equal(manifest.scenes[0].motionTreatment, "impact_punch_in");
+  assert.equal(manifest.scenes[1].motionTreatment, "settle_pullback");
   assert.ok(manifest.scenes[0].hookOverlayText);
 });
 

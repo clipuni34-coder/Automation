@@ -61,7 +61,7 @@ export function analyzeContextualStory(segments = []) {
     linkedAdjacentPairs: linkedTransitions.length,
     adjacentPairCount: transitions.length,
     continuityRatio,
-    longestConnectedRun,
+    longestConnectedRun: longestRun,
     transitions,
     disconnectedBoundaries,
     method: "adjacent_chunk_content_term_overlap_and_explicit_connective_cues",

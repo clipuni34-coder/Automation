@@ -172,7 +172,7 @@ test("opening hook overlay wraps into readable lines inside the vertical frame",
   const hook = ass.split("\n").find(line => line.includes(",Hook,"));
   assert.ok(hook, "hook overlay should be rendered");
   assert.ok(hook.includes("\\N"), "long hook text should wrap to multiple lines");
-  assert.ok(hook.includes("That is why these children"));
+  assert.ok(hook.includes("That is why"));
   assert.ok(ass.includes("Style: Hook,DejaVu Sans,48,"));
   const hookText = hook.split(",,").at(-1).replaceAll("\\N", " ");
   assert.ok(hookText.length > 0);

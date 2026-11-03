@@ -150,7 +150,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     && arcTransitions.length === lastBeatIndex - firstBeatIndex
     && arcTransitions.every(transition => transition.linked);
   narrativeStructure.semanticContextAnalysis = narrativeSemanticAnalysis ?? { status: "not_configured", qualified: false, method: "semantic_provider_not_configured" };
-  narrativeStructure.semanticStoryWindow = semanticWindowQualified ? semanticWindow : { status: semanticWindow?.arcStatus ?? "not_qualified", qualified: false, confidence: semanticWindow?.confidence ?? null, summary: semanticWindow?.summary ?? null, rationale: semanticWindow?.rationale ?? null };
+  narrativeStructure.semanticStoryWindow = semanticWindowQualified ? { ...semanticWindow, qualified: true } : { status: semanticWindow?.arcStatus ?? "not_qualified", qualified: false, confidence: semanticWindow?.confidence ?? null, summary: semanticWindow?.summary ?? null, rationale: semanticWindow?.rationale ?? null };
   const semanticTransitions = narrativeSemanticAnalysis?.transitions ?? [];
   const semanticByPair = new Map(semanticTransitions.map(item => [item.fromSegmentId + "->" + item.toSegmentId, item]));
   const semanticOrderedSegments = [...segments].sort((a, b) => a.start - b.start || a.end - b.end);

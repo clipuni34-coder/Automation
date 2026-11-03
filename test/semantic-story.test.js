@@ -56,3 +56,29 @@ test("semantic story analysis rejects incomplete model transition coverage", asy
   assert.equal(result.status, "provider_error");
   assert.equal(result.qualified, false);
 });
+
+test("semantic story analysis rejects evidence that is not quoted from the transcript", async () => {
+  const fetchImpl = async () => ({
+    ok: true,
+    json: async () => ({ choices: [{ message: { content: JSON.stringify({ transitions: [{
+      fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.99,
+      explanation: "Invented evidence.", evidence: "The helicopter rescued everyone"
+    }] }) } }] })
+  });
+  const result = await analyzeSemanticStory([
+    { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
+    { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
+  ], { openaiApiKey: "test-key", geminiApiKey: "", fetchImpl });
+  assert.equal(result.status, "provider_error");
+  assert.equal(result.qualified, false);
+});
+
+test("semantic story analysis declines oversized transcript input before calling a provider", async () => {
+  let called = false;
+  const result = await analyzeSemanticStory([
+    { id: "a", start: 0, end: 2, text: "x".repeat(1201) },
+    { id: "b", start: 3, end: 5, text: "Another segment." }
+  ], { openaiApiKey: "test-key", geminiApiKey: "", fetchImpl: async () => { called = true; } });
+  assert.equal(result.status, "input_too_large");
+  assert.equal(called, false);
+});

@@ -24,7 +24,7 @@ function appendScene(scenes, clip, localPath, start, platform) {
   assertAssetRights(rightsAsset, { platform });
   const duration = sourceOut - sourceIn;
   const timelineStart = scenes.length ? scenes.at(-1).end : 0;
-  scenes.push({ videoPath: localPath, sourceIn, sourceOut, start: timelineStart, end: Number((timelineStart + duration).toFixed(3)), caption: conciseCaption(clip.caption ?? clip.creator ?? "Moment"), wordTimings: clip.wordTimings ?? [], punchIn: clip.treatment?.punchIn === true, sourceType: "creator_clip", sourceUrl: clip.sourceUrl, license: clip.license ?? "Authorized source media", rightsStatus: clip.rightsStatus, rightsEvidenceUrl: clip.rightsEvidenceUrl ?? null, rightsEvidenceReference: clip.rightsEvidenceReference ?? null, allowedPlatforms: clip.allowedPlatforms, expiresAt: clip.expiresAt ?? null, creator: clip.creator ?? null });
+  scenes.push({ videoPath: localPath, sourceIn, sourceOut, start: timelineStart, end: Number((timelineStart + duration).toFixed(3)), caption: conciseCaption(clip.caption ?? clip.creator ?? "Moment"), wordTimings: clip.wordTimings ?? [], punchIn: clip.treatment?.punchIn === true, sourceType: "creator_clip", sourceUrl: clip.sourceUrl, license: clip.license ?? "Authorized source media", rightsStatus: clip.rightsStatus, rightsEvidenceUrl: clip.rightsEvidenceUrl ?? null, rightsEvidenceReference: clip.rightsEvidenceReference ?? null, allowedPlatforms: clip.allowedPlatforms, expiresAt: clip.expiresAt ?? null, creator: clip.creator ?? null, editorialScore: Number.isFinite(Number(clip.score)) ? Number(clip.score) : null });
 }
 
 export function buildReeditRenderManifest({ plan, sourceLocalPath, audioPath, outputPath } = {}) {
@@ -33,7 +33,7 @@ export function buildReeditRenderManifest({ plan, sourceLocalPath, audioPath, ou
   const scenes = [];
   for (const segment of plan.editDecisionList) {
     const wordTimings = (segment.wordTimings ?? []).map((word) => ({ text: word.word ?? word.text, start: Number(word.start) - segment.sourceIn, end: Number(word.end) - segment.sourceIn }));
-    appendScene(scenes, { ...plan.source, start: segment.sourceIn, end: segment.sourceOut, caption: segment.caption, wordTimings, treatment: segment.treatment }, sourceLocalPath, 0, plan.platform);
+    appendScene(scenes, { ...plan.source, start: segment.sourceIn, end: segment.sourceOut, caption: segment.caption, score: segment.score, wordTimings, treatment: segment.treatment }, sourceLocalPath, 0, plan.platform);
   }
   return { outputPath, audioPath, targetPlatform: plan.platform, scenes };
 }

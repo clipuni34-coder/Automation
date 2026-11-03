@@ -115,6 +115,18 @@ test("a question is a hook, while incidental result wording is not automatically
   assert.equal(plan.editorialQuality.beatRoles[1].role, "context");
 });
 
+test("an explanatory sentence containing the word why is not misclassified as a hook", () => {
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 10,
+    transcriptSegments: [
+      { id: "explanation", start: 0, end: 4, text: "That's why the safety procedure is important.", signals: { hook: 6, curiosity: 6, emotion: 5, payoff: 6, clarity: 10 } },
+      { id: "detail", start: 4, end: 8, text: "The procedure keeps everyone away from danger.", signals: { hook: 6, curiosity: 6, emotion: 5, payoff: 6, clarity: 10 } }
+    ]
+  });
+  assert.deepEqual(plan.editorialQuality.beatRoles.map(item => item.role), ["context", "context"]);
+});
+
 test("reference-only standalone viral videos produce analysis-only plans", () => {
   const plan = buildReeditPlan({ source: { ...licensed, rightsStatus: "reference_only" }, transcriptSegments: [{ start: 1, end: 4, text: "A strong hook", signals: { hook: 9 } }] });
   assert.equal(plan.status, "analysis_only");

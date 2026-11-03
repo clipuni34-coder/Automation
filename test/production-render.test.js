@@ -173,7 +173,10 @@ test("opening hook overlay wraps into readable lines inside the vertical frame",
   assert.ok(hook, "hook overlay should be rendered");
   assert.ok(hook.includes("\\N"), "long hook text should wrap to multiple lines");
   assert.ok(hook.includes("That is why these children"));
-  assert.ok(ass.includes("Style: Hook,DejaVu Sans,60,"));
+  assert.ok(ass.includes("Style: Hook,DejaVu Sans,48,"));
+  const hookText = hook.split(",,").at(-1).replaceAll("\\N", " ");
+  assert.ok(hookText.length > 0);
+  assert.ok(hook.includes("\\N"), "hook should use short wrapped lines for mobile safe-area fit");
 });
 
 test("word-timed captions render timed karaoke groups instead of scene-wide static captions", () => {

@@ -2,7 +2,7 @@ import { summarizeMomentSignals } from "./media-signals.js";
 const HOOK = /\b(why|how|what if|never|nobody|everyone|secret|truth|mistake|shocking|impossible|actually|wait|stop|listen|here is|here's)\b/i;
 const CURIOSITY = /\b(why|how|what|when|where|secret|reason|because|but|except|until|unless)\b/i;
 const EMOTION = /\b(love|hate|fear|afraid|angry|furious|cry|tears|laugh|funny|scared|shocked|surprised|incredible|terrible|beautiful|disaster|win|lost|fail|success)\b/i;
-const PAYOFF = /\b(so|therefore|that means|the result|in the end|finally|turns out|which is why|because of that|here's what happened|and then)\b/i;
+const PAYOFF = /\b(therefore|that means|the result|in the end|finally|turns out|which is why|because of that|here's what happened|and then|the answer is|the answer was|the solution is|the solution was|what happened next)\b/i;
 const FILLER = /\b(um|uh|erm|you know|like|basically|actually)\b/gi;
 
 function scoreSignals(text, duration, words, media = {}) {

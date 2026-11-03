@@ -43,6 +43,8 @@ export function buildReeditRenderManifest({ plan, sourceLocalPath, audioPath, ou
     const boundaries = [sourceIn];
     for (const time of candidateCuts) {
       if (time - boundaries.at(-1) < 1.25 || sourceOut - time < 1.25) continue;
+      // Never cut through a spoken word; retain the complete word on one side.
+      if (originalWords.some(word => word.start < time && word.end > time)) continue;
       const beforeHasWords = originalWords.some(word => word.end > boundaries.at(-1) && word.start < time);
       const afterHasWords = originalWords.some(word => word.end > time && word.start < sourceOut);
       if (beforeHasWords && afterHasWords) boundaries.push(time);

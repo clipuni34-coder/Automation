@@ -234,7 +234,7 @@ export async function analyzeSemanticStory(segments, {
         // A model can understand the task but return a paraphrase or a quote
         // that is too short. Give it one bounded correction opportunity while
         // keeping all transcript-evidence checks strict.
-        const correctionPrompt = prompt + "\\n\\nYour previous JSON response failed source-evidence validation: "
+        const correctionPrompt = prompt + "\n\nYour previous JSON response failed source-evidence validation: "
           + validationError.message
           + ". Return the complete JSON again. Re-check every evidence field against the exact transcript text. Each momentAssessment evidence, and each hookEvidence/payoffEvidence, must be 3-12 consecutive words copied verbatim from its specified source segment. Never paraphrase, repair, or invent a quote. If you cannot provide a valid quote, lower confidence and choose a non-complete arc where appropriate.";
         response = await call(correctionPrompt);

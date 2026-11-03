@@ -13,7 +13,8 @@ test("builds platform-specific draft metadata from selected source moments", () 
       { sourceIn: 12, sourceOut: 17, caption: "Why this surprising moment matters", score: 8.4, treatment: { punchIn: true } },
       { sourceIn: 30, sourceOut: 36, caption: "Here is what happened next", score: 7.2, treatment: { punchIn: true } }
     ],
-    editorialNotes: ["Preserve original meaning."]
+    editorialNotes: ["Preserve original meaning."],
+    editorialQuality: { averageSelectedScore: 7.8 }
   };
   const result = buildRepurposePackage({
     plan,

@@ -124,8 +124,8 @@ test("a contrast word alone does not prove a tension beat or complete story arc"
     targetDurationSeconds: 10,
     transcriptSegments: [
       { id: "hook", start: 0, end: 3, text: "Why did they choose this route?", signals: { hook: 9, curiosity: 9, clarity: 9 } },
-      { id: "contrast", start: 3, end: 6, text: "But the route was longer than expected.", signals: { hook: 2, curiosity: 2, emotion: 2, payoff: 1, clarity: 9 } },
-      { id: "context", start: 6, end: 9, text: "The journey took another hour.", signals: { hook: 1, curiosity: 1, emotion: 1, payoff: 1, clarity: 9 } }
+      { id: "contrast", start: 3, end: 6, text: "But the route was longer than expected.", signals: { hook: 6, curiosity: 6, emotion: 4, payoff: 1, clarity: 10 } },
+      { id: "context", start: 6, end: 9, text: "The journey took another hour.", signals: { hook: 6, curiosity: 6, emotion: 4, payoff: 1, clarity: 10 } }
     ]
   });
   assert.equal(plan.editorialQuality.beatRoles[1].role, "context");

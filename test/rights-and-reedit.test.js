@@ -246,7 +246,7 @@ test("high-confidence semantic moment assessment can change which source moment 
 test("semantic story window trims redundant edges but preserves the validated hook-to-payoff path", () => {
   const transcriptSegments = [
     { id: "pre-context", start: 0, end: 3, text: "Earlier background information was introduced.", signals: { hook: 2, curiosity: 2, clarity: 8 } },
-    { id: "hook", start: 3, end: 6, text: "Why did the bridge suddenly collapse?", signals: { hook: 9, curiosity: 9, clarity: 9 } },
+    { id: "hook", start: 3, end: 6, text: "The bridge suddenly collapsed during the storm.", signals: { hook: 1, curiosity: 1, clarity: 9 } },
     { id: "setup", start: 6, end: 9, text: "The support cable had weakened during the storm.", signals: { clarity: 9 } },
     { id: "payoff", start: 9, end: 12, text: "Engineers rebuilt the bridge and reopened the road.", signals: { payoff: 9, clarity: 9 } },
     { id: "post-context", start: 12, end: 15, text: "The presenter then repeated the general safety message.", signals: { clarity: 7 } }
@@ -268,7 +268,7 @@ test("semantic story window trims redundant edges but preserves the validated ho
       storyWindow: {
         arcStatus: "complete", segmentIds: transcriptSegments.map(item => item.id),
         hookSegmentId: "hook", payoffSegmentId: "payoff",
-        hookEvidence: "Why did the bridge suddenly collapse",
+        hookEvidence: "The bridge suddenly collapsed during the storm",
         payoffEvidence: "Engineers rebuilt the bridge and reopened the road",
         confidence: 0.95, evidenceValidated: true,
         summary: "A bridge collapses and is rebuilt.", rationale: "A complete chronological story."

@@ -199,3 +199,17 @@ test("compilation refuses to exceed its requested duration", () => {
   assert.equal(plan.status, "blocked_duration");
   assert.deepEqual(plan.sequence, []);
 });
+
+ 
+test("re-edit does not invent a hook overlay when no candidate contains a genuine curiosity cue", () => {
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 15,
+    transcriptSegments: [{
+      id: "statement", start: 10, end: 13, text: "The demonstration continued as expected.",
+      signals: { hook: 2, curiosity: 2, emotion: 10, payoff: 10, clarity: 8 }
+    }]
+  });
+  assert.equal(plan.status, "edit_plan_ready");
+  assert.equal(plan.hookOverlay, null);
+});

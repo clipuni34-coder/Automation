@@ -10,8 +10,8 @@ test("builds platform-specific draft metadata from selected source moments", () 
     source: { title: "Original source", creator: "Creator", sourceUrl: "https://example.org/source", rightsStatus: "licensed", rightsEvidenceUrl: "https://example.org/license", allowedPlatforms: ["youtube_shorts"] },
     openingHook: { sourceIn: 12, sourceOut: 17, score: 8.4 },
     editDecisionList: [
-      { sourceIn: 12, sourceOut: 17, caption: "Why this surprising moment matters", score: 8.4, treatment: { punchIn: true } },
-      { sourceIn: 30, sourceOut: 36, caption: "Here is what happened next", score: 7.2, treatment: { punchIn: true } }
+      { sourceIn: 12, sourceOut: 17, caption: "From the archive", score: 5.4, treatment: { punchIn: false } },
+      { sourceIn: 30, sourceOut: 36, caption: "Why this surprising moment matters", score: 8.4, treatment: { punchIn: true } }
     ],
     editorialNotes: ["Preserve original meaning."],
     editorialQuality: { averageSelectedScore: 7.8 }

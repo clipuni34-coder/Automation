@@ -171,7 +171,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     const value = item => item.signals.hook * 0.45 + item.signals.curiosity * 0.4 + item.signals.clarity * 0.15 - item.signals.payoff * 0.2;
     return value(b) - value(a) || b.score - a.score || a.start - b.start;
   })[0];
-  const teaserMoment = hookCandidate.signals.hook + hookCandidate.signals.curiosity >= 6 ? hookCandidate : strongestMoment;
+  const teaserMoment = hookCandidate.signals.hook + hookCandidate.signals.curiosity >= 6 ? hookCandidate : null;
   const hookSourceText = teaserMoment.text.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/)[0];
   let hookOverlayText = hookSourceText;
   if (hookOverlayText.length > 48) {
@@ -191,7 +191,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds, rightsStatus: source.rightsStatus, rightsEvidenceUrl: source.rightsEvidenceUrl ?? null, rightsEvidenceReference: source.rightsEvidenceReference ?? null, allowedPlatforms: source.allowedPlatforms ?? [], expiresAt: source.expiresAt ?? null, license: source.license ?? "Authorized source media" },
     rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore, sourceSpanSeconds, selectedDurationSeconds, sourceContinuity, selectionStrategy: "best_scoring_chronological_story_window", contextualStoryAnalysis, beatRoles: ordered.map(item => ({ segmentId: item.id, role: item.beatRole })), storyArcCoverage: new Set(ordered.map(item => item.beatRole)).size, narrativeStructure },
     openingHook: { segmentId: opening.id, sourceIn: opening.start, sourceOut: opening.end, score: opening.score },
-    hookOverlay: { text: hookOverlayText || strongestMoment.text.slice(0, 58), segmentId: teaserMoment.id, sourceIn: teaserMoment.start, score: teaserMoment.score, durationSeconds: 2.4, method: "hook_curiosity_first_teaser_without_dialogue_reordering" },
+    hookOverlay: teaserMoment ? { text: hookOverlayText, segmentId: teaserMoment.id, sourceIn: teaserMoment.start, score: teaserMoment.score, durationSeconds: 2.4, method: "explicit_curiosity_or_question_cue_without_dialogue_reordering" } : null,
     editDecisionList: ordered.map((segment, index) => ({ order: index + 1, segmentId: segment.id, sourceIn: segment.start, sourceOut: segment.end, durationSeconds: Number((segment.end-segment.start).toFixed(2)), caption: segment.text, score: segment.score, beatRole: segment.beatRole, wordTimings: segment.words, treatment: {
         pacing: "tight",
         captions: "word_timed_karaoke",

@@ -38,10 +38,10 @@ jobs:
           python -m pip install --disable-pip-version-check -r requirements/repurposing.txt
       - name: Download public-domain source footage
         env:
-          REPURPOSE_SOURCE_URL: https://archive.org/download/DuckandC1951/DuckandC1951_256kb.mp4
+          REPURPOSE_SOURCE_URL: https://upload.wikimedia.org/wikipedia/commons/f/fb/Duck_and_Cover_1440_x_1080_01836081.webm
           REPURPOSE_SOURCE_PATH: work/source-media.mp4
-          MEDIA_SOURCE_ALLOWED_HOSTS: archive.org
-          MEDIA_MAX_UPLOAD_MB: '512'
+          MEDIA_SOURCE_ALLOWED_HOSTS: upload.wikimedia.org
+          MEDIA_MAX_UPLOAD_MB: '600'
         run: node scripts/download-authorized-source.js
       - name: Prepare a bounded real-footage sample
         run: |
@@ -55,7 +55,7 @@ jobs:
             "sourceLocalPath": "work/source-sample.mp4",
             "outputPath": "output/real-footage/short.mp4",
             "source": {
-              "sourceUrl": "https://archive.org/details/DuckandC1951",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Duck_and_Cover_1440_x_1080_01836081.webm",
               "title": "Duck and Cover (1951)",
               "creator": "Archer Productions / Prelinger Archives",
               "rightsStatus": "public_domain",

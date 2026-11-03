@@ -2,7 +2,7 @@ const GEMINI_MODELS = ["gemini-3.8-flash", "gemini-3.6-flash"];
 const OPENAI_MODEL = "gpt-4.1-mini";
 
 function normalizeEvidence(value) {
-  return String(value ?? "").normalize("NFKC").toLowerCase().replace(/[^\\p{L}\\p{N}]+/gu, " ").trim().replace(/\\s+/g, " ");
+  return String(value ?? "").normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim().replace(/\s+/g, " ");
 }
 
 function evidenceMatches(sourceText, evidence) {

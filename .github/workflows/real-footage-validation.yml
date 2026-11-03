@@ -52,6 +52,7 @@ jobs:
         env:
           PYTHON: python
         run: |
+          python -c "import sys; print(sys.executable); from faster_whisper import WhisperModel; print('faster-whisper import OK')"
           cat > repurpose-real-footage.json <<'JSON'
           {
             "sourceLocalPath": "work/source-sample.mp4",
@@ -66,7 +67,8 @@ jobs:
             },
             "targetDurationSeconds": 45,
             "platform": "youtube_shorts",
-            "whisperModel": "base"
+            "whisperModel": "base",
+            "pythonPath": "python"
           }
           JSON
           npm run repurpose -- repurpose-real-footage.json output/real-footage/result.json

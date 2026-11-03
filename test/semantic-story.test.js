@@ -221,3 +221,32 @@ test("semantic story analysis retries once when model evidence fails exact-quote
   assert.equal(result.momentAssessmentStatus, "complete");
   assert.equal(result.momentAssessments[0].evidence, "The rescue team reached the mountain");
 });
+
+
+test("Gemini semantic analysis retries once after exact-quote evidence validation fails", async () => {
+  let calls = 0;
+  const fetchImpl = async () => {
+    calls += 1;
+    const evidence = calls === 1 ? "The rescue" : "The rescue team reached the mountain";
+    const payload = {
+      transitions: [{ fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.9, explanation: "Continuation.", evidence: "They carried the injured climber" }],
+      momentAssessments: [
+        { segmentId: "a", compellingScore: 8, confidence: 0.85, role: "hook", selfContained: false, rationale: "Opens the rescue.", evidence },
+        { segmentId: "b", compellingScore: 8.5, confidence: 0.9, role: "payoff", selfContained: true, rationale: "Shows the outcome.", evidence: "They carried the injured climber to safety" }
+      ]
+    };
+    return {
+      ok: true,
+      json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(payload) }] } }] })
+    };
+  };
+  const result = await analyzeSemanticStory([
+    { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
+    { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
+  ], { geminiApiKey: "test-key", openaiApiKey: "", fetchImpl });
+  assert.equal(calls, 2);
+  assert.equal(result.provider, "gemini");
+  assert.equal(result.status, "contextually_connected");
+  assert.equal(result.momentAssessmentStatus, "complete");
+  assert.equal(result.momentAssessments[0].evidence, "The rescue team reached the mountain");
+});

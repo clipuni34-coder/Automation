@@ -88,6 +88,33 @@ test("re-edit uses a curiosity-led teaser instead of exposing a later payoff", (
   assert.equal(plan.editorialQuality.storyArcCoverage, 2);
 });
 
+test("beat classification recognises a chronological context-tension-payoff arc", () => {
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 15,
+    transcriptSegments: [
+      { id: "hook", start: 0, end: 4, text: "Why did the rescue team enter the building?", signals: { hook: 8, curiosity: 8, payoff: 1, clarity: 8 } },
+      { id: "tension", start: 4, end: 8, text: "But the main staircase suddenly collapsed.", signals: { hook: 2, curiosity: 3, emotion: 7, payoff: 1, clarity: 8 } },
+      { id: "payoff", start: 8, end: 12, text: "In the end, the team escaped through a side exit.", signals: { hook: 1, curiosity: 2, emotion: 4, payoff: 7, clarity: 8 } }
+    ]
+  });
+  assert.deepEqual(plan.editorialQuality.beatRoles.map(item => item.role), ["hook", "tension", "payoff"]);
+  assert.equal(plan.editorialQuality.storyArcCoverage, 3);
+});
+
+test("a question is a hook, while incidental result wording is not automatically payoff", () => {
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 10,
+    transcriptSegments: [
+      { id: "question", start: 0, end: 4, text: "How did the team get inside?", signals: { hook: 8, curiosity: 8, payoff: 1, clarity: 8 } },
+      { id: "incidental-result", start: 4, end: 8, text: "They recorded a result from the first test.", signals: { hook: 1, curiosity: 1, payoff: 1, clarity: 8 } }
+    ]
+  });
+  assert.equal(plan.editorialQuality.beatRoles[0].role, "hook");
+  assert.equal(plan.editorialQuality.beatRoles[1].role, "context");
+});
+
 test("reference-only standalone viral videos produce analysis-only plans", () => {
   const plan = buildReeditPlan({ source: { ...licensed, rightsStatus: "reference_only" }, transcriptSegments: [{ start: 1, end: 4, text: "A strong hook", signals: { hook: 9 } }] });
   assert.equal(plan.status, "analysis_only");

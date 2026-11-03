@@ -34,7 +34,7 @@ jobs:
           ffprobe -version
       - name: Install Node and transcription dependencies
         run: |
-          npm ci
+          npm install --no-audit --no-fund
           python -m pip install --disable-pip-version-check -r requirements/repurposing.txt
       - name: Download public-domain source footage
         env:

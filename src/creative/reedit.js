@@ -25,7 +25,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
 
   // Prefer a coherent source-time window over collecting isolated high scores
   // from unrelated parts of a long video. Dialogue is never reordered.
-  const maxSourceSpan = maxDuration * 1.5;
+  const maxSourceSpan = maxDuration * 3;
   let bestWindow = chronological;
   let bestWindowUtility = -Infinity;
   for (let left = 0; left < chronological.length; left += 1) {
@@ -46,7 +46,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
       if (!chosen.length) continue;
       const average = chosen.reduce((sum, item) => sum + item.score, 0) / chosen.length;
       const density = chosenDuration / Math.max(sourceSpan, 1);
-      const countBonus = Math.min(chosen.length, 5) * 0.12;
+      const countBonus = Math.max(0, Math.min(chosen.length - 1, 4)) * 2.5;
       const utility = average + density * 2 + countBonus;
       if (utility > bestWindowUtility) {
         bestWindowUtility = utility;

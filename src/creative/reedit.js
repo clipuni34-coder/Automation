@@ -155,6 +155,6 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
             : index % 2 === 0 ? "subtle_push" : "steady_hold",
         transition: index ? "hard_cut" : "cold_open"
       } })),
-    editorialNotes: ["Preserve original dialogue chronology; do not move a later sentence ahead of its context.", "Select the strongest complete moments within one compact chronological story window; avoid unrelated highlight hopping.", "Use a curiosity-led teaser where available; avoid exposing the payoff in the opening overlay.", "Remove dead air only where meaning and context remain intact.", "Use original narration/commentary where it adds genuine explanation or critique.", "Do not imply that reframing or captions alone create permission to reuse the source."]
+    editorialNotes: ["Preserve original dialogue chronology; do not move a later sentence ahead of its context.", "Select the strongest complete moments within one compact chronological story window; avoid unrelated highlight hopping.", "Use adjacent-chunk lexical continuity only as supporting evidence; it can miss paraphrases and cannot prove semantic coherence or causal relationships.", "Use a curiosity-led teaser where available; avoid exposing the payoff in the opening overlay.", "Remove dead air only where meaning and context remain intact.", "Use original narration/commentary where it adds genuine explanation or critique.", "Do not imply that reframing or captions alone create permission to reuse the source."]
   };
 }

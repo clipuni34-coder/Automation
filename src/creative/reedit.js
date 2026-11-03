@@ -253,6 +253,10 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   const punchInMoments = new Set([...ordered]
     .sort((a, b) => b.score - a.score || a.start - b.start)
     .filter((segment, index) => index < punchInLimit && segment.score >= 5.5));
+  const semanticHookForFraming = semanticWindowQualified
+    ? ordered.find(segment => segment.id === semanticWindow.hookSegmentId)
+    : null;
+  if (semanticHookForFraming && semanticHookForFraming.score >= 5.5) punchInMoments.add(semanticHookForFraming);
   const rights = source.rightsStatus === "reference_only" ? { allowed: false, status: "reference_only", reasons: ["Reference-only videos may be analyzed but not rendered or republished"] } : assertAssetRights(source, { platform });
   return {
     mode: "standalone_reedit", status: rights.allowed ? "edit_plan_ready" : "analysis_only",
@@ -266,9 +270,13 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
         punchIn: punchInMoments.has(segment),
         motionTreatment: punchInMoments.has(segment)
           ? "impact_punch_in"
-          : index === ordered.length - 1
+          : segment.beatRole === "payoff" || index === ordered.length - 1
             ? "settle_pullback"
-            : index % 2 === 0 ? "subtle_push" : "steady_hold",
+            : segment.beatRole === "tension"
+              ? "subtle_push"
+              : segment.beatRole === "setup"
+                ? "steady_hold"
+                : index % 2 === 0 ? "subtle_push" : "steady_hold",
         transition: index ? "hard_cut" : "cold_open"
       } })),
     editorialNotes: ["Preserve original dialogue chronology; do not move a later sentence ahead of its context.", "Select the strongest complete moments within one compact chronological story window; avoid unrelated highlight hopping.", "Require beat-to-beat contextual continuity as supporting evidence; disconnected beat sequences remain flagged for human review, while lexical links cannot prove semantic coherence or causality.", "Use a curiosity-led teaser where available; avoid exposing the payoff in the opening overlay.", "Remove dead air only where meaning and context remain intact.", "Use original narration/commentary where it adds genuine explanation or critique.", "Do not imply that reframing or captions alone create permission to reuse the source."]

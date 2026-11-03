@@ -97,7 +97,17 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore, sourceSpanSeconds, selectedDurationSeconds, sourceContinuity, selectionStrategy: "best_scoring_chronological_story_window" },
     openingHook: { segmentId: opening.id, sourceIn: opening.start, sourceOut: opening.end, score: opening.score },
     hookOverlay: { text: hookOverlayText || strongestMoment.text.slice(0, 58), segmentId: strongestMoment.id, sourceIn: strongestMoment.start, score: strongestMoment.score, durationSeconds: 2.4, method: "strongest_moment_teaser_without_dialogue_reordering" },
-    editDecisionList: ordered.map((segment, index) => ({ order: index + 1, segmentId: segment.id, sourceIn: segment.start, sourceOut: segment.end, durationSeconds: Number((segment.end-segment.start).toFixed(2)), caption: segment.text, score: segment.score, wordTimings: segment.words, treatment: { pacing: "tight", captions: "word_timed_karaoke", punchIn: punchInMoments.has(segment), transition: index ? "hard_cut" : "cold_open" } })),
+    editDecisionList: ordered.map((segment, index) => ({ order: index + 1, segmentId: segment.id, sourceIn: segment.start, sourceOut: segment.end, durationSeconds: Number((segment.end-segment.start).toFixed(2)), caption: segment.text, score: segment.score, wordTimings: segment.words, treatment: {
+        pacing: "tight",
+        captions: "word_timed_karaoke",
+        punchIn: punchInMoments.has(segment),
+        motionTreatment: punchInMoments.has(segment)
+          ? "impact_punch_in"
+          : index === ordered.length - 1
+            ? "settle_pullback"
+            : index % 2 === 0 ? "subtle_push" : "steady_hold",
+        transition: index ? "hard_cut" : "cold_open"
+      } })),
     editorialNotes: ["Preserve original dialogue chronology; do not move a later sentence ahead of its context.", "Select the strongest complete moments within one compact chronological story window; avoid unrelated highlight hopping.", "Remove dead air only where meaning and context remain intact.", "Use original narration/commentary where it adds genuine explanation or critique.", "Do not imply that reframing or captions alone create permission to reuse the source."]
   };
 }

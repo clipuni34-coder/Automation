@@ -130,9 +130,17 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   narrativeStructure.semanticContextAnalysis = narrativeSemanticAnalysis ?? { status: "not_configured", qualified: false, method: "semantic_provider_not_configured" };
   const semanticTransitions = narrativeSemanticAnalysis?.transitions ?? [];
   const semanticByPair = new Map(semanticTransitions.map(item => [item.fromSegmentId + "->" + item.toSegmentId, item]));
-  const beatTransitionPairs = arcTransitions.map(item => item.fromSegmentId + "->" + item.toSegmentId);
-  const semanticBeatTransitions = beatTransitionPairs.map(key => semanticByPair.get(key)).filter(Boolean);
-  const semanticCoverageComplete = beatTransitionPairs.length > 0 && semanticBeatTransitions.length === beatTransitionPairs.length;
+  const semanticOrderedSegments = [...segments].sort((a, b) => a.start - b.start || a.end - b.end);
+  const selectedBeatIds = narrativeStructure.evidence.map(item => item.segmentId);
+  const selectedBeatIndexes = selectedBeatIds.map(id => semanticOrderedSegments.findIndex(segment => segment.id === id)).filter(index => index >= 0);
+  const semanticPath = selectedBeatIndexes.length >= 2
+    ? semanticOrderedSegments.slice(Math.min(...selectedBeatIndexes), Math.max(...selectedBeatIndexes)).map((segment, index, path) => {
+        const next = semanticOrderedSegments[semanticOrderedSegments.indexOf(segment) + 1];
+        return next ? semanticByPair.get(segment.id + "->" + next.id) : null;
+      })
+    : [];
+  const semanticBeatTransitions = semanticPath.filter(Boolean);
+  const semanticCoverageComplete = semanticPath.length > 0 && semanticBeatTransitions.length === semanticPath.length;
   const semanticBeatSequenceQualified = semanticCoverageComplete && semanticBeatTransitions.every(item => item.relationship === "connected" && item.confidence >= 0.7);
   narrativeStructure.semanticContinuityQualification = {
     status: !narrativeSemanticAnalysis || narrativeSemanticAnalysis.status !== "contextually_connected"

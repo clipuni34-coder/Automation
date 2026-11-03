@@ -321,4 +321,7 @@ test("validated complete semantic story window takes priority over isolated scor
   assert.equal(plan.editorialQuality.selectionStrategy, "semantic_complete_story_window");
   assert.equal(plan.editorialQuality.semanticStoryWindow.qualified, true);
   assert.equal(plan.editorialQuality.narrativeStructure.semanticContinuityQualification.qualified, true);
+  assert.equal(plan.editDecisionList[0].treatment.motionTreatment, "impact_punch_in");
+  assert.equal(plan.editDecisionList[1].treatment.motionTreatment, "subtle_push");
+  assert.equal(plan.editDecisionList[2].treatment.motionTreatment, "settle_pullback");
 });

@@ -74,6 +74,7 @@ if (!inputPath) {
     await writeFile(output, JSON.stringify({
       ...result,
       postingPackage,
+      editorialApproval: postingPackage?.editorialApproval ?? null,
       transcription: {
         engine: Array.isArray(input.transcriptWords) ? "provided_word_timestamps" : "faster-whisper",
         transcriptPath,

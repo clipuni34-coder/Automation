@@ -24,6 +24,21 @@ test("visual storyboard review rewards distinct beats and flags repeated assets 
   assert.ok(report.warnings.some(message => message.includes("too long")));
 });
 
+test("visual QC treats distinct chronological ranges from one authorized creator video as separate visual beats", () => {
+  const report = assessStoryboardVisualQuality({
+    scenes: [
+      { videoPath: "/tmp/source.mp4", sourceType: "creator_clip", sourceIn: 10, sourceOut: 14, start: 0, end: 4, caption: "Context." },
+      { videoPath: "/tmp/source.mp4", sourceType: "creator_clip", sourceIn: 24, sourceOut: 28, start: 4, end: 8, caption: "Development." },
+      { videoPath: "/tmp/source.mp4", sourceType: "creator_clip", sourceIn: 40, sourceOut: 44, start: 8, end: 12, caption: "Payoff." }
+    ]
+  });
+  assert.equal(report.metrics.uniqueAssets, 3);
+  assert.equal(report.metrics.repeatedAssets, 0);
+  assert.equal(report.score, 100);
+  assert.equal(report.status, "good");
+  assert.ok(!report.warnings.some(message => message.includes("reused")));
+});
+
 test("visual storyboard review flags long static holds and all-still storyboards", () => {
   const report = assessStoryboardVisualQuality({
     scenes: [

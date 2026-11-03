@@ -25,7 +25,8 @@ export async function runAuthorizedReedit(input, {
     source: input.source,
     transcriptSegments: input.transcriptSegments,
     targetDurationSeconds: input.targetDurationSeconds ?? 45,
-    platform
+    platform,
+    narrativeSemanticAnalysis: input.narrativeSemanticAnalysis ?? null
   });
   if (plan.status !== "edit_plan_ready") {
     return { status: plan.status, plan, rendered: null, outputPath: null };

@@ -239,7 +239,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     const value = item => item.signals.hook * 0.45 + item.signals.curiosity * 0.4 + item.signals.clarity * 0.15 - item.signals.payoff * 0.2;
     return value(b) - value(a) || b.score - a.score || a.start - b.start;
   })[0];
-  const teaserMoment = hookCandidate.signals.hook + hookCandidate.signals.curiosity >= 6 ? hookCandidate : null;
+  const teaserMoment = semanticHookCandidate ?? (hookCandidate.signals.hook + hookCandidate.signals.curiosity >= 6 ? hookCandidate : null);
   const hookSourceText = teaserMoment ? teaserMoment.text.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/)[0] : "";
   let hookOverlayText = hookSourceText;
   if (hookOverlayText.length > 48) {

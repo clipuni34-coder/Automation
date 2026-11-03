@@ -116,6 +116,29 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   const contextualStoryAnalysis = analyzeContextualStory(ordered);
   const narrativeStructure = summarizeNarrativeStructure(ordered);
   narrativeStructure.contextualContinuity = contextualStoryAnalysis;
+  const beatIndexes = narrativeStructure.evidence
+    .map(item => ordered.findIndex(segment => segment.id === item.segmentId))
+    .filter(index => index >= 0);
+  const firstBeatIndex = beatIndexes.length ? Math.min(...beatIndexes) : -1;
+  const lastBeatIndex = beatIndexes.length ? Math.max(...beatIndexes) : -1;
+  const arcTransitions = firstBeatIndex >= 0
+    ? contextualStoryAnalysis.transitions.slice(firstBeatIndex, lastBeatIndex)
+    : [];
+  const contextuallyConnected = beatIndexes.length >= 2
+    && arcTransitions.length === lastBeatIndex - firstBeatIndex
+    && arcTransitions.every(transition => transition.linked);
+  narrativeStructure.contextualContinuityQualification = {
+    status: beatIndexes.length < 2 ? "insufficient_beat_evidence"
+      : contextuallyConnected ? "beat_sequence_contextually_linked"
+      : "beat_sequence_has_disconnected_context",
+    qualified: contextuallyConnected,
+    checkedTransitions: arcTransitions.length,
+    disconnectedTransitions: arcTransitions.filter(transition => !transition.linked).map(transition => ({
+      fromSegmentId: transition.fromSegmentId,
+      toSegmentId: transition.toSegmentId
+    })),
+    limitation: "This qualification uses adjacent lexical continuity only. A linked sequence is not proof of semantic coherence, and a disconnected sequence may still be coherent through paraphrase or implied references."
+  };
   const opening = ordered[0];
   const strongestMoment = [...ordered].sort((a, b) => b.score - a.score || a.start - b.start)[0];
   // Prefer a curiosity-led teaser so the opening creates an information gap.
@@ -155,6 +178,6 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
             : index % 2 === 0 ? "subtle_push" : "steady_hold",
         transition: index ? "hard_cut" : "cold_open"
       } })),
-    editorialNotes: ["Preserve original dialogue chronology; do not move a later sentence ahead of its context.", "Select the strongest complete moments within one compact chronological story window; avoid unrelated highlight hopping.", "Use adjacent-chunk lexical continuity only as supporting evidence; it can miss paraphrases and cannot prove semantic coherence or causal relationships.", "Use a curiosity-led teaser where available; avoid exposing the payoff in the opening overlay.", "Remove dead air only where meaning and context remain intact.", "Use original narration/commentary where it adds genuine explanation or critique.", "Do not imply that reframing or captions alone create permission to reuse the source."]
+    editorialNotes: ["Preserve original dialogue chronology; do not move a later sentence ahead of its context.", "Select the strongest complete moments within one compact chronological story window; avoid unrelated highlight hopping.", "Require beat-to-beat contextual continuity as supporting evidence; disconnected beat sequences remain flagged for human review, while lexical links cannot prove semantic coherence or causality.", "Use a curiosity-led teaser where available; avoid exposing the payoff in the opening overlay.", "Remove dead air only where meaning and context remain intact.", "Use original narration/commentary where it adds genuine explanation or critique.", "Do not imply that reframing or captions alone create permission to reuse the source."]
   };
 }

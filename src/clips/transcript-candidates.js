@@ -1,6 +1,6 @@
 import { summarizeMomentSignals } from "./media-signals.js";
-const HOOK = /\b(why|how|what if|never|nobody|everyone|secret|truth|mistake|shocking|impossible|actually|wait|stop|listen|here is|here's)\b/i;
-const CURIOSITY = /\b(why|how|what|when|where|secret|reason|because|but|except|until|unless)\b/i;
+const HOOK = /\b(wait until you see|why|how|what if|what happens if|what would happen if|the secret is|the truth is|here is why|here's why|the reason is|you won't believe|the surprising part)\b/i;
+const CURIOSITY = /\b(wait until you see|why|how|what if|what happens if|what would happen if|the secret is|the truth is|here is why|here's why|the reason is|you won't believe|the surprising part)\b/i;
 const EMOTION = /\b(love|hate|fear|afraid|angry|furious|cry|tears|laugh|funny|scared|shocked|surprised|incredible|terrible|beautiful|disaster|win|lost|fail|success)\b/i;
 const PAYOFF = /\b(therefore|that means|the result|in the end|finally|turns out|which is why|because of that|here's what happened|and then|the answer is|the answer was|the solution is|the solution was|what happened next)\b/i;
 const FILLER = /\b(um|uh|erm|you know|like|basically|actually)\b/gi;
@@ -10,8 +10,8 @@ function scoreSignals(text, duration, words, media = {}) {
   const explanatoryWhy = /^\s*(that is why|that's why|this is why)\b/i.test(normalized);
   const count = words.length;
   const density = count / Math.max(duration, 0.5);
-  const hook = Math.min(10, (!explanatoryWhy && HOOK.test(normalized) ? 6 : 2) + (normalized.includes("?") && !explanatoryWhy ? 2 : 0) + (count >= 5 && count <= 24 ? 2 : 0));
-  const curiosity = Math.min(10, (!explanatoryWhy && CURIOSITY.test(normalized) ? 6 : 2) + (normalized.includes("?") && !explanatoryWhy ? 3 : 0) + (/\b(but|however|except|instead)\b/i.test(normalized) ? 1 : 0));
+  const hook = Math.min(10, (!explanatoryWhy && (normalized.includes("?") || /^\s*(why|how|what if|what happens if|what would happen if|can|could|is|are|did|do|does)\b/i.test(normalized) || HOOK.test(normalized)) ? 6 : 0) + (normalized.includes("?") && !explanatoryWhy ? 2 : 0) + (count >= 5 && count <= 24 ? 2 : 0));
+  const curiosity = Math.min(10, (!explanatoryWhy && (normalized.includes("?") || /^\s*(why|how|what if|what happens if|what would happen if|can|could|is|are|did|do|does)\b/i.test(normalized) || CURIOSITY.test(normalized)) ? 6 : 0) + (normalized.includes("?") && !explanatoryWhy ? 3 : 0));
   const emotion = Math.min(10, (EMOTION.test(normalized) ? 7 : 2) + (/[!?]{1,}/.test(normalized) ? 1 : 0) + (/\b(very|really|so|absolutely)\b/i.test(normalized) ? 1 : 0));
   // A sentence ending or being long does not mean it delivers a payoff.
   // Reserve high payoff scores for explicit result/conclusion language.

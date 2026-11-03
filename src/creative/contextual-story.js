@@ -1,12 +1,12 @@
 const STOPWORDS = new Set(("a an the and or but if then than so because as at by for from in into of on onto to with without is are was were be been being do does did have has had can could may might must shall should will would this that these those it its he she they them their his her we you your i me my our us who what when where why how which there here").split(" "));
-const CAUSAL_OR_TEMPORAL = /\\b(after that|because of this|because|therefore|as a result|so then|then|next|later|meanwhile|once|until|when|while|which meant|that caused|this led to|the next|in response|in turn)\\b/i;
+const CAUSAL_OR_TEMPORAL = /\b(after that|because of this|because|therefore|as a result|so then|then|next|later|meanwhile|once|until|when|while|which meant|that caused|this led to|the next|in response|in turn)\b/i;
 
 function contentTerms(value) {
   return new Set(String(value ?? "").toLowerCase()
-    .replace(/[^\\p{L}\\p{N}'-]+/gu, " ")
-    .split(/\\s+/)
+    .replace(/[^\p{L}\p{N}'-]+/gu, " ")
+    .split(/\s+/)
     .map(token => token.replace(/^['-]+|['-]+$/g, ""))
-    .filter(token => token.length >= 4 && !STOPWORDS.has(token) && !/^\\d+$/.test(token)));
+    .filter(token => token.length >= 4 && !STOPWORDS.has(token) && !/^\d+$/.test(token)));
 }
 
 function inspectPair(previous, current) {

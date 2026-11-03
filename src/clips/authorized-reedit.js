@@ -52,7 +52,7 @@ export async function runAuthorizedReedit(input, {
     await access(audioPath);
   }
 
-  const manifest = buildReeditRenderManifest({ plan, sourceLocalPath, audioPath, outputPath });
+  const manifest = buildReeditRenderManifest({ plan, sourceLocalPath, audioPath, outputPath, visualCutPoints: input.mediaSignals?.sceneChanges ?? [] });
   const rendered = await render(manifest, { ffmpegPath, ffprobePath });
   return {
     status: rendered.status === "rendered" ? "completed" : "failed",

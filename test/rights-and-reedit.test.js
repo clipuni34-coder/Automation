@@ -213,3 +213,31 @@ test("re-edit does not invent a hook overlay when no candidate contains a genuin
   assert.equal(plan.status, "edit_plan_ready");
   assert.equal(plan.hookOverlay, null);
 });
+
+
+test("high-confidence semantic moment assessment can change which source moment is selected", () => {
+  const transcriptSegments = [
+    { id: "early-a", start: 0, end: 8, text: "An ordinary opening detail.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } },
+    { id: "early-b", start: 9, end: 17, text: "Another ordinary detail.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } },
+    { id: "late-a", start: 30, end: 38, text: "A specific surprising discovery changed everything.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } },
+    { id: "late-b", start: 39, end: 47, text: "The team finally found the missing evidence.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } }
+  ];
+  const momentAssessments = transcriptSegments.map((segment, index) => ({
+    segmentId: segment.id,
+    compellingScore: index >= 2 ? 9.5 : 1.5,
+    confidence: 0.9,
+    role: index === 2 ? "hook" : index === 3 ? "payoff" : "context",
+    selfContained: index === 3,
+    rationale: "Mocked evidence-backed semantic assessment.",
+    evidence: segment.text
+  }));
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 15,
+    transcriptSegments,
+    narrativeSemanticAnalysis: { status: "contextually_connected", qualified: true, transitions: [], momentAssessments, momentAssessmentStatus: "complete" }
+  });
+  assert.ok(plan.editDecisionList.some(item => item.segmentId === "late-a" || item.segmentId === "late-b"));
+  assert.equal(plan.editorialQuality.selectionStrategy, "semantic_plus_heuristic_chronological_story_window");
+  assert.equal(plan.editorialQuality.semanticMomentAssessment.trustedMoments, 4);
+});

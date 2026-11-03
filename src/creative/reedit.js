@@ -7,6 +7,7 @@ function classifyBeat(text, signals = {}) {
   const payoffPhrase = /\b(the result is|the result was|in the end|finally|it turned out|turns out|that means|which is why|here is what happened|here's what happened|what happened next|the answer is|the answer was|the solution is|the solution was)\b/.test(normalized);
   const hookPhrase = /[?]|^\s*(why|how|what if|what happens if)\b|\b(here is why|here's why|the truth is|the secret is|the reason is)\b/.test(normalized);
   const tensionPhrase = /\b(but|however|instead|until|except|despite|suddenly|unexpectedly|the problem|went wrong|at risk)\b/.test(normalized);
+  const explanatoryWhy = /^\s*(that is why|that's why|this is why)\b/.test(normalized);
   const hook = Number(signals.hook) || 0;
   const curiosity = Number(signals.curiosity) || 0;
   const payoff = Number(signals.payoff) || 0;
@@ -14,7 +15,7 @@ function classifyBeat(text, signals = {}) {
   // Absolute lexical scores are noisy. Require a clear textual cue or a
   // meaningful lead over competing beat signals before assigning a role.
   if (payoffPhrase || (payoff >= 7 && payoff >= hook + 2 && payoff >= curiosity + 2)) return "payoff";
-  if (hookPhrase || ((hook >= 7 || curiosity >= 7) && Math.max(hook, curiosity) >= payoff + 2)) return "hook";
+  if (hookPhrase || (!explanatoryWhy && (hook >= 8 || curiosity >= 8) && Math.max(hook, curiosity) >= payoff + 3)) return "hook";
   if (tensionPhrase || (emotion >= 7 && emotion >= payoff + 2)) return "tension";
   return "context";
 }

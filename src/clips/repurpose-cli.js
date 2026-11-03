@@ -5,6 +5,7 @@ import { buildTranscriptCandidates } from "./transcript-candidates.js";
 import { analyzeMediaSignals } from "./media-signals.js";
 import { buildRepurposePackage } from "./repurpose-package.js";
 import { runAuthorizedReedit } from "./authorized-reedit.js";
+import { selectThumbnailTime } from "../production/thumbnail.js";
 
 function fail(message) { throw new Error(message); }
 
@@ -98,6 +99,7 @@ if (!inputPath) {
       transcription: Array.isArray(input.transcriptWords) ? "provided" : "faster-whisper",
       rights: result.plan?.rights?.status ?? "blocked",
       thumbnailPath,
+      thumbnailTimeSeconds,
       postingPackage: postingPackage ? postingPackage.status : "not_created",
       editorialApproval: postingPackage?.editorialApproval?.status ?? "not_ready"
     }, null, 2));

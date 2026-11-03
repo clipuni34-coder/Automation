@@ -63,6 +63,8 @@ jobs:
           PYTHON: python
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ENABLE_GEMINI_CREATIVE: ${{ secrets.GEMINI_API_KEY != '' && 'true' || 'false' }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ENABLE_OPENAI_CREATIVE: ${{ secrets.OPENAI_API_KEY != '' && 'true' || 'false' }}
           SEMANTIC_DEBUG_EVIDENCE: 'true'
         run: |
           python -m pip check

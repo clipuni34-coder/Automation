@@ -97,3 +97,17 @@ test("visual quality report combines storyboard and encoded-video checks", { ski
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test("visual QC reports source-cut-aligned beats and long unbroken creator footage", () => {
+  const report = assessStoryboardVisualQuality({
+    scenes: [
+      { videoPath: "/tmp/source.mp4", sourceType: "creator_clip", sourceIn: 10, sourceOut: 18, start: 0, end: 8, visualCutAtStart: false },
+      { videoPath: "/tmp/source.mp4", sourceType: "creator_clip", sourceIn: 18, sourceOut: 27, start: 8, end: 17, visualCutAtStart: true },
+      { videoPath: "/tmp/source.mp4", sourceType: "creator_clip", sourceIn: 27, sourceOut: 30, start: 17, end: 20, visualCutAtStart: true }
+    ]
+  });
+  assert.equal(report.metrics.sourceVisualCutCount, 2);
+  assert.equal(report.metrics.longestCreatorScene, 9);
+  assert.ok(report.checks.some(item => item.includes("align with detected cuts")));
+  assert.ok(report.warnings.some(item => item.includes("longer than eight seconds")));
+});

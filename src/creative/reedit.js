@@ -46,7 +46,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
       if (!chosen.length) continue;
       const average = chosen.reduce((sum, item) => sum + item.score, 0) / chosen.length;
       const density = chosenDuration / Math.max(sourceSpan, 1);
-      const countBonus = Math.max(0, Math.min(chosen.length - 1, 4)) * 2.5;
+      const countBonus = Math.max(0, Math.min(chosen.length - 1, 4)) * 6;
       const utility = average + density * 2 + countBonus;
       if (utility > bestWindowUtility) {
         bestWindowUtility = utility;

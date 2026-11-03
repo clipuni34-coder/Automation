@@ -77,10 +77,16 @@ export function buildAss(scenes, duration) {
     "WrapStyle: 2", "ScaledBorderAndShadow: yes", "",
     "[V4+ Styles]",
     "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
-    "Style: Caption,DejaVu Sans,60,&H00FFFFFF,&H0000FFFF,&H00101010,&HCC101010,1,0,0,0,100,100,0,0,3,2,1,2,100,100,330,1", "",
+    "Style: Caption,DejaVu Sans,60,&H00FFFFFF,&H0000FFFF,&H00101010,&HCC101010,1,0,0,0,100,100,0,0,3,2,1,2,100,100,330,1",
+    "Style: Hook,DejaVu Sans,76,&H00FFFFFF,&H00FFFFFF,&H00101010,&HCC101010,1,0,0,0,100,100,0,0,3,3,2,8,90,90,240,1", "",
     "[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"
   ];
   const events = [];
+  const firstScene = scenes[0];
+  if (firstScene?.hookOverlayText) {
+    const hookEnd = Math.min(Number(firstScene.end), 2.4);
+    if (hookEnd > 0) events.push("Dialogue: 1," + assTime(0) + "," + assTime(hookEnd) + ",Hook,,0,0,0,,{\\\\an8\\\\fad(180,180)}" + escapeAss(firstScene.hookOverlayText));
+  }
   for (const scene of scenes) {
     const timedWords = (scene.wordTimings ?? []).filter((word) =>
       String(word.text ?? word.word ?? "").trim() &&

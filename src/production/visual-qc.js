@@ -73,7 +73,7 @@ export function assessStoryboardVisualQuality(manifest) {
     const caption = String(scene.caption ?? "").trim();
     if (caption.length > 90) penalize(5, label + " caption is too long for a quick mobile read.");
     else if (caption.length > 58) penalize(2, label + " caption may be dense on a phone screen.");
-    if (caption && duration > 0 && caption.split(/\\s+/).length / duration > 4.5) {
+    if (caption && duration > 0 && caption.split(/\s+/).length / duration > 4.5) {
       penalize(3, label + " caption reading speed is high.");
     }
   }

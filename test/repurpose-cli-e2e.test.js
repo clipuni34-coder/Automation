@@ -47,7 +47,10 @@ test("repurpose CLI produces an MP4, thumbnail, transcript evidence and posting 
     assert.equal(result.rendered.videoCodec, "h264");
     assert.equal(result.rendered.width, 1080);
     assert.equal(result.rendered.height, 1920);
-    assert.equal(result.postingPackage.status, "draft");
+    assert.equal(result.postingPackage.status, "editorial_review_required");
+    assert.equal(result.postingPackage.editorialApproval.status, "review_required");
+    assert.equal(result.postingPackage.editorialApproval.approved, false);
+    assert.equal(result.editorialApproval.status, "review_required");
     assert.equal(result.postingPackage.manualPublishingApprovalRequired, true);
     assert.ok(result.postingPackage.platformPackages.youtube_shorts.title);
     assert.ok(result.postingPackage.platformPackages.youtube_shorts.description);

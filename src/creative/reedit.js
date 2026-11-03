@@ -40,7 +40,7 @@ function summarizeNarrativeStructure(segments) {
   };
 }
 
-export function buildReeditPlan({ source, transcriptSegments, targetDurationSeconds = 45, platform = "youtube_shorts", minMomentScore = 0, minimumMoments = 1 } = {}) {
+export function buildReeditPlan({ source, transcriptSegments, targetDurationSeconds = 45, platform = "youtube_shorts", minMomentScore = 0, minimumMoments = 1, narrativeSemanticAnalysis = null } = {}) {
   if (!source?.sourceUrl || !Number.isFinite(source.durationSeconds) || source.durationSeconds <= 0) throw new Error("A source video URL and positive durationSeconds are required");
   if (!Array.isArray(transcriptSegments) || transcriptSegments.length === 0) throw new Error("Timed transcript segments are required to plan a meaningful re-edit");
   const segments = transcriptSegments.map((segment, index) => {
@@ -127,6 +127,23 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   const contextuallyConnected = beatIndexes.length >= 2
     && arcTransitions.length === lastBeatIndex - firstBeatIndex
     && arcTransitions.every(transition => transition.linked);
+  narrativeStructure.semanticContextAnalysis = narrativeSemanticAnalysis ?? { status: "not_configured", qualified: false, method: "semantic_provider_not_configured" };
+  const semanticTransitions = narrativeSemanticAnalysis?.transitions ?? [];
+  const semanticByPair = new Map(semanticTransitions.map(item => [item.fromSegmentId + "->" + item.toSegmentId, item]));
+  const beatTransitionPairs = arcTransitions.map(item => item.fromSegmentId + "->" + item.toSegmentId);
+  const semanticBeatTransitions = beatTransitionPairs.map(key => semanticByPair.get(key)).filter(Boolean);
+  const semanticCoverageComplete = beatTransitionPairs.length > 0 && semanticBeatTransitions.length === beatTransitionPairs.length;
+  const semanticBeatSequenceQualified = semanticCoverageComplete && semanticBeatTransitions.every(item => item.relationship === "connected" && item.confidence >= 0.7);
+  narrativeStructure.semanticContinuityQualification = {
+    status: !narrativeSemanticAnalysis || narrativeSemanticAnalysis.status !== "contextually_connected"
+      ? narrativeSemanticAnalysis?.status ?? "not_configured"
+      : semanticBeatSequenceQualified ? "semantic_beat_sequence_connected" : "semantic_beat_sequence_not_qualified",
+    qualified: semanticBeatSequenceQualified,
+    checkedTransitions: semanticBeatTransitions.length,
+    requiredTransitions: beatTransitionPairs.length,
+    method: narrativeSemanticAnalysis?.method ?? "not_configured",
+    limitation: narrativeSemanticAnalysis?.limitation ?? "No semantic provider result is available."
+  };
   narrativeStructure.contextualContinuityQualification = {
     status: beatIndexes.length < 2 ? "insufficient_beat_evidence"
       : contextuallyConnected ? "beat_sequence_contextually_linked"

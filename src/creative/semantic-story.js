@@ -79,10 +79,20 @@ function makePrompt(segments) {
   ].join("\n\n");
 }
 
+async function httpFailure(response, provider) {
+  let detail = "";
+  try { detail = String(await response.text?.() ?? "").slice(0, 500); } catch {}
+  const error = new Error(`${provider} HTTP ${response.status}${detail ? ": " + detail : ""}`);
+  error.status = response.status;
+  error.retryAfter = Number(response.headers?.get?.("retry-after")) || 0;
+  error.nonRetryableQuota = /insufficient_quota|billing_hard_limit|quota exceeded/i.test(detail);
+  return error;
+}
+
 async function requestGemini(prompt, key, fetchImpl, timeoutMs) {
   let last;
   for (const model of GEMINI_MODELS) {
-    try {
+    for (let attempt = 0; attempt < 2; attempt++) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
@@ -91,28 +101,42 @@ async function requestGemini(prompt, key, fetchImpl, timeoutMs) {
           body: JSON.stringify({ systemInstruction: { parts: [{ text: "Return valid JSON only. Be conservative and do not invent context." }] }, contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.1 } }),
           signal: controller.signal
         });
-        if (!response.ok) throw new Error("Gemini HTTP " + response.status);
+        if (!response.ok) throw await httpFailure(response, "Gemini");
         const data = await response.json();
         return parseObject(data.candidates?.[0]?.content?.parts?.map(part => part.text ?? "").join(""));
+      } catch (error) {
+        last = error;
+        const retryable = error.status === 429 || error.status >= 500;
+        if (!retryable || error.nonRetryableQuota || attempt === 1) break;
+        await new Promise(resolve => setTimeout(resolve, Math.min(5000, Math.max(1000, error.retryAfter * 1000 || 1200))));
       } finally { clearTimeout(timer); }
-    } catch (error) { last = error; }
+    }
   }
   throw last ?? new Error("Gemini unavailable");
 }
 
 async function requestOpenAI(prompt, key, fetchImpl, timeoutMs) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetchImpl("https://api.openai.com/v1/chat/completions", {
-      method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json" },
-      body: JSON.stringify({ model: OPENAI_MODEL, temperature: 0.1, response_format: { type: "json_object" }, messages: [{ role: "system", content: "Return valid JSON only. Be conservative and do not invent context." }, { role: "user", content: prompt }] }),
-      signal: controller.signal
-    });
-    if (!response.ok) throw new Error("OpenAI HTTP " + response.status);
-    const data = await response.json();
-    return parseObject(data.choices?.[0]?.message?.content);
-  } finally { clearTimeout(timer); }
+  let last;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetchImpl("https://api.openai.com/v1/chat/completions", {
+        method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json" },
+        body: JSON.stringify({ model: OPENAI_MODEL, temperature: 0.1, response_format: { type: "json_object" }, messages: [{ role: "system", content: "Return valid JSON only. Be conservative and do not invent context." }, { role: "user", content: prompt }] }),
+        signal: controller.signal
+      });
+      if (!response.ok) throw await httpFailure(response, "OpenAI");
+      const data = await response.json();
+      return parseObject(data.choices?.[0]?.message?.content);
+    } catch (error) {
+      last = error;
+      const retryable = error.status === 429 || error.status >= 500;
+      if (!retryable || error.nonRetryableQuota || attempt === 1) break;
+      await new Promise(resolve => setTimeout(resolve, Math.min(5000, Math.max(1000, error.retryAfter * 1000 || 1200))));
+    } finally { clearTimeout(timer); }
+  }
+  throw last ?? new Error("OpenAI unavailable");
 }
 
 export async function analyzeSemanticStory(segments, {

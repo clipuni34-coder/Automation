@@ -39,6 +39,19 @@ test("visual QC treats distinct chronological ranges from one authorized creator
   assert.ok(!report.warnings.some(message => message.includes("reused")));
 });
 
+test("visual QC reports repetitive framing treatment instead of assuming motion variety", () => {
+  const report = assessStoryboardVisualQuality({
+    scenes: [
+      { videoPath: "/tmp/source.mp4", sourceType: "creator_clip", sourceIn: 1, sourceOut: 3, start: 0, end: 2, motionTreatment: "subtle_push" },
+      { videoPath: "/tmp/source.mp4", sourceType: "creator_clip", sourceIn: 4, sourceOut: 6, start: 2, end: 4, motionTreatment: "subtle_push" },
+      { videoPath: "/tmp/source.mp4", sourceType: "creator_clip", sourceIn: 7, sourceOut: 9, start: 4, end: 6, motionTreatment: "subtle_push" }
+    ]
+  });
+  assert.equal(report.metrics.motionTreatmentVariety, 1);
+  assert.equal(report.metrics.motionTreatmentCounts.subtle_push, 3);
+  assert.ok(report.warnings.some(message => message.includes("same framing treatment")));
+});
+
 test("visual storyboard review flags long static holds and all-still storyboards", () => {
   const report = assessStoryboardVisualQuality({
     scenes: [

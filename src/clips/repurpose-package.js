@@ -33,11 +33,17 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
   const averageEditorialScore = Number(plan.editorialQuality?.averageSelectedScore ?? 0);
   const visualReviewRequired = renderResult.visualQuality?.status !== "passed";
   const editorialReviewRequired = !Number.isFinite(averageEditorialScore) || averageEditorialScore < 5.5;
-  const contextualStoryReviewRequired = plan.editorialQuality?.narrativeStructure?.contextualContinuityQualification?.status === "beat_sequence_has_disconnected_context";
-  const semanticStatus = plan.editorialQuality?.narrativeStructure?.semanticContextAnalysis?.status;
+  const narrative = plan.editorialQuality?.narrativeStructure ?? {};
+  const contextualStoryReviewRequired = narrative.contextualContinuityQualification?.status === "beat_sequence_has_disconnected_context";
+  const contextualSequenceDisconnected = plan.editorialQuality?.contextualStoryAnalysis?.status === "disconnected_sequence";
+  const semanticStatus = narrative.semanticContextAnalysis?.status;
+  const storyEvidenceInsufficient = narrative.status === "no_ordered_arc_detected" || contextualSequenceDisconnected;
+  const storyStructureReviewRequired = storyEvidenceInsufficient && !(
+    semanticStatus === "contextually_connected" && narrative.semanticContinuityQualification?.qualified === true
+  );
   const semanticStoryReviewRequired = ["human_review_required", "provider_error"].includes(semanticStatus)
     || (semanticStatus === "contextually_connected" && plan.editorialQuality?.narrativeStructure?.semanticContinuityQualification?.qualified !== true);
-  const editorialApprovalRequired = visualReviewRequired || editorialReviewRequired || contextualStoryReviewRequired || semanticStoryReviewRequired;
+  const editorialApprovalRequired = visualReviewRequired || editorialReviewRequired || contextualStoryReviewRequired || semanticStoryReviewRequired || storyStructureReviewRequired;
   const platforms = [platform];
   const platformPackages = Object.fromEntries(platforms.map((platform) => {
     const tags = makeHashtags(hashtagText, platform);
@@ -56,7 +62,8 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
         ...(visualReviewRequired ? ["Visual quality review has not passed."] : []),
         ...(editorialReviewRequired ? ["Editorial score is missing or below the 5.5/10 threshold."] : []),
         ...(contextualStoryReviewRequired ? ["Narrative beats are ordered but adjacent context is disconnected; human review must confirm the story makes sense."] : []),
-        ...(semanticStoryReviewRequired ? ["AI semantic story analysis found uncertain/disconnected context or could not qualify the selected beat sequence; human review is required."] : [])
+        ...(semanticStoryReviewRequired ? ["AI semantic story analysis found uncertain/disconnected context or could not qualify the selected beat sequence; human review is required."] : []),
+        ...(storyStructureReviewRequired ? ["The selected moments do not have a verified ordered story arc or connected contextual sequence; human review must confirm that the edit makes sense."] : [])
       ]
     },
     title,

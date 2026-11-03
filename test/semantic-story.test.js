@@ -103,3 +103,29 @@ test("semantic story analysis validates per-moment scores and transcript evidenc
   assert.equal(result.momentAssessments[1].compellingScore, 9.1);
   assert.equal(result.momentAssessments[1].selfContained, true);
 });
+
+
+test("Gemini semantic analysis retries a transient service error before succeeding", async () => {
+  let calls = 0;
+  const fetchImpl = async () => {
+    calls += 1;
+    if (calls === 1) return { ok: false, status: 503, text: async () => "temporarily unavailable", headers: { get: () => "" } };
+    return {
+      ok: true,
+      json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({
+        transitions: [{ fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.9, explanation: "Continuation.", evidence: "They carried the injured climber" }],
+        momentAssessments: [
+          { segmentId: "a", compellingScore: 7, confidence: 0.8, role: "hook", selfContained: false, rationale: "Opens the event.", evidence: "The rescue team reached the mountain" },
+          { segmentId: "b", compellingScore: 8, confidence: 0.85, role: "payoff", selfContained: true, rationale: "Shows the result.", evidence: "They carried the injured climber to safety" }
+        ]
+      }) }] } }] })
+    };
+  };
+  const result = await analyzeSemanticStory([
+    { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
+    { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
+  ], { geminiApiKey: "test-key", openaiApiKey: "", fetchImpl });
+  assert.equal(calls, 2);
+  assert.equal(result.provider, "gemini");
+  assert.equal(result.momentAssessmentStatus, "complete");
+});

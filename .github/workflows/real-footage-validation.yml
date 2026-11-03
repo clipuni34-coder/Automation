@@ -6,6 +6,13 @@ on:
       - editorial-evidence-hold
     paths:
       - .github/workflows/real-footage-validation.yml
+      - src/creative/reedit.js
+      - src/production/visual-qc.js
+      - src/production/plan-manifest.js
+      - src/production/render.js
+      - src/clips/repurpose-cli.js
+      - src/clips/transcript-candidates.js
+      - requirements/repurposing.txt
   workflow_dispatch:
 
 permissions:

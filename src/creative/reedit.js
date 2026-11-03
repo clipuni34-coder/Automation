@@ -2,7 +2,7 @@ import { assertAssetRights } from "../rights/asset-rights.js";
 
 function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 
-export function buildReeditPlan({ source, transcriptSegments, targetDurationSeconds = 45, platform = "youtube_shorts", minMomentScore = 4.8, minimumMoments = 2 } = {}) {
+export function buildReeditPlan({ source, transcriptSegments, targetDurationSeconds = 45, platform = "youtube_shorts", minMomentScore = 4.8, minimumMoments = 1 } = {}) {
   if (!source?.sourceUrl || !Number.isFinite(source.durationSeconds) || source.durationSeconds <= 0) throw new Error("A source video URL and positive durationSeconds are required");
   if (!Array.isArray(transcriptSegments) || transcriptSegments.length === 0) throw new Error("Timed transcript segments are required to plan a meaningful re-edit");
   const segments = transcriptSegments.map((segment, index) => {
@@ -19,7 +19,9 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     return { id: segment.id ?? "segment-" + (index + 1), start, end, text, words, score: Number(score.toFixed(2)), index };
   });
   const maxDuration = clamp(Number(targetDurationSeconds) || 45, 15, 90);
-  const threshold = clamp(Number(minMomentScore), 0, 10);\n  const eligible = segments.filter(segment => segment.score >= threshold);\n  const ranked = [...eligible].sort((a,b) => b.score - a.score || a.start - b.start);
+  const threshold = clamp(Number(minMomentScore), 0, 10);
+  const eligible = segments.filter(segment => segment.score >= threshold);
+  const ranked = [...eligible].sort((a,b) => b.score - a.score || a.start - b.start);
   const selected = [];
   let used = 0;
   for (const segment of ranked) {
@@ -28,7 +30,9 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     if (selected.some(item => segment.start < item.end && segment.end > item.start)) continue;
     selected.push(segment); used += length;
   }
-  if (selected.length < Math.max(1, Number(minimumMoments) || 1)) {\n    return { mode: "standalone_reedit", status: "editorial_review_required", source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds }, platform, targetDurationSeconds: 0, rights: { allowed: false, status: "not_editorially_qualified", reasons: ["Too few transcript moments met the minimum editorial score of " + threshold.toFixed(1) + "/10; do not auto-render weak material."] }, editorialQuality: { status: "insufficient_moments", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length }, editDecisionList: [], editorialNotes: ["This source did not contain enough strong standalone moments for an automatic short. Review the candidate list or choose a stronger source."] };\n  }
+  if (selected.length < Math.max(1, Number(minimumMoments) || 1)) {
+    return { mode: "standalone_reedit", status: "editorial_review_required", source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds }, platform, targetDurationSeconds: 0, rights: { allowed: false, status: "not_editorially_qualified", reasons: ["Too few transcript moments met the minimum editorial score of " + threshold.toFixed(1) + "/10; do not auto-render weak material."] }, editorialQuality: { status: "insufficient_moments", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length }, editDecisionList: [], editorialNotes: ["This source did not contain enough strong standalone moments for an automatic short. Review the candidate list or choose a stronger source."] };
+  }
   // Select by score, but never reorder the creator's dialogue: preserve the original story chronology.
   const ordered = [...selected].sort((a,b) => a.start - b.start || a.end - b.end);
   const opening = ordered[0];

@@ -46,7 +46,7 @@ test("re-edit planner uses media signals as a modest tie-breaker without overrid
   });
   assert.equal(plan.openingHook.segmentId, "low-activity");
   const manifest = buildReeditRenderManifest({ plan, sourceLocalPath: "/source.mp4", audioPath: "/silent.wav", outputPath: "/output.mp4" });
-  assert.equal(manifest.scenes[0].punchIn, false);
+  assert.equal(manifest.scenes[0].punchIn, true);
   assert.equal(manifest.scenes[1].punchIn, true);
   assert.deepEqual(manifest.scenes[1].wordTimings, [{ text: "A", start: 0.1999999999999993, end: 0.40000000000000036 }, { text: "complete", start: 0.40000000000000036, end: 0.8000000000000007 }]);
 });

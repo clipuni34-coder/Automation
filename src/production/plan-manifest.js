@@ -27,14 +27,57 @@ function appendScene(scenes, clip, localPath, start, platform) {
   scenes.push({ videoPath: localPath, sourceIn, sourceOut, start: timelineStart, end: Number((timelineStart + duration).toFixed(3)), caption: conciseCaption(clip.caption ?? clip.creator ?? "Moment"), wordTimings: clip.wordTimings ?? [], punchIn: clip.treatment?.punchIn === true, motionTreatment: clip.treatment?.motionTreatment ?? (clip.treatment?.punchIn === true ? "impact_punch_in" : "subtle_push"), sourceType: "creator_clip", sourceUrl: clip.sourceUrl, license: clip.license ?? "Authorized source media", rightsStatus: clip.rightsStatus, rightsEvidenceUrl: clip.rightsEvidenceUrl ?? null, rightsEvidenceReference: clip.rightsEvidenceReference ?? null, allowedPlatforms: clip.allowedPlatforms, expiresAt: clip.expiresAt ?? null, creator: clip.creator ?? null, editorialScore: Number.isFinite(Number(clip.score)) ? Number(clip.score) : null });
 }
 
-export function buildReeditRenderManifest({ plan, sourceLocalPath, audioPath, outputPath } = {}) {
+export function buildReeditRenderManifest({ plan, sourceLocalPath, audioPath, outputPath, visualCutPoints = [] } = {}) {
   if (plan?.mode !== "standalone_reedit" || plan.status !== "edit_plan_ready" || !plan.rights?.allowed) throw new Error("A rights-approved standalone re-edit plan is required");
   if (!audioPath || !outputPath) throw new Error("Narration audioPath and outputPath are required");
   const scenes = [];
+  const cutPoints = [...new Set((visualCutPoints ?? [])
+    .map(Number).filter(value => Number.isFinite(value) && value >= 0))]
+    .sort((a, b) => a - b);
   for (const [index, segment] of plan.editDecisionList.entries()) {
-    const wordTimings = (segment.wordTimings ?? []).map((word) => ({ text: word.word ?? word.text, start: Number(word.start) - segment.sourceIn, end: Number(word.end) - segment.sourceIn }));
-    appendScene(scenes, { ...plan.source, start: segment.sourceIn, end: segment.sourceOut, caption: segment.caption, score: segment.score, wordTimings, treatment: segment.treatment }, sourceLocalPath, 0, plan.platform);
-    if (index === 0 && scenes.length) scenes[0].hookOverlayText = plan.hookOverlay?.text ?? null;
+    const sourceIn = Number(segment.sourceIn), sourceOut = Number(segment.sourceOut);
+    const originalWords = (segment.wordTimings ?? []).map(word => ({
+      text: word.word ?? word.text, start: Number(word.start), end: Number(word.end)
+    })).filter(word => word.text && Number.isFinite(word.start) && Number.isFinite(word.end) && word.end > word.start);
+    const candidateCuts = cutPoints.filter(time => time > sourceIn + 1.25 && time < sourceOut - 1.25);
+    const boundaries = [sourceIn];
+    for (const time of candidateCuts) {
+      if (time - boundaries.at(-1) < 1.25 || sourceOut - time < 1.25) continue;
+      const beforeHasWords = originalWords.some(word => word.end > boundaries.at(-1) && word.start < time);
+      const afterHasWords = originalWords.some(word => word.end > time && word.start < sourceOut);
+      if (beforeHasWords && afterHasWords) boundaries.push(time);
+    }
+    boundaries.push(sourceOut);
+    const split = boundaries.length > 2;
+    for (let beatIndex = 0; beatIndex < boundaries.length - 1; beatIndex += 1) {
+      const beatStart = boundaries[beatIndex], beatEnd = boundaries[beatIndex + 1];
+      const wordTimings = originalWords.filter(word => word.end > beatStart && word.start < beatEnd).map(word => ({
+        text: word.text,
+        start: Math.max(word.start, beatStart) - beatStart,
+        end: Math.min(word.end, beatEnd) - beatStart
+      }));
+      const caption = wordTimings.length
+        ? wordTimings.map(word => word.text).join(" ").replace(/\\s+/g, " ").trim()
+        : segment.caption;
+      const treatment = {
+        ...(segment.treatment ?? {}),
+        punchIn: beatIndex === 0 && segment.treatment?.punchIn === true,
+        motionTreatment: beatIndex === 0
+          ? (segment.treatment?.motionTreatment ?? "subtle_push")
+          : beatIndex % 2 === 1 ? "steady_hold" : "subtle_push"
+      };
+      appendScene(scenes, {
+        ...plan.source, start: beatStart, end: beatEnd, caption,
+        score: segment.score, wordTimings, treatment
+      }, sourceLocalPath, 0, plan.platform);
+      const scene = scenes.at(-1);
+      scene.visualBeatIndex = beatIndex + 1;
+      scene.visualBeatCount = boundaries.length - 1;
+      scene.visualCutAtStart = split && beatIndex > 0;
+      scene.visualCutSourceTime = scene.visualCutAtStart ? beatStart : null;
+      scene.parentSegmentId = segment.segmentId ?? null;
+      if (index === 0 && beatIndex === 0) scene.hookOverlayText = plan.hookOverlay?.text ?? null;
+    }
   }
   return { outputPath, audioPath, targetPlatform: plan.platform, scenes };
 }

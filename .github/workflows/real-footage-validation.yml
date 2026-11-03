@@ -52,6 +52,7 @@ jobs:
         env:
           PYTHON: python
         run: |
+          python -m pip check
           python -c "import sys; print(sys.executable); from faster_whisper import WhisperModel; print('faster-whisper import OK')"
           cat > repurpose-real-footage.json <<'JSON'
           {

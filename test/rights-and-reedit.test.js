@@ -27,6 +27,24 @@ test("standalone viral re-edit selects high-value transcript windows and preserv
   assert.equal(plan.hookOverlay.segmentId, "payoff");
 });
 
+test("standalone re-edit prefers a coherent chronological story window over scattered peaks", () => {
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 12,
+    transcriptSegments: [
+      { id: "weak-setup", start: 0, end: 5, text: "An unrelated opening setup.", signals: { hook: 6, clarity: 6 } },
+      { id: "weak-payoff", start: 5, end: 10, text: "An unrelated early payoff.", signals: { payoff: 6, clarity: 6 } },
+      { id: "isolated-spike", start: 50, end: 52, text: "A single dramatic sentence.", signals: { hook: 9.9, emotion: 9.9, curiosity: 9.9, payoff: 9.9, clarity: 9.9 } },
+      { id: "strong-setup", start: 100, end: 105, text: "Here is the important setup.", signals: { hook: 9.8, emotion: 9.8, curiosity: 9.8, payoff: 9.8, clarity: 9.8 } },
+      { id: "strong-payoff", start: 105, end: 110, text: "And this is what happened next.", signals: { hook: 9.8, emotion: 9.8, curiosity: 9.8, payoff: 9.8, clarity: 9.8 } }
+    ]
+  });
+  assert.deepEqual(plan.editDecisionList.map(item => item.segmentId), ["strong-setup", "strong-payoff"]);
+  assert.equal(plan.editorialQuality.selectionStrategy, "best_scoring_chronological_story_window");
+  assert.equal(plan.editorialQuality.sourceSpanSeconds, 10);
+  assert.equal(plan.editorialQuality.sourceContinuity, 1);
+});
+
 test("reference-only standalone viral videos produce analysis-only plans", () => {
   const plan = buildReeditPlan({ source: { ...licensed, rightsStatus: "reference_only" }, transcriptSegments: [{ start: 1, end: 4, text: "A strong hook", signals: { hook: 9 } }] });
   assert.equal(plan.status, "analysis_only");

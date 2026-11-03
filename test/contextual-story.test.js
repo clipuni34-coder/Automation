@@ -47,6 +47,29 @@ test("contextual story analysis sorts chunks chronologically before linking", ()
   assert.equal(result.transitions[0].linked, true);
 });
 
+test("an ordered hook-tension-payoff sequence is not context-qualified when its beats are disconnected", () => {
+  const plan = buildReeditPlan({
+    source: {
+      sourceUrl: "https://creator.example/disconnected-story.mp4",
+      durationSeconds: 30,
+      rightsStatus: "permission_granted",
+      rightsEvidenceReference: "test-consent",
+      allowedPlatforms: ["youtube_shorts"]
+    },
+    platform: "youtube_shorts",
+    targetDurationSeconds: 20,
+    transcriptSegments: [
+      { id: "hook", start: 0, end: 4, text: "Why did the astronomer study distant galaxies?", signals: { hook: 9, curiosity: 9, clarity: 9 } },
+      { id: "tension", start: 5, end: 9, text: "The hiker became trapped in a desert canyon.", signals: { emotion: 9, clarity: 9 } },
+      { id: "payoff", start: 10, end: 14, text: "The chef finally escaped the flooded kitchen.", signals: { payoff: 9, clarity: 9 } }
+    ]
+  });
+  assert.equal(plan.editorialQuality.narrativeStructure.status, "ordered_arc_detected");
+  assert.equal(plan.editorialQuality.narrativeStructure.contextualContinuityQualification.qualified, false);
+  assert.equal(plan.editorialQuality.narrativeStructure.contextualContinuityQualification.status, "beat_sequence_has_disconnected_context");
+  assert.equal(plan.editorialQuality.narrativeStructure.contextualContinuityQualification.disconnectedTransitions.length, 2);
+});
+
 test("re-edit plan exposes contextual evidence and keeps the human-review story caveat", () => {
   const plan = buildReeditPlan({
     source: {

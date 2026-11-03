@@ -102,6 +102,36 @@ test("beat classification recognises a chronological context-tension-payoff arc"
   assert.equal(plan.editorialQuality.storyArcCoverage, 3);
 });
 
+test("narrative structure requires hook, concrete obstacle and outcome in chronological order", () => {
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 15,
+    transcriptSegments: [
+      { id: "hook", start: 0, end: 4, text: "What happened when the crew entered the tunnel?", signals: { hook: 9, curiosity: 9, payoff: 1, clarity: 9 } },
+      { id: "tension", start: 4, end: 8, text: "But the tunnel suddenly collapsed behind them.", signals: { hook: 2, curiosity: 2, emotion: 7, payoff: 1, clarity: 9 } },
+      { id: "payoff", start: 8, end: 12, text: "Against all odds, they made it out through a side passage.", signals: { hook: 1, curiosity: 2, emotion: 4, payoff: 1, clarity: 9 } }
+    ]
+  });
+  assert.deepEqual(plan.editorialQuality.beatRoles.map(item => item.role), ["hook", "tension", "payoff"]);
+  assert.equal(plan.editorialQuality.narrativeStructure.status, "ordered_arc_detected");
+  assert.deepEqual(plan.editorialQuality.narrativeStructure.sequence, ["hook", "tension", "payoff"]);
+  assert.equal(plan.editorialQuality.narrativeStructure.method, "conservative_lexical_sequence_heuristic");
+});
+
+test("a contrast word alone does not prove a tension beat or complete story arc", () => {
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 10,
+    transcriptSegments: [
+      { id: "hook", start: 0, end: 3, text: "Why did they choose this route?", signals: { hook: 9, curiosity: 9, clarity: 9 } },
+      { id: "contrast", start: 3, end: 6, text: "But the route was longer than expected.", signals: { hook: 2, curiosity: 2, emotion: 2, payoff: 1, clarity: 9 } },
+      { id: "context", start: 6, end: 9, text: "The journey took another hour.", signals: { hook: 1, curiosity: 1, emotion: 1, payoff: 1, clarity: 9 } }
+    ]
+  });
+  assert.equal(plan.editorialQuality.beatRoles[1].role, "context");
+  assert.equal(plan.editorialQuality.narrativeStructure.status, "no_ordered_arc_detected");
+});
+
 test("a question is a hook, while incidental result wording is not automatically payoff", () => {
   const plan = buildReeditPlan({
     source: licensed,

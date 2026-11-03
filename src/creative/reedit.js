@@ -78,9 +78,12 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   const opening = ordered[0];
   const strongestMoment = [...ordered].sort((a, b) => b.score - a.score || a.start - b.start)[0];
   const hookSourceText = strongestMoment.text.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/)[0];
-  const hookOverlayText = hookSourceText.length <= 58
-    ? hookSourceText
-    : hookSourceText.slice(0, 58).replace(/\s+\S*$/, "").trim();
+  let hookOverlayText = hookSourceText;
+  if (hookOverlayText.length > 48) {
+    const teaserWords = hookOverlayText.slice(0, 48).replace(/\s+\S*$/, "").trim().split(/\s+/);
+    while (teaserWords.length && /^(and|or|but|to|of|for|with|as|because|that|from|by|in|on)$/i.test(teaserWords.at(-1))) teaserWords.pop();
+    hookOverlayText = teaserWords.join(" ") + "…";
+  }
   // Reserve restrained punch-ins for the strongest quarter of selected moments;
   // do not manufacture motion on weak material just to make the edit look busy.
   const punchInLimit = ordered.length === 2 ? 2 : Math.max(1, Math.ceil(ordered.length * 0.25));

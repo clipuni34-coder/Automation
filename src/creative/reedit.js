@@ -171,7 +171,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     return value(b) - value(a) || b.score - a.score || a.start - b.start;
   })[0];
   const teaserMoment = hookCandidate.signals.hook + hookCandidate.signals.curiosity >= 6 ? hookCandidate : null;
-  const hookSourceText = teaserMoment.text.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/)[0];
+  const hookSourceText = teaserMoment ? teaserMoment.text.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/)[0] : "";
   let hookOverlayText = hookSourceText;
   if (hookOverlayText.length > 48) {
     const teaserWords = hookOverlayText.slice(0, 48).replace(/\s+\S*$/, "").trim().split(/\s+/);

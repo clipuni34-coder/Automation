@@ -31,9 +31,10 @@ export function buildReeditRenderManifest({ plan, sourceLocalPath, audioPath, ou
   if (plan?.mode !== "standalone_reedit" || plan.status !== "edit_plan_ready" || !plan.rights?.allowed) throw new Error("A rights-approved standalone re-edit plan is required");
   if (!audioPath || !outputPath) throw new Error("Narration audioPath and outputPath are required");
   const scenes = [];
-  for (const segment of plan.editDecisionList) {
+  for (const [index, segment] of plan.editDecisionList.entries()) {
     const wordTimings = (segment.wordTimings ?? []).map((word) => ({ text: word.word ?? word.text, start: Number(word.start) - segment.sourceIn, end: Number(word.end) - segment.sourceIn }));
     appendScene(scenes, { ...plan.source, start: segment.sourceIn, end: segment.sourceOut, caption: segment.caption, score: segment.score, wordTimings, treatment: segment.treatment }, sourceLocalPath, 0, plan.platform);
+    if (index === 0 && scenes.length) scenes[0].hookOverlayText = plan.hookOverlay?.text ?? null;
   }
   return { outputPath, audioPath, targetPlatform: plan.platform, scenes };
 }

@@ -19,8 +19,8 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
   }
   const moments = plan.editDecisionList ?? [];
   if (!moments.length) throw new Error("The re-edit plan contains no selected moments");
-  const opening = moments[0];
-  const title = clean(opening.caption || plan.source?.title || "Edited video", 95);
+  const strongestMoment = [...moments].sort((a, b) => Number(b.score ?? 0) - Number(a.score ?? 0))[0];
+  const title = clean(strongestMoment.caption || plan.source?.title || "Edited video", 95);
   const transcript = moments.map((moment) => clean(moment.caption, 800)).filter(Boolean);
   const description = [
     transcript.join("\n\n"),

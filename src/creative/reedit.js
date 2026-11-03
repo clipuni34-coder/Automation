@@ -2,6 +2,14 @@ import { assertAssetRights } from "../rights/asset-rights.js";
 
 function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 
+function classifyBeat(text, signals = {}) {
+  const normalized = String(text ?? "").toLowerCase();
+  if ((Number(signals.payoff) >= 6) || /\\b(the result|in the end|finally|turns out|that means|which is why|here is what happened|here's what happened)\\b/.test(normalized)) return "payoff";
+  if ((Number(signals.hook) >= 6 || Number(signals.curiosity) >= 6) || /[?]|\\b(why|how|what if|the truth|the secret|the reason)\\b/.test(normalized)) return "hook";
+  if ((Number(signals.emotion) >= 6) || /\\b(but|however|instead|until|except|despite|suddenly)\\b/.test(normalized)) return "tension";
+  return "context";
+}
+
 export function buildReeditPlan({ source, transcriptSegments, targetDurationSeconds = 45, platform = "youtube_shorts", minMomentScore = 0, minimumMoments = 1 } = {}) {
   if (!source?.sourceUrl || !Number.isFinite(source.durationSeconds) || source.durationSeconds <= 0) throw new Error("A source video URL and positive durationSeconds are required");
   if (!Array.isArray(transcriptSegments) || transcriptSegments.length === 0) throw new Error("Timed transcript segments are required to plan a meaningful re-edit");
@@ -16,7 +24,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
       ? (Number(signals.hook) || 0) * 0.225 + (Number(signals.emotion) || 0) * 0.18 + (Number(signals.curiosity) || 0) * 0.18 + (Number(signals.payoff) || 0) * 0.18 + (Number(signals.clarity) || 0) * 0.135 + signals.visualActivity * 0.05 + signals.speechContinuity * 0.05
       : (Number(signals.hook) || 0) * 0.25 + (Number(signals.emotion) || 0) * 0.2 + (Number(signals.curiosity) || 0) * 0.2 + (Number(signals.payoff) || 0) * 0.2 + (Number(signals.clarity) || 0) * 0.15, 0, 10);
     const words = Array.isArray(segment.words) ? segment.words.map((word) => ({ word: String(word.word ?? word.text ?? "").trim(), start: Number(word.start), end: Number(word.end) })).filter((word) => word.word && Number.isFinite(word.start) && Number.isFinite(word.end) && word.end > word.start && word.start >= start && word.end <= end + 0.05) : [];
-    return { id: segment.id ?? "segment-" + (index + 1), start, end, text, words, score: Number(score.toFixed(2)), index };
+    return { id: segment.id ?? "segment-" + (index + 1), start, end, text, words, score: Number(score.toFixed(2)), signals: { hook: Number(signals.hook) || 0, curiosity: Number(signals.curiosity) || 0, emotion: Number(signals.emotion) || 0, payoff: Number(signals.payoff) || 0, clarity: Number(signals.clarity) || 0 }, beatRole: classifyBeat(text, signals), index };
   });
   const maxDuration = clamp(Number(targetDurationSeconds) || 45, 15, 90);
   const threshold = clamp(Number(minMomentScore), 0, 10);
@@ -94,10 +102,10 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   return {
     mode: "standalone_reedit", status: rights.allowed ? "edit_plan_ready" : "analysis_only",
     source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds, rightsStatus: source.rightsStatus, rightsEvidenceUrl: source.rightsEvidenceUrl ?? null, rightsEvidenceReference: source.rightsEvidenceReference ?? null, allowedPlatforms: source.allowedPlatforms ?? [], expiresAt: source.expiresAt ?? null, license: source.license ?? "Authorized source media" },
-    rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore, sourceSpanSeconds, selectedDurationSeconds, sourceContinuity, selectionStrategy: "best_scoring_chronological_story_window" },
+    rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore, sourceSpanSeconds, selectedDurationSeconds, sourceContinuity, selectionStrategy: "best_scoring_chronological_story_window", beatRoles: ordered.map(item => ({ segmentId: item.id, role: item.beatRole })), storyArcCoverage: new Set(ordered.map(item => item.beatRole)).size },
     openingHook: { segmentId: opening.id, sourceIn: opening.start, sourceOut: opening.end, score: opening.score },
-    hookOverlay: { text: hookOverlayText || strongestMoment.text.slice(0, 58), segmentId: strongestMoment.id, sourceIn: strongestMoment.start, score: strongestMoment.score, durationSeconds: 2.4, method: "strongest_moment_teaser_without_dialogue_reordering" },
-    editDecisionList: ordered.map((segment, index) => ({ order: index + 1, segmentId: segment.id, sourceIn: segment.start, sourceOut: segment.end, durationSeconds: Number((segment.end-segment.start).toFixed(2)), caption: segment.text, score: segment.score, wordTimings: segment.words, treatment: {
+    hookOverlay: { text: hookOverlayText || strongestMoment.text.slice(0, 58), segmentId: teaserMoment.id, sourceIn: teaserMoment.start, score: teaserMoment.score, durationSeconds: 2.4, method: "hook_curiosity_first_teaser_without_dialogue_reordering" },
+    editDecisionList: ordered.map((segment, index) => ({ order: index + 1, segmentId: segment.id, sourceIn: segment.start, sourceOut: segment.end, durationSeconds: Number((segment.end-segment.start).toFixed(2)), caption: segment.text, score: segment.score, beatRole: segment.beatRole, wordTimings: segment.words, treatment: {
         pacing: "tight",
         captions: "word_timed_karaoke",
         punchIn: punchInMoments.has(segment),
@@ -108,6 +116,6 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
             : index % 2 === 0 ? "subtle_push" : "steady_hold",
         transition: index ? "hard_cut" : "cold_open"
       } })),
-    editorialNotes: ["Preserve original dialogue chronology; do not move a later sentence ahead of its context.", "Select the strongest complete moments within one compact chronological story window; avoid unrelated highlight hopping.", "Remove dead air only where meaning and context remain intact.", "Use original narration/commentary where it adds genuine explanation or critique.", "Do not imply that reframing or captions alone create permission to reuse the source."]
+    editorialNotes: ["Preserve original dialogue chronology; do not move a later sentence ahead of its context.", "Select the strongest complete moments within one compact chronological story window; avoid unrelated highlight hopping.", "Use a curiosity-led teaser where available; avoid exposing the payoff in the opening overlay.", "Remove dead air only where meaning and context remain intact.", "Use original narration/commentary where it adds genuine explanation or critique.", "Do not imply that reframing or captions alone create permission to reuse the source."]
   };
 }

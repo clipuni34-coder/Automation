@@ -1,9 +1,9 @@
 import { assertAssetRights } from "../rights/asset-rights.js";
 
 function conciseCaption(value, fallback = "Watch what happens") {
-  const text = String(value ?? "").replace(/\\s+/g, " ").trim();
+  const text = String(value ?? "").replace(/\s+/g, " ").trim();
   if (!text) return fallback;
-  const firstSentence = text.split(/(?<=[.!?])\\s+/)[0];
+  const firstSentence = text.split(/(?<=[.!?])\s+)/[0];
   const source = firstSentence.length <= 52 ? firstSentence : text;
   if (source.length <= 52) return source;
   const words = source.split(" ");

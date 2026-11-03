@@ -4,9 +4,9 @@ function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 
 function classifyBeat(text, signals = {}) {
   const normalized = String(text ?? "").toLowerCase();
-  const payoffPhrase = /\\b(the result is|the result was|in the end|finally|it turned out|turns out|that means|which is why|here is what happened|here's what happened|what happened next|the answer is|the answer was|the solution is|the solution was)\\b/.test(normalized);
-  const hookPhrase = /[?]|\\b(why|how|what if|the truth|the secret|the reason|what happens if)\\b/.test(normalized);
-  const tensionPhrase = /\\b(but|however|instead|until|except|despite|suddenly|unexpectedly|the problem|went wrong|at risk)\\b/.test(normalized);
+  const payoffPhrase = /\b(the result is|the result was|in the end|finally|it turned out|turns out|that means|which is why|here is what happened|here's what happened|what happened next|the answer is|the answer was|the solution is|the solution was)\b/.test(normalized);
+  const hookPhrase = /[?]|\b(why|how|what if|the truth|the secret|the reason|what happens if)\b/.test(normalized);
+  const tensionPhrase = /\b(but|however|instead|until|except|despite|suddenly|unexpectedly|the problem|went wrong|at risk)\b/.test(normalized);
   const hook = Number(signals.hook) || 0;
   const curiosity = Number(signals.curiosity) || 0;
   const payoff = Number(signals.payoff) || 0;

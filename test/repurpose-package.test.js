@@ -63,3 +63,36 @@ test("posting package requires human story review when selected context is disco
   assert.equal(result.editorialApproval.approved, false);
   assert.ok(result.editorialApproval.reasons.some(reason => /ordered story arc|connected contextual sequence/.test(reason)));
 });
+
+
+test("a validated complete semantic story window overrides unrelated source-level disconnected transitions", () => {
+  const plan = {
+    mode: "standalone_reedit", status: "edit_plan_ready", platform: "youtube_shorts",
+    source: { title: "Archive", sourceUrl: "https://example.org/source", rightsStatus: "public_domain", allowedPlatforms: ["youtube_shorts"] },
+    openingHook: { sourceIn: 20, sourceOut: 23, score: 8 },
+    editDecisionList: [
+      { sourceIn: 20, sourceOut: 23, caption: "Why did it happen?", score: 7, treatment: {} },
+      { sourceIn: 24, sourceOut: 27, caption: "The problem became clear.", score: 7, treatment: {} },
+      { sourceIn: 28, sourceOut: 31, caption: "They solved the problem.", score: 8, treatment: {} }
+    ],
+    editorialQuality: {
+      averageSelectedScore: 7.3,
+      contextualStoryAnalysis: { status: "disconnected_sequence" },
+      narrativeStructure: {
+        status: "no_ordered_arc_detected",
+        contextualContinuityQualification: { status: "beat_sequence_has_disconnected_context" },
+        semanticContextAnalysis: { status: "human_review_required" },
+        semanticContinuityQualification: { qualified: false },
+        semanticStoryWindow: { qualified: true, arcStatus: "complete", confidence: 0.95, summary: "A complete problem-and-resolution story." }
+      }
+    }
+  };
+  const result = buildRepurposePackage({
+    plan,
+    renderResult: { status: "rendered", outputPath: "short.mp4", durationSeconds: 11, width: 1080, height: 1920, videoCodec: "h264", audioCodec: "aac", sourceAudioPreserved: true, visualQuality: { status: "passed", score: 95, warnings: [] } }
+  });
+  assert.equal(result.status, "draft");
+  assert.equal(result.editorialApproval.status, "eligible_for_human_approval");
+  assert.equal(result.editorialApproval.approved, false);
+  assert.deepEqual(result.editorialApproval.reasons, []);
+});

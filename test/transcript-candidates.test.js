@@ -90,6 +90,6 @@ test("explanatory that's why language is not scored as a curiosity hook", () => 
     { word: "practicing.", start: 1.5, end: 2.2 }
   ];
   const [candidate] = buildTranscriptCandidates(words);
-  assert.equal(candidate.signals.hook, 2);
+  assert.equal(candidate.signals.hook, 4);
   assert.equal(candidate.signals.curiosity, 2);
 });

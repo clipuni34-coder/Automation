@@ -90,7 +90,7 @@ test("semantic story analysis validates per-moment scores and transcript evidenc
     json: async () => ({ choices: [{ message: { content: JSON.stringify({
       transitions: [{ fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.9, explanation: "Same rescue.", evidence: "They carried the injured climber" }],
       momentAssessments: [
-        { segmentId: "a", compellingScore: 8.4, confidence: 0.88, role: "hook", selfContained: false, rationale: "Specific unanswered question.", evidence: "The rescue team reached the mountain" },
+        { segmentId: "a", compellingScore: 8.4, confidence: 0.88, role: "hook", selfContained: false, rationale: "Specific unanswered question.", evidence: "The rescue team, reached the mountain" },
         { segmentId: "b", compellingScore: 9.1, confidence: 0.91, role: "payoff", selfContained: true, rationale: "Clear outcome.", evidence: "They carried the injured climber to safety" }
       ]
     }) } }] })

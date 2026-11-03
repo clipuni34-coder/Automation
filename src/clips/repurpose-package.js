@@ -34,15 +34,17 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
   const visualReviewRequired = renderResult.visualQuality?.status !== "passed";
   const editorialReviewRequired = !Number.isFinite(averageEditorialScore) || averageEditorialScore < 5.5;
   const narrative = plan.editorialQuality?.narrativeStructure ?? {};
-  const contextualStoryReviewRequired = narrative.contextualContinuityQualification?.status === "beat_sequence_has_disconnected_context";
+  const semanticStoryWindowQualified = narrative.semanticStoryWindow?.qualified === true;
+  const contextualStoryReviewRequired = narrative.contextualContinuityQualification?.status === "beat_sequence_has_disconnected_context" && !semanticStoryWindowQualified;
   const contextualSequenceDisconnected = plan.editorialQuality?.contextualStoryAnalysis?.status === "disconnected_sequence";
   const semanticStatus = narrative.semanticContextAnalysis?.status;
   const storyEvidenceInsufficient = narrative.status === "no_ordered_arc_detected" || contextualSequenceDisconnected;
-  const storyStructureReviewRequired = storyEvidenceInsufficient && !(
+  const storyStructureReviewRequired = storyEvidenceInsufficient && !semanticStoryWindowQualified && !(
     semanticStatus === "contextually_connected" && narrative.semanticContinuityQualification?.qualified === true
   );
-  const semanticStoryReviewRequired = ["human_review_required", "provider_error"].includes(semanticStatus)
-    || (semanticStatus === "contextually_connected" && plan.editorialQuality?.narrativeStructure?.semanticContinuityQualification?.qualified !== true);
+  const semanticStoryReviewRequired = semanticStatus === "provider_error"
+    || (!semanticStoryWindowQualified && semanticStatus === "human_review_required")
+    || (!semanticStoryWindowQualified && semanticStatus === "contextually_connected" && plan.editorialQuality?.narrativeStructure?.semanticContinuityQualification?.qualified !== true);
   const editorialApprovalRequired = visualReviewRequired || editorialReviewRequired || contextualStoryReviewRequired || semanticStoryReviewRequired || storyStructureReviewRequired;
   const platforms = [platform];
   const platformPackages = Object.fromEntries(platforms.map((platform) => {

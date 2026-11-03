@@ -167,6 +167,15 @@ test("caption layout wraps long text into readable two-line mobile cards with ti
   assert.ok(dialogue.every(line => !line.includes("longer sentence designed to test mobile caption wrapping and timed phrase display")));
 });
 
+test("opening hook overlay wraps into readable lines inside the vertical frame", () => {
+  const ass = buildAss([{ start: 0, end: 8, caption: "Opening dialogue", hookOverlayText: "That is why these children are practicing to duck and cover at school." }], 8);
+  const hook = ass.split("\n").find(line => line.includes(",Hook,"));
+  assert.ok(hook, "hook overlay should be rendered");
+  assert.ok(hook.includes("\\N"), "long hook text should wrap to multiple lines");
+  assert.ok(hook.includes("That is why these children"));
+  assert.ok(ass.includes("Style: Hook,DejaVu Sans,60,"));
+});
+
 test("word-timed captions render timed karaoke groups instead of scene-wide static captions", () => {
   const ass = buildAss([{
     start: 2, end: 5, caption: "Fallback caption",

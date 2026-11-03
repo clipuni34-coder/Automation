@@ -87,7 +87,8 @@ test("re-edit uses a curiosity-led teaser instead of exposing a later payoff", (
   assert.equal(plan.editDecisionList[1].beatRole, "payoff");
   assert.equal(plan.editorialQuality.storyArcCoverage, 2);
 });
-\ntest("reference-only standalone viral videos produce analysis-only plans", () => {
+
+test("reference-only standalone viral videos produce analysis-only plans", () => {
   const plan = buildReeditPlan({ source: { ...licensed, rightsStatus: "reference_only" }, transcriptSegments: [{ start: 1, end: 4, text: "A strong hook", signals: { hook: 9 } }] });
   assert.equal(plan.status, "analysis_only");
   assert.equal(plan.rights.allowed, false);

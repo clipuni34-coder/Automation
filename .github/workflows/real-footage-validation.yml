@@ -1,0 +1,80 @@
+name: Real authorized footage validation
+
+on:
+  push:
+    branches:
+      - editorial-evidence-hold
+    paths:
+      - .github/workflows/real-footage-validation.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-footage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out isolated development branch
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          ffmpeg -version
+          ffprobe -version
+      - name: Install Node and transcription dependencies
+        run: |
+          npm ci
+          python -m pip install --disable-pip-version-check -r requirements/repurposing.txt
+      - name: Download public-domain source footage
+        env:
+          REPURPOSE_SOURCE_URL: https://archive.org/download/DuckandC1951/DuckandC1951_256kb.mp4
+          REPURPOSE_SOURCE_PATH: work/source-media.mp4
+          MEDIA_SOURCE_ALLOWED_HOSTS: archive.org
+          MEDIA_MAX_UPLOAD_MB: '512'
+        run: node scripts/download-authorized-source.js
+      - name: Prepare a bounded real-footage sample
+        run: |
+          mkdir -p work output/real-footage
+          ffmpeg -y -hide_banner -loglevel error -i work/source-media.mp4 -t 120 -c:v libx264 -preset veryfast -crf 23 -c:a aac -movflags +faststart work/source-sample.mp4
+          ffprobe -v error -show_entries format=duration:stream=codec_name,width,height -of json work/source-sample.mp4
+      - name: Transcribe, select moments and render from real audio
+        run: |
+          cat > repurpose-real-footage.json <<'JSON'
+          {
+            "sourceLocalPath": "work/source-sample.mp4",
+            "outputPath": "output/real-footage/short.mp4",
+            "source": {
+              "sourceUrl": "https://archive.org/details/DuckandC1951",
+              "title": "Duck and Cover (1951)",
+              "creator": "Archer Productions / Prelinger Archives",
+              "rightsStatus": "public_domain",
+              "rightsEvidenceUrl": "https://archive.org/details/DuckandC1951",
+              "allowedPlatforms": ["youtube_shorts"]
+            },
+            "targetDurationSeconds": 45,
+            "platform": "youtube_shorts",
+            "whisperModel": "base"
+          }
+          JSON
+          npm run repurpose -- repurpose-real-footage.json output/real-footage/result.json
+          ffprobe -v error -show_entries format=duration:stream=codec_name,width,height,r_frame_rate,pix_fmt -of json output/real-footage/short.mp4
+          test -s output/real-footage/short.thumbnail.jpg
+          node --input-type=module -e "import fs from 'node:fs'; const r=JSON.parse(fs.readFileSync('output/real-footage/result.json')); if(r.transcription?.engine!=='faster-whisper') throw new Error('Real Faster-Whisper transcription was not used'); if(!r.transcription?.wordCount) throw new Error('No word timestamps produced'); if(r.status!=='completed') throw new Error('Re-edit did not complete'); if(!r.postingPackage) throw new Error('Posting package missing'); console.log(JSON.stringify({status:r.status,transcription:r.transcription,selectedMoments:r.plan?.editDecisionList?.length,rendered:r.rendered,postingPackagePlatforms:Object.keys(r.postingPackage.platformPackages||{})},null,2));"
+      - name: Preserve real-footage validation outputs
+        if: always() && hashFiles('output/real-footage/**') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-footage-validation
+          path: output/real-footage/
+          retention-days: 14

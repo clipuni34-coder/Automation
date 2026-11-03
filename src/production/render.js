@@ -85,7 +85,7 @@ export function buildAss(scenes, duration) {
   const firstScene = scenes[0];
   if (firstScene?.hookOverlayText) {
     const hookEnd = Math.min(Number(firstScene.end), 2.4);
-    if (hookEnd > 0) events.push("Dialogue: 1," + assTime(0) + "," + assTime(hookEnd) + ",Hook,,0,0,0,,{\\\\an8\\\\fad(180,180)}" + escapeAss(firstScene.hookOverlayText));
+    if (hookEnd > 0) events.push("Dialogue: 1," + assTime(0) + "," + assTime(hookEnd) + ",Hook,,0,0,0,,{\\an8\\fad(180,180)}" + escapeAss(firstScene.hookOverlayText));
   }
   for (const scene of scenes) {
     const timedWords = (scene.wordTimings ?? []).filter((word) =>

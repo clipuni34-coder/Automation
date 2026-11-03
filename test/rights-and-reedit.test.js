@@ -241,3 +241,45 @@ test("high-confidence semantic moment assessment can change which source moment 
   assert.equal(plan.editorialQuality.selectionStrategy, "semantic_plus_heuristic_chronological_story_window");
   assert.equal(plan.editorialQuality.semanticMomentAssessment.trustedMoments, 4);
 });
+
+
+test("validated complete semantic story window takes priority over isolated score ranking", () => {
+  const transcriptSegments = [
+    { id: "intro", start: 0, end: 4, text: "The presenter introduces the subject.", signals: { hook: 8, emotion: 7, curiosity: 8, payoff: 2, clarity: 8 } },
+    { id: "hook", start: 5, end: 9, text: "Why did the bridge suddenly collapse?", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } },
+    { id: "tension", start: 10, end: 14, text: "The support cable snapped during the storm.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } },
+    { id: "payoff", start: 15, end: 19, text: "Engineers rebuilt the bridge and reopened the road.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } }
+  ];
+  const momentAssessments = transcriptSegments.map((segment, index) => ({
+    segmentId: segment.id, compellingScore: index === 0 ? 10 : 8.5, confidence: 0.9,
+    role: ["context", "hook", "tension", "payoff"][index], selfContained: index === 3,
+    rationale: "Validated semantic story beat.", evidence: segment.text
+  }));
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 15,
+    transcriptSegments,
+    narrativeSemanticAnalysis: {
+      status: "human_review_required",
+      transitions: [
+        { fromSegmentId: "intro", toSegmentId: "hook", relationship: "disconnected", confidence: 0.9 },
+        { fromSegmentId: "hook", toSegmentId: "tension", relationship: "connected", confidence: 0.9 },
+        { fromSegmentId: "tension", toSegmentId: "payoff", relationship: "connected", confidence: 0.9 }
+      ],
+      momentAssessments,
+      storyWindow: {
+        arcStatus: "complete", segmentIds: ["hook", "tension", "payoff"],
+        hookSegmentId: "hook", payoffSegmentId: "payoff",
+        hookEvidence: "Why did the bridge suddenly collapse",
+        payoffEvidence: "rebuilt the bridge and reopened the road",
+        confidence: 0.9, evidenceValidated: true,
+        summary: "A bridge collapses and is rebuilt.",
+        rationale: "Problem, consequence and resolution."
+      }
+    }
+  });
+  assert.deepEqual(plan.editDecisionList.map(item => item.segmentId), ["hook", "tension", "payoff"]);
+  assert.equal(plan.editorialQuality.selectionStrategy, "semantic_complete_story_window");
+  assert.equal(plan.editorialQuality.semanticStoryWindow.qualified, true);
+  assert.equal(plan.editorialQuality.narrativeStructure.semanticContinuityQualification.qualified, true);
+});

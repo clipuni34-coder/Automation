@@ -169,7 +169,12 @@ export async function renderShortVideo(manifest, { ffmpegPath = "ffmpeg", ffprob
     const punchIn = scene.videoPath && scene.punchIn
       ? `,scale=trunc(iw*1.12/2)*2:trunc(ih*1.12/2)*2,crop=${WIDTH}:${HEIGHT}`
       : "";
-    filters.push(`[${index}:v]${motion}scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT}${punchIn}${zoom},fps=${FPS},setsar=1,format=yuv420p[${label}]`);
+    // Creator footage gets restrained frame movement instead of remaining visually static.
+    // The strongest beats retain the larger impact punch-in; other beats receive a slow 3.5% push.
+    const subtlePush = scene.videoPath && !scene.punchIn && scene.motionTreatment !== "none"
+      ? `,zoompan=z='min(zoom+0.00012,1.035)':d=1:s=${WIDTH}x${HEIGHT}:fps=${FPS}`
+      : "";
+    filters.push(`[${index}:v]${motion}scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT}${punchIn}${subtlePush}${zoom},fps=${FPS},setsar=1,format=yuv420p[${label}]`);
     videoLabels.push(`[${label}]`);
   });
   filters.push(`${videoLabels.join("")}concat=n=${manifest.scenes.length}:v=1:a=0,subtitles=filename='${assPath.replace(/\\/g, "/").replace(/:/g, "\\:")}',format=yuv420p[vout]`);

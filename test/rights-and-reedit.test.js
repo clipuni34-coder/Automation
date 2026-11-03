@@ -243,6 +243,44 @@ test("high-confidence semantic moment assessment can change which source moment 
 });
 
 
+test("semantic story window trims redundant edges but preserves the validated hook-to-payoff path", () => {
+  const transcriptSegments = [
+    { id: "pre-context", start: 0, end: 3, text: "Earlier background information was introduced.", signals: { hook: 2, curiosity: 2, clarity: 8 } },
+    { id: "hook", start: 3, end: 6, text: "Why did the bridge suddenly collapse?", signals: { hook: 9, curiosity: 9, clarity: 9 } },
+    { id: "setup", start: 6, end: 9, text: "The support cable had weakened during the storm.", signals: { clarity: 9 } },
+    { id: "payoff", start: 9, end: 12, text: "Engineers rebuilt the bridge and reopened the road.", signals: { payoff: 9, clarity: 9 } },
+    { id: "post-context", start: 12, end: 15, text: "The presenter then repeated the general safety message.", signals: { clarity: 7 } }
+  ];
+  const momentAssessments = transcriptSegments.map((segment, index) => ({
+    segmentId: segment.id, compellingScore: [2, 9, 8, 9, 2][index], confidence: 0.95,
+    role: ["context", "hook", "setup", "payoff", "context"][index],
+    selfContained: false, rationale: "Evidence-backed moment assessment.", evidence: segment.text
+  }));
+  const transitions = transcriptSegments.slice(0, -1).map((segment, index) => ({
+    fromSegmentId: segment.id, toSegmentId: transcriptSegments[index + 1].id,
+    relationship: "connected", confidence: 0.9, explanation: "Same unfolding story.",
+    evidence: transcriptSegments[index + 1].text
+  }));
+  const plan = buildReeditPlan({
+    source: licensed, targetDurationSeconds: 15, transcriptSegments,
+    narrativeSemanticAnalysis: {
+      status: "contextually_connected", transitions, momentAssessments,
+      storyWindow: {
+        arcStatus: "complete", segmentIds: transcriptSegments.map(item => item.id),
+        hookSegmentId: "hook", payoffSegmentId: "payoff",
+        hookEvidence: "Why did the bridge suddenly collapse",
+        payoffEvidence: "Engineers rebuilt the bridge and reopened the road",
+        confidence: 0.95, evidenceValidated: true,
+        summary: "A bridge collapses and is rebuilt.", rationale: "A complete chronological story."
+      }
+    }
+  });
+  assert.deepEqual(plan.editDecisionList.map(item => item.segmentId), ["hook", "setup", "payoff"]);
+  assert.equal(plan.editorialQuality.semanticStoryWindow.trim.trimmed, true);
+  assert.deepEqual(plan.editorialQuality.semanticStoryWindow.trim.selectedSegmentIds, ["hook", "setup", "payoff"]);
+  assert.equal(plan.editorialQuality.semanticStoryWindow.qualified, true);
+});
+
 test("validated complete semantic story window takes priority over isolated score ranking", () => {
   const transcriptSegments = [
     { id: "intro", start: 0, end: 4, text: "The presenter introduces the subject.", signals: { hook: 8, emotion: 7, curiosity: 8, payoff: 2, clarity: 8 } },

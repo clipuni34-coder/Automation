@@ -88,3 +88,19 @@ test("original render manifest carries scene descriptions into semantic visual r
   assert.equal(manifest.scenes[0].visualDescription, "A baseball catcher throwing to second base");
   assert.equal(manifest.scenes[0].narrationContext, "The catcher throws to second base.");
 });
+
+
+test("strongest quarter receives restrained punch-ins and caption whitespace is normalized", () => {
+  const plan = buildReeditPlan({
+    source: { ...rights, sourceUrl: "https://media.example/source.mp4", durationSeconds: 60 },
+    targetDurationSeconds: 20,
+    transcriptSegments: [
+      { start: 0, end: 5, text: "Wait,\nthis is surprising! A second sentence follows.", signals: { hook: 8, emotion: 8, curiosity: 8, payoff: 8, clarity: 8 } },
+      { start: 10, end: 15, text: "The next part explains it.", signals: { hook: 6, emotion: 6, curiosity: 6, payoff: 6, clarity: 6 } },
+      { start: 20, end: 25, text: "And finally, the outcome.", signals: { hook: 4.5, emotion: 4.5, curiosity: 4.5, payoff: 4.5, clarity: 4.5 } }
+    ]
+  });
+  const manifest = buildReeditRenderManifest({ plan, sourceLocalPath: "/assets/source.mp4", audioPath: "/assets/voice.wav", outputPath: "/out/reedit.mp4" });
+  assert.deepEqual(manifest.scenes.map(scene => scene.punchIn), [true, false, false]);
+  assert.equal(manifest.scenes[0].caption, "Wait, this is surprising!");
+});

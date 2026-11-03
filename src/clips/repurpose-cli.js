@@ -6,6 +6,7 @@ import { analyzeMediaSignals } from "./media-signals.js";
 import { buildRepurposePackage } from "./repurpose-package.js";
 import { runAuthorizedReedit } from "./authorized-reedit.js";
 import { selectThumbnailTime } from "../production/thumbnail.js";
+import { analyzeSemanticStory } from "../creative/semantic-story.js";
 
 function fail(message) { throw new Error(message); }
 
@@ -48,12 +49,14 @@ if (!inputPath) {
     }
 
     const candidates = buildTranscriptCandidates(words, { ...(input.candidateOptions ?? {}), mediaSignals });
+    const narrativeSemanticAnalysis = await analyzeSemanticStory(candidates);
     const source = { ...input.source, durationSeconds };
     const result = await runAuthorizedReedit({
       sourceLocalPath,
       outputPath: input.outputPath,
       source,
       transcriptSegments: candidates,
+      narrativeSemanticAnalysis,
       targetDurationSeconds: input.targetDurationSeconds ?? 45,
       platform: input.platform ?? "youtube_shorts"
     }, {
@@ -80,6 +83,7 @@ if (!inputPath) {
       thumbnailTimeSeconds,
       postingPackage,
       editorialApproval: postingPackage?.editorialApproval ?? null,
+      narrativeSemanticAnalysis,
       transcription: {
         engine: Array.isArray(input.transcriptWords) ? "provided_word_timestamps" : "faster-whisper",
         transcriptPath,

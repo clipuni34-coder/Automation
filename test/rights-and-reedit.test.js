@@ -45,6 +45,19 @@ test("standalone re-edit prefers a coherent chronological story window over scat
   assert.equal(plan.editorialQuality.sourceContinuity, 1);
 });
 
+test("re-edit assigns distinct framing rhythms to setup, development and payoff beats", () => {
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 12,
+    transcriptSegments: [
+      { id: "setup", start: 10, end: 14, text: "Here is the setup.", signals: { hook: 4, emotion: 4, curiosity: 4, payoff: 4, clarity: 4 } },
+      { id: "development", start: 14, end: 18, text: "Then the story develops.", signals: { hook: 4, emotion: 4, curiosity: 4, payoff: 4, clarity: 4 } },
+      { id: "payoff", start: 18, end: 22, text: "And here is the result.", signals: { hook: 4, emotion: 4, curiosity: 4, payoff: 4, clarity: 4 } }
+    ]
+  });
+  assert.deepEqual(plan.editDecisionList.map(item => item.treatment.motionTreatment), ["subtle_push", "steady_hold", "settle_pullback"]);
+});
+
 test("opening teaser truncation never leaves a dangling conjunction or preposition", () => {
   const plan = buildReeditPlan({
     source: licensed,

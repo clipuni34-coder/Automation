@@ -72,7 +72,22 @@ test("opening teaser truncation never leaves a dangling conjunction or prepositi
   assert.match(plan.hookOverlay.text, /…$/);
 });
 
-test("reference-only standalone viral videos produce analysis-only plans", () => {
+
+test("re-edit uses a curiosity-led teaser instead of exposing a later payoff", () => {
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 12,
+    transcriptSegments: [
+      { id: "curiosity-hook", start: 10, end: 15, text: "Why did the entire town suddenly stop?", signals: { hook: 9, curiosity: 9, emotion: 5, payoff: 1, clarity: 8 } },
+      { id: "answer-payoff", start: 15, end: 20, text: "The result was a complete evacuation.", signals: { hook: 2, curiosity: 2, emotion: 7, payoff: 10, clarity: 8 } }
+    ]
+  });
+  assert.equal(plan.hookOverlay.segmentId, "curiosity-hook");
+  assert.equal(plan.editDecisionList[0].beatRole, "hook");
+  assert.equal(plan.editDecisionList[1].beatRole, "payoff");
+  assert.equal(plan.editorialQuality.storyArcCoverage, 2);
+});
+\ntest("reference-only standalone viral videos produce analysis-only plans", () => {
   const plan = buildReeditPlan({ source: { ...licensed, rightsStatus: "reference_only" }, transcriptSegments: [{ start: 1, end: 4, text: "A strong hook", signals: { hook: 9 } }] });
   assert.equal(plan.status, "analysis_only");
   assert.equal(plan.rights.allowed, false);

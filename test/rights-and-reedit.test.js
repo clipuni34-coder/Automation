@@ -20,9 +20,10 @@ test("standalone viral re-edit selects high-value transcript windows and preserv
     { id: "payoff", start: 35, end: 48, text: "Unexpected payoff", signals: { hook: 9, emotion: 9, payoff: 10, clarity: 8 } }
   ] });
   assert.equal(plan.status, "edit_plan_ready");
-  assert.equal(plan.editDecisionList[0].segmentId, "payoff");
-  assert.equal(plan.editDecisionList[0].sourceIn, 35);
-  assert.equal(plan.editDecisionList[0].treatment.punchIn, true);
+  assert.deepEqual(plan.editDecisionList.map(item => item.segmentId), ["slow", "payoff"]);
+  assert.equal(plan.editDecisionList[1].sourceIn, 35);
+  assert.equal(plan.editDecisionList[1].treatment.punchIn, true);
+  assert.equal(plan.openingHook.segmentId, "slow");
 });
 
 test("reference-only standalone viral videos produce analysis-only plans", () => {

@@ -40,7 +40,8 @@ test("authorized source re-edit runs from timed transcript through real vertical
     });
     assert.equal(result.status, "completed");
     assert.equal(result.plan.status, "edit_plan_ready");
-    assert.equal(result.plan.editDecisionList[0].segmentId, "payoff");
+    assert.deepEqual(result.plan.editDecisionList.map(item => item.segmentId), ["setup", "payoff"]);
+    assert.equal(result.plan.openingHook.segmentId, "setup");
     assert.equal(result.rendered.width, 1080);
     assert.equal(result.rendered.height, 1920);
     assert.equal(result.rendered.videoCodec, "h264");

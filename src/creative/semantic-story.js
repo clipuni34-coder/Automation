@@ -33,7 +33,12 @@ function validate(result, segments) {
     const fromText = byId.get(String(item.fromSegmentId));
     const toText = byId.get(String(item.toSegmentId));
     const evidenceSegmentId = item.evidenceSegmentId == null ? (evidenceMatches(fromText, evidence) ? String(item.fromSegmentId) : String(item.toSegmentId)) : String(item.evidenceSegmentId);
-    if (![String(item.fromSegmentId), String(item.toSegmentId)].includes(evidenceSegmentId) || !evidenceMatches(byId.get(evidenceSegmentId), evidence)) throw new Error("Semantic evidence must quote a contiguous sequence of at least three source words from exactly one adjacent transcript chunk");
+    if (![String(item.fromSegmentId), String(item.toSegmentId)].includes(evidenceSegmentId) || !evidenceMatches(byId.get(evidenceSegmentId), evidence)) {
+      const diagnostic = process.env.SEMANTIC_DEBUG_EVIDENCE === "true"
+        ? JSON.stringify({ evidence, evidenceSegmentId, fromSegmentId: item.fromSegmentId, toSegmentId: item.toSegmentId, fromText, toText })
+        : "";
+      throw new Error("Semantic evidence must quote a contiguous sequence of at least three source words from exactly one adjacent transcript chunk" + diagnostic);
+    }
     return {
       fromSegmentId: item.fromSegmentId,
       toSegmentId: item.toSegmentId,

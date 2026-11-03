@@ -39,6 +39,8 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   // Select by score, but never reorder the creator's dialogue: preserve the original story chronology.
   const ordered = [...selected].sort((a,b) => a.start - b.start || a.end - b.end);
   const opening = ordered[0];
+  const strongestMoment = [...ordered].sort((a, b) => b.score - a.score || a.start - b.start)[0];
+  const hookOverlayText = strongestMoment.text.replace(/\\s+/g, " ").trim().split(/(?<=[.!?])\\s+/)[0].slice(0, 58).replace(/\\s+\\S*$/, "").trim();
   // Reserve restrained punch-ins for the strongest quarter of selected moments;
   // do not manufacture motion on weak material just to make the edit look busy.
   const punchInLimit = ordered.length === 2 ? 2 : Math.max(1, Math.ceil(ordered.length * 0.25));
@@ -51,6 +53,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds, rightsStatus: source.rightsStatus, rightsEvidenceUrl: source.rightsEvidenceUrl ?? null, rightsEvidenceReference: source.rightsEvidenceReference ?? null, allowedPlatforms: source.allowedPlatforms ?? [], expiresAt: source.expiresAt ?? null, license: source.license ?? "Authorized source media" },
     rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore },
     openingHook: { segmentId: opening.id, sourceIn: opening.start, sourceOut: opening.end, score: opening.score },
+    hookOverlay: { text: hookOverlayText || strongestMoment.text.slice(0, 58), segmentId: strongestMoment.id, sourceIn: strongestMoment.start, score: strongestMoment.score, durationSeconds: 2.4, method: "strongest_moment_teaser_without_dialogue_reordering" },
     editDecisionList: ordered.map((segment, index) => ({ order: index + 1, segmentId: segment.id, sourceIn: segment.start, sourceOut: segment.end, durationSeconds: Number((segment.end-segment.start).toFixed(2)), caption: segment.text, score: segment.score, wordTimings: segment.words, treatment: { pacing: "tight", captions: "word_timed_karaoke", punchIn: punchInMoments.has(segment), transition: index ? "hard_cut" : "cold_open" } })),
     editorialNotes: ["Preserve original dialogue chronology; do not move a later sentence ahead of its context.", "Select the strongest complete moments within the requested duration.", "Remove dead air only where meaning and context remain intact.", "Use original narration/commentary where it adds genuine explanation or critique.", "Do not imply that reframing or captions alone create permission to reuse the source."]
   };

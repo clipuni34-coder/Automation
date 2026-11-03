@@ -33,7 +33,8 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
   const averageEditorialScore = Number(plan.editorialQuality?.averageSelectedScore ?? 0);
   const visualReviewRequired = renderResult.visualQuality?.status !== "passed";
   const editorialReviewRequired = !Number.isFinite(averageEditorialScore) || averageEditorialScore < 5.5;
-  const editorialApprovalRequired = visualReviewRequired || editorialReviewRequired;
+  const contextualStoryReviewRequired = plan.editorialQuality?.narrativeStructure?.contextualContinuityQualification?.status === "beat_sequence_has_disconnected_context";
+  const editorialApprovalRequired = visualReviewRequired || editorialReviewRequired || contextualStoryReviewRequired;
   const platforms = [platform];
   const platformPackages = Object.fromEntries(platforms.map((platform) => {
     const tags = makeHashtags(hashtagText, platform);
@@ -50,7 +51,8 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
       humanReviewRequired: true,
       reasons: [
         ...(visualReviewRequired ? ["Visual quality review has not passed."] : []),
-        ...(editorialReviewRequired ? ["Editorial score is missing or below the 5.5/10 threshold."] : [])
+        ...(editorialReviewRequired ? ["Editorial score is missing or below the 5.5/10 threshold."] : []),
+        ...(contextualStoryReviewRequired ? ["Narrative beats are ordered but adjacent context is disconnected; human review must confirm the story makes sense."] : [])
       ]
     },
     title,

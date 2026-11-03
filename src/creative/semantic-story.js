@@ -11,6 +11,7 @@ function parseObject(raw) {
 function validate(result, segments) {
   if (!Array.isArray(result.transitions)) throw new Error("Semantic story response must contain transitions");
   const expected = new Set(segments.slice(1).map((item, index) => segments[index].id + "->" + item.id));
+  const byId = new Map(segments.map(item => [String(item.id), String(item.text ?? "")]));
   const seen = new Set();
   const transitions = result.transitions.map(item => {
     const key = String(item.fromSegmentId) + "->" + String(item.toSegmentId);
@@ -19,13 +20,16 @@ function validate(result, segments) {
     if (!["connected", "uncertain", "disconnected"].includes(item.relationship)) throw new Error("Invalid semantic relationship label");
     const confidence = Number(item.confidence);
     if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) throw new Error("Invalid semantic confidence");
+    const evidence = String(item.evidence ?? "").trim().slice(0, 400);
+    const sourceText = (byId.get(String(item.fromSegmentId)) + " " + byId.get(String(item.toSegmentId))).toLowerCase();
+    if (!evidence || !sourceText.includes(evidence.toLowerCase())) throw new Error("Semantic evidence must quote text from the supplied adjacent transcript chunks");
     return {
       fromSegmentId: item.fromSegmentId,
       toSegmentId: item.toSegmentId,
       relationship: item.relationship,
       confidence: Number(confidence.toFixed(3)),
       explanation: String(item.explanation ?? "").slice(0, 400),
-      evidence: String(item.evidence ?? "").slice(0, 400)
+      evidence
     };
   });
   if (seen.size !== expected.size) throw new Error("Semantic story response omitted one or more adjacent transitions");
@@ -96,6 +100,9 @@ export async function analyzeSemanticStory(segments, {
   timeoutMs = 45000
 } = {}) {
   const ordered = [...(segments ?? [])].sort((a, b) => a.start - b.start || a.end - b.end);
+  if (ordered.length > 80 || ordered.some(item => String(item.text ?? "").length > 1200) || ordered.reduce((sum, item) => sum + String(item.text ?? "").length, 0) > 24000) {
+    return { status: "input_too_large", provider: null, transitions: [], qualified: false, method: "semantic_input_limit", limitation: "Transcript exceeded conservative semantic-analysis size limits; use the deterministic fallback and human review." };
+  }
   if (ordered.length < 2) return { status: "insufficient_context", provider: null, transitions: [], qualified: false, method: "not_applicable" };
   if (!geminiApiKey && !openaiApiKey) return { status: "not_configured", provider: null, transitions: [], qualified: false, method: "semantic_provider_not_configured", limitation: "No explicitly enabled semantic provider and API key were supplied; lexical analysis remains the only available context signal." };
   const prompt = makePrompt(ordered);

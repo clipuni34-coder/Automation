@@ -18,6 +18,7 @@ test("standalone re-edit plan maps approved source cut points into renderable sc
   assert.equal(manifest.scenes[1].start, 10);
   assert.equal(manifest.scenes[1].sourceIn, 50);
   assert.equal(manifest.scenes[0].sourceType, "creator_clip");
+  assert.ok(manifest.scenes[0].hookOverlayText);
 });
 
 test("re-edit selection scores moments but keeps the final dialogue in original source chronology", () => {
@@ -33,6 +34,8 @@ test("re-edit selection scores moments but keeps the final dialogue in original 
   assert.deepEqual(plan.editDecisionList.map(item => item.segmentId), ["early-context", "middle-payoff", "later-hook"]);
   assert.deepEqual(plan.editDecisionList.map(item => item.sourceIn), [10, 40, 80]);
   assert.equal(plan.openingHook.segmentId, "early-context");
+  assert.equal(plan.hookOverlay.segmentId, "later-hook");
+  assert.match(plan.hookOverlay.text, /surprising final reveal/i);
 });
 
 test("compilation plan maps separately authorized local clips and rejects missing media", () => {

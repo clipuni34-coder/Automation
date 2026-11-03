@@ -11,6 +11,9 @@ on:
       - src/production/plan-manifest.js
       - src/production/render.js
       - src/clips/repurpose-cli.js
+      - src/clips/authorized-reedit.js
+      - src/clips/repurpose-package.js
+      - src/creative/semantic-story.js
       - src/clips/transcript-candidates.js
       - requirements/repurposing.txt
   workflow_dispatch:

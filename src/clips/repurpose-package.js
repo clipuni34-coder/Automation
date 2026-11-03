@@ -75,6 +75,7 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
     platformPackages,
     editRationale: {
       openingMoment: { sourceIn: plan.openingHook.sourceIn, sourceOut: plan.openingHook.sourceOut, score: plan.openingHook.score },
+      hookOverlay: plan.hookOverlay ?? null,
       selectedMomentCount: moments.length,
       selectedSourceRanges: moments.map((moment) => ({ sourceIn: moment.sourceIn, sourceOut: moment.sourceOut, score: moment.score })),
       appliedTreatments: [...new Set(moments.map((moment) => moment.treatment?.punchIn ? "score-based punch-in" : "vertical reframing"))],

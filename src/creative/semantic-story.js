@@ -221,13 +221,28 @@ export async function analyzeSemanticStory(segments, {
   if (!geminiApiKey && !openaiApiKey) return { status: "not_configured", provider: null, transitions: [], qualified: false, method: "semantic_provider_not_configured", limitation: "No explicitly enabled semantic provider and API key were supplied; lexical analysis remains the only available context signal." };
   const prompt = makePrompt(ordered, targetDurationSeconds);
   const providers = [
-    ...(geminiApiKey ? [["gemini", () => requestGemini(prompt, geminiApiKey, fetchImpl, timeoutMs)]] : []),
-    ...(openaiApiKey ? [["openai", () => requestOpenAI(prompt, openaiApiKey, fetchImpl, timeoutMs)]] : [])
+    ...(geminiApiKey ? [["gemini", (activePrompt) => requestGemini(activePrompt, geminiApiKey, fetchImpl, timeoutMs)]] : []),
+    ...(openaiApiKey ? [["openai", (activePrompt) => requestOpenAI(activePrompt, openaiApiKey, fetchImpl, timeoutMs)]] : [])
   ];
   const errors = [];
   for (const [provider, call] of providers) {
-    try { return validate({ ...(await call()), provider }, ordered); }
-    catch (error) { errors.push(provider + ": " + error.message); }
+    try {
+      let response = await call(prompt);
+      try {
+        return validate({ ...response, provider }, ordered);
+      } catch (validationError) {
+        // A model can understand the task but return a paraphrase or a quote
+        // that is too short. Give it one bounded correction opportunity while
+        // keeping all transcript-evidence checks strict.
+        const correctionPrompt = prompt + "\\n\\nYour previous JSON response failed source-evidence validation: "
+          + validationError.message
+          + ". Return the complete JSON again. Re-check every evidence field against the exact transcript text. Each momentAssessment evidence, and each hookEvidence/payoffEvidence, must be 3-12 consecutive words copied verbatim from its specified source segment. Never paraphrase, repair, or invent a quote. If you cannot provide a valid quote, lower confidence and choose a non-complete arc where appropriate.";
+        response = await call(correctionPrompt);
+        return validate({ ...response, provider }, ordered);
+      }
+    } catch (error) {
+      errors.push(provider + ": " + error.message);
+    }
   }
   return { status: "provider_error", provider: null, transitions: [], qualified: false, method: "semantic_provider_failed", errors, limitation: "Semantic analysis failed; do not treat lexical analysis as semantic understanding." };
 }

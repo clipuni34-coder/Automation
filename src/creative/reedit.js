@@ -21,14 +21,48 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   const maxDuration = clamp(Number(targetDurationSeconds) || 45, 15, 90);
   const threshold = clamp(Number(minMomentScore), 0, 10);
   const eligible = segments.filter(segment => segment.score >= threshold);
-  const ranked = [...eligible].sort((a,b) => b.score - a.score || a.start - b.start);
+  const chronological = [...eligible].sort((a, b) => a.start - b.start || a.end - b.end);
+
+  // Prefer a coherent source-time window over collecting isolated high scores
+  // from unrelated parts of a long video. Dialogue is never reordered.
+  const maxSourceSpan = maxDuration * 1.5;
+  let bestWindow = chronological;
+  let bestWindowUtility = -Infinity;
+  for (let left = 0; left < chronological.length; left += 1) {
+    for (let right = left; right < chronological.length; right += 1) {
+      const window = chronological.slice(left, right + 1);
+      const sourceSpan = window.at(-1).end - window[0].start;
+      if (sourceSpan > maxSourceSpan) break;
+      const rankedWindow = [...window].sort((a, b) => b.score - a.score || a.start - b.start);
+      const chosen = [];
+      let chosenDuration = 0;
+      for (const candidate of rankedWindow) {
+        const duration = candidate.end - candidate.start;
+        if (chosenDuration + duration > maxDuration) continue;
+        if (chosen.some(item => candidate.start < item.end && candidate.end > item.start)) continue;
+        chosen.push(candidate);
+        chosenDuration += duration;
+      }
+      if (!chosen.length) continue;
+      const average = chosen.reduce((sum, item) => sum + item.score, 0) / chosen.length;
+      const density = chosenDuration / Math.max(sourceSpan, 1);
+      const countBonus = Math.min(chosen.length, 5) * 0.12;
+      const utility = average + density * 2 + countBonus;
+      if (utility > bestWindowUtility) {
+        bestWindowUtility = utility;
+        bestWindow = window;
+      }
+    }
+  }
+  const ranked = [...bestWindow].sort((a, b) => b.score - a.score || a.start - b.start);
   const selected = [];
   let used = 0;
   for (const segment of ranked) {
     const length = segment.end - segment.start;
     if (used + length > maxDuration) continue;
     if (selected.some(item => segment.start < item.end && segment.end > item.start)) continue;
-    selected.push(segment); used += length;
+    selected.push(segment);
+    used += length;
   }
   const averageSelectedScore = selected.length ? Number((selected.reduce((sum, item) => sum + item.score, 0) / selected.length).toFixed(2)) : 0;
   const minimumAverageScore = 3.5;
@@ -37,7 +71,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     return { mode: "standalone_reedit", status: referenceOnly ? "analysis_only" : "editorial_review_required", source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds }, platform, targetDurationSeconds: 0, rights: { allowed: false, status: referenceOnly ? "reference_only" : "not_editorially_qualified", reasons: [referenceOnly ? "Reference-only videos may be analyzed but not rendered or republished." : "Selected moments did not meet the minimum editorial quality gate (average " + averageSelectedScore.toFixed(2) + "/10; minimum " + minimumAverageScore.toFixed(1) + "/10). Do not auto-render weak material."] }, editorialQuality: { status: selected.length < Math.max(1, Number(minimumMoments) || 1) ? "insufficient_moments" : "low_average_score", minimumScore: threshold, minimumAverageScore, averageSelectedScore, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length }, editDecisionList: [], editorialNotes: ["This source did not contain enough strong standalone moments for an automatic short. Review the candidate list or choose a stronger source."] };
   }
   // Select by score, but never reorder the creator's dialogue: preserve the original story chronology.
-  const ordered = [...selected].sort((a,b) => a.start - b.start || a.end - b.end);
+  const ordered = [...selected].sort((a,b) => a.start - b.start || a.end - b.end);\n  const sourceSpanSeconds = Number((ordered.at(-1).end - ordered[0].start).toFixed(2));\n  const selectedDurationSeconds = Number(ordered.reduce((sum, item) => sum + item.end - item.start, 0).toFixed(2));\n  const sourceContinuity = Number((selectedDurationSeconds / Math.max(sourceSpanSeconds, 1)).toFixed(3));
   const opening = ordered[0];
   const strongestMoment = [...ordered].sort((a, b) => b.score - a.score || a.start - b.start)[0];
   const hookSourceText = strongestMoment.text.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/)[0];
@@ -54,10 +88,10 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   return {
     mode: "standalone_reedit", status: rights.allowed ? "edit_plan_ready" : "analysis_only",
     source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds, rightsStatus: source.rightsStatus, rightsEvidenceUrl: source.rightsEvidenceUrl ?? null, rightsEvidenceReference: source.rightsEvidenceReference ?? null, allowedPlatforms: source.allowedPlatforms ?? [], expiresAt: source.expiresAt ?? null, license: source.license ?? "Authorized source media" },
-    rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore },
+    rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore, sourceSpanSeconds, selectedDurationSeconds, sourceContinuity, selectionStrategy: "best_scoring_chronological_story_window" },
     openingHook: { segmentId: opening.id, sourceIn: opening.start, sourceOut: opening.end, score: opening.score },
     hookOverlay: { text: hookOverlayText || strongestMoment.text.slice(0, 58), segmentId: strongestMoment.id, sourceIn: strongestMoment.start, score: strongestMoment.score, durationSeconds: 2.4, method: "strongest_moment_teaser_without_dialogue_reordering" },
     editDecisionList: ordered.map((segment, index) => ({ order: index + 1, segmentId: segment.id, sourceIn: segment.start, sourceOut: segment.end, durationSeconds: Number((segment.end-segment.start).toFixed(2)), caption: segment.text, score: segment.score, wordTimings: segment.words, treatment: { pacing: "tight", captions: "word_timed_karaoke", punchIn: punchInMoments.has(segment), transition: index ? "hard_cut" : "cold_open" } })),
-    editorialNotes: ["Preserve original dialogue chronology; do not move a later sentence ahead of its context.", "Select the strongest complete moments within the requested duration.", "Remove dead air only where meaning and context remain intact.", "Use original narration/commentary where it adds genuine explanation or critique.", "Do not imply that reframing or captions alone create permission to reuse the source."]
+    editorialNotes: ["Preserve original dialogue chronology; do not move a later sentence ahead of its context.", "Select the strongest complete moments within one compact chronological story window; avoid unrelated highlight hopping.", "Remove dead air only where meaning and context remain intact.", "Use original narration/commentary where it adds genuine explanation or critique.", "Do not imply that reframing or captions alone create permission to reuse the source."]
   };
 }

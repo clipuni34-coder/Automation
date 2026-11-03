@@ -42,6 +42,10 @@ export function assessStoryboardVisualQuality(manifest) {
   const repeatedCount = visualKeys.length - uniquePaths.size;
   const stillCount = scenes.filter(scene => Boolean(scene.imagePath)).length;
   const videoCount = scenes.length - stillCount;
+  const editorialScores = scenes.map(scene => Number(scene.editorialScore)).filter(Number.isFinite);
+  const averageEditorialScore = editorialScores.length ? Number((editorialScores.reduce((sum, value) => sum + value, 0) / editorialScores.length).toFixed(2)) : null;
+  if (averageEditorialScore !== null && averageEditorialScore < 5.5) penalize(10, "Selected transcript moments have a low average editorial score (" + averageEditorialScore.toFixed(2) + "/10); human review is required before publishing.");
+  else if (averageEditorialScore !== null) checks.push("Selected transcript moments meet the editorial-score review threshold.");
 
   if (scenes.length < 3) penalize(8, "Fewer than three visual beats: the video may feel visually repetitive.");
   else checks.push("Storyboard contains at least three visual beats.");
@@ -87,7 +91,7 @@ export function assessStoryboardVisualQuality(manifest) {
     status: score >= 85 ? "good" : score >= 70 ? "review" : "weak",
     checks,
     warnings,
-    metrics: { sceneCount: scenes.length, uniqueAssets: uniquePaths.size, repeatedAssets: repeatedCount, stillScenes: stillCount, videoScenes: videoCount }
+    metrics: { sceneCount: scenes.length, uniqueAssets: uniquePaths.size, repeatedAssets: repeatedCount, stillScenes: stillCount, videoScenes: videoCount, averageEditorialScore }
   };
 }
 

@@ -42,6 +42,17 @@ export function assessStoryboardVisualQuality(manifest) {
   const repeatedCount = visualKeys.length - uniquePaths.size;
   const stillCount = scenes.filter(scene => Boolean(scene.imagePath)).length;
   const videoCount = scenes.length - stillCount;
+  const motionTreatmentCounts = {};
+  for (const scene of scenes) {
+    const treatment = String(scene.motionTreatment ?? "").trim();
+    if (treatment) motionTreatmentCounts[treatment] = (motionTreatmentCounts[treatment] ?? 0) + 1;
+  }
+  const motionTreatmentVariety = Object.keys(motionTreatmentCounts).length;
+  if (scenes.length >= 3 && motionTreatmentVariety === 1) {
+    penalize(4, "Every scene uses the same framing treatment; vary push, hold and payoff framing where the story supports it.");
+  } else if (motionTreatmentVariety >= 2) {
+    checks.push("Storyboard uses more than one deliberate framing treatment.");
+  }
   const editorialScores = scenes.map(scene => Number(scene.editorialScore)).filter(Number.isFinite);
   const averageEditorialScore = editorialScores.length ? Number((editorialScores.reduce((sum, value) => sum + value, 0) / editorialScores.length).toFixed(2)) : null;
   if (averageEditorialScore !== null && averageEditorialScore < 5.5) penalize(10, "Selected transcript moments have a low average editorial score (" + averageEditorialScore.toFixed(2) + "/10); human review is required before publishing.");
@@ -91,7 +102,7 @@ export function assessStoryboardVisualQuality(manifest) {
     status: score >= 85 ? "good" : score >= 70 ? "review" : "weak",
     checks,
     warnings,
-    metrics: { sceneCount: scenes.length, uniqueAssets: uniquePaths.size, repeatedAssets: repeatedCount, stillScenes: stillCount, videoScenes: videoCount, averageEditorialScore }
+    metrics: { sceneCount: scenes.length, uniqueAssets: uniquePaths.size, repeatedAssets: repeatedCount, stillScenes: stillCount, videoScenes: videoCount, motionTreatmentVariety, motionTreatmentCounts, averageEditorialScore }
   };
 }
 

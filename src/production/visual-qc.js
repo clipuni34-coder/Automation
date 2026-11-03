@@ -18,8 +18,6 @@ function run(command, args, timeoutMs = 120000) {
   });
 }
 
-function rounded(value) { return Math.round(value * 10) / 10; }
-
 /**
  * Heuristic editorial review of the storyboard before rendering.
  * It measures pacing, visual reuse and caption load; it does not claim to
@@ -31,17 +29,25 @@ export function assessStoryboardVisualQuality(manifest) {
   const checks = [];
   let score = 100;
   const penalize = (points, message) => { score -= points; warnings.push(message); };
-  const paths = scenes.map(scene => resolve(scene.videoPath ?? scene.imagePath ?? ""));
-  const uniquePaths = new Set(paths);
-  const repeatedCount = paths.length - uniquePaths.size;
+  // A single source file is expected for a repurposed video. Distinct, non-overlapping
+  // source ranges are distinct visual beats; only an identical repeated range is a reuse.
+  const visualKeys = scenes.map(scene => {
+    const path = resolve(scene.videoPath ?? scene.imagePath ?? "");
+    if (scene.sourceType === "creator_clip" && scene.videoPath) {
+      return [path, Number(scene.sourceIn ?? 0).toFixed(3), Number(scene.sourceOut ?? 0).toFixed(3)].join("|");
+    }
+    return path;
+  });
+  const uniquePaths = new Set(visualKeys);
+  const repeatedCount = visualKeys.length - uniquePaths.size;
   const stillCount = scenes.filter(scene => Boolean(scene.imagePath)).length;
   const videoCount = scenes.length - stillCount;
 
   if (scenes.length < 3) penalize(8, "Fewer than three visual beats: the video may feel visually repetitive.");
   else checks.push("Storyboard contains at least three visual beats.");
 
-  if (repeatedCount > 0) penalize(Math.min(20, repeatedCount * 10), "One or more visual assets are reused; add distinct scene-specific visuals.");
-  else checks.push("Every scene uses a distinct media asset.");
+  if (repeatedCount > 0) penalize(Math.min(20, repeatedCount * 10), "One or more identical visual ranges are reused; add distinct scene-specific visuals.");
+  else checks.push("Every scene uses a distinct media range or visual asset.");
 
   if (stillCount === scenes.length && scenes.length > 1) {
     penalize(5, "All scenes are still images; subtle zoom motion helps, but relevant live-action footage or animated scenes would add visual energy.");
@@ -67,7 +73,7 @@ export function assessStoryboardVisualQuality(manifest) {
     const caption = String(scene.caption ?? "").trim();
     if (caption.length > 90) penalize(5, label + " caption is too long for a quick mobile read.");
     else if (caption.length > 58) penalize(2, label + " caption may be dense on a phone screen.");
-    if (caption && duration > 0 && caption.split(/\s+/).length / duration > 4.5) {
+    if (caption && duration > 0 && caption.split(/\\s+/).length / duration > 4.5) {
       penalize(3, label + " caption reading speed is high.");
     }
   }

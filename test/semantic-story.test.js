@@ -194,3 +194,30 @@ test("semantic story analysis validates a complete chronological story window", 
   assert.equal(result.storyWindow.evidenceValidated, true);
   assert.deepEqual(result.storyWindow.segmentIds, ["a", "b", "c"]);
 });
+
+
+test("semantic story analysis retries once when model evidence fails exact-quote validation", async () => {
+  let calls = 0;
+  const fetchImpl = async () => {
+    calls += 1;
+    const evidence = calls === 1 ? "The rescue" : "The rescue team reached the mountain";
+    return {
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: JSON.stringify({
+        transitions: [{ fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.9, explanation: "Continuation.", evidence: "They carried the injured climber" }],
+        momentAssessments: [
+          { segmentId: "a", compellingScore: 8, confidence: 0.85, role: "hook", selfContained: false, rationale: "Opens the rescue.", evidence },
+          { segmentId: "b", compellingScore: 8.5, confidence: 0.9, role: "payoff", selfContained: true, rationale: "Shows the outcome.", evidence: "They carried the injured climber to safety" }
+        ]
+      }) } }] })
+    };
+  };
+  const result = await analyzeSemanticStory([
+    { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
+    { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
+  ], { openaiApiKey: "test-key", geminiApiKey: "", fetchImpl });
+  assert.equal(calls, 2);
+  assert.equal(result.status, "contextually_connected");
+  assert.equal(result.momentAssessmentStatus, "complete");
+  assert.equal(result.momentAssessments[0].evidence, "The rescue team reached the mountain");
+});

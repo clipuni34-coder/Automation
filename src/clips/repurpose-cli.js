@@ -97,7 +97,7 @@ if (!inputPath) {
       transcription: Array.isArray(input.transcriptWords) ? "provided" : "faster-whisper",
       rights: result.plan?.rights?.status ?? "blocked",
       thumbnailPath,
-      postingPackage: postingPackage ? "created" : "not_created"
+      postingPackage: postingPackage ? postingPackage.status : "not_created",\n      editorialApproval: postingPackage?.editorialApproval?.status ?? "not_ready"
     }, null, 2));
     if (result.status !== "completed") process.exitCode = 2;
   } catch (error) {

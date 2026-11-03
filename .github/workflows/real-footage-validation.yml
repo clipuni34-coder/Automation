@@ -54,7 +54,7 @@ jobs:
         run: |
           python -m pip check
           python -m pip show av
-          python -c "import sys; print(sys.executable); from faster_whisper import WhisperModel; print('faster-whisper import OK')"
+          python -c "import sys; print(sys.executable); from faster_whisper import WhisperModel; print('faster-whisper import OK; PyAV compatibility verified')"
           cat > repurpose-real-footage.json <<'JSON'
           {
             "sourceLocalPath": "work/source-sample.mp4",

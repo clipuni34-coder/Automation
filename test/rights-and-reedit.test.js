@@ -107,8 +107,8 @@ test("a question is a hook, while incidental result wording is not automatically
     source: licensed,
     targetDurationSeconds: 10,
     transcriptSegments: [
-      { id: "question", start: 0, end: 4, text: "How did the team get inside?", signals: { hook: 8, curiosity: 8, payoff: 1, clarity: 8 } },
-      { id: "incidental-result", start: 4, end: 8, text: "They recorded a result from the first test.", signals: { hook: 1, curiosity: 1, payoff: 1, clarity: 8 } }
+      { id: "question", start: 0, end: 4, text: "How did the team get inside?", signals: { hook: 10, curiosity: 10, payoff: 1, clarity: 10 } },
+      { id: "incidental-result", start: 4, end: 8, text: "They recorded a result from the first test.", signals: { hook: 1, curiosity: 1, payoff: 1, clarity: 10 } }
     ]
   });
   assert.equal(plan.editorialQuality.beatRoles[0].role, "hook");

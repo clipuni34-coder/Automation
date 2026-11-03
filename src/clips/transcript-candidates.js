@@ -7,11 +7,11 @@ const FILLER = /\b(um|uh|erm|you know|like|basically|actually)\b/gi;
 
 function scoreSignals(text, duration, words, media = {}) {
   const normalized = text.trim();
-  const explanatoryWhy = /^\\s*(that is why|that's why|this is why)\\b/i.test(normalized);
+  const explanatoryWhy = /^\s*(that is why|that's why|this is why)\b/i.test(normalized);
   const count = words.length;
   const density = count / Math.max(duration, 0.5);
-  const hook = Math.min(10, (HOOK.test(normalized) ? 6 : 2) + (normalized.includes("?") ? 2 : 0) + (count >= 5 && count <= 24 ? 2 : 0));
-  const curiosity = Math.min(10, (CURIOSITY.test(normalized) ? 6 : 2) + (normalized.includes("?") ? 3 : 0) + (/\b(but|however|except|instead)\b/i.test(normalized) ? 1 : 0));
+  const hook = Math.min(10, (!explanatoryWhy && HOOK.test(normalized) ? 6 : 2) + (normalized.includes("?") && !explanatoryWhy ? 2 : 0) + (count >= 5 && count <= 24 ? 2 : 0));
+  const curiosity = Math.min(10, (!explanatoryWhy && CURIOSITY.test(normalized) ? 6 : 2) + (normalized.includes("?") && !explanatoryWhy ? 3 : 0) + (/\b(but|however|except|instead)\b/i.test(normalized) ? 1 : 0));
   const emotion = Math.min(10, (EMOTION.test(normalized) ? 7 : 2) + (/[!?]{1,}/.test(normalized) ? 1 : 0) + (/\b(very|really|so|absolutely)\b/i.test(normalized) ? 1 : 0));
   // A sentence ending or being long does not mean it delivers a payoff.
   // Reserve high payoff scores for explicit result/conclusion language.

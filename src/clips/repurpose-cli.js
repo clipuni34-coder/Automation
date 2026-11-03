@@ -76,6 +76,8 @@ if (!inputPath) {
     await mkdir(dirname(output), { recursive: true });
     await writeFile(output, JSON.stringify({
       ...result,
+      thumbnailPath,
+      thumbnailTimeSeconds,
       postingPackage,
       editorialApproval: postingPackage?.editorialApproval ?? null,
       transcription: {

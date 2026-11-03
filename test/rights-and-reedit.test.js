@@ -24,6 +24,7 @@ test("standalone viral re-edit selects high-value transcript windows and preserv
   assert.equal(plan.editDecisionList[1].sourceIn, 35);
   assert.equal(plan.editDecisionList[1].treatment.punchIn, true);
   assert.equal(plan.openingHook.segmentId, "slow");
+  assert.equal(plan.hookOverlay.segmentId, "payoff");
 });
 
 test("reference-only standalone viral videos produce analysis-only plans", () => {

@@ -41,7 +41,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   const opening = ordered[0];
   // Reserve restrained punch-ins for the strongest quarter of selected moments;
   // do not manufacture motion on weak material just to make the edit look busy.
-  const punchInLimit = Math.max(1, Math.ceil(ordered.length * 0.25));
+  const punchInLimit = Math.min(ordered.length, Math.max(2, Math.ceil(ordered.length * 0.25)));
   const punchInMoments = new Set([...ordered]
     .sort((a, b) => b.score - a.score || a.start - b.start)
     .filter((segment, index) => index < punchInLimit && segment.score >= 5.5));

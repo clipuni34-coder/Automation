@@ -32,12 +32,19 @@ function validate(result, segments) {
     const evidence = String(item.evidence ?? "").trim().slice(0, 400);
     const fromText = byId.get(String(item.fromSegmentId));
     const toText = byId.get(String(item.toSegmentId));
-    const evidenceSegmentId = item.evidenceSegmentId == null ? (evidenceMatches(fromText, evidence) ? String(item.fromSegmentId) : String(item.toSegmentId)) : String(item.evidenceSegmentId);
-    if (![String(item.fromSegmentId), String(item.toSegmentId)].includes(evidenceSegmentId) || !evidenceMatches(byId.get(evidenceSegmentId), evidence)) {
-      const diagnostic = process.env.SEMANTIC_DEBUG_EVIDENCE === "true"
-        ? JSON.stringify({ evidence, evidenceSegmentId, fromSegmentId: item.fromSegmentId, toSegmentId: item.toSegmentId, fromText, toText })
-        : "";
-      throw new Error("Semantic evidence must quote a contiguous sequence of at least three source words from exactly one adjacent transcript chunk" + diagnostic);
+    let evidenceSegmentId = null;
+    if (evidence) {
+      evidenceSegmentId = item.evidenceSegmentId == null
+        ? (evidenceMatches(fromText, evidence) ? String(item.fromSegmentId) : String(item.toSegmentId))
+        : String(item.evidenceSegmentId);
+      if (![String(item.fromSegmentId), String(item.toSegmentId)].includes(evidenceSegmentId) || !evidenceMatches(byId.get(evidenceSegmentId), evidence)) {
+        const diagnostic = process.env.SEMANTIC_DEBUG_EVIDENCE === "true"
+          ? JSON.stringify({ evidence, evidenceSegmentId, fromSegmentId: item.fromSegmentId, toSegmentId: item.toSegmentId, fromText, toText })
+          : "";
+        throw new Error("Semantic evidence must quote a contiguous sequence of at least three source words from exactly one adjacent transcript chunk" + diagnostic);
+      }
+    } else if (item.relationship === "connected") {
+      throw new Error("Connected semantic transitions require source-verified evidence");
     }
     return {
       fromSegmentId: item.fromSegmentId,
@@ -130,7 +137,7 @@ function makePrompt(segments, targetDurationSeconds = 45) {
   return [
     "Assess whether each adjacent transcript chunk belongs to the same unfolding real-world story or explanation. Target final short duration: " + targetDurationSeconds + " seconds.",
     "Use only the supplied text. Do not infer missing events, entities, motives, or causality. Repeated generic words do not establish continuity. Paraphrases and pronouns may establish continuity only when the reference is clear from the supplied context.",
-    "For every adjacent pair return exactly one transition with fromSegmentId, toSegmentId, relationship (connected, uncertain, disconnected), confidence (0 to 1), explanation, and a short exact evidence quote. Be conservative: use uncertain when context is insufficient. Do not force a complete narrative arc.",
+    "For every adjacent pair return exactly one transition with fromSegmentId, toSegmentId, relationship (connected, uncertain, disconnected), confidence (0 to 1), explanation, and a short exact evidence quote. Be conservative: use uncertain when context is insufficient. For disconnected or uncertain pairs, evidence may be an empty string when no exact supporting quote exists; connected pairs MUST include an exact source quote. Do not force a complete narrative arc.",
     "Also assess EVERY supplied segment individually. Return momentAssessments with one item per segment: segmentId, compellingScore (0-10 for how well this moment works in a short video, judging specificity, stakes, novelty, clarity, emotional force and payoff without rewarding generic dramatic wording), confidence (0-1), role (hook, setup, tension, payoff, context), selfContained (boolean), rationale, and an evidence quote copied verbatim as 3-12 consecutive words from that segment. Evidence is not a summary or paraphrase; copy exact words in original order. Punctuation differences are acceptable, but word substitutions, omissions, or reordering are not. Do not invent missing context. Low confidence means the score must not be treated as authoritative.",
     "Find the strongest self-contained short-form story window in the supplied chronological candidates. Prefer a real hook/setup/tension/payoff progression with a meaningful ending; do not force a story if the footage only contains disconnected facts. If a complete arc exists, return storyWindow with arcStatus=complete, segmentIds containing 3-8 consecutive candidate IDs in chronological order, hookSegmentId, payoffSegmentId (later than the hook), hookEvidence and payoffEvidence copied verbatim as 3-12 consecutive words from those exact segments, confidence (0-1), summary and rationale. The whole selected window should fit the requested target duration when possible. If no complete arc exists, return arcStatus=partial or none and explain why; do not invent a payoff.",
     "Return JSON only: { transitions: [...], momentAssessments: [...], storyWindow: {...} }.",

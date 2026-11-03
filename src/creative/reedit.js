@@ -148,7 +148,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
       : semanticBeatSequenceQualified ? "semantic_beat_sequence_connected" : "semantic_beat_sequence_not_qualified",
     qualified: semanticBeatSequenceQualified,
     checkedTransitions: semanticBeatTransitions.length,
-    requiredTransitions: beatTransitionPairs.length,
+    requiredTransitions: semanticPath.length,
     method: narrativeSemanticAnalysis?.method ?? "not_configured",
     limitation: narrativeSemanticAnalysis?.limitation ?? "No semantic provider result is available."
   };

@@ -4,9 +4,10 @@ function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 
 function classifyBeat(text, signals = {}) {
   const normalized = String(text ?? "").toLowerCase();
-  const payoffPhrase = /\b(the result is|the result was|in the end|finally|it turned out|turns out|that means|which is why|here is what happened|here's what happened|what happened next|the answer is|the answer was|the solution is|the solution was)\b/.test(normalized);
+  const payoffPhrase = /\b(the result is|the result was|in the end|finally|it turned out|turns out|that means|which is why|here is what happened|here's what happened|what happened next|the answer is|the answer was|the solution is|the solution was|managed to|made it out|escaped|survived|was rescued|found a way|reached the other side|solved the problem|got away)\b/.test(normalized);
   const hookPhrase = /[?]|^\s*(why|how|what if|what happens if)\b|\b(here is why|here's why|the truth is|the secret is|the reason is)\b/.test(normalized);
-  const tensionPhrase = /\b(but|however|instead|until|except|despite|suddenly|unexpectedly|the problem|went wrong|at risk)\b/.test(normalized);
+  const obstaclePhrase = /\b(collapsed|snapped|ran out|couldn't|could not|failed|trapped|stranded|in danger|at risk|blocked|broke down|stuck|threatened|injured|nearly drowned|almost died)\b/.test(normalized);
+  const tensionPhrase = obstaclePhrase || (/\b(but|however|instead|until|except|despite|suddenly|unexpectedly)\b/.test(normalized) && /\b(problem|danger|wrong|risk|loss|failure|obstacle|crisis)\b/.test(normalized));
   const explanatoryWhy = /^\s*(that is why|that's why|this is why)\b/.test(normalized);
   const hook = Number(signals.hook) || 0;
   const curiosity = Number(signals.curiosity) || 0;
@@ -16,8 +17,26 @@ function classifyBeat(text, signals = {}) {
   // meaningful lead over competing beat signals before assigning a role.
   if (payoffPhrase || (payoff >= 7 && payoff >= hook + 2 && payoff >= curiosity + 2)) return "payoff";
   if (hookPhrase || (!explanatoryWhy && (hook >= 8 || curiosity >= 8) && Math.max(hook, curiosity) >= payoff + 3)) return "hook";
-  if (tensionPhrase || (emotion >= 7 && emotion >= payoff + 2)) return "tension";
+  if (tensionPhrase || (emotion >= 8 && emotion >= payoff + 3 && /\b(fear|afraid|danger|trapped|panic|terrified|crash|crisis)\b/.test(normalized))) return "tension";
   return "context";
+}
+
+function summarizeNarrativeStructure(segments) {
+  const roles = ["hook", "tension", "payoff"];
+  const evidence = roles.map(role => {
+    const match = segments.find(segment => segment.beatRole === role);
+    return match ? { role, segmentId: match.id, text: match.text.slice(0, 180) } : null;
+  }).filter(Boolean);
+  const indexes = evidence.map(item => segments.findIndex(segment => segment.id === item.segmentId));
+  const ordered = indexes.length >= 2 && indexes.every((value, index) => index === 0 || value > indexes[index - 1]);
+  const complete = evidence.length === 3 && ordered;
+  return {
+    status: complete ? "ordered_arc_detected" : evidence.length >= 2 && ordered ? "partial_arc_detected" : "no_ordered_arc_detected",
+    sequence: evidence.map(item => item.role),
+    evidence,
+    method: "conservative_lexical_sequence_heuristic",
+    limitation: "Beat labels are text-cue estimates, not verified semantic understanding or proof that the story is compelling."
+  };
 }
 
 export function buildReeditPlan({ source, transcriptSegments, targetDurationSeconds = 45, platform = "youtube_shorts", minMomentScore = 0, minimumMoments = 1 } = {}) {
@@ -93,6 +112,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   const sourceSpanSeconds = Number((ordered.at(-1).end - ordered[0].start).toFixed(2));
   const selectedDurationSeconds = Number(ordered.reduce((sum, item) => sum + item.end - item.start, 0).toFixed(2));
   const sourceContinuity = Number((selectedDurationSeconds / Math.max(sourceSpanSeconds, 1)).toFixed(3));
+  const narrativeStructure = summarizeNarrativeStructure(ordered);
   const opening = ordered[0];
   const strongestMoment = [...ordered].sort((a, b) => b.score - a.score || a.start - b.start)[0];
   // Prefer a curiosity-led teaser so the opening creates an information gap.
@@ -118,7 +138,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   return {
     mode: "standalone_reedit", status: rights.allowed ? "edit_plan_ready" : "analysis_only",
     source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds, rightsStatus: source.rightsStatus, rightsEvidenceUrl: source.rightsEvidenceUrl ?? null, rightsEvidenceReference: source.rightsEvidenceReference ?? null, allowedPlatforms: source.allowedPlatforms ?? [], expiresAt: source.expiresAt ?? null, license: source.license ?? "Authorized source media" },
-    rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore, sourceSpanSeconds, selectedDurationSeconds, sourceContinuity, selectionStrategy: "best_scoring_chronological_story_window", beatRoles: ordered.map(item => ({ segmentId: item.id, role: item.beatRole })), storyArcCoverage: new Set(ordered.map(item => item.beatRole)).size },
+    rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore, sourceSpanSeconds, selectedDurationSeconds, sourceContinuity, selectionStrategy: "best_scoring_chronological_story_window", beatRoles: ordered.map(item => ({ segmentId: item.id, role: item.beatRole })), storyArcCoverage: new Set(ordered.map(item => item.beatRole)).size, narrativeStructure },
     openingHook: { segmentId: opening.id, sourceIn: opening.start, sourceOut: opening.end, score: opening.score },
     hookOverlay: { text: hookOverlayText || strongestMoment.text.slice(0, 58), segmentId: teaserMoment.id, sourceIn: teaserMoment.start, score: teaserMoment.score, durationSeconds: 2.4, method: "hook_curiosity_first_teaser_without_dialogue_reordering" },
     editDecisionList: ordered.map((segment, index) => ({ order: index + 1, segmentId: segment.id, sourceIn: segment.start, sourceOut: segment.end, durationSeconds: Number((segment.end-segment.start).toFixed(2)), caption: segment.text, score: segment.score, beatRole: segment.beatRole, wordTimings: segment.words, treatment: {

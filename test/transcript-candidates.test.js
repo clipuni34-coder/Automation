@@ -78,3 +78,18 @@ test("ordinary so/because language is not misclassified as an editorial payoff",
   assert.equal(moments[1].signals.payoff, 1);
   assert.equal(moments[2].signals.payoff, 7);
 });
+
+
+test("explanatory that's why language is not scored as a curiosity hook", () => {
+  const words = [
+    { word: "That's", start: 0, end: 0.3 },
+    { word: "why", start: 0.3, end: 0.6 },
+    { word: "these", start: 0.6, end: 0.9 },
+    { word: "children", start: 0.9, end: 1.3 },
+    { word: "are", start: 1.3, end: 1.5 },
+    { word: "practicing.", start: 1.5, end: 2.2 }
+  ];
+  const [candidate] = buildTranscriptCandidates(words);
+  assert.equal(candidate.signals.hook, 2);
+  assert.equal(candidate.signals.curiosity, 2);
+});

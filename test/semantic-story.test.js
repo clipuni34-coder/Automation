@@ -129,3 +129,39 @@ test("Gemini semantic analysis retries a transient service error before succeedi
   assert.equal(result.provider, "gemini");
   assert.equal(result.momentAssessmentStatus, "complete");
 });
+
+
+test("semantic story analysis validates a complete chronological story window", async () => {
+  const segments = [
+    { id: "a", start: 0, end: 4, text: "Why did the bridge suddenly collapse?" },
+    { id: "b", start: 5, end: 9, text: "The support cable snapped during the storm." },
+    { id: "c", start: 10, end: 14, text: "Engineers rebuilt the bridge and reopened the road." }
+  ];
+  const fetchImpl = async () => ({
+    ok: true,
+    json: async () => ({ choices: [{ message: { content: JSON.stringify({
+      transitions: [
+        { fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.9, explanation: "The cable explains the collapse.", evidence: "support cable snapped during the storm" },
+        { fromSegmentId: "b", toSegmentId: "c", relationship: "connected", confidence: 0.92, explanation: "The rebuild resolves the problem.", evidence: "rebuilt the bridge and reopened the road" }
+      ],
+      momentAssessments: segments.map((segment, index) => ({
+        segmentId: segment.id, compellingScore: 8 + index * 0.5, confidence: 0.9,
+        role: ["hook", "tension", "payoff"][index], selfContained: index === 2,
+        rationale: "Clear story beat.", evidence: segment.text
+      })),
+      storyWindow: {
+        arcStatus: "complete", segmentIds: ["a", "b", "c"],
+        hookSegmentId: "a", payoffSegmentId: "c",
+        hookEvidence: "Why did the bridge suddenly collapse",
+        payoffEvidence: "rebuilt the bridge and reopened the road",
+        confidence: 0.91, summary: "A bridge collapses, then engineers restore it.",
+        rationale: "The sequence has a clear problem and resolution."
+      }
+    }) } }] })
+  });
+  const result = await analyzeSemanticStory(segments, { openaiApiKey: "test-key", geminiApiKey: "", fetchImpl });
+  assert.equal(result.storyWindowStatus, "assessed");
+  assert.equal(result.storyWindow.arcStatus, "complete");
+  assert.equal(result.storyWindow.evidenceValidated, true);
+  assert.deepEqual(result.storyWindow.segmentIds, ["a", "b", "c"]);
+});

@@ -12,7 +12,9 @@ function scoreSignals(text, duration, words, media = {}) {
   const hook = Math.min(10, (HOOK.test(normalized) ? 6 : 2) + (normalized.includes("?") ? 2 : 0) + (count >= 5 && count <= 24 ? 2 : 0));
   const curiosity = Math.min(10, (CURIOSITY.test(normalized) ? 6 : 2) + (normalized.includes("?") ? 3 : 0) + (/\b(but|however|except|instead)\b/i.test(normalized) ? 1 : 0));
   const emotion = Math.min(10, (EMOTION.test(normalized) ? 7 : 2) + (/[!?]{1,}/.test(normalized) ? 1 : 0) + (/\b(very|really|so|absolutely)\b/i.test(normalized) ? 1 : 0));
-  const payoff = Math.min(10, (PAYOFF.test(normalized) ? 6 : 2) + (/[.!]$/.test(normalized) ? 2 : 0) + (count >= 6 ? 2 : 0));
+  // A sentence ending or being long does not mean it delivers a payoff.
+  // Reserve high payoff scores for explicit result/conclusion language.
+  const payoff = Math.min(10, (PAYOFF.test(normalized) ? 7 : 1) + (/(the answer is|the answer was|the solution is|the solution was|what happened next)/i.test(normalized) ? 2 : 0));
   const fillerCount = (normalized.match(FILLER) ?? []).length;
   const clarity = Math.max(1, Math.min(10, 8 - fillerCount - (count > 34 ? 2 : 0) - (density < 0.7 ? 1 : 0)));
   return { hook, curiosity, emotion, payoff, clarity, visualActivity: media.visualActivity ?? null, speechContinuity: media.speechContinuity ?? null, silenceRatio: media.silenceRatio ?? null, sceneChangeCount: media.sceneChangeCount ?? 0 };

@@ -49,7 +49,7 @@ if (!inputPath) {
     }
 
     const candidates = buildTranscriptCandidates(words, { ...(input.candidateOptions ?? {}), mediaSignals });
-    const narrativeSemanticAnalysis = await analyzeSemanticStory(candidates);
+    const narrativeSemanticAnalysis = await analyzeSemanticStory(candidates, { targetDurationSeconds: input.targetDurationSeconds ?? 45 });
     const source = { ...input.source, durationSeconds };
     const result = await runAuthorizedReedit({
       sourceLocalPath,

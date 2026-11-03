@@ -127,6 +127,18 @@ test("an explanatory sentence containing the word why is not misclassified as a 
   assert.deepEqual(plan.editorialQuality.beatRoles.map(item => item.role), ["context", "context"]);
 });
 
+test("explanatory that's why statement is not promoted to a hook by high lexical scores", () => {
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 10,
+    transcriptSegments: [
+      { id: "explanatory", start: 0, end: 4, text: "That's why these children are practicing to duck and cover.", signals: { hook: 9, curiosity: 9, payoff: 2, clarity: 9 } },
+      { id: "context", start: 4, end: 8, text: "They practice the same procedure at school.", signals: { hook: 2, curiosity: 2, payoff: 1, clarity: 9 } }
+    ]
+  });
+  assert.equal(plan.editorialQuality.beatRoles[0].role, "context");
+});
+
 test("reference-only standalone viral videos produce analysis-only plans", () => {
   const plan = buildReeditPlan({ source: { ...licensed, rightsStatus: "reference_only" }, transcriptSegments: [{ start: 1, end: 4, text: "A strong hook", signals: { hook: 9 } }] });
   assert.equal(plan.status, "analysis_only");

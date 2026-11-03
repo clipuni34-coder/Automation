@@ -83,10 +83,18 @@ jobs:
             "pythonPath": "python"
           }
           JSON
+          set +e
           npm run repurpose -- repurpose-real-footage.json output/real-footage/result.json
-          ffprobe -v error -show_entries format=duration:stream=codec_name,width,height,r_frame_rate,pix_fmt -of json output/real-footage/short.mp4
-          test -s output/real-footage/short.thumbnail.jpg
-          node --input-type=module -e "import fs from 'node:fs'; const r=JSON.parse(fs.readFileSync('output/real-footage/result.json')); if(r.transcription?.engine!=='faster-whisper') throw new Error('Real Faster-Whisper transcription was not used'); if(!r.transcription?.wordCount) throw new Error('No word timestamps produced'); if(r.status!=='completed') throw new Error('Re-edit did not complete'); if(!r.postingPackage) throw new Error('Posting package missing'); if(r.editorialApproval?.approved !== false || r.editorialApproval?.humanReviewRequired !== true) throw new Error('Real-footage sample must remain explicitly unapproved pending human editorial review'); console.log(JSON.stringify({status:r.status,transcription:r.transcription,selectedMoments:r.plan?.editDecisionList?.length,rendered:r.rendered,postingPackagePlatforms:Object.keys(r.postingPackage.platformPackages||{})},null,2));"
+          repurpose_exit=$?
+          set -e
+          if [ "$repurpose_exit" -ne 0 ] && [ "$repurpose_exit" -ne 2 ]; then
+            exit "$repurpose_exit"
+          fi
+          if [ -s output/real-footage/short.mp4 ]; then
+            ffprobe -v error -show_entries format=duration:stream=codec_name,width,height,r_frame_rate,pix_fmt -of json output/real-footage/short.mp4
+            test -s output/real-footage/short.thumbnail.jpg
+          fi
+          node --input-type=module -e "import fs from 'node:fs'; const r=JSON.parse(fs.readFileSync('output/real-footage/result.json')); if(r.transcription?.engine!=='faster-whisper') throw new Error('Real Faster-Whisper transcription was not used'); if(!r.transcription?.wordCount) throw new Error('No word timestamps produced'); if(r.status==='editorial_review_required'){ if(r.rendered || r.outputPath || r.postingPackage || r.plan?.editDecisionList?.length) throw new Error('Weak material must not be rendered or packaged'); if(!r.plan?.rights?.reasons?.some(x=>/minimum editorial quality gate/.test(x))) throw new Error('Editorial hold reason missing'); console.log(JSON.stringify({status:r.status,transcription:r.transcription,selectedMoments:0,rendered:false,decision:'correctly held weak material for editorial review'},null,2)); } else if(r.status==='completed'){ if(!r.rendered || !r.postingPackage) throw new Error('Completed re-edit must include render and posting package'); if(r.editorialApproval?.approved !== false || r.editorialApproval?.humanReviewRequired !== true) throw new Error('Real-footage sample must remain explicitly unapproved pending human editorial review'); console.log(JSON.stringify({status:r.status,transcription:r.transcription,selectedMoments:r.plan?.editDecisionList?.length,rendered:r.rendered,postingPackagePlatforms:Object.keys(r.postingPackage.platformPackages||{})},null,2)); } else { throw new Error('Unexpected real-footage pipeline status: '+r.status); }"
       - name: Preserve real-footage validation outputs
         if: always() && hashFiles('output/real-footage/**') != ''
         uses: actions/upload-artifact@v4

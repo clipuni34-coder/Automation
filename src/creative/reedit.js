@@ -4,9 +4,18 @@ function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 
 function classifyBeat(text, signals = {}) {
   const normalized = String(text ?? "").toLowerCase();
-  if ((Number(signals.payoff) >= 6) || /\\b(the result|in the end|finally|turns out|that means|which is why|here is what happened|here's what happened)\\b/.test(normalized)) return "payoff";
-  if ((Number(signals.hook) >= 6 || Number(signals.curiosity) >= 6) || /[?]|\\b(why|how|what if|the truth|the secret|the reason)\\b/.test(normalized)) return "hook";
-  if ((Number(signals.emotion) >= 6) || /\\b(but|however|instead|until|except|despite|suddenly)\\b/.test(normalized)) return "tension";
+  const payoffPhrase = /\\b(the result is|the result was|in the end|finally|it turned out|turns out|that means|which is why|here is what happened|here's what happened|what happened next|the answer is|the answer was|the solution is|the solution was)\\b/.test(normalized);
+  const hookPhrase = /[?]|\\b(why|how|what if|the truth|the secret|the reason|what happens if)\\b/.test(normalized);
+  const tensionPhrase = /\\b(but|however|instead|until|except|despite|suddenly|unexpectedly|the problem|went wrong|at risk)\\b/.test(normalized);
+  const hook = Number(signals.hook) || 0;
+  const curiosity = Number(signals.curiosity) || 0;
+  const payoff = Number(signals.payoff) || 0;
+  const emotion = Number(signals.emotion) || 0;
+  // Absolute lexical scores are noisy. Require a clear textual cue or a
+  // meaningful lead over competing beat signals before assigning a role.
+  if (payoffPhrase || (payoff >= 7 && payoff >= hook + 2 && payoff >= curiosity + 2)) return "payoff";
+  if (hookPhrase || ((hook >= 7 || curiosity >= 7) && Math.max(hook, curiosity) >= payoff + 2)) return "hook";
+  if (tensionPhrase || (emotion >= 7 && emotion >= payoff + 2)) return "tension";
   return "context";
 }
 

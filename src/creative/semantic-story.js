@@ -30,7 +30,7 @@ function validate(result, segments, allowInvalidStoryWindow = false, allowInvali
     if (!expected.has(key) || seen.has(key)) throw new Error("Semantic story response referenced an unexpected or duplicate transition");
     seen.add(key);
     if (!["connected", "uncertain", "disconnected"].includes(item.relationship)) throw new Error("Invalid semantic relationship label");
-    const confidence = Number(item.confidence);
+    let confidence = Number(item.confidence);
     if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) throw new Error("Invalid semantic confidence");
     let evidence = String(item.evidence ?? "").trim().slice(0, 400);
     const fromText = byId.get(String(item.fromSegmentId));

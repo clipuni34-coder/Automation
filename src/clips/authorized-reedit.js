@@ -40,13 +40,25 @@ export async function runAuthorizedReedit(input, {
   if (!Number.isFinite(averageEditorialScore) || averageEditorialScore < minimumRenderScore) {
     const reason = "Selected moments did not meet the minimum editorial quality gate (average "
       + averageEditorialScore.toFixed(2) + "/10; minimum " + minimumRenderScore.toFixed(1) + "/10). Do not auto-render weak material.";
+    const reviewCandidates = (plan.editDecisionList ?? []).slice(0, 5).map(item => ({
+      segmentId: item.segmentId,
+      sourceIn: item.sourceIn,
+      sourceOut: item.sourceOut,
+      score: item.score,
+      beatRole: item.beatRole
+    }));
     plan.status = "editorial_review_required";
     plan.rights = { allowed: false, status: "not_editorially_qualified", reasons: [reason] };
+    plan.targetDurationSeconds = 0;
+    plan.openingHook = null;
+    plan.hookOverlay = null;
+    plan.editDecisionList = [];
     plan.editorialQuality = {
       ...plan.editorialQuality,
       status: "below_render_threshold",
       minimumRenderScore,
-      averageSelectedScore: averageEditorialScore
+      averageSelectedScore: averageEditorialScore,
+      reviewCandidates
     };
     return { status: "editorial_review_required", plan, rendered: null, outputPath: null };
   }

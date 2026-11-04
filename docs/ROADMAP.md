@@ -77,9 +77,9 @@
 ## Phase 5 — Platform connections and publishing
 - [x] Verify YouTube upload/Analytics APIs, OAuth scopes and Nigeria YPP thresholds; document TikTok/Instagram access and publishing limitations.
 - [x] Implement a guarded YouTube OAuth refresh, channel identity check, resumable upload and processing-status adapter; TikTok/Instagram adapters remain future work.
-- [x] Store YouTube OAuth credentials as GitHub Actions secrets and verify the connected channel ID before upload; token revocation handling and multi-account credential mapping remain outstanding.
-- [x] Add YouTube publishing workflow with explicit channel-level opt-in, quality/policy gates, duplicate fingerprint protection and upload confirmation artifacts; robust retries and multi-platform audit logs remain outstanding.
-- [x] Wire YouTube unattended scheduling behind explicit owner-configured workflow variables; live account authorization and end-to-end upload verification are still pending.
+- [x] Keep publication behind explicit human approval and disable unattended YouTube uploads; draft/export artifacts are the only automatic output.
+- [ ] Verify a manually approved YouTube upload end-to-end against the owner's channel; token revocation handling and multi-account credential mapping remain outstanding.
+- [ ] Add TikTok/Instagram publishing only after account access, policy and permissions are verified.
 
 ## Phase 6 — Analytics and learning
 - [x] Add platform-metric normalization for retention, engagement, viewed-versus-swiped, CTR and subscriber gains, plus sample-size-aware experiment suggestions.

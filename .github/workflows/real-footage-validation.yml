@@ -62,17 +62,17 @@ jobs:
           python -m pip install --disable-pip-version-check -r requirements/repurposing.txt
       - name: Download public-domain first-step source footage
         env:
-          REPURPOSE_SOURCE_URL: https://svs.gsfc.nasa.gov/vis/a010000/a010400/a010451/Apollo_11_2_minute_montage_H264_720p.mov
-          REPURPOSE_SOURCE_PATH: work/apollo-11-moonwalk-montage.mov
+          REPURPOSE_SOURCE_URL: https://svs.gsfc.nasa.gov/vis/a010000/a010400/a010453/Apollo_11_EVA_1_H264_720p.mov
+          REPURPOSE_SOURCE_PATH: work/apollo-11-eva1-descent.mov
           MEDIA_SOURCE_ALLOWED_HOSTS: nasa.gov
           MEDIA_MAX_UPLOAD_MB: '100'
         run: node scripts/download-authorized-source.js
       - name: Prepare a bounded real-footage sample
         run: |
           mkdir -p work output/real-footage
-          # Use the official two-minute restored Apollo 11 moonwalk montage rather than the dark 16mm descent window.
-          # This fixture contains multiple clear visual moments and original mission audio.
-          ffmpeg -y -hide_banner -loglevel error -i work/apollo-11-moonwalk-montage.mov -t 120 -c:v libx264 -preset veryfast -crf 22 -c:a aac -movflags +faststart work/source-sample.mp4
+          # Use the official NASA restored EVA 1 descent footage: one continuous event rather than a montage of disconnected mission moments.
+          # This source follows Armstrong's descent to the lunar surface and preserves the original mission sequence.
+          ffmpeg -y -hide_banner -loglevel error -i work/apollo-11-eva1-descent.mov -t 120 -c:v libx264 -preset veryfast -crf 22 -c:a aac -movflags +faststart work/source-sample.mp4
           ffprobe -v error -show_entries format=duration:stream=codec_name,width,height -of json work/source-sample.mp4
       - name: Transcribe, select moments and render from real audio
         env:
@@ -99,14 +99,14 @@ jobs:
             "sourceLocalPath": "work/source-sample.mp4",
             "outputPath": "output/real-footage/short.mp4",
             "source": {
-              "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a010000/a010400/a010451/Apollo_11_2_minute_montage_H264_720p.mov",
-              "title": "Apollo 11 Moonwalk Montage",
+              "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a010000/a010400/a010453/Apollo_11_EVA_1_H264_720p.mov",
+              "title": "Apollo 11 EVA 1 — Armstrong's Descent to the Lunar Surface",
               "excerptStartSeconds": 0,
-              "creator": "NASA/Goddard Space Flight Center; NASA Johnson",
+              "creator": "NASA/Goddard Space Flight Center",
               "rightsStatus": "public_domain",
-              "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Apollo_11_Moonwalk_Montage.webm",
+              "rightsEvidenceUrl": "https://svs.gsfc.nasa.gov/10453",
               "allowedPlatforms": ["youtube_shorts"],
-              "attribution": "NASA/Goddard Space Flight Center; NASA Johnson (2009). Public-domain U.S. government Apollo 11 Moonwalk Montage."
+              "attribution": "NASA/Goddard Space Flight Center (2009). Public-domain U.S. government Apollo 11 EVA 1 — Armstrong's Descent to the Lunar Surface."
             },
             "targetDurationSeconds": 45,
             "platform": "youtube_shorts",

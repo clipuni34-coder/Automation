@@ -25,6 +25,7 @@ export async function runAuthorizedReedit(input, {
     source: input.source,
     transcriptSegments: input.transcriptSegments,
     targetDurationSeconds: input.targetDurationSeconds ?? 45,
+    minMomentScore: input.minMomentScore ?? 0,
     platform,
     narrativeSemanticAnalysis: input.narrativeSemanticAnalysis ?? null
   });

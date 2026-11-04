@@ -68,7 +68,8 @@
 - [x] Add manual workflow-dispatch intake for direct HTTPS source media, rights attestation, host allowlisting, redirect/DNS validation, download caps, processing and result artifacts.
 - [ ] Add direct iPhone file upload and durable private cloud asset storage; current intake accepts public direct-download URLs only.
 - [x] Add Faster-Whisper word-timed transcription support to the authorized re-edit CLI and FFmpeg scene-change/silence analysis as candidate-level signals; synthetic-media integration verifies the FFmpeg signal path.
-- [ ] Verify Faster-Whisper against a real authorized source and expand visual analysis beyond scene cuts (e.g. speaker/subject tracking and action cues).
+- [x] Verify Faster-Whisper against the real NASA Apollo 11 landing source: 520 word-timed words were produced from the 959-second source sample; the editorial gate correctly held the weak candidate set (2.68/10) and emitted no MP4/package.
+- [ ] Expand visual analysis beyond scene cuts (e.g. speaker/subject tracking and action cues); current FFmpeg validation detected only one scene change in this sample.
 - [x] Connect standalone re-edit and creator-compilation plans to render manifests with source cut points and local authorized media paths.
 - [ ] Add timed commentary placement and sound design for compilation edits; standalone re-edits now have word-timed karaoke captions and score-triggered punch-ins.
 - [ ] Add creator permission-request/expiry/revocation workflow and evidence storage.

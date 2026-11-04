@@ -243,7 +243,7 @@ async function callOpenAI(prompt, apiKey, fetchImpl, timeoutMs) {
   }
 }
 
-async function callOpenRouter(prompt, apiKey, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-super-vl:free") {
+async function callOpenRouter(prompt, apiKey, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-lightning:free") {
   if (model !== "openrouter/free" && !model.endsWith(":free")) {
     throw new Error("OpenRouter fallback is restricted to explicitly free models; paid model calls are disabled.");
   }
@@ -262,7 +262,7 @@ async function callOpenRouter(prompt, apiKey, fetchImpl, timeoutMs, model = proc
         model,
         temperature: 0.7,
         max_tokens: 6000,
-        reasoning: { max_tokens: 1024 },
+        reasoning: { effort: "low", max_tokens: 512 },
         messages: [
           { role: "system", content: "Return only valid JSON. Do not invent facts. Follow the requested schema exactly." },
           { role: "user", content: prompt }

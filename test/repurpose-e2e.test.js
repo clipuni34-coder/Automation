@@ -24,11 +24,10 @@ test("authorized repurposing pipeline scores timed words and renders original so
     assert.equal(source.status, 0, source.stderr?.toString());
 
     const transcriptWords = [
-      ["Wait", 0, 0.4], ["until", 0.4, 0.8], ["you", 0.8, 1.0],
-      ["see", 1.0, 1.3], ["what", 1.3, 1.6], ["happens", 1.6, 2.2],
-      ["next.", 2.2, 2.8],
-      ["The", 4.0, 4.3], ["result", 4.3, 4.8], ["was", 4.8, 5.1],
-      ["incredible!", 5.1, 6.2]
+      ["Why", 0, 0.3], ["did", 0.3, 0.6], ["this", 0.6, 0.9], ["happen?", 0.9, 1.5],
+      ["This", 1.5, 1.8], ["is", 1.8, 2.0], ["incredible!", 2.0, 2.8],
+      ["Why", 4.0, 4.3], ["is", 4.3, 4.5], ["the", 4.5, 4.7], ["result", 4.7, 5.0],
+      ["so", 5.0, 5.2], ["incredible?", 5.2, 5.7], ["The", 5.7, 5.9], ["result", 5.9, 6.1], ["was", 6.1, 6.3], ["incredible!", 6.3, 6.8]
     ].map(([word, start, end]) => ({ word, start, end }));
     const mediaSignals = analyzeMediaSignals(sourcePath, { durationSeconds: 8 });
     assert.equal(mediaSignals.engine, "ffmpeg");

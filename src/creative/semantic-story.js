@@ -220,6 +220,7 @@ async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = proc
       // when structured-output parameters are not implemented consistently.
       // Retry once without response_format, then still validate JSON locally.
       if (requireJsonMode) body.response_format = { type: "json_object" };
+      else body.reasoning = { effort: "none" };
       const response = await fetchImpl("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json", "HTTP-Referer": "https://github.com/clipuni34-coder/Automation", "X-Title": "Personal Autonomous Creator Workflow" },
         body: JSON.stringify(body),

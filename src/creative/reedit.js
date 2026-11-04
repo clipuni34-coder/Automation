@@ -87,9 +87,9 @@ function selectConnectedSemanticExcerpt(segments, semanticWindow, transitions, m
         ...excerpt.map(item => Number(item.semanticAssessment.confidence)),
         ...path.map(item => Number(item.confidence))
       );
-      const utility = averageScore + (roles.includes("tension") ? 0.3 : 0)
-        + (roles.includes("context") ? 0.2 : 0) + (roles.includes("hook") ? 0.2 : 0)
-        - sourceSpan * 0.001;
+      const roleCoverageBonus = new Set(roles.filter(role => ["context", "tension", "hook", "payoff"].includes(role))).size * 0.25;
+      const lengthBonus = (excerpt.length - 2) * 0.25;
+      const utility = averageScore + roleCoverageBonus + lengthBonus - sourceSpan * 0.001;
       candidates.push({
         segments: excerpt,
         averageScore: Number(averageScore.toFixed(2)),

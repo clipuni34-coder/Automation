@@ -325,3 +325,21 @@ test("validated complete semantic story window takes priority over isolated scor
   assert.equal(plan.editDecisionList[1].treatment.motionTreatment, "subtle_push");
   assert.equal(plan.editDecisionList[2].treatment.motionTreatment, "settle_pullback");
 });
+
+
+test("editorial hold exposes ranked candidate evidence and weak signal breakdown", () => {
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 12,
+    transcriptSegments: [
+      { id: "candidate-a", start: 0, end: 4, text: "The lesson begins with a general safety instruction.", signals: { hook: 1, curiosity: 1, emotion: 2, payoff: 1, clarity: 8 } },
+      { id: "candidate-b", start: 5, end: 9, text: "The presenter repeats the same general instruction.", signals: { hook: 1, curiosity: 1, emotion: 1, payoff: 1, clarity: 8 } }
+    ]
+  });
+  assert.equal(plan.status, "editorial_review_required");
+  assert.equal(plan.editorialQuality.candidateDiagnostics.method, "top_five_heuristic_candidate_score_breakdown");
+  assert.equal(plan.editorialQuality.candidateDiagnostics.topCandidates.length, 2);
+  assert.equal(plan.editorialQuality.candidateDiagnostics.topCandidates[0].segmentId, "candidate-a");
+  assert.ok(plan.editorialQuality.candidateDiagnostics.topCandidates[0].weakSignals.includes("hook"));
+  assert.match(plan.editorialQuality.candidateDiagnostics.limitation, /not semantic understanding/i);
+});

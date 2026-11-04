@@ -99,10 +99,11 @@ function selectConnectedSemanticExcerpt(segments, semanticWindow, transitions, m
         confidence: Number(confidence.toFixed(2)),
         modelWindowArcStatus: semanticWindow?.arcStatus ?? "not_provided",
         modelWindowConfidence: semanticWindow?.confidence ?? null,
-        summary: excerpt.map(item => item.text).join(" ").replace(/\\s+/g, " ").trim().slice(0, 500),
+        summary: excerpt.map(item => item.text).join(" ").replace(/\s+/g, " ").trim().slice(0, 500),
         method: "quote_validated_connected_excerpt",
-        limitation: "This is a connected excerpt from the larger source, not a claim that the full story arc is present."
-      , utility });
+        limitation: "This is a connected excerpt from the larger source, not a claim that the full story arc is present.",
+        utility
+      });
     }
   }
   return candidates.sort((a, b) => b.utility - a.utility || a.sourceSpanSeconds - b.sourceSpanSeconds)[0] ?? null;

@@ -250,3 +250,49 @@ test("Gemini semantic analysis retries once after exact-quote evidence validatio
   assert.equal(result.momentAssessmentStatus, "complete");
   assert.equal(result.momentAssessments[0].evidence, "The rescue team reached the mountain");
 });
+
+
+test("Groq semantic fallback uses its OpenAI-compatible endpoint and validates source evidence", async () => {
+  let requestedUrl = "";
+  const fetchImpl = async (url) => {
+    requestedUrl = url;
+    return {
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: JSON.stringify({ transitions: [{
+        fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.9,
+        explanation: "The second chunk continues the rescue.", evidence: "They carried the injured climber"
+      }] }) } }] })
+    };
+  };
+  const result = await analyzeSemanticStory([
+    { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
+    { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
+  ], { geminiApiKey: "", groqApiKey: "test-key", openrouterApiKey: "", openaiApiKey: "", fetchImpl });
+  assert.equal(requestedUrl, "https://api.groq.com/openai/v1/chat/completions");
+  assert.equal(result.provider, "groq");
+  assert.equal(result.qualified, true);
+});
+
+test("Cloudflare Workers AI semantic fallback parses its REST response envelope", async () => {
+  let requestedUrl = "";
+  const fetchImpl = async (url) => {
+    requestedUrl = url;
+    return {
+      ok: true,
+      json: async () => ({ success: true, result: { response: JSON.stringify({ transitions: [{
+        fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.88,
+        explanation: "The second chunk continues the rescue.", evidence: "They carried the injured climber"
+      }] }) } })
+    };
+  };
+  const result = await analyzeSemanticStory([
+    { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
+    { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
+  ], {
+    geminiApiKey: "", groqApiKey: "", openrouterApiKey: "", openaiApiKey: "",
+    cloudflareAccountId: "account-test", cloudflareApiToken: "token-test", fetchImpl
+  });
+  assert.match(requestedUrl, /accounts\/account-test\/ai\/run\/%40cf%2Fmeta%2Fllama-3\.3-70b-instruct-fp8-fast$/);
+  assert.equal(result.provider, "cloudflare-workers-ai");
+  assert.equal(result.qualified, true);
+});

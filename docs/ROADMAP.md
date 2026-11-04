@@ -8,7 +8,7 @@
 
 ## Phase 1 — Product and upstream audit
 - [x] Clarify product: autonomous discovery; no user video upload required.
-- [x] Inspect the supplied TikTok, Instagram, YouTube and general social-media skill repositories.
+- [x] Inspect the supplied TikTok, Instagram, YouTube, general social-media skill repositories, and assess Odysseus as a separate AGPL self-hosted workspace (reference-only; not installed as a runtime).
 - [x] Record reusable capabilities, gaps, licenses and external dependencies.
 - [x] Document the autonomous product specification and rights/policy boundaries.
 - [ ] Inspect every selected upstream skill's supporting references/scripts before adapting it.

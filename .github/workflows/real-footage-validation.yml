@@ -48,15 +48,17 @@ jobs:
           python -m pip install --disable-pip-version-check -r requirements/repurposing.txt
       - name: Download public-domain source footage
         env:
-          REPURPOSE_SOURCE_URL: https://upload.wikimedia.org/wikipedia/commons/f/fb/Duck_and_Cover_1440_x_1080_01836081.webm
-          REPURPOSE_SOURCE_PATH: work/source-media.mp4
-          MEDIA_SOURCE_ALLOWED_HOSTS: upload.wikimedia.org
-          MEDIA_MAX_UPLOAD_MB: '600'
+          REPURPOSE_SOURCE_URL: https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/A11Landing.mov
+          REPURPOSE_SOURCE_PATH: work/apollo-11-landing.mov
+          MEDIA_SOURCE_ALLOWED_HOSTS: nasa.gov
+          MEDIA_MAX_UPLOAD_MB: '100'
         run: node scripts/download-authorized-source.js
       - name: Prepare a bounded real-footage sample
         run: |
           mkdir -p work output/real-footage
-          ffmpeg -y -hide_banner -loglevel error -i work/source-media.mp4 -t 120 -c:v libx264 -preset veryfast -crf 23 -c:a aac -movflags +faststart work/source-sample.mp4
+          # The final two minutes contain the critical descent, low-fuel warnings,
+          # touchdown and the immediate post-landing view.
+          ffmpeg -y -hide_banner -loglevel error -sseof -120 -i work/apollo-11-landing.mov -t 120 -c:v libx264 -preset veryfast -crf 23 -c:a aac -movflags +faststart work/source-sample.mp4
           ffprobe -v error -show_entries format=duration:stream=codec_name,width,height -of json work/source-sample.mp4
       - name: Transcribe, select moments and render from real audio
         env:
@@ -82,12 +84,13 @@ jobs:
             "sourceLocalPath": "work/source-sample.mp4",
             "outputPath": "output/real-footage/short.mp4",
             "source": {
-              "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Duck_and_Cover_1440_x_1080_01836081.webm",
-              "title": "Duck and Cover (1951)",
-              "creator": "Archer Productions / Prelinger Archives",
+              "sourceUrl": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/A11Landing.mov",
+              "title": "Apollo 11 lunar module landing — final descent",
+              "creator": "Gary Neff (16mm landing film); source footage courtesy John Knoll",
               "rightsStatus": "public_domain",
-              "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Duck_and_Cover_1440_x_1080_01836081.webm",
-              "allowedPlatforms": ["youtube_shorts"]
+              "rightsEvidenceUrl": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/video11.html",
+              "allowedPlatforms": ["youtube_shorts"],
+              "attribution": "Apollo 11 landing film; NASA Apollo 11 Video Library (public-domain clip; digitization credit appreciated)"
             },
             "targetDurationSeconds": 45,
             "platform": "youtube_shorts",

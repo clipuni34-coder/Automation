@@ -8,7 +8,7 @@ For semantic story analysis:
 
 1. Gemini, when explicitly enabled.
 2. Groq, when explicitly enabled.
-3. OpenRouter's free-model router.
+3. OpenRouter's pinned NVIDIA Nemotron 3.5 Super VL free endpoint for semantic story analysis.
 4. Cloudflare Workers AI, when explicitly enabled.
 5. OpenAI, when explicitly enabled.
 
@@ -40,7 +40,7 @@ Under **Settings → Secrets and variables → Actions → Variables**, set thes
 - `ENABLE_CLOUDFLARE_CREATIVE`
 - `ENABLE_OPENAI_CREATIVE`
 
-They default to `false`. A secret by itself does not enable these providers in the real-footage workflow. OpenRouter is pinned to `openrouter/free` and is only called when `OPENROUTER_API_KEY` exists; the code rejects a paid OpenRouter model route.
+They default to `false`. A secret by itself does not enable these providers in the real-footage workflow. Semantic story analysis is pinned to `nvidia/nemotron-3.5-super-vl:free` and disables its default reasoning mode so the response budget remains available for the structured JSON result. Creative briefs may still use the dynamic `openrouter/free` route. OpenRouter is only called when `OPENROUTER_API_KEY` exists; the code rejects a paid OpenRouter model route.
 
 ## Cost and quota cautions
 
@@ -54,9 +54,9 @@ They default to `false`. A secret by itself does not enable these providers in t
 
 - Groq: `openai/gpt-oss-120b`
 - Cloudflare Workers AI: `@cf/meta/llama-3.3-70b-instruct-fp8-fast`
-- OpenRouter: `openrouter/free`
+- OpenRouter semantic analysis: `nvidia/nemotron-3.5-super-vl:free`; creative briefs: `openrouter/free`
 
-The Groq and Cloudflare model IDs are configurable with `GROQ_MODEL` and `CLOUDFLARE_MODEL`. The OpenRouter model is deliberately pinned to the free route in the GitHub workflows.
+The Groq and Cloudflare model IDs are configurable with `GROQ_MODEL` and `CLOUDFLARE_MODEL`. The semantic-analysis model is deliberately pinned to a free NVIDIA endpoint in the real-footage workflow; the creative-brief route remains the dynamic free router.
 
 ## Provider dashboards and documentation
 

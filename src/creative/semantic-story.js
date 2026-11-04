@@ -361,7 +361,7 @@ export async function analyzeSemanticStory(segments, {
   cloudflareApiToken = process.env.ENABLE_CLOUDFLARE_CREATIVE === "true" ? process.env.CLOUDFLARE_API_TOKEN ?? "" : "",
   openaiApiKey = process.env.ENABLE_OPENAI_CREATIVE === "true" ? process.env.OPENAI_API_KEY ?? "" : "",
   fetchImpl = fetch,
-  timeoutMs = 20000,
+  timeoutMs = 45000,
   targetDurationSeconds = 45,
   openrouterModel = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-super-vl:free"
 } = {}) {

@@ -73,7 +73,6 @@ function validate(result, segments, allowInvalidStoryWindow = false, allowInvali
   });
   if (seen.size !== expected.size) throw new Error("Semantic story response omitted one or more adjacent transitions");
   const disconnected = transitions.filter(item => item.relationship !== "connected" || item.confidence < 0.7);
-  const unverifiedMoments = momentAssessments.filter(item => item.evidenceValidated === false).length;
   let momentAssessments = [];
   if (result.momentAssessments !== undefined) {
     if (!Array.isArray(result.momentAssessments)) throw new Error("Semantic story response momentAssessments must be an array");
@@ -103,6 +102,7 @@ function validate(result, segments, allowInvalidStoryWindow = false, allowInvali
     });
     if (assessmentIds.size !== segments.length) throw new Error("Semantic story response omitted one or more moment assessments");
   }
+  const unverifiedMoments = momentAssessments.filter(item => item.evidenceValidated === false).length;
   let storyWindow = null;
   let storyWindowError = null;
   if (result.storyWindow !== undefined && result.storyWindow !== null) {

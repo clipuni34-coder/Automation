@@ -64,6 +64,38 @@ test("partial semantic story windows may select a quote-validated connected exce
   assert.equal(plan.hookOverlay.segmentId, "relief");
 });
 
+test("finds a two-moment connected landing-and-reaction excerpt outside the model's partial story window", () => {
+  const transcriptSegments = [
+    { id: "landing", start: 224.56, end: 232, text: "Roger, Tranquility, we copy you on the ground. We're breathing again, thanks a lot, hey.", signals: { hook: 0, emotion: 2, curiosity: 0, payoff: 1, clarity: 8 } },
+    { id: "reaction", start: 232.5, end: 236, text: "You're looking good here.", signals: { hook: 1, emotion: 2, curiosity: 1, payoff: 1, clarity: 8 } }
+  ];
+  const narrativeSemanticAnalysis = {
+    status: "human_review_required",
+    provider: "gemini",
+    momentAssessments: [
+      { segmentId: "landing", compellingScore: 9, confidence: 0.95, role: "payoff", selfContained: true, evidenceValidated: true, evidence: "we copy you on the ground" },
+      { segmentId: "reaction", compellingScore: 6, confidence: 0.8, role: "context", selfContained: true, evidenceValidated: true, evidence: "You're looking good here." }
+    ],
+    transitions: [
+      { fromSegmentId: "landing", toSegmentId: "reaction", relationship: "connected", confidence: 0.9, evidenceSegmentId: "reaction", evidenceValidated: true, evidence: "You're looking good here." }
+    ],
+    storyWindow: { arcStatus: "partial", segmentIds: ["unrelated-1", "unrelated-2", "unrelated-3"], confidence: 0.6, evidenceValidated: false, summary: "The model selected an unrelated partial window." }
+  };
+  const plan = buildReeditPlan({
+    source: { ...licensed, excerptStartSeconds: 700 },
+    targetDurationSeconds: 45,
+    transcriptSegments,
+    narrativeSemanticAnalysis
+  });
+  assert.equal(plan.status, "edit_plan_ready");
+  assert.equal(plan.editorialQuality.selectionStrategy, "semantic_connected_excerpt");
+  assert.deepEqual(plan.editDecisionList.map(item => item.segmentId), ["landing", "reaction"]);
+  assert.ok(plan.editorialQuality.averageSelectedScore >= 5.5);
+  assert.equal(plan.editorialQuality.semanticStoryWindow.arcStatus, "partial");
+  assert.equal(plan.editorialQuality.semanticStoryWindow.qualified, true);
+  assert.match(plan.editorialNotes.join(" "), /not a claim that the full story arc is present/);
+});
+
 test("partial semantic story windows do not qualify when adjacent evidence is not verified", () => {
   const transcriptSegments = [
     { id: "context", start: 10, end: 12.7, text: "We copy you on the ground.", signals: { hook: 3, emotion: 3, curiosity: 3, payoff: 3, clarity: 3 } },

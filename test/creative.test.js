@@ -214,7 +214,6 @@ test("creative provider uses the OpenRouter free-model router when it is the onl
   assert.equal(request.options.headers.authorization, "Bearer openrouter-test-key");
   assert.equal(JSON.parse(request.options.body).model, "mistralai/mistral-small-3.2-24b-instruct:free");
   assert.equal("reasoning" in JSON.parse(request.options.body), false);
-  assert.equal(JSON.parse(request.options.body).reasoning.effort, "low");
 });
 
 test("OpenRouter creative fallback refuses paid models", async () => {

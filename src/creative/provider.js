@@ -166,6 +166,31 @@ async function callGemini(prompt, apiKey, fetchImpl, timeoutMs, sleep = (ms) => 
   throw new Error(errors.join("; "));
 }
 
+async function callGroq(prompt, apiKey, fetchImpl, timeoutMs, model = process.env.GROQ_MODEL ?? "openai/gpt-oss-120b") {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetchImpl("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
+      body: JSON.stringify({
+        model, temperature: 0.4, max_tokens: 6000,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: "Return only valid JSON. Do not invent facts. Follow the requested schema exactly." },
+          { role: "user", content: prompt }
+        ]
+      }),
+      signal: controller.signal
+    });
+    if (!response.ok) throw new Error(`Groq returned HTTP ${response.status}: ${(await response.text()).slice(0, 700)}`);
+    const payload = await response.json();
+    const content = payload.choices?.[0]?.message?.content;
+    if (!content) throw new Error("Groq returned an empty response");
+    return extractJson(content);
+  } finally { clearTimeout(timeout); }
+}
+
 async function callOpenAI(prompt, apiKey, fetchImpl, timeoutMs) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -234,6 +259,7 @@ async function callOpenRouter(prompt, apiKey, fetchImpl, timeoutMs, model = proc
 export async function generateEditorialPlan({
   dossier,
   geminiApiKey = process.env.ENABLE_GEMINI_CREATIVE === "true" ? (process.env.GEMINI_API_KEY ?? "") : "",
+  groqApiKey = process.env.ENABLE_GROQ_CREATIVE === "true" ? (process.env.GROQ_API_KEY ?? "") : "",
   openaiApiKey = process.env.ENABLE_OPENAI_CREATIVE === "true" ? (process.env.OPENAI_API_KEY ?? "") : "",
   openrouterApiKey = process.env.OPENROUTER_API_KEY ?? "",
   openrouterModel = process.env.OPENROUTER_MODEL ?? "openrouter/free",
@@ -245,12 +271,13 @@ export async function generateEditorialPlan({
   if (!dossier || typeof dossier !== "object" || !dossier.topic) {
     throw new Error("A research dossier with a topic is required");
   }
-  if (!geminiApiKey && !openaiApiKey && !openrouterApiKey) {
+  if (!geminiApiKey && !groqApiKey && !openaiApiKey && !openrouterApiKey) {
     return { status: "not_configured", provider: null, plan: null };
   }
   const prompt = buildPrompt(dossier, outputLanguage);
   const providers = [
     ...(geminiApiKey ? [["gemini", () => callGemini(prompt, geminiApiKey, fetchImpl, timeoutMs, sleepImpl)]] : []),
+    ...(groqApiKey ? [["groq", () => callGroq(prompt, groqApiKey, fetchImpl, timeoutMs)]] : []),
     ...(openaiApiKey ? [["openai", () => callOpenAI(prompt, openaiApiKey, fetchImpl, timeoutMs)]] : []),
     ...(openrouterApiKey ? [["openrouter-free", () => callOpenRouter(prompt, openrouterApiKey, fetchImpl, timeoutMs, openrouterModel)]] : [])
   ];

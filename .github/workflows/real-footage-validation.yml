@@ -58,17 +58,17 @@ jobs:
           python -m pip install --disable-pip-version-check -r requirements/repurposing.txt
       - name: Download public-domain first-step source footage
         env:
-          REPURPOSE_SOURCE_URL: https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/A11Landing.mov
-          REPURPOSE_SOURCE_PATH: work/apollo-11-powered-descent.mov
+          REPURPOSE_SOURCE_URL: https://svs.gsfc.nasa.gov/vis/a010000/a010400/a010451/Apollo_11_2_minute_montage_H264_720p.mov
+          REPURPOSE_SOURCE_PATH: work/apollo-11-moonwalk-montage.mov
           MEDIA_SOURCE_ALLOWED_HOSTS: nasa.gov
           MEDIA_MAX_UPLOAD_MB: '100'
         run: node scripts/download-authorized-source.js
       - name: Prepare a bounded real-footage sample
         run: |
           mkdir -p work output/real-footage
-          # Focus on the final 259 seconds: the 1,200-foot alarm, final descent, contact and touchdown announcement.
-          # Source timecodes in the result are relative to this excerpt; excerptStartSeconds records the original offset.
-          ffmpeg -y -hide_banner -loglevel error -ss 700 -i work/apollo-11-powered-descent.mov -t 259 -c:v libx264 -preset veryfast -crf 23 -c:a aac -movflags +faststart work/source-sample.mp4
+          # Use the official two-minute restored Apollo 11 moonwalk montage rather than the dark 16mm descent window.
+          # This fixture contains multiple clear visual moments and original mission audio.
+          ffmpeg -y -hide_banner -loglevel error -i work/apollo-11-moonwalk-montage.mov -t 120 -c:v libx264 -preset veryfast -crf 22 -c:a aac -movflags +faststart work/source-sample.mp4
           ffprobe -v error -show_entries format=duration:stream=codec_name,width,height -of json work/source-sample.mp4
       - name: Transcribe, select moments and render from real audio
         env:
@@ -95,14 +95,14 @@ jobs:
             "sourceLocalPath": "work/source-sample.mp4",
             "outputPath": "output/real-footage/short.mp4",
             "source": {
-              "sourceUrl": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/A11Landing.mov",
-              "title": "Apollo 11 — final descent and touchdown excerpt",
-              "excerptStartSeconds": 700,
-              "creator": "NASA Apollo Lunar Surface Journal; 16mm landing film by Gary Neff",
+              "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a010000/a010400/a010451/Apollo_11_2_minute_montage_H264_720p.mov",
+              "title": "Apollo 11 Moonwalk Montage",
+              "excerptStartSeconds": 0,
+              "creator": "NASA/Goddard Space Flight Center; NASA Johnson",
               "rightsStatus": "public_domain",
-              "rightsEvidenceUrl": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/video11.html",
+              "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Apollo_11_Moonwalk_Montage.webm",
               "allowedPlatforms": ["youtube_shorts"],
-              "attribution": "NASA Apollo 11 Video Library; public-domain Apollo 11 powered-descent film with original mission-control and astronaut audio."
+              "attribution": "NASA/Goddard Space Flight Center; NASA Johnson (2009). Public-domain U.S. government Apollo 11 Moonwalk Montage."
             },
             "targetDurationSeconds": 45,
             "platform": "youtube_shorts",

@@ -20,14 +20,18 @@ function parseObject(raw) {
   return parsed;
 }
 
-function validate(result, segments, allowInvalidStoryWindow = false, allowInvalidEvidence = false) {
+function validate(result, segments, allowInvalidStoryWindow = false, allowInvalidEvidence = false, allowInvalidTransitions = false) {
   if (!Array.isArray(result.transitions)) throw new Error("Semantic story response must contain transitions");
-  const expected = new Set(segments.slice(1).map((item, index) => segments[index].id + "->" + item.id));
+  const expectedPairs = segments.slice(1).map((item, index) => ({ fromSegmentId: String(segments[index].id), toSegmentId: String(item.id) }));
+  const expected = new Set(expectedPairs.map(item => item.fromSegmentId + "->" + item.toSegmentId));
   const byId = new Map(segments.map(item => [String(item.id), String(item.text ?? "")]));
   const seen = new Set();
   const transitions = result.transitions.map(item => {
     const key = String(item.fromSegmentId) + "->" + String(item.toSegmentId);
-    if (!expected.has(key) || seen.has(key)) throw new Error("Semantic story response referenced an unexpected or duplicate transition");
+    if (!expected.has(key) || seen.has(key)) {
+      if (allowInvalidTransitions) return null;
+      throw new Error("Semantic story response referenced an unexpected or duplicate transition");
+    }
     seen.add(key);
     if (!["connected", "uncertain", "disconnected"].includes(item.relationship)) throw new Error("Invalid semantic relationship label");
     let confidence = Number(item.confidence);
@@ -71,8 +75,15 @@ function validate(result, segments, allowInvalidStoryWindow = false, allowInvali
       evidence
     };
   });
-  if (seen.size !== expected.size) throw new Error("Semantic story response omitted one or more adjacent transitions");
-  const disconnected = transitions.filter(item => item.relationship !== "connected" || item.confidence < 0.7);
+  const validTransitions = transitions.filter(Boolean);
+  if (seen.size !== expected.size && !allowInvalidTransitions) throw new Error("Semantic story response omitted one or more adjacent transitions");
+  if (allowInvalidTransitions) {
+    for (const pair of expectedPairs) {
+      const key = pair.fromSegmentId + "->" + pair.toSegmentId;
+      if (!seen.has(key)) validTransitions.push({ ...pair, relationship: "uncertain", evidenceSegmentId: null, evidenceValidated: false, confidence: 0, explanation: "The model omitted or duplicated this adjacent transition; human review is required.", evidence: "" });
+    }
+  }
+  const disconnected = validTransitions.filter(item => item.relationship !== "connected" || item.confidence < 0.7);
   let momentAssessments = [];
   if (result.momentAssessments !== undefined) {
     if (!Array.isArray(result.momentAssessments)) throw new Error("Semantic story response momentAssessments must be an array");
@@ -163,16 +174,16 @@ function validate(result, segments, allowInvalidStoryWindow = false, allowInvali
     status: disconnected.length || storyWindowError || unverifiedMoments ? "human_review_required" : "contextually_connected",
     provider: result.provider,
     method: "llm_adjacent_chunk_semantic_relationship_review",
-    transitions,
+    transitions: validTransitions,
     momentAssessments,
     momentAssessmentStatus: momentAssessments.length === segments.length ? "complete" : "not_provided",
     storyWindow,
     storyWindowStatus: storyWindow ? "assessed" : storyWindowError ? "invalid" : "not_provided",
     storyWindowError,
     unverifiedMoments,
-    connectedTransitions: transitions.length - disconnected.length,
+    connectedTransitions: validTransitions.length - disconnected.length,
     disconnectedOrUncertainTransitions: disconnected.length,
-    qualified: transitions.length > 0 && disconnected.length === 0 && !storyWindowError && unverifiedMoments === 0,
+    qualified: validTransitions.length > 0 && disconnected.length === 0 && !storyWindowError && unverifiedMoments === 0,
     limitation: "Model judgments are fallible interpretations of supplied transcript text, not proof of truth, causality, or visual events. Human review remains necessary."
   };
 }
@@ -385,12 +396,12 @@ export async function analyzeSemanticStory(segments, {
         try {
           return validate({ ...response, provider }, ordered);
         } catch (finalValidationError) {
-          if (/Semantic story-window assessment|complete semantic story window|Semantic evidence must quote|Connected semantic transitions require|Semantic moment evidence must quote/.test(finalValidationError.message)) {
+          if (/Semantic story-window assessment|complete semantic story window|Semantic evidence must quote|Connected semantic transitions require|Semantic moment evidence must quote|unexpected or duplicate transition|omitted one or more adjacent transitions/.test(finalValidationError.message)) {
             // Preserve independently valid moment assessments and downgrade
             // unsupported transitions. Invalid individual quotes get zero
             // confidence; a malformed story window is discarded. Human review
             // remains mandatory and no unverified beat is treated as fact.
-            return validate({ ...response, provider }, ordered, true, true);
+            return validate({ ...response, provider }, ordered, true, true, true);
           }
           throw finalValidationError;
         }

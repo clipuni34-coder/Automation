@@ -6,29 +6,36 @@ import { lookup } from "node:dns/promises";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 
+function ipv4InCidr(address, network, prefix) {
+  const value = address.split(".").reduce((sum, part) => (sum * 256 + Number(part)) >>> 0, 0);
+  const base = network.split(".").reduce((sum, part) => (sum * 256 + Number(part)) >>> 0, 0);
+  const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
+  return (value & mask) === (base & mask);
+}
+
 export function isPublicAddress(address) {
   const version = isIP(address);
   if (version === 4) {
-    const parts = address.split(".").map(Number);
-    const [a, b] = parts;
-    return !(a === 0 || a === 10 || a === 127 || a >= 224 ||
-      (a === 100 && b >= 64 && b <= 127) ||
-      (a === 169 && b === 254) ||
-      (a === 172 && b >= 16 && b <= 31) ||
-      (a === 192 && (b === 0 || b === 168)) ||
-      (a === 198 && (b === 18 || b === 19 || b === 51)) ||
-      (a === 203 && b === 0));
+    const nonPublicRanges = [
+      ["0.0.0.0", 8], ["10.0.0.0", 8], ["100.64.0.0", 10],
+      ["127.0.0.0", 8], ["169.254.0.0", 16], ["172.16.0.0", 12],
+      ["192.0.0.0", 24], ["192.0.2.0", 24], ["192.88.99.0", 24],
+      ["192.168.0.0", 16], ["198.18.0.0", 15], ["198.51.100.0", 24],
+      ["203.0.113.0", 24], ["224.0.0.0", 4], ["240.0.0.0", 4]
+    ];
+    return !nonPublicRanges.some(([network, prefix]) => ipv4InCidr(address, network, prefix));
   }
   if (version === 6) {
     const value = address.toLowerCase();
     if (value.startsWith("::ffff:")) return isPublicAddress(value.slice(7));
     return !(value === "::" || value === "::1" || value.startsWith("fc") ||
       value.startsWith("fd") || value.startsWith("fe8") || value.startsWith("fe9") ||
-      value.startsWith("fea") || value.startsWith("feb") || value.startsWith("ff"));
+      value.startsWith("fea") || value.startsWith("feb") || value.startsWith("fec") ||
+      value.startsWith("fed") || value.startsWith("fee") || value.startsWith("fef") ||
+      value.startsWith("ff") || value.startsWith("2001:db8:") || value.startsWith("100:"));
   }
   return false;
 }
-
 export function isAllowedHostname(hostname, allowedHosts) {
   const host = String(hostname).toLowerCase().replace(/\\.$/, "");
   return allowedHosts.some((entry) => {

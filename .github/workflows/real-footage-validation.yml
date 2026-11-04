@@ -69,7 +69,7 @@ jobs:
         env:
           PYTHON: python
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          ENABLE_GEMINI_CREATIVE: 'false'
+          ENABLE_GEMINI_CREATIVE: 'true'
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           ENABLE_GROQ_CREATIVE: 'true'
           GROQ_MODEL: 'openai/gpt-oss-120b'

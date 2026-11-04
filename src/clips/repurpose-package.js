@@ -47,7 +47,8 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
     || connectedExcerptReviewRequired
     || (!semanticStoryWindowQualified && semanticStatus === "human_review_required")
     || (!semanticStoryWindowQualified && semanticStatus === "contextually_connected" && plan.editorialQuality?.narrativeStructure?.semanticContinuityQualification?.qualified !== true);
-  const editorialApprovalRequired = visualReviewRequired || editorialReviewRequired || contextualStoryReviewRequired || semanticStoryReviewRequired || storyStructureReviewRequired;
+  const rightsReviewRequired = plan.rights?.verificationStatus !== "independently_verified";
+  const editorialApprovalRequired = rightsReviewRequired || visualReviewRequired || editorialReviewRequired || contextualStoryReviewRequired || semanticStoryReviewRequired || storyStructureReviewRequired;
   const platforms = [platform];
   const platformPackages = Object.fromEntries(platforms.map((platform) => {
     const tags = makeHashtags(hashtagText, platform);
@@ -63,6 +64,7 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
       approved: false,
       humanReviewRequired: true,
       reasons: [
+        ...(rightsReviewRequired ? ["Source rights are submitter-declared and have not been independently verified; a human must inspect the permission/license evidence before publication."] : []),
         ...(visualReviewRequired ? ["Visual quality review has not passed."] : []),
         ...(editorialReviewRequired ? ["Editorial score is missing or below the 5.5/10 threshold."] : []),
         ...(contextualStoryReviewRequired ? ["Narrative beats are ordered but adjacent context is disconnected; human review must confirm the story makes sense."] : []),
@@ -76,6 +78,8 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
       creator: plan.source?.creator ?? null,
       url: plan.source?.sourceUrl ?? null,
       rightsStatus: plan.source?.rightsStatus ?? "unknown",
+      rightsVerificationStatus: plan.rights?.verificationStatus ?? "not_assessed",
+      rightsEvidenceReferenceProvided: Boolean(plan.rights?.evidenceReferenceProvided),
       rightsEvidenceUrl: plan.source?.rightsEvidenceUrl ?? null,
       allowedPlatforms: plan.source?.allowedPlatforms ?? []
     },

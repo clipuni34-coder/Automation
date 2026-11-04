@@ -32,6 +32,25 @@ export async function runAuthorizedReedit(input, {
     return { status: plan.status, plan, rendered: null, outputPath: null };
   }
 
+  // A technically renderable edit is not necessarily editorially strong.
+  // Match the minimum score required by the final human-approval package:
+  // do not spend time rendering weak selections that cannot be approved.
+  const minimumRenderScore = 5.5;
+  const averageEditorialScore = Number(plan.editorialQuality?.averageSelectedScore ?? 0);
+  if (!Number.isFinite(averageEditorialScore) || averageEditorialScore < minimumRenderScore) {
+    const reason = "Selected moments did not meet the minimum editorial quality gate (average "
+      + averageEditorialScore.toFixed(2) + "/10; minimum " + minimumRenderScore.toFixed(1) + "/10). Do not auto-render weak material.";
+    plan.status = "editorial_review_required";
+    plan.rights = { allowed: false, status: "not_editorially_qualified", reasons: [reason] };
+    plan.editorialQuality = {
+      ...plan.editorialQuality,
+      status: "below_render_threshold",
+      minimumRenderScore,
+      averageSelectedScore: averageEditorialScore
+    };
+    return { status: "editorial_review_required", plan, rendered: null, outputPath: null };
+  }
+
   // The renderer expects an audio input even for source-only edits. Generate
   // a silent bed; source audio is preserved/mixed by the renderer when present.
   const duration = Number(plan.targetDurationSeconds);

@@ -182,6 +182,67 @@ async function requestGemini(prompt, key, fetchImpl, timeoutMs) {
   throw last ?? new Error("Gemini unavailable");
 }
 
+async function requestGroq(prompt, key, fetchImpl, timeoutMs, model = process.env.GROQ_MODEL ?? "openai/gpt-oss-120b") {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetchImpl("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json" },
+      body: JSON.stringify({ model, temperature: 0.1, max_tokens: 8000, response_format: { type: "json_object" }, messages: [
+        { role: "system", content: "Return valid JSON only. Be conservative and do not invent context." },
+        { role: "user", content: prompt }
+      ] }),
+      signal: controller.signal
+    });
+    if (!response.ok) throw await httpFailure(response, "Groq");
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) throw new Error("Groq returned an empty response");
+    return parseObject(content);
+  } finally { clearTimeout(timer); }
+}
+
+async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "openrouter/free") {
+  if (model !== "openrouter/free" && !model.endsWith(":free")) throw new Error("OpenRouter semantic fallback is restricted to explicitly free models");
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetchImpl("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json", "HTTP-Referer": "https://github.com/clipuni34-coder/Automation", "X-Title": "Personal Autonomous Creator Workflow" },
+      body: JSON.stringify({ model, temperature: 0.1, max_tokens: 8000, response_format: { type: "json_object" }, messages: [
+        { role: "system", content: "Return valid JSON only. Be conservative and do not invent context." },
+        { role: "user", content: prompt }
+      ] }),
+      signal: controller.signal
+    });
+    if (!response.ok) throw await httpFailure(response, "OpenRouter");
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) throw new Error("OpenRouter returned an empty response");
+    return parseObject(Array.isArray(content) ? content.map(part => part.text ?? "").join("") : content);
+  } finally { clearTimeout(timer); }
+}
+
+async function requestCloudflare(prompt, accountId, token, fetchImpl, timeoutMs, model = process.env.CLOUDFLARE_MODEL ?? "@cf/meta/llama-3.3-70b-instruct-fp8-fast") {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetchImpl(`https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId)}/ai/run/${encodeURIComponent(model)}`, {
+      method: "POST", headers: { authorization: "Bearer " + token, "content-type": "application/json" },
+      body: JSON.stringify({ messages: [
+        { role: "system", content: "Return valid JSON only. Be conservative and do not invent context." },
+        { role: "user", content: prompt }
+      ], response_format: { type: "json_object" } }),
+      signal: controller.signal
+    });
+    if (!response.ok) throw await httpFailure(response, "Cloudflare Workers AI");
+    const data = await response.json();
+    const content = data.result?.response ?? data.result?.output ?? data.response;
+    if (!content) throw new Error("Cloudflare Workers AI returned an empty response");
+    return parseObject(content);
+  } finally { clearTimeout(timer); }
+}
+
 async function requestOpenAI(prompt, key, fetchImpl, timeoutMs) {
   let last;
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -208,6 +269,10 @@ async function requestOpenAI(prompt, key, fetchImpl, timeoutMs) {
 
 export async function analyzeSemanticStory(segments, {
   geminiApiKey = process.env.ENABLE_GEMINI_CREATIVE === "true" ? process.env.GEMINI_API_KEY ?? "" : "",
+  groqApiKey = process.env.ENABLE_GROQ_CREATIVE === "true" ? process.env.GROQ_API_KEY ?? "" : "",
+  openrouterApiKey = process.env.OPENROUTER_API_KEY ?? "",
+  cloudflareAccountId = process.env.ENABLE_CLOUDFLARE_CREATIVE === "true" ? process.env.CLOUDFLARE_ACCOUNT_ID ?? "" : "",
+  cloudflareApiToken = process.env.ENABLE_CLOUDFLARE_CREATIVE === "true" ? process.env.CLOUDFLARE_API_TOKEN ?? "" : "",
   openaiApiKey = process.env.ENABLE_OPENAI_CREATIVE === "true" ? process.env.OPENAI_API_KEY ?? "" : "",
   fetchImpl = fetch,
   timeoutMs = 45000,
@@ -218,10 +283,13 @@ export async function analyzeSemanticStory(segments, {
     return { status: "input_too_large", provider: null, transitions: [], qualified: false, method: "semantic_input_limit", limitation: "Transcript exceeded conservative semantic-analysis size limits; use the deterministic fallback and human review." };
   }
   if (ordered.length < 2) return { status: "insufficient_context", provider: null, transitions: [], qualified: false, method: "not_applicable" };
-  if (!geminiApiKey && !openaiApiKey) return { status: "not_configured", provider: null, transitions: [], qualified: false, method: "semantic_provider_not_configured", limitation: "No explicitly enabled semantic provider and API key were supplied; lexical analysis remains the only available context signal." };
+  if (!geminiApiKey && !groqApiKey && !openrouterApiKey && !(cloudflareAccountId && cloudflareApiToken) && !openaiApiKey) return { status: "not_configured", provider: null, transitions: [], qualified: false, method: "semantic_provider_not_configured", limitation: "No explicitly enabled semantic provider and API key were supplied; lexical analysis remains the only available context signal." };
   const prompt = makePrompt(ordered, targetDurationSeconds);
   const providers = [
     ...(geminiApiKey ? [["gemini", (activePrompt) => requestGemini(activePrompt, geminiApiKey, fetchImpl, timeoutMs)]] : []),
+    ...(groqApiKey ? [["groq", (activePrompt) => requestGroq(activePrompt, groqApiKey, fetchImpl, timeoutMs)]] : []),
+    ...(openrouterApiKey ? [["openrouter-free", (activePrompt) => requestOpenRouter(activePrompt, openrouterApiKey, fetchImpl, timeoutMs)]] : []),
+    ...(cloudflareAccountId && cloudflareApiToken ? [["cloudflare-workers-ai", (activePrompt) => requestCloudflare(activePrompt, cloudflareAccountId, cloudflareApiToken, fetchImpl, timeoutMs)]] : []),
     ...(openaiApiKey ? [["openai", (activePrompt) => requestOpenAI(activePrompt, openaiApiKey, fetchImpl, timeoutMs)]] : [])
   ];
   const errors = [];

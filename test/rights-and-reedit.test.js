@@ -14,6 +14,20 @@ test("rights gate blocks reference-only videos and missing permission evidence",
   assert.equal(assessAssetRights({ ...licensed, rightsEvidenceUrl: "http://example.com/license" }).allowed, false);
 });
 
+test("standalone re-edit preserves the original offset of a bounded source excerpt", () => {
+  const plan = buildReeditPlan({
+    source: { ...licensed, excerptStartSeconds: 700 },
+    targetDurationSeconds: 30,
+    transcriptSegments: [
+      { id: "hook", start: 0, end: 5, text: "Why did the crew run out of fuel?", signals: { hook: 9, curiosity: 9, clarity: 8 } },
+      { id: "payoff", start: 5, end: 10, text: "They landed safely on the surface.", signals: { payoff: 9, emotion: 8, clarity: 8 } }
+    ]
+  });
+  assert.equal(plan.source.excerptStartSeconds, 700);
+  assert.equal(plan.editDecisionList[0].sourceIn, 0);
+  assert.equal(plan.editDecisionList[1].sourceIn, 5);
+});
+
 test("standalone viral re-edit selects high-value transcript windows and preserves source timestamps", () => {
   const plan = buildReeditPlan({ source: licensed, targetDurationSeconds: 30, transcriptSegments: [
     { id: "slow", start: 0, end: 12, text: "Long setup", signals: { hook: 2, emotion: 1 } },

@@ -138,7 +138,7 @@ function numberOrNull(value) {
 }
 
 export async function searchYouTubeVideos({
-  apiKey, queries = [], maxResults = 20, order = "viewCount", regionCode = "US", publishedAfter = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), fetchImpl = fetch
+  apiKey, queries = [], maxResults = 20, order = "viewCount", regionCode = "US", publishedAfter = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), fetchImpl = fetch
 } = {}) {
   if (!apiKey) return { source: "youtube_search", status: "not_configured", items: [], requests: 0 };
   const terms = [...new Set(queries.map(value => String(value).trim()).filter(Boolean))].slice(0, 5);

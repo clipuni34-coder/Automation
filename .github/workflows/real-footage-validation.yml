@@ -54,15 +54,15 @@ jobs:
           python -m pip install --disable-pip-version-check -r requirements/repurposing.txt
       - name: Download public-domain first-step source footage
         env:
-          REPURPOSE_SOURCE_URL: https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/a11.v1092338.mov
-          REPURPOSE_SOURCE_PATH: work/apollo-11-first-step.mov
+          REPURPOSE_SOURCE_URL: https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/a11v_1094228.mpg
+          REPURPOSE_SOURCE_PATH: work/apollo-11-buzz-first-step.mpg
           MEDIA_SOURCE_ALLOWED_HOSTS: nasa.gov
           MEDIA_MAX_UPLOAD_MB: '100'
         run: node scripts/download-authorized-source.js
       - name: Prepare a bounded real-footage sample
         run: |
           mkdir -p work output/real-footage
-          # This 55-second public-domain NASA clip captures the first lunar step and its original mission audio.
+          # This 75-second public-domain NASA clip captures Buzz Aldrin's ladder descent, his failed first jump back to the ladder, and his step onto the lunar surface with original mission audio.
           ffmpeg -y -hide_banner -loglevel error -i work/apollo-11-first-step.mov -t 60 -c:v libx264 -preset veryfast -crf 23 -c:a aac -movflags +faststart work/source-sample.mp4
           ffprobe -v error -show_entries format=duration:stream=codec_name,width,height -of json work/source-sample.mp4
       - name: Transcribe, select moments and render from real audio
@@ -90,12 +90,12 @@ jobs:
             "outputPath": "output/real-footage/short.mp4",
             "source": {
               "sourceUrl": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/a11.v1092338.mov",
-              "title": "Apollo 11 — Buzz Aldrin descends the ladder and takes his first step onto the Moon",
-              "creator": "NASA Apollo Lunar Surface Journal; original 16mm film by Gary Neff",
+              "title": "Apollo 11 — Buzz Aldrin’s first lunar step and the jump back to the ladder",
+              "creator": "NASA Apollo Lunar Surface Journal; clip produced by Kipp Teague",
               "rightsStatus": "public_domain",
               "rightsEvidenceUrl": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/video11.html",
               "allowedPlatforms": ["youtube_shorts"],
-              "attribution": "NASA Apollo 11 Video Library; public-domain television clip of Buzz Aldrin descending the ladder and taking his first step onto the lunar surface."
+              "attribution": "NASA Apollo 11 Video Library; public-domain television clip of Buzz Aldrin descending the ladder, attempting to jump back up, and stepping onto the lunar surface."
             },
             "targetDurationSeconds": 45,
             "platform": "youtube_shorts",

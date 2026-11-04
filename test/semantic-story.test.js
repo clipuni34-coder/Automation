@@ -11,6 +11,22 @@ test("semantic story analysis is explicitly unavailable when no provider is enab
   assert.equal(result.qualified, false);
 });
 
+test("semantic story analysis reports free-provider quota exhaustion separately", async () => {
+  const fetchImpl = async () => ({
+    ok: false,
+    status: 429,
+    headers: { get: () => null },
+    json: async () => ({ error: { message: "Rate limit exceeded: free-models-per-day" } })
+  });
+  const result = await analyzeSemanticStory([
+    { id: "a", start: 0, end: 2, text: "First chunk." },
+    { id: "b", start: 3, end: 5, text: "Second chunk." }
+  ], { openrouterApiKey: "test-key", geminiApiKey: "", groqApiKey: "", openaiApiKey: "", fetchImpl });
+  assert.equal(result.status, "provider_rate_limited");
+  assert.equal(result.qualified, false);
+  assert.match(result.errors.join(" "), /429|rate limit/i);
+});
+
 test("semantic story analysis validates every adjacent transition and accepts clear continuity", async () => {
   const fetchImpl = async () => ({
     ok: true,

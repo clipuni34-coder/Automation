@@ -188,7 +188,7 @@ async function requestGroq(prompt, key, fetchImpl, timeoutMs, model = process.en
   try {
     const response = await fetchImpl("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json" },
-      body: JSON.stringify({ model, temperature: 0.1, max_tokens: 8000, response_format: { type: "json_object" }, messages: [
+      body: JSON.stringify({ model, temperature: 0.1, max_tokens: 8000, reasoning: { max_tokens: 1024 }, response_format: { type: "json_object" }, messages: [
         { role: "system", content: "Return valid JSON only. Be conservative and do not invent context." },
         { role: "user", content: prompt }
       ] }),

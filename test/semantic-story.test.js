@@ -296,3 +296,33 @@ test("Cloudflare Workers AI semantic fallback parses its REST response envelope"
   assert.equal(result.provider, "cloudflare-workers-ai");
   assert.equal(result.qualified, true);
 });
+
+
+test("OpenRouter free retry leaves provider reasoning enabled when JSON mode returns an empty response", async () => {
+  const requestBodies = [];
+  let calls = 0;
+  const fetchImpl = async (_url, options) => {
+    calls += 1;
+    requestBodies.push(JSON.parse(options.body));
+    if (calls === 1) {
+      return { ok: true, json: async () => ({ choices: [{ message: { content: null, reasoning: "internal reasoning is not the final answer" } }] }) };
+    }
+    return {
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: JSON.stringify({ transitions: [{
+        fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.9,
+        explanation: "The second chunk continues the rescue.", evidence: "They carried the injured climber"
+      }] }) } }] })
+    };
+  };
+  const result = await analyzeSemanticStory([
+    { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
+    { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
+  ], { geminiApiKey: "", groqApiKey: "", openrouterApiKey: "test-key", openaiApiKey: "", fetchImpl });
+  assert.equal(calls, 2);
+  assert.equal(requestBodies[0].response_format.type, "json_object");
+  assert.equal("response_format" in requestBodies[1], false);
+  assert.equal("reasoning" in requestBodies[1], false);
+  assert.equal(result.provider, "openrouter-free");
+  assert.equal(result.qualified, true);
+});

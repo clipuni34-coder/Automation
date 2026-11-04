@@ -318,7 +318,7 @@ test("OpenRouter free retry leaves provider reasoning enabled when JSON mode ret
   const result = await analyzeSemanticStory([
     { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
     { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
-  ], { geminiApiKey: "", groqApiKey: "", openrouterApiKey: "test-key", openaiApiKey: "", openrouterModel: "openrouter/free", fetchImpl });
+  ], { geminiApiKey: "", groqApiKey: "", openrouterApiKey: "test-key", openaiApiKey: "", openrouterModel: "mistralai/mistral-small-3.2-24b-instruct:free", fetchImpl });
   assert.equal(calls, 2);
   assert.equal(requestBodies[0].response_format.type, "json_object");
   assert.equal("response_format" in requestBodies[1], false);
@@ -329,7 +329,7 @@ test("OpenRouter free retry leaves provider reasoning enabled when JSON mode ret
 });
 
 
-test("OpenRouter free default preserves upstream reasoning behavior", async () => {
+test("Mistral Small free model uses structured JSON without reasoning flags", async () => {
   let requestBody;
   const fetchImpl = async (_url, options) => {
     requestBody = JSON.parse(options.body);
@@ -344,8 +344,8 @@ test("OpenRouter free default preserves upstream reasoning behavior", async () =
   const result = await analyzeSemanticStory([
     { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
     { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
-  ], { geminiApiKey: "", groqApiKey: "", openrouterApiKey: "test-key", openaiApiKey: "", openrouterModel: "openrouter/free", fetchImpl });
-  assert.equal(requestBody.model, "openrouter/free");
+  ], { geminiApiKey: "", groqApiKey: "", openrouterApiKey: "test-key", openaiApiKey: "", openrouterModel: "mistralai/mistral-small-3.2-24b-instruct:free", fetchImpl });
+  assert.equal(requestBody.model, "mistralai/mistral-small-3.2-24b-instruct:free");
   assert.equal(requestBody.response_format.type, "json_object");
   assert.equal("reasoning" in requestBody, false);
   assert.equal(result.provider, "openrouter-free");

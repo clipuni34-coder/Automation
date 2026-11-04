@@ -212,6 +212,7 @@ test("creative provider uses the OpenRouter free-model router when it is the onl
   assert.equal(request.url, "https://openrouter.ai/api/v1/chat/completions");
   assert.equal(request.options.headers.authorization, "Bearer openrouter-test-key");
   assert.equal(JSON.parse(request.options.body).model, "nvidia/nemotron-3.5-super-vl:free");
+  assert.equal(JSON.parse(request.options.body).reasoning.max_tokens, 1024);
 });
 
 test("OpenRouter creative fallback refuses paid models", async () => {

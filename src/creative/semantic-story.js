@@ -1,4 +1,4 @@
-const GEMINI_MODELS = ["gemini-3.8-flash", "gemini-3.6-flash"];
+const GEMINI_MODELS = ["gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"];
 const OPENAI_MODEL = "gpt-4.1-mini";
 
 function normalizeEvidence(value) {

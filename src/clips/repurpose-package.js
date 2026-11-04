@@ -42,7 +42,9 @@ export function buildRepurposePackage({ plan, renderResult, thumbnailPath = null
   const storyStructureReviewRequired = storyEvidenceInsufficient && !semanticStoryWindowQualified && !(
     semanticStatus === "contextually_connected" && narrative.semanticContinuityQualification?.qualified === true
   );
+  const connectedExcerptReviewRequired = narrative.semanticStoryWindow?.selectionType === "connected_excerpt";
   const semanticStoryReviewRequired = semanticStatus === "provider_error"
+    || connectedExcerptReviewRequired
     || (!semanticStoryWindowQualified && semanticStatus === "human_review_required")
     || (!semanticStoryWindowQualified && semanticStatus === "contextually_connected" && plan.editorialQuality?.narrativeStructure?.semanticContinuityQualification?.qualified !== true);
   const editorialApprovalRequired = visualReviewRequired || editorialReviewRequired || contextualStoryReviewRequired || semanticStoryReviewRequired || storyStructureReviewRequired;

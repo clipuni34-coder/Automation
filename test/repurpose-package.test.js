@@ -65,6 +65,39 @@ test("posting package requires human story review when selected context is disco
 });
 
 
+test("connected partial semantic excerpts remain explicitly under human story review", () => {
+  const plan = {
+    mode: "standalone_reedit", status: "edit_plan_ready", platform: "youtube_shorts",
+    source: { title: "Archive", sourceUrl: "https://example.org/source", rightsStatus: "public_domain", allowedPlatforms: ["youtube_shorts"] },
+    openingHook: { sourceIn: 10, sourceOut: 12.7, score: 5.1 },
+    hookOverlay: { text: "We're breathing again.", segmentId: "relief" },
+    editDecisionList: [
+      { sourceIn: 10, sourceOut: 12.7, caption: "We copy you on the ground.", score: 5.1, treatment: {} },
+      { sourceIn: 13, sourceOut: 15.7, caption: "We're breathing again.", score: 6.5, treatment: {} },
+      { sourceIn: 16, sourceOut: 18.7, caption: "You're looking good here.", score: 5.8, treatment: {} }
+    ],
+    editorialQuality: {
+      averageSelectedScore: 5.8,
+      contextualStoryAnalysis: { status: "disconnected_sequence" },
+      narrativeStructure: {
+        status: "partial_arc_detected",
+        contextualContinuityQualification: { status: "beat_sequence_has_disconnected_context" },
+        semanticContextAnalysis: { status: "human_review_required" },
+        semanticContinuityQualification: { qualified: true },
+        semanticStoryWindow: { qualified: true, selectionType: "connected_excerpt", arcStatus: "partial", confidence: 0.6 }
+      }
+    }
+  };
+  const result = buildRepurposePackage({
+    plan,
+    renderResult: { status: "rendered", outputPath: "short.mp4", durationSeconds: 8.1, width: 1080, height: 1920, videoCodec: "h264", audioCodec: "aac", sourceAudioPreserved: true, visualQuality: { status: "passed", score: 95, warnings: [] } }
+  });
+  assert.equal(result.status, "editorial_review_required");
+  assert.equal(result.editorialApproval.status, "review_required");
+  assert.equal(result.editorialApproval.approved, false);
+  assert.ok(result.editorialApproval.reasons.some(reason => /semantic story analysis/i.test(reason)));
+});
+
 test("a validated complete semantic story window overrides unrelated source-level disconnected transitions", () => {
   const plan = {
     mode: "standalone_reedit", status: "edit_plan_ready", platform: "youtube_shorts",

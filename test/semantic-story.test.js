@@ -69,8 +69,10 @@ test("semantic story analysis accepts empty evidence for a disconnected pair but
     }] }) } }] })
   });
   const connected = await analyzeSemanticStory(segments, { openaiApiKey: "test-key", geminiApiKey: "", fetchImpl: connectedFetch });
-  assert.equal(connected.status, "provider_error");
+  assert.equal(connected.status, "human_review_required");
   assert.equal(connected.qualified, false);
+  assert.equal(connected.transitions[0].relationship, "uncertain");
+  assert.equal(connected.transitions[0].evidenceValidated, false);
 });
 
 test("semantic story analysis rejects incomplete model transition coverage", async () => {
@@ -98,8 +100,10 @@ test("semantic story analysis rejects evidence that is not quoted from the trans
     { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
     { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
   ], { openaiApiKey: "test-key", geminiApiKey: "", fetchImpl });
-  assert.equal(result.status, "provider_error");
+  assert.equal(result.status, "human_review_required");
   assert.equal(result.qualified, false);
+  assert.equal(result.transitions[0].relationship, "uncertain");
+  assert.equal(result.transitions[0].evidenceValidated, false);
 });
 
 test("semantic story analysis declines oversized transcript input before calling a provider", async () => {

@@ -40,13 +40,13 @@ Under **Settings → Secrets and variables → Actions → Variables**, set thes
 - `ENABLE_CLOUDFLARE_CREATIVE`
 - `ENABLE_OPENAI_CREATIVE`
 
-They default to `false`. A secret by itself does not enable these providers in the real-footage workflow. OpenRouter is pinned to `nvidia/nemotron-3.5-super-vl:free` and is only called when `OPENROUTER_API_KEY` exists; the code rejects a paid OpenRouter model route.
+They default to `false`. A secret by itself does not enable these providers in the real-footage workflow. OpenRouter is pinned to `nvidia/nemotron-3.5-lightning:free` and is only called when `OPENROUTER_API_KEY` exists; the code rejects a paid OpenRouter model route.
 
 ## Cost and quota cautions
 
 - **Gemini:** free and paid quotas differ by model, region, and account. Check the Google AI Studio project quota before enabling it.
 - **Groq:** model availability and rate limits depend on the account and plan. Confirm the current Groq console limits and pricing before enabling it; do not assume every API call is free.
-- **OpenRouter:** this integration pins the router to `nvidia/nemotron-3.5-super-vl:free`. Free-model availability and limits can change, and requests may fail when providers are busy.
+- **OpenRouter:** this integration pins the router to `nvidia/nemotron-3.5-lightning:free`. Free-model availability and limits can change, and requests may fail when providers are busy.
 - **Cloudflare Workers AI:** the Free plan includes 10,000 Neurons per day. On Workers Paid, usage above the daily free allocation is billed. Keep `ENABLE_CLOUDFLARE_CREATIVE=false` unless you have checked the account plan and are comfortable with its limits.
 - **OpenAI:** optional and disabled by default; use only if its account has usable quota and you accept its pricing.
 
@@ -54,7 +54,7 @@ They default to `false`. A secret by itself does not enable these providers in t
 
 - Groq: `openai/gpt-oss-120b`
 - Cloudflare Workers AI: `@cf/meta/llama-3.3-70b-instruct-fp8-fast`
-- OpenRouter: `nvidia/nemotron-3.5-super-vl:free`
+- OpenRouter: `nvidia/nemotron-3.5-lightning:free`
 
 The Groq and Cloudflare model IDs are configurable with `GROQ_MODEL` and `CLOUDFLARE_MODEL`. The OpenRouter model is deliberately pinned to the free route in the GitHub workflows.
 

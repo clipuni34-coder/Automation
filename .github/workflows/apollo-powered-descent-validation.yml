@@ -1,0 +1,136 @@
+name: Real authorized Apollo powered-descent validation
+
+on:
+  push:
+    branches:
+      - editorial-evidence-hold
+    paths:
+      - .github/workflows/real-footage-validation.yml
+      - .github/workflows/apollo-powered-descent-validation.yml
+      - src/creative/reedit.js
+      - src/production/visual-qc.js
+      - src/production/plan-manifest.js
+      - src/production/render.js
+      - src/clips/repurpose-cli.js
+      - src/clips/authorized-reedit.js
+      - src/clips/repurpose-package.js
+      - src/rights/asset-rights.js
+      - test/rights-and-reedit.test.js
+      - test/repurpose-package.test.js
+      - src/creative/semantic-story.js
+      - src/clips/transcript-candidates.js
+      - requirements/repurposing.txt
+      - scripts/download-authorized-source.js
+      - test/authorized-source-download.test.js
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apollo-powered-descent-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-footage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out isolated development branch
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Ensure FFmpeg is available
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            sudo apt-get install -y ffmpeg || {
+              echo "Runner package index is stale; refreshing package lists and retrying."
+              sudo apt-get update -qq
+              sudo apt-get install -y ffmpeg
+            }
+          fi
+          ffmpeg -version
+          ffprobe -version
+      - name: Install Node and transcription dependencies
+        run: |
+          npm install --no-audit --no-fund
+          python -m pip install --disable-pip-version-check -r requirements/repurposing.txt
+      - name: Download NASA Apollo 11 powered-descent source footage
+        env:
+          REPURPOSE_SOURCE_URL: https://nasa.gov/wp-content/uploads/static/history/alsj/a11/A11Landing.mov
+          REPURPOSE_SOURCE_PATH: work/apollo-11-powered-descent.mov
+          MEDIA_SOURCE_ALLOWED_HOSTS: nasa.gov
+          MEDIA_MAX_UPLOAD_MB: '100'
+        run: node scripts/download-authorized-source.js
+      - name: Prepare a bounded real-footage sample
+        run: |
+          mkdir -p work output/real-footage
+          # Use the complete NASA Apollo 11 powered-descent film so the sample includes the alarms, low-fuel warnings, touchdown and landing announcement.
+          # NASA's Apollo 11 Video Library identifies its video clips as public domain and credits the digitization separately.
+          ffmpeg -y -hide_banner -loglevel error -i work/apollo-11-powered-descent.mov -t 960 -c:v libx264 -preset veryfast -crf 22 -c:a aac -movflags +faststart work/source-sample.mp4
+          ffprobe -v error -show_entries format=duration:stream=codec_name,width,height -of json work/source-sample.mp4
+      - name: Transcribe, select moments and render from real audio
+        env:
+          PYTHON: python
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ENABLE_GEMINI_CREATIVE: 'true'
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          ENABLE_GROQ_CREATIVE: 'true'
+          GROQ_MODEL: 'openai/gpt-oss-120b'
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ENABLE_CLOUDFLARE_CREATIVE: ${{ vars.ENABLE_CLOUDFLARE_CREATIVE || 'false' }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY || secrets.OPENROUTER_API }}
+          OPENROUTER_MODEL: 'nvidia/nemotron-3.5-super-vl:free'
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ENABLE_OPENAI_CREATIVE: ${{ vars.ENABLE_OPENAI_CREATIVE || 'false' }}
+          SEMANTIC_DEBUG_EVIDENCE: 'true'
+        run: |
+          python -m pip check
+          python -m pip show av
+          python -c "import sys; print(sys.executable); from faster_whisper import WhisperModel; print('faster-whisper import OK; PyAV compatibility verified')"
+          cat > repurpose-real-footage.json <<'JSON'
+          {
+            "sourceLocalPath": "work/source-sample.mp4",
+            "outputPath": "output/real-footage/short.mp4",
+            "source": {
+              "sourceUrl": "https://nasa.gov/wp-content/uploads/static/history/alsj/a11/A11Landing.mov",
+              "title": "Apollo 11 Powered Descent and Landing",
+              "excerptStartSeconds": 0,
+              "creator": "NASA Apollo 11 source footage; digitized and formatted by Gary Neff",
+              "rightsStatus": "public_domain",
+              "rightsEvidenceUrl": "https://nasa.gov/wp-content/uploads/static/history/alsj/a11/video11.html",
+              "allowedPlatforms": ["youtube_shorts"],
+              "attribution": "NASA Apollo 11 source footage; digitized and formatted by Gary Neff (2009). Public-domain U.S. government Apollo 11 Powered Descent and Landing."
+            },
+            "targetDurationSeconds": 45,
+            "platform": "youtube_shorts",
+            "whisperModel": "small.en",
+            "pythonPath": "python"
+          }
+          JSON
+          set +e
+          npm run repurpose -- repurpose-real-footage.json output/real-footage/result.json
+          repurpose_exit=$?
+          set -e
+          if [ "$repurpose_exit" -ne 0 ] && [ "$repurpose_exit" -ne 2 ]; then
+            exit "$repurpose_exit"
+          fi
+          if [ -s output/real-footage/short.mp4 ]; then
+            ffprobe -v error -show_entries format=duration:stream=codec_name,width,height,r_frame_rate,pix_fmt -of json output/real-footage/short.mp4
+            test -s output/real-footage/short.thumbnail.jpg
+          fi
+          node --input-type=module -e "import fs from 'node:fs'; const r=JSON.parse(fs.readFileSync('output/real-footage/result.json')); if(r.transcription?.engine!=='faster-whisper') throw new Error('Real Faster-Whisper transcription was not used'); if(!r.transcription?.wordCount) throw new Error('No word timestamps produced'); const semantic=r.narrativeSemanticAnalysis; const providerConfigured=(process.env.ENABLE_GEMINI_CREATIVE==='true' && Boolean(process.env.GEMINI_API_KEY)) || (process.env.ENABLE_GROQ_CREATIVE==='true' && Boolean(process.env.GROQ_API_KEY)) || (process.env.ENABLE_CLOUDFLARE_CREATIVE==='true' && Boolean(process.env.CLOUDFLARE_ACCOUNT_ID) && Boolean(process.env.CLOUDFLARE_API_TOKEN)) || Boolean(process.env.OPENROUTER_API_KEY) || (process.env.ENABLE_OPENAI_CREATIVE==='true' && Boolean(process.env.OPENAI_API_KEY)); const semanticProviderUnavailable=providerConfigured && ['provider_error','provider_rate_limited'].includes(semantic?.status); if(providerConfigured && !semanticProviderUnavailable){ if(!semantic || semantic.status==='not_configured') throw new Error('Configured semantic provider did not return a valid result: '+JSON.stringify(semantic)); if(semantic.momentAssessmentStatus!=='complete') throw new Error('Live semantic provider did not assess every transcript moment'); if(!['assessed','invalid'].includes(semantic.storyWindowStatus)) throw new Error('Live semantic provider did not assess a chronological story window'); if(semantic.storyWindowStatus==='invalid' && semantic.status!=='human_review_required') throw new Error('An invalid semantic story-window claim must remain under human review'); if(!semantic.provider || !semantic.momentAssessments?.length) throw new Error('Live semantic assessment evidence is missing'); if(semantic.storyWindow?.arcStatus==='complete' && semantic.storyWindow.confidence>=0.75 && r.plan?.editorialQuality?.selectionStrategy!=='semantic_complete_story_window') throw new Error('A validated, duration-compatible complete semantic story window was not selected'); } else if(!providerConfigured && semantic?.status!=='not_configured'){ throw new Error('Expected explicit not_configured semantic fallback when no API key is present'); } if(semanticProviderUnavailable) console.warn('All configured semantic providers are temporarily unavailable or over quota; validating the non-semantic editing path under mandatory human review.'); console.log(JSON.stringify({semanticProvider:semantic?.provider??null,semanticStatus:semantic?.status??'missing',semanticProviderUnavailable,semanticMomentAssessmentStatus:semantic?.momentAssessmentStatus??'not_available',semanticMomentsAssessed:semantic?.momentAssessments?.length??0,semanticStoryWindow:semantic?.storyWindow??null,selectionStrategy:r.plan?.editorialQuality?.selectionStrategy??null,liveProviderConfigured:providerConfigured},null,2)); if(r.status==='editorial_review_required'){ if(r.rendered || r.outputPath || r.postingPackage || r.plan?.editDecisionList?.length) throw new Error('Weak material must not be rendered or packaged'); if(!r.plan?.rights?.reasons?.some(x=>/minimum editorial quality gate/.test(x))) throw new Error('Editorial hold reason missing'); console.log(JSON.stringify({status:r.status,transcription:r.transcription,selectedMoments:0,rendered:false,decision:'correctly held weak material for editorial review'},null,2)); } else if(r.status==='completed'){ if(!r.rendered || !r.postingPackage) throw new Error('Completed re-edit must include render and posting package'); if(r.editorialApproval?.approved !== false || r.editorialApproval?.humanReviewRequired !== true) throw new Error('Real-footage sample must remain explicitly unapproved pending human editorial review'); const semanticWindowQualified=r.plan?.editorialQuality?.semanticStoryWindow?.qualified===true; const semanticReviewExpected=semanticProviderUnavailable || semantic?.storyWindowStatus==='invalid' || (semantic?.status==='human_review_required' && (!semanticWindowQualified || r.plan?.editorialQuality?.selectionStrategy==='semantic_connected_excerpt')); if(semanticReviewExpected && (r.editorialApproval?.status!=='review_required' || !r.editorialApproval?.reasons?.some(reason=>/semantic story|story arc|connected contextual sequence/i.test(reason)))) throw new Error('Unqualified semantic story evidence must keep the output in mandatory human review'); console.log(JSON.stringify({status:r.status,transcription:r.transcription,selectedMoments:r.plan?.editDecisionList?.length,rendered:r.rendered,semanticProviderUnavailable,editorialApproval:r.editorialApproval,postingPackagePlatforms:Object.keys(r.postingPackage.platformPackages||{})},null,2)); } else { throw new Error('Unexpected real-footage pipeline status: '+r.status); }"
+      - name: Preserve real-footage validation outputs
+        if: always() && hashFiles('output/real-footage/**') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-footage-validation
+          path: output/real-footage/
+          retention-days: 14

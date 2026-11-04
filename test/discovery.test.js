@@ -131,3 +131,20 @@ test("discovery deduplicates the same video found by popularity and newest searc
   assert.equal((await readDiscoveryStore(storePath)).observations.length, 1);
   assert.deepEqual(result.candidates[0].searchQueries, ["funny moments", "unexpected moments"]);
 });
+
+
+test("YouTube search limits discovery to a recent configurable window and records niche queries", async () => {
+  const calls = [];
+  const fetchImpl = async (url) => {
+    calls.push(new URL(url));
+    if (new URL(url).pathname.endsWith("/search")) return { ok: true, json: async () => ({ items: [{ id: { videoId: "fresh-1" }, snippet: { title: "Fresh result" } }] }) };
+    return { ok: true, json: async () => ({ items: [{ id: "fresh-1", snippet: { title: "Fresh result", channelTitle: "Creator", publishedAt: "2026-11-03T12:00:00Z" }, statistics: { viewCount: "12000", likeCount: "500", commentCount: "40" } }] }) };
+  };
+  const { searchYouTubeVideos } = await import("../src/discovery/sources/youtube.js");
+  const result = await searchYouTubeVideos({ apiKey: "test", queries: ["funny fails"], regionCode: "NG", order: "viewCount", publishedAfter: "2026-10-28T00:00:00.000Z", fetchImpl });
+  assert.equal(result.items.length, 1);
+  assert.equal(calls[0].searchParams.get("regionCode"), "NG");
+  assert.equal(calls[0].searchParams.get("publishedAfter"), "2026-10-28T00:00:00.000Z");
+  assert.equal(calls[0].searchParams.get("order"), "viewCount");
+  assert.equal(result.items[0].rightsStatus, "reference_only");
+});

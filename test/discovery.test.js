@@ -148,3 +148,26 @@ test("YouTube search limits discovery to a recent configurable window and record
   assert.equal(calls[0].searchParams.get("order"), "viewCount");
   assert.equal(result.items[0].rightsStatus, "reference_only");
 });
+
+
+test("discovery passes its configured rolling date window to both popularity and recency searches", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "discovery-window-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const received = [];
+  await runDiscovery({ storePath: join(directory, "discovery.json"),
+    config: { searchRegion: "NG", searchPublishedAfter: "2026-10-28T00:00:00.000Z" },
+    collectors: {
+      youtube: async () => ({ source: "youtube", status: "not_configured", items: [] }),
+      rss: async () => ({ source: "rss", status: "not_configured", items: [] }),
+      youtubeSearch: async (args) => { received.push(args); return { source: "youtube_search", status: "ok", items: [] }; },
+      youtubeRecentSearch: async (args) => { received.push(args); return { source: "youtube_recent_search", status: "ok", items: [] }; }
+    }
+  });
+  assert.equal(received.length, 2);
+  for (const args of received) {
+    assert.equal(args.regionCode, "NG");
+    assert.equal(args.publishedAfter, "2026-10-28T00:00:00.000Z");
+  }
+  assert.equal(received[0].order, "viewCount");
+  assert.equal(received[1].order, "date");
+});

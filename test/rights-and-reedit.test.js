@@ -449,3 +449,52 @@ test("editorial hold exposes ranked candidate evidence and weak signal breakdown
   assert.ok(plan.editorialQuality.candidateDiagnostics.topCandidates[0].weakSignals.includes("hook"));
   assert.match(plan.editorialQuality.candidateDiagnostics.limitation, /not semantic understanding/i);
 });
+
+
+test("semantic connected excerpt accepts an evidence-validated setup followed by payoff beats", () => {
+  const transcriptSegments = [
+    { id: "setup", start: 10, end: 13, text: "We copy you on the ground.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } },
+    { id: "relief", start: 13.3, end: 16.3, text: "We're breathing again.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } },
+    { id: "confirmation", start: 16.6, end: 19.6, text: "You're looking good here.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } }
+  ];
+  const momentAssessments = transcriptSegments.map((segment, index) => ({
+    segmentId: segment.id,
+    compellingScore: [7, 8, 7][index],
+    confidence: 0.9,
+    role: ["setup", "payoff", "payoff"][index],
+    selfContained: true,
+    evidenceValidated: true,
+    rationale: "Evidence-backed setup and outcome moment.",
+    evidence: segment.text
+  }));
+  const transitions = transcriptSegments.slice(0, -1).map((segment, index) => ({
+    fromSegmentId: segment.id,
+    toSegmentId: transcriptSegments[index + 1].id,
+    relationship: "connected",
+    confidence: 0.9,
+    evidenceSegmentId: transcriptSegments[index + 1].id,
+    evidenceValidated: true,
+    evidence: transcriptSegments[index + 1].text
+  }));
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 30,
+    transcriptSegments,
+    narrativeSemanticAnalysis: {
+      status: "human_review_required",
+      provider: "gemini",
+      transitions,
+      momentAssessments,
+      storyWindow: {
+        arcStatus: "partial",
+        segmentIds: ["unrelated-1", "unrelated-2", "unrelated-3"],
+        confidence: 0.6,
+        summary: "The model's broader partial window misses this connected excerpt."
+      }
+    }
+  });
+  assert.equal(plan.status, "edit_plan_ready");
+  assert.equal(plan.editorialQuality.selectionStrategy, "semantic_connected_excerpt");
+  assert.deepEqual(plan.editDecisionList.map(item => item.segmentId), ["setup", "relief", "confirmation"]);
+  assert.equal(plan.editorialQuality.semanticStoryWindow.qualified, true);
+});

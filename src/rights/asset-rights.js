@@ -5,8 +5,8 @@ export function assessAssetRights(asset, { platform = null, now = new Date() } =
   if (!asset || typeof asset !== "object") return { allowed: false, status: "blocked", reasons: ["Asset record is missing"] };
   const rightsStatus = String(asset.rightsStatus ?? "unknown");
   if (!APPROVED_RIGHTS.has(rightsStatus)) reasons.push("Rights status is not approved");
-  if (rightsStatus === "permission_granted" || rightsStatus === "licensed" || rightsStatus === "public_domain") {
-    if (!asset.rightsEvidenceUrl && !asset.rightsEvidenceReference) reasons.push("Permission/license evidence reference is missing");
+  if (APPROVED_RIGHTS.has(rightsStatus) && !asset.rightsEvidenceUrl && !asset.rightsEvidenceReference) {
+    reasons.push("Ownership/permission/license evidence reference is missing");
   }
   if (asset.sourceUrl) {
     try { if (new URL(asset.sourceUrl).protocol !== "https:") reasons.push("Source URL must use HTTPS"); }

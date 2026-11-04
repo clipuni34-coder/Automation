@@ -72,7 +72,7 @@ export async function downloadAuthorizedSource(sourceUrl, destination, {
   }
   if (!response?.ok || !response.body) throw new Error("Source host did not return a downloadable media file");
   const contentType = (response.headers.get("content-type") ?? "").split(";")[0].trim().toLowerCase();
-  if (!(contentType.startsWith("video/") || contentType === "application/octet-stream" || contentType === "binary/octet-stream")) {
+  if (!(contentType.startsWith("video/") || contentType === "application/ogg" || contentType === "application/octet-stream" || contentType === "binary/octet-stream")) {
     throw new Error("Source response is not a video or binary media file");
   }
   const announced = Number(response.headers.get("content-length"));

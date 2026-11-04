@@ -200,3 +200,14 @@ test("retains a short but explicit landing-relief payoff below the usual two-sec
   assert.ok(moment.signals.payoff >= 7);
   assert.ok(moment.signals.emotion >= 7);
 });
+
+
+test("recognizes a high-stakes oxygen/relief moment as hook, tension and payoff evidence", () => {
+  const words = "You got a bunch of guys about to turn blue. We copy you on the ground.".split(" ");
+  const timed = words.map((word, index) => ({ word, start: index * 0.25, end: index * 0.25 + 0.2 }));
+  const [moment] = buildTranscriptCandidates(timed, { minSeconds: 1.25 });
+  assert.ok(moment.signals.hook >= 6);
+  assert.ok(moment.signals.curiosity >= 6);
+  assert.ok(moment.signals.emotion >= 7);
+  assert.ok(moment.signals.payoff >= 7);
+});

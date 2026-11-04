@@ -66,8 +66,8 @@ test("partial semantic story windows may select a quote-validated connected exce
 
 test("finds a two-moment connected landing-and-reaction excerpt outside the model's partial story window", () => {
   const transcriptSegments = [
-    { id: "landing", start: 224.56, end: 232, text: "Roger, Tranquility, we copy you on the ground. We're breathing again, thanks a lot, hey.", signals: { hook: 0, emotion: 2, curiosity: 0, payoff: 1, clarity: 8 } },
-    { id: "reaction", start: 232.5, end: 236, text: "You're looking good here.", signals: { hook: 1, emotion: 2, curiosity: 1, payoff: 1, clarity: 8 } }
+    { id: "landing", start: 24.56, end: 32, text: "Roger, Tranquility, we copy you on the ground. We're breathing again, thanks a lot, hey.", signals: { hook: 0, emotion: 2, curiosity: 0, payoff: 1, clarity: 8 } },
+    { id: "reaction", start: 32.5, end: 36, text: "You're looking good here.", signals: { hook: 1, emotion: 2, curiosity: 1, payoff: 1, clarity: 8 } }
   ];
   const narrativeSemanticAnalysis = {
     status: "human_review_required",

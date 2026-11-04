@@ -204,7 +204,9 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
   const semanticConnectedExcerptQualified = Boolean(semanticConnectedExcerpt);
   const semanticSelectionQualified = semanticWindowQualified || semanticConnectedExcerptQualified;
   let bestWindow = semanticWindowQualified ? semanticWindowTrim.segments : semanticConnectedExcerptQualified ? semanticConnectedExcerpt.segments : chronological;
-  let bestWindowUtility = semanticSelectionQualified ? Number(semanticWindow.confidence) * 100 : -Infinity;
+  let bestWindowUtility = semanticSelectionQualified
+    ? Number(semanticWindow?.confidence ?? semanticConnectedExcerpt?.confidence ?? 0) * 100
+    : -Infinity;
   if (!semanticSelectionQualified) for (let left = 0; left < chronological.length; left += 1) {
     for (let right = left; right < chronological.length; right += 1) {
       const window = chronological.slice(left, right + 1);

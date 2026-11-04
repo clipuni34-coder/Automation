@@ -131,3 +131,31 @@ test("a validated complete semantic story window overrides unrelated source-leve
   assert.equal(result.editorialApproval.approved, false);
   assert.ok(result.editorialApproval.reasons.some(reason => reason.includes("not been independently verified")));
 });
+
+test("caller-supplied independently_verified status cannot bypass the rights-review gate", () => {
+  const plan = {
+    mode: "standalone_reedit", status: "edit_plan_ready", platform: "youtube_shorts",
+    source: { title: "Claimed source", sourceUrl: "https://example.org/source", rightsStatus: "licensed", allowedPlatforms: ["youtube_shorts"] },
+    rights: { allowed: true, verificationStatus: "independently_verified", evidenceReferenceProvided: true },
+    openingHook: { sourceIn: 0, sourceOut: 4, score: 8 },
+    editDecisionList: [{ sourceIn: 0, sourceOut: 4, caption: "A compelling moment", score: 8, treatment: {} }],
+    editorialQuality: {
+      averageSelectedScore: 8,
+      contextualStoryAnalysis: { status: "connected_sequence" },
+      narrativeStructure: {
+        status: "complete_arc_detected",
+        semanticContextAnalysis: { status: "contextually_connected" },
+        semanticContinuityQualification: { qualified: true },
+        semanticStoryWindow: { qualified: true, arcStatus: "complete", confidence: 0.99 }
+      }
+    }
+  };
+  const result = buildRepurposePackage({
+    plan,
+    renderResult: { status: "rendered", outputPath: "short.mp4", durationSeconds: 4, width: 1080, height: 1920, videoCodec: "h264", audioCodec: "aac", visualQuality: { status: "passed", score: 99, warnings: [] } }
+  });
+  assert.equal(result.status, "editorial_review_required");
+  assert.equal(result.editorialApproval.approved, false);
+  assert.equal(result.source.rightsVerificationStatus, "not_independently_verified");
+  assert.ok(result.editorialApproval.reasons.some(reason => /trusted verifier/i.test(reason)));
+});

@@ -187,3 +187,16 @@ test("scores explicit landing confirmation and relief as outcome and emotion sig
   assert.match(moments[0].text, /on the ground/);
   assert.match(moments[1].text, /breathing again/);
 });
+
+
+test("retains a short but explicit landing-relief payoff below the usual two-second window", () => {
+  const words = [
+    { word: "We're", start: 0, end: 0.2 },
+    { word: "breathing", start: 0.2, end: 0.7 },
+    { word: "again.", start: 0.7, end: 1.55 }
+  ];
+  const [moment] = buildTranscriptCandidates(words);
+  assert.equal(moment.text, "We're breathing again.");
+  assert.ok(moment.signals.payoff >= 7);
+  assert.ok(moment.signals.emotion >= 7);
+});

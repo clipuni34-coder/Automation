@@ -327,7 +327,7 @@ narrativeStructure.semanticStoryWindow = semanticWindowQualified ? { ...semantic
     return value(b) - value(a) || b.score - a.score || a.start - b.start;
   })[0];
   const teaserMoment = semanticHookCandidate ?? (Number(hookCandidate.signals.hook || 0) + Number(hookCandidate.signals.curiosity || 0) >= 6 ? hookCandidate : null);
-  const hookSourceText = teaserMoment ? extractHookTeaser(teaserMoment.text) : "";
+  const hookSourceText = teaserMoment ? (extractHookTeaser(teaserMoment.text) || (Number(teaserMoment.signals.hook || 0) >= 8 ? teaserMoment.text.replace(/\\s+/g, " ").trim().split(/(?<=[.!?])\\s+/)[0] : "")) : "";
   let hookOverlayText = hookSourceText;
   if (hookOverlayText.length > 48) {
     const teaserWords = hookOverlayText.slice(0, 48).replace(/\s+\S*$/, "").trim().split(/\s+/);

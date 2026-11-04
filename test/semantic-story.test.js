@@ -322,7 +322,9 @@ test("OpenRouter free retry leaves provider reasoning enabled when JSON mode ret
   assert.equal(calls, 2);
   assert.equal(requestBodies[0].response_format.type, "json_object");
   assert.equal("response_format" in requestBodies[1], false);
-  assert.equal("reasoning" in requestBodies[1], false);
+  assert.equal(requestBodies[0].reasoning.max_tokens, 1024);
+  assert.equal(requestBodies[1].reasoning.max_tokens, 1024);
+  assert.equal(requestBodies[1].reasoning.effort, undefined);
   assert.equal(result.provider, "openrouter-free");
   assert.equal(result.qualified, true);
 });

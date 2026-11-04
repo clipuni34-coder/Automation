@@ -3,6 +3,10 @@ import { analyzeContextualStory } from "./contextual-story.js";
 
 function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 
+function hasExplicitHookCue(text) {
+  return /[?]|\b(why|how|what if|what happens if|wait until you see|you won't believe|the surprising part|about to turn blue|can't breathe|cannot breathe|running out of air|running out of oxygen|collapsed|snapped|ran out|trapped|stranded|in danger|at risk|failed|broke down|stuck|survived|made it out)\b/i.test(String(text ?? ""));
+}
+
 function extractHookTeaser(text) {
   const normalized = String(text ?? "").replace(/\s+/g, " ").trim();
   if (!normalized) return "";
@@ -320,8 +324,8 @@ narrativeStructure.semanticStoryWindow = semanticWindowQualified ? { ...semantic
   const opening = ordered[0];
   // Prefer a curiosity-led teaser so the opening creates an information gap.
   const semanticHookCandidate = semanticWindowQualified
-    ? ordered.find(item => item.id === semanticWindow.hookSegmentId)
-    : semanticConnectedExcerptQualified ? ordered.find(item => item.beatRole === "tension") : null;
+    ? ordered.find(item => item.id === semanticWindow.hookSegmentId && hasExplicitHookCue(item.text))
+    : semanticConnectedExcerptQualified ? ordered.find(item => item.beatRole === "tension" && hasExplicitHookCue(item.text)) : null;
   const hookCandidate = semanticHookCandidate ?? [...ordered].sort((a, b) => {
     const value = item => item.signals.hook * 0.45 + item.signals.curiosity * 0.4 + item.signals.clarity * 0.15 - item.signals.payoff * 0.2;
     return value(b) - value(a) || b.score - a.score || a.start - b.start;

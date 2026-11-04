@@ -202,8 +202,8 @@ async function requestGroq(prompt, key, fetchImpl, timeoutMs, model = process.en
   } finally { clearTimeout(timer); }
 }
 
-async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "mistralai/mistral-small-3.2-24b-instruct:free") {
-  if (model !== "mistralai/mistral-small-3.2-24b-instruct:free" && !model.endsWith(":free")) throw new Error("OpenRouter semantic fallback is restricted to explicitly free models");
+async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "google/gemma-4-31b-it:free") {
+  if (model !== "google/gemma-4-31b-it:free" && !model.endsWith(":free")) throw new Error("OpenRouter semantic fallback is restricted to explicitly free models");
   let lastError;
   for (const requireJsonMode of [true, false]) {
     const controller = new AbortController();
@@ -304,7 +304,7 @@ export async function analyzeSemanticStory(segments, {
   fetchImpl = fetch,
   timeoutMs = 45000,
   targetDurationSeconds = 45,
-  openrouterModel = process.env.OPENROUTER_MODEL ?? "mistralai/mistral-small-3.2-24b-instruct:free"
+  openrouterModel = process.env.OPENROUTER_MODEL ?? "google/gemma-4-31b-it:free"
 } = {}) {
   const ordered = [...(segments ?? [])].sort((a, b) => a.start - b.start || a.end - b.end);
   if (ordered.length > 80 || ordered.some(item => String(item.text ?? "").length > 1200) || ordered.reduce((sum, item) => sum + String(item.text ?? "").length, 0) > 24000) {

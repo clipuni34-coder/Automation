@@ -20,17 +20,32 @@ export async function runDiscovery({
       concurrency: config.youtubeConcurrency ?? 5
     }),
     (collectors.rss ?? collectRssFeeds)({ feedUrls: config.rssFeeds ?? [] }),
-    (collectors.youtubeSearch ?? searchYouTubeVideos)({ apiKey: config.youtubeApiKey, queries: config.searchQueries ?? [], maxResults: config.searchMaxResults ?? 20, order: config.searchOrder ?? "viewCount", regionCode: config.searchRegion ?? "US" })
+    (collectors.youtubeSearch ?? searchYouTubeVideos)({ apiKey: config.youtubeApiKey, queries: config.searchQueries ?? [], maxResults: config.searchMaxResults ?? 20, order: config.searchOrder ?? "viewCount", regionCode: config.searchRegion ?? "US" }),
+    (collectors.youtubeRecentSearch ?? searchYouTubeVideos)({ apiKey: config.youtubeApiKey, queries: config.searchQueries ?? [], maxResults: config.recentSearchMaxResults ?? config.searchMaxResults ?? 20, order: "date", regionCode: config.searchRegion ?? "US" })
   ]);
 
   const sources = sourceResults.map((result, index) => {
-    const name = ["youtube", "rss", "youtube_search"][index] ?? "unknown";
+    const name = ["youtube", "rss", "youtube_search", "youtube_recent_search"][index] ?? "unknown";
     return result.status === "fulfilled"
       ? result.value
       : { source: name, status: "error", items: [], error: result.reason?.message ?? "Unknown error" };
   });
 
-  const incoming = sources.flatMap((source) => source.items ?? []);
+  const incomingById = new Map();
+  for (const item of sources.flatMap((source) => source.items ?? [])) {
+    if (!item.id) continue;
+    const previous = incomingById.get(item.id);
+    if (!previous) incomingById.set(item.id, item);
+    else incomingById.set(item.id, {
+      ...previous,
+      ...item,
+      metrics: { ...(previous.metrics ?? {}), ...(item.metrics ?? {}) },
+      searchQueries: [...new Set([...(previous.searchQueries ?? []), ...(item.searchQueries ?? [])])],
+      seenInRegions: [...new Set([...(previous.seenInRegions ?? []), ...(item.seenInRegions ?? [])])],
+      seenInCategories: [...new Set([...(previous.seenInCategories ?? []), ...(item.seenInCategories ?? [])])]
+    });
+  }
+  const incoming = [...incomingById.values()];
   const existingById = new Map(store.candidates.map((item) => [item.id, item]));
   const observations = [];
   const merged = new Map(store.candidates.map((item) => [item.id, item]));

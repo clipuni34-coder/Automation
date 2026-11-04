@@ -514,3 +514,49 @@ test("hook teaser extracts the actual high-stakes phrase instead of unrelated op
   assert.doesNotMatch(plan.hookOverlay.text, /roger|tranquility/i);
   assert.doesNotMatch(plan.hookOverlay.text, /breathing again/i);
 });
+
+
+test("a model-labelled hook without an actual hook cue cannot override a clear high-stakes teaser", () => {
+  const transcriptSegments = [
+    { id: "call-sign", start: 10, end: 12, text: "Tranquility.", signals: { hook: 2, curiosity: 0, emotion: 1, payoff: 1, clarity: 8 } },
+    { id: "oxygen-risk", start: 12.2, end: 16, text: "You got a bunch of guys about to turn blue.", signals: { hook: 9, curiosity: 9, emotion: 9, payoff: 1, clarity: 8 } },
+    { id: "relief", start: 16.2, end: 19, text: "We're breathing again.", signals: { hook: 1, curiosity: 1, emotion: 9, payoff: 9, clarity: 8 } }
+  ];
+  const momentAssessments = [
+    { segmentId: "call-sign", compellingScore: 7, confidence: 0.9, role: "hook", selfContained: false, evidenceValidated: true, evidence: "Tranquility." },
+    { segmentId: "oxygen-risk", compellingScore: 9, confidence: 0.9, role: "tension", selfContained: false, evidenceValidated: true, evidence: "about to turn blue" },
+    { segmentId: "relief", compellingScore: 9, confidence: 0.9, role: "payoff", selfContained: true, evidenceValidated: true, evidence: "We're breathing again." }
+  ];
+  const transitions = transcriptSegments.slice(0, -1).map((segment, index) => ({
+    fromSegmentId: segment.id,
+    toSegmentId: transcriptSegments[index + 1].id,
+    relationship: "connected",
+    confidence: 0.9,
+    evidenceSegmentId: transcriptSegments[index + 1].id,
+    evidenceValidated: true,
+    evidence: transcriptSegments[index + 1].text
+  }));
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 20,
+    transcriptSegments,
+    narrativeSemanticAnalysis: {
+      status: "contextually_connected",
+      transitions,
+      momentAssessments,
+      storyWindow: {
+        arcStatus: "complete",
+        segmentIds: ["call-sign", "oxygen-risk", "relief"],
+        hookSegmentId: "call-sign",
+        payoffSegmentId: "relief",
+        hookEvidence: "Tranquility.",
+        payoffEvidence: "We're breathing again.",
+        confidence: 0.9,
+        evidenceValidated: true
+      }
+    }
+  });
+  assert.equal(plan.status, "edit_plan_ready");
+  assert.equal(plan.hookOverlay.segmentId, "oxygen-risk");
+  assert.match(plan.hookOverlay.text, /about to turn blue/i);
+});

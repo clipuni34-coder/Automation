@@ -76,7 +76,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           ENABLE_CLOUDFLARE_CREATIVE: ${{ vars.ENABLE_CLOUDFLARE_CREATIVE || 'false' }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY || secrets.OPENROUTER_API }}
-          OPENROUTER_MODEL: 'google/gemma-4-31b-it:free'
+          OPENROUTER_MODEL: 'openrouter/free'
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ENABLE_OPENAI_CREATIVE: ${{ vars.ENABLE_OPENAI_CREATIVE || 'false' }}
           SEMANTIC_DEBUG_EVIDENCE: 'true'

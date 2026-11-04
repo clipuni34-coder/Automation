@@ -162,3 +162,32 @@ test("re-edit renderer ignores source cuts that leave too little footage or no t
   assert.equal(manifest.scenes[0].sourceIn, 5);
   assert.equal(manifest.scenes[0].sourceOut, 10);
 });
+
+
+test("long dialogue scenes receive three chronological framing beats when no visual cuts exist", () => {
+  const words = Array.from({ length: 24 }, (_, index) => ({
+    word: "word" + index,
+    start: 10 + index * 0.35,
+    end: 10.25 + index * 0.35
+  }));
+  const plan = buildReeditPlan({
+    source: { ...rights, sourceUrl: "https://media.example/source.mp4", durationSeconds: 80 },
+    targetDurationSeconds: 20,
+    transcriptSegments: [{
+      id: "long-dialogue", start: 10, end: 19,
+      text: "A long chronological dialogue moment.",
+      words,
+      signals: { hook: 9, emotion: 8, curiosity: 9, payoff: 8, clarity: 9 }
+    }]
+  });
+  const manifest = buildReeditRenderManifest({
+    plan, sourceLocalPath: "/assets/source.mp4",
+    audioPath: "/assets/voice.wav", outputPath: "/out/reedit.mp4"
+  });
+  assert.equal(manifest.scenes.length, 3);
+  assert.deepEqual(manifest.scenes.map(scene => scene.visualBeatIndex), [1, 2, 3]);
+  assert.deepEqual(manifest.scenes.map(scene => scene.visualCutAtStart), [false, true, true]);
+  assert.equal(manifest.scenes[0].sourceIn, 10);
+  assert.equal(manifest.scenes.at(-1).sourceOut, 19);
+  assert.ok(manifest.scenes.every((scene, index) => index === 0 || scene.start === manifest.scenes[index - 1].end));
+});

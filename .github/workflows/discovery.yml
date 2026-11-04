@@ -245,7 +245,7 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL: 'openrouter/free'
           ENABLE_GEMINI_CREATIVE: ${{ vars.ENABLE_GEMINI_CREATIVE || 'false' }}
-          ENABLE_GROQ_CREATIVE: ${{ vars.ENABLE_GROQ_CREATIVE || 'false' }}
+          ENABLE_GROQ_CREATIVE: ${{ vars.ENABLE_GROQ_CREATIVE || 'true' }}
           ENABLE_CLOUDFLARE_CREATIVE: ${{ vars.ENABLE_CLOUDFLARE_CREATIVE || 'false' }}
           ENABLE_OPENAI_CREATIVE: ${{ vars.ENABLE_OPENAI_CREATIVE || 'false' }}
           ENABLE_GEMINI_EVIDENCE_ASSESSMENT: ${{ vars.ENABLE_GEMINI_EVIDENCE_ASSESSMENT || 'false' }}
@@ -349,7 +349,7 @@ jobs:
         if: always()
         env:
           ENABLE_GEMINI_CREATIVE: ${{ vars.ENABLE_GEMINI_CREATIVE || 'false' }}
-          ENABLE_GROQ_CREATIVE: ${{ vars.ENABLE_GROQ_CREATIVE || 'false' }}
+          ENABLE_GROQ_CREATIVE: ${{ vars.ENABLE_GROQ_CREATIVE || 'true' }}
           ENABLE_CLOUDFLARE_CREATIVE: ${{ vars.ENABLE_CLOUDFLARE_CREATIVE || 'false' }}
           ENABLE_OPENAI_CREATIVE: ${{ vars.ENABLE_OPENAI_CREATIVE || 'false' }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

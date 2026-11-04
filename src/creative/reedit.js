@@ -184,11 +184,12 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     : null;
   const semanticConnectedExcerptQualified = Boolean(semanticConnectedExcerpt);
   const semanticSelectionQualified = semanticWindowQualified || semanticConnectedExcerptQualified;
-  let bestWindow = semanticWindowQualified ? semanticWindowTrim.segments : semanticConnectedExcerptQualified ? semanticConnectedExcerpt.segments : chronological;
+  const fallbackSelectionPool = semanticSelectionQualified ? chronological : chronological.filter(segment => segment.score >= Math.max(threshold, 3.5));
+  let bestWindow = semanticWindowQualified ? semanticWindowTrim.segments : semanticConnectedExcerptQualified ? semanticConnectedExcerpt.segments : fallbackSelectionPool;
   let bestWindowUtility = semanticSelectionQualified ? Number(semanticWindow.confidence) * 100 : -Infinity;
-  if (!semanticSelectionQualified) for (let left = 0; left < chronological.length; left += 1) {
-    for (let right = left; right < chronological.length; right += 1) {
-      const window = chronological.slice(left, right + 1);
+  if (!semanticSelectionQualified) for (let left = 0; left < fallbackSelectionPool.length; left += 1) {
+    for (let right = left; right < fallbackSelectionPool.length; right += 1) {
+      const window = fallbackSelectionPool.slice(left, right + 1);
       const sourceSpan = window.at(-1).end - window[0].start;
       if (sourceSpan > maxSourceSpan) break;
       const rankedWindow = [...window].sort((a, b) => b.score - a.score || a.start - b.start);

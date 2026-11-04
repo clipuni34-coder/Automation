@@ -361,7 +361,7 @@ export async function analyzeSemanticStory(segments, {
   cloudflareApiToken = process.env.ENABLE_CLOUDFLARE_CREATIVE === "true" ? process.env.CLOUDFLARE_API_TOKEN ?? "" : "",
   openaiApiKey = process.env.ENABLE_OPENAI_CREATIVE === "true" ? process.env.OPENAI_API_KEY ?? "" : "",
   fetchImpl = fetch,
-  timeoutMs = 45000,
+  timeoutMs = 20000,
   targetDurationSeconds = 45,
   openrouterModel = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-super-vl:free"
 } = {}) {
@@ -375,7 +375,7 @@ export async function analyzeSemanticStory(segments, {
   const providers = [
     ...(geminiApiKey ? [["gemini", (activePrompt) => requestGemini(activePrompt, geminiApiKey, fetchImpl, timeoutMs)]] : []),
     ...(groqApiKey ? [["groq", (activePrompt) => requestGroq(activePrompt, groqApiKey, fetchImpl, timeoutMs)]] : []),
-    ...(openrouterApiKey ? [["openrouter-free", (activePrompt) => requestOpenRouter(activePrompt, openrouterApiKey, fetchImpl, Math.max(timeoutMs, 120000), openrouterModel)]] : []),
+    ...(openrouterApiKey ? [["openrouter-free", (activePrompt) => requestOpenRouter(activePrompt, openrouterApiKey, fetchImpl, Math.max(timeoutMs, 60000), openrouterModel)]] : []),
     ...(cloudflareAccountId && cloudflareApiToken ? [["cloudflare-workers-ai", (activePrompt) => requestCloudflare(activePrompt, cloudflareAccountId, cloudflareApiToken, fetchImpl, timeoutMs)]] : []),
     ...(openaiApiKey ? [["openai", (activePrompt) => requestOpenAI(activePrompt, openaiApiKey, fetchImpl, timeoutMs)]] : [])
   ];

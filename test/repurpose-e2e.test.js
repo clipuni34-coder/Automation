@@ -45,6 +45,7 @@ test("authorized repurposing pipeline scores timed words and renders original so
         title: "Synthetic authorised test footage",
         durationSeconds: 8,
         rightsStatus: "owned_by_user",
+        rightsEvidenceReference: "test-fixture-owned-source-record",
         allowedPlatforms: ["youtube_shorts"]
       },
       transcriptSegments: candidates,

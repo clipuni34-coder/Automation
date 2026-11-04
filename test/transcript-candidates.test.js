@@ -165,3 +165,25 @@ test("does not discard a short payoff when the next word crosses the minimum-dur
   assert.equal(moments[0].start, 0);
   assert.equal(moments[0].end, 2.7);
 });
+
+
+test("scores explicit landing confirmation and relief as outcome and emotion signals", () => {
+  const words = [
+    { word: "We", start: 0, end: 0.2 },
+    { word: "copy", start: 0.2, end: 0.5 },
+    { word: "you", start: 0.5, end: 0.7 },
+    { word: "on", start: 0.7, end: 0.9 },
+    { word: "the", start: 0.9, end: 1.1 },
+    { word: "ground.", start: 1.1, end: 2.4 },
+    { word: "We're", start: 2.7, end: 3.0 },
+    { word: "breathing", start: 3.0, end: 3.5 },
+    { word: "again.", start: 3.5, end: 5.0 }
+  ];
+  const moments = buildTranscriptCandidates(words, { minSeconds: 2 });
+  assert.equal(moments.length, 2);
+  assert.ok(moments[0].signals.payoff >= 7);
+  assert.ok(moments[1].signals.payoff >= 7);
+  assert.ok(moments[1].signals.emotion >= 7);
+  assert.match(moments[0].text, /on the ground/);
+  assert.match(moments[1].text, /breathing again/);
+});

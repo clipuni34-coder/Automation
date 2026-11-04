@@ -72,7 +72,7 @@ jobs:
           mkdir -p work output/real-footage
           # Use the official NASA restored EVA 1 descent footage: one continuous event rather than a montage of disconnected mission moments.
           # This source follows Armstrong's descent to the lunar surface and preserves the original mission sequence.
-          ffmpeg -y -hide_banner -loglevel error -i work/apollo-11-eva1-descent.mov -t 120 -c:v libx264 -preset veryfast -crf 22 -c:a aac -movflags +faststart work/source-sample.mp4
+          ffmpeg -y -hide_banner -loglevel error -i work/apollo-11-eva1-descent.mov -t 300 -c:v libx264 -preset veryfast -crf 22 -c:a aac -movflags +faststart work/source-sample.mp4
           ffprobe -v error -show_entries format=duration:stream=codec_name,width,height -of json work/source-sample.mp4
       - name: Transcribe, select moments and render from real audio
         env:

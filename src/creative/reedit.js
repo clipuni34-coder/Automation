@@ -72,7 +72,7 @@ function selectConnectedSemanticExcerpt(segments, semanticWindow, transitions, m
       if (!excerpt.every((item, index) => index === 0 || item.index === excerpt[index - 1].index + 1)) continue;
       const roles = excerpt.map(item => item.semanticAssessment?.role);
       const hasPayoff = roles.includes("payoff");
-      const hasSupportingBeat = roles.some(role => ["context", "tension", "hook", "emotion"].includes(role));
+      const hasSupportingBeat = roles.some(role => ["context", "setup", "tension", "hook", "emotion"].includes(role));
       if (!hasPayoff || !hasSupportingBeat) continue;
       if (excerpt.some(item => !item.semanticAssessment?.evidenceValidated
         || Number(item.semanticAssessment.confidence) < 0.8
@@ -87,7 +87,7 @@ function selectConnectedSemanticExcerpt(segments, semanticWindow, transitions, m
         ...excerpt.map(item => Number(item.semanticAssessment.confidence)),
         ...path.map(item => Number(item.confidence))
       );
-      const roleCoverageBonus = new Set(roles.filter(role => ["context", "tension", "hook", "payoff"].includes(role))).size * 0.25;
+      const roleCoverageBonus = new Set(roles.filter(role => ["context", "setup", "tension", "hook", "payoff"].includes(role))).size * 0.25;
       const lengthBonus = (excerpt.length - 2) * 0.25;
       const utility = averageScore + roleCoverageBonus + lengthBonus - sourceSpan * 0.001;
       candidates.push({

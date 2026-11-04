@@ -15,9 +15,7 @@ function extractHookTeaser(text) {
     return words.slice(start, Math.min(words.length, cueIndex + cueWords + 2)).join(" ");
   }
   const sentence = normalized.split(/(?<=[.!?])\s+/)[0];
-  return /[?]|\b(why|how|what if|what happens if|the secret is|the truth is|here's why|the reason is)\b/i.test(sentence)
-    ? sentence
-    : "";
+  return sentence;
 }
 
 function classifyBeat(text, signals = {}) {

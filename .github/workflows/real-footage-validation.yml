@@ -13,6 +13,9 @@ on:
       - src/clips/repurpose-cli.js
       - src/clips/authorized-reedit.js
       - src/clips/repurpose-package.js
+      - src/rights/asset-rights.js
+      - test/rights-and-reedit.test.js
+      - test/repurpose-package.test.js
       - src/creative/semantic-story.js
       - src/clips/transcript-candidates.js
       - requirements/repurposing.txt

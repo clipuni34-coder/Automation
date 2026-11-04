@@ -141,6 +141,30 @@ test("semantic story analysis validates per-moment scores and transcript evidenc
 });
 
 
+test("Gemini 3.8 semantic requests use the current JSON generation config", async () => {
+  let requestedUrl = "";
+  let requestBody;
+  const fetchImpl = async (url, options) => {
+    requestedUrl = url;
+    requestBody = JSON.parse(options.body);
+    return {
+      ok: true,
+      json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({
+        transitions: [{ fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.9,
+          explanation: "The second chunk continues the rescue.", evidence: "They carried the injured climber" }]
+      }) }] } }] })
+    };
+  };
+  const result = await analyzeSemanticStory([
+    { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
+    { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
+  ], { geminiApiKey: "test-key", groqApiKey: "", openrouterApiKey: "", openaiApiKey: "", fetchImpl });
+  assert.match(requestedUrl, /models\/gemini-3\.8-flash:generateContent/);
+  assert.deepEqual(requestBody.generationConfig, { responseMimeType: "application/json" });
+  assert.equal(result.provider, "gemini");
+  assert.equal(result.qualified, true);
+});
+
 test("Gemini semantic analysis retries a transient service error before succeeding", async () => {
   let calls = 0;
   const fetchImpl = async () => {

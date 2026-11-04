@@ -7,7 +7,10 @@ function normalizeEvidence(value) {
 
 function evidenceMatches(sourceText, evidence) {
   const quote = normalizeEvidence(evidence);
-  return quote.split(" ").filter(Boolean).length >= 3 && normalizeEvidence(sourceText).includes(quote);
+  const quoteWords = quote.split(" ").filter(Boolean);
+  const sourceWords = normalizeEvidence(sourceText).split(" ").filter(Boolean);
+  const minimumWords = Math.min(3, sourceWords.length);
+  return minimumWords > 0 && quoteWords.length >= minimumWords && normalizeEvidence(sourceText).includes(quote);
 }
 
 function parseObject(raw) {
@@ -41,7 +44,7 @@ function validate(result, segments) {
         const diagnostic = process.env.SEMANTIC_DEBUG_EVIDENCE === "true"
           ? JSON.stringify({ evidence, evidenceSegmentId, fromSegmentId: item.fromSegmentId, toSegmentId: item.toSegmentId, fromText, toText })
           : "";
-        throw new Error("Semantic evidence must quote a contiguous sequence of at least three source words from exactly one adjacent transcript chunk" + diagnostic);
+        throw new Error("Semantic evidence must quote at least three contiguous source words from exactly one adjacent transcript chunk, or quote the entire chunk when it contains fewer than three words" + diagnostic);
       }
     } else if (item.relationship === "connected") {
       throw new Error("Connected semantic transitions require source-verified evidence");
@@ -72,7 +75,7 @@ function validate(result, segments) {
       if (!Number.isFinite(score) || score < 0 || score > 10 || !Number.isFinite(confidence) || confidence < 0 || confidence > 1) throw new Error("Invalid semantic moment score or confidence");
       if (!["hook", "setup", "tension", "payoff", "context"].includes(item.role)) throw new Error("Invalid semantic moment role");
       const evidence = String(item.evidence ?? "").trim().slice(0, 300);
-      if (!evidenceMatches(segmentById.get(id), evidence)) throw new Error("Semantic moment evidence must quote a contiguous sequence of at least three source words from its segment");
+      if (!evidenceMatches(segmentById.get(id), evidence)) throw new Error("Semantic moment evidence must quote at least three contiguous source words from its segment, or quote the entire segment when it contains fewer than three words");
       return { segmentId: id, compellingScore: Number(score.toFixed(2)), confidence: Number(confidence.toFixed(3)), role: item.role, selfContained: item.selfContained === true, rationale: String(item.rationale ?? "").slice(0, 300), evidence };
     });
     if (assessmentIds.size !== segments.length) throw new Error("Semantic story response omitted one or more moment assessments");
@@ -202,8 +205,8 @@ async function requestGroq(prompt, key, fetchImpl, timeoutMs, model = process.en
   } finally { clearTimeout(timer); }
 }
 
-async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "google/gemma-4-31b-it:free") {
-  if (model !== "google/gemma-4-31b-it:free" && !model.endsWith(":free")) throw new Error("OpenRouter semantic fallback is restricted to explicitly free models");
+async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "openrouter/free") {
+  if (model !== "openrouter/free" && !model.endsWith(":free")) throw new Error("OpenRouter semantic fallback is restricted to explicitly free models");
   let lastError;
   for (const requireJsonMode of [true, false]) {
     const controller = new AbortController();
@@ -304,7 +307,7 @@ export async function analyzeSemanticStory(segments, {
   fetchImpl = fetch,
   timeoutMs = 45000,
   targetDurationSeconds = 45,
-  openrouterModel = process.env.OPENROUTER_MODEL ?? "google/gemma-4-31b-it:free"
+  openrouterModel = process.env.OPENROUTER_MODEL ?? "openrouter/free"
 } = {}) {
   const ordered = [...(segments ?? [])].sort((a, b) => a.start - b.start || a.end - b.end);
   if (ordered.length > 80 || ordered.some(item => String(item.text ?? "").length > 1200) || ordered.reduce((sum, item) => sum + String(item.text ?? "").length, 0) > 24000) {

@@ -63,7 +63,7 @@ jobs:
         run: |
           mkdir -p work output/real-footage
           # This 75-second public-domain NASA clip captures Buzz Aldrin's ladder descent, his failed first jump back to the ladder, and his step onto the lunar surface with original mission audio.
-          ffmpeg -y -hide_banner -loglevel error -i work/apollo-11-first-step.mov -t 60 -c:v libx264 -preset veryfast -crf 23 -c:a aac -movflags +faststart work/source-sample.mp4
+          ffmpeg -y -hide_banner -loglevel error -i work/apollo-11-buzz-first-step.mpg -t 75 -c:v libx264 -preset veryfast -crf 23 -c:a aac -movflags +faststart work/source-sample.mp4
           ffprobe -v error -show_entries format=duration:stream=codec_name,width,height -of json work/source-sample.mp4
       - name: Transcribe, select moments and render from real audio
         env:

@@ -20,7 +20,7 @@ function parseObject(raw) {
   return parsed;
 }
 
-function validate(result, segments, allowInvalidStoryWindow = false) {
+function validate(result, segments, allowInvalidStoryWindow = false, allowInvalidEvidence = false) {
   if (!Array.isArray(result.transitions)) throw new Error("Semantic story response must contain transitions");
   const expected = new Set(segments.slice(1).map((item, index) => segments[index].id + "->" + item.id));
   const byId = new Map(segments.map(item => [String(item.id), String(item.text ?? "")]));
@@ -32,35 +32,48 @@ function validate(result, segments, allowInvalidStoryWindow = false) {
     if (!["connected", "uncertain", "disconnected"].includes(item.relationship)) throw new Error("Invalid semantic relationship label");
     const confidence = Number(item.confidence);
     if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) throw new Error("Invalid semantic confidence");
-    const evidence = String(item.evidence ?? "").trim().slice(0, 400);
+    let evidence = String(item.evidence ?? "").trim().slice(0, 400);
     const fromText = byId.get(String(item.fromSegmentId));
     const toText = byId.get(String(item.toSegmentId));
     let evidenceSegmentId = null;
+    let relationship = item.relationship;
+    let explanation = String(item.explanation ?? "").slice(0, 400);
+    let evidenceValidated = false;
     if (evidence) {
       evidenceSegmentId = item.evidenceSegmentId == null
         ? (evidenceMatches(fromText, evidence) ? String(item.fromSegmentId) : String(item.toSegmentId))
         : String(item.evidenceSegmentId);
-      if (![String(item.fromSegmentId), String(item.toSegmentId)].includes(evidenceSegmentId) || !evidenceMatches(byId.get(evidenceSegmentId), evidence)) {
+      evidenceValidated = [String(item.fromSegmentId), String(item.toSegmentId)].includes(evidenceSegmentId)
+        && evidenceMatches(byId.get(evidenceSegmentId), evidence);
+      if (!evidenceValidated) {
         const diagnostic = process.env.SEMANTIC_DEBUG_EVIDENCE === "true"
           ? JSON.stringify({ evidence, evidenceSegmentId, fromSegmentId: item.fromSegmentId, toSegmentId: item.toSegmentId, fromText, toText })
           : "";
-        throw new Error("Semantic evidence must quote at least three contiguous source words from exactly one adjacent transcript chunk, or quote the entire chunk when it contains fewer than three words" + diagnostic);
+        if (!allowInvalidEvidence) throw new Error("Semantic evidence must quote at least three contiguous source words from exactly one adjacent transcript chunk, or quote the entire chunk when it contains fewer than three words" + diagnostic);
+        evidence = "";
+        evidenceSegmentId = null;
       }
-    } else if (item.relationship === "connected") {
-      throw new Error("Connected semantic transitions require source-verified evidence");
+    }
+    if (relationship === "connected" && !evidenceValidated) {
+      if (!allowInvalidEvidence) throw new Error("Connected semantic transitions require source-verified evidence");
+      relationship = "uncertain";
+      confidence = Math.min(confidence, 0.5);
+      explanation = (explanation + " Connection downgraded because its source quote was not verifiable.").slice(0, 400);
     }
     return {
       fromSegmentId: item.fromSegmentId,
       toSegmentId: item.toSegmentId,
-      relationship: item.relationship,
+      relationship,
       evidenceSegmentId,
+      evidenceValidated,
       confidence: Number(confidence.toFixed(3)),
-      explanation: String(item.explanation ?? "").slice(0, 400),
+      explanation,
       evidence
     };
   });
   if (seen.size !== expected.size) throw new Error("Semantic story response omitted one or more adjacent transitions");
   const disconnected = transitions.filter(item => item.relationship !== "connected" || item.confidence < 0.7);
+  const unverifiedMoments = momentAssessments.filter(item => item.evidenceValidated === false).length;
   let momentAssessments = [];
   if (result.momentAssessments !== undefined) {
     if (!Array.isArray(result.momentAssessments)) throw new Error("Semantic story response momentAssessments must be an array");
@@ -75,8 +88,18 @@ function validate(result, segments, allowInvalidStoryWindow = false) {
       if (!Number.isFinite(score) || score < 0 || score > 10 || !Number.isFinite(confidence) || confidence < 0 || confidence > 1) throw new Error("Invalid semantic moment score or confidence");
       if (!["hook", "setup", "tension", "payoff", "context"].includes(item.role)) throw new Error("Invalid semantic moment role");
       const evidence = String(item.evidence ?? "").trim().slice(0, 300);
-      if (!evidenceMatches(segmentById.get(id), evidence)) throw new Error("Semantic moment evidence must quote at least three contiguous source words from its segment, or quote the entire segment when it contains fewer than three words");
-      return { segmentId: id, compellingScore: Number(score.toFixed(2)), confidence: Number(confidence.toFixed(3)), role: item.role, selfContained: item.selfContained === true, rationale: String(item.rationale ?? "").slice(0, 300), evidence };
+      const evidenceValidated = evidenceMatches(segmentById.get(id), evidence);
+      if (!evidenceValidated && !allowInvalidEvidence) throw new Error("Semantic moment evidence must quote at least three contiguous source words from its segment, or quote the entire segment when it contains fewer than three words");
+      return {
+        segmentId: id,
+        compellingScore: evidenceValidated ? Number(score.toFixed(2)) : 0,
+        confidence: evidenceValidated ? Number(confidence.toFixed(3)) : 0,
+        role: evidenceValidated ? item.role : "context",
+        selfContained: evidenceValidated && item.selfContained === true,
+        rationale: evidenceValidated ? String(item.rationale ?? "").slice(0, 300) : "Source quote failed validation; this semantic score is not trusted.",
+        evidence: evidenceValidated ? evidence : "",
+        evidenceValidated
+      };
     });
     if (assessmentIds.size !== segments.length) throw new Error("Semantic story response omitted one or more moment assessments");
   }
@@ -137,7 +160,7 @@ function validate(result, segments, allowInvalidStoryWindow = false) {
     }
   }
   return {
-    status: disconnected.length || storyWindowError ? "human_review_required" : "contextually_connected",
+    status: disconnected.length || storyWindowError || unverifiedMoments ? "human_review_required" : "contextually_connected",
     provider: result.provider,
     method: "llm_adjacent_chunk_semantic_relationship_review",
     transitions,
@@ -146,9 +169,10 @@ function validate(result, segments, allowInvalidStoryWindow = false) {
     storyWindow,
     storyWindowStatus: storyWindow ? "assessed" : storyWindowError ? "invalid" : "not_provided",
     storyWindowError,
+    unverifiedMoments,
     connectedTransitions: transitions.length - disconnected.length,
     disconnectedOrUncertainTransitions: disconnected.length,
-    qualified: transitions.length > 0 && disconnected.length === 0 && !storyWindowError,
+    qualified: transitions.length > 0 && disconnected.length === 0 && !storyWindowError && unverifiedMoments === 0,
     limitation: "Model judgments are fallible interpretations of supplied transcript text, not proof of truth, causality, or visual events. Human review remains necessary."
   };
 }
@@ -361,11 +385,12 @@ export async function analyzeSemanticStory(segments, {
         try {
           return validate({ ...response, provider }, ordered);
         } catch (finalValidationError) {
-          if (/Semantic story-window assessment|complete semantic story window/.test(finalValidationError.message)) {
-            // Preserve fully validated transitions and moment scores while
-            // discarding only a malformed story-window claim. This remains
-            // human-review-required and cannot be treated as a complete arc.
-            return validate({ ...response, provider }, ordered, true);
+          if (/Semantic story-window assessment|complete semantic story window|Semantic evidence must quote|Connected semantic transitions require|Semantic moment evidence must quote/.test(finalValidationError.message)) {
+            // Preserve independently valid moment assessments and downgrade
+            // unsupported transitions. Invalid individual quotes get zero
+            // confidence; a malformed story window is discarded. Human review
+            // remains mandatory and no unverified beat is treated as fact.
+            return validate({ ...response, provider }, ordered, true, true);
           }
           throw finalValidationError;
         }

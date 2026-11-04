@@ -39,7 +39,22 @@ export function buildReeditRenderManifest({ plan, sourceLocalPath, audioPath, ou
     const originalWords = (segment.wordTimings ?? []).map(word => ({
       text: word.word ?? word.text, start: Number(word.start), end: Number(word.end)
     })).filter(word => word.text && Number.isFinite(word.start) && Number.isFinite(word.end) && word.end > word.start);
-    const candidateCuts = cutPoints.filter(time => time > sourceIn + 1.25 && time < sourceOut - 1.25);
+    const duration = sourceOut - sourceIn;
+    // If the source has no detectable scene changes, create three restrained
+    // framing beats at safe word boundaries for longer dialogue moments.
+    // This changes only the visual cut pattern; spoken words remain chronological.
+    const fallbackBeatCuts = duration >= 6 && originalWords.length >= 8
+      ? [1 / 3, 2 / 3].map(ratio => {
+          const target = sourceIn + duration * ratio;
+          return originalWords
+            .map(word => word.end)
+            .filter(time => time > sourceIn + 1.25 && time < sourceOut - 1.25)
+            .sort((a, b) => Math.abs(a - target) - Math.abs(b - target))[0];
+        }).filter(Number.isFinite)
+      : [];
+    const candidateCuts = [...new Set([...cutPoints, ...fallbackBeatCuts])]
+      .filter(time => time > sourceIn + 1.25 && time < sourceOut - 1.25)
+      .sort((a, b) => a - b);
     const boundaries = [sourceIn];
     for (const time of candidateCuts) {
       if (time - boundaries.at(-1) < 1.25 || sourceOut - time < 1.25) continue;

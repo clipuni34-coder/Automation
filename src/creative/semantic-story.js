@@ -202,7 +202,7 @@ async function requestGroq(prompt, key, fetchImpl, timeoutMs, model = process.en
   } finally { clearTimeout(timer); }
 }
 
-async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "openai/gpt-oss-120b:free") {
+async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-super-vl:free") {
   if (model !== "openrouter/free" && !model.endsWith(":free")) throw new Error("OpenRouter semantic fallback is restricted to explicitly free models");
   let lastError;
   for (const requireJsonMode of [true, false]) {

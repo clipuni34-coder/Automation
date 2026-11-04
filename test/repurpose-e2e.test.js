@@ -56,7 +56,8 @@ test("authorized repurposing pipeline scores timed words and renders original so
     assert.equal(result.rendered.width, 1080);
     assert.equal(result.rendered.height, 1920);
     assert.equal(result.rendered.sourceAudioPreserved, true);
-    assert.equal(result.plan.rights.status, "approved");
+    assert.equal(result.plan.rights.status, "declared_not_independently_verified");
+    assert.equal(result.plan.rights.verificationStatus, "declaration_only");
     assert.ok(result.plan.editDecisionList.length >= 1);
   } finally {
     await rm(dir, { recursive: true, force: true });

@@ -299,7 +299,7 @@ test("high-confidence semantic moment assessment can change which source moment 
   const momentAssessments = transcriptSegments.map((segment, index) => ({
     segmentId: segment.id,
     compellingScore: index >= 2 ? 9.5 : 1.5,
-    confidence: 0.9,
+    confidence: 0.9, evidenceValidated: true,
     role: index === 2 ? "hook" : index === 3 ? "payoff" : "context",
     selfContained: index === 3,
     rationale: "Mocked evidence-backed semantic assessment.",
@@ -326,13 +326,13 @@ test("semantic story window trims redundant edges but preserves the validated ho
     { id: "post-context", start: 14, end: 19, text: "The presenter then repeated the general safety message.", signals: { clarity: 7 } }
   ];
   const momentAssessments = transcriptSegments.map((segment, index) => ({
-    segmentId: segment.id, compellingScore: [2, 9, 8, 9, 2][index], confidence: 0.95,
+    segmentId: segment.id, compellingScore: [2, 9, 8, 9, 2][index], confidence: 0.95, evidenceValidated: true,
     role: ["context", "hook", "setup", "payoff", "context"][index],
     selfContained: false, rationale: "Evidence-backed moment assessment.", evidence: segment.text
   }));
   const transitions = transcriptSegments.slice(0, -1).map((segment, index) => ({
     fromSegmentId: segment.id, toSegmentId: transcriptSegments[index + 1].id,
-    relationship: "connected", confidence: 0.9, explanation: "Same unfolding story.",
+    relationship: "connected", confidence: 0.9, evidenceValidated: true, explanation: "Same unfolding story.",
     evidence: transcriptSegments[index + 1].text
   }));
   const plan = buildReeditPlan({
@@ -364,7 +364,7 @@ test("validated complete semantic story window takes priority over isolated scor
     { id: "payoff", start: 15, end: 19, text: "Engineers rebuilt the bridge and reopened the road.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } }
   ];
   const momentAssessments = transcriptSegments.map((segment, index) => ({
-    segmentId: segment.id, compellingScore: index === 0 ? 10 : 8.5, confidence: 0.9,
+    segmentId: segment.id, compellingScore: index === 0 ? 10 : 8.5, confidence: 0.9, evidenceValidated: true,
     role: ["context", "hook", "tension", "payoff"][index], selfContained: index === 3,
     rationale: "Validated semantic story beat.", evidence: segment.text
   }));
@@ -376,8 +376,8 @@ test("validated complete semantic story window takes priority over isolated scor
       status: "human_review_required",
       transitions: [
         { fromSegmentId: "intro", toSegmentId: "hook", relationship: "disconnected", confidence: 0.9 },
-        { fromSegmentId: "hook", toSegmentId: "tension", relationship: "connected", confidence: 0.9 },
-        { fromSegmentId: "tension", toSegmentId: "payoff", relationship: "connected", confidence: 0.9 }
+        { fromSegmentId: "hook", toSegmentId: "tension", relationship: "connected", confidence: 0.9, evidenceValidated: true },
+        { fromSegmentId: "tension", toSegmentId: "payoff", relationship: "connected", confidence: 0.9, evidenceValidated: true }
       ],
       momentAssessments,
       storyWindow: {

@@ -410,5 +410,6 @@ export async function analyzeSemanticStory(segments, {
       errors.push(provider + ": " + error.message);
     }
   }
-  return { status: "provider_error", provider: null, transitions: [], qualified: false, method: "semantic_provider_failed", errors, limitation: "Semantic analysis failed; do not treat lexical analysis as semantic understanding." };
+  const rateLimited = errors.some(error => /HTTP 429|rate limit exceeded|quota exceeded|RESOURCE_EXHAUSTED/i.test(error));
+  return { status: rateLimited ? "provider_rate_limited" : "provider_error", provider: null, transitions: [], qualified: false, method: rateLimited ? "semantic_provider_rate_limited" : "semantic_provider_failed", errors, limitation: "Semantic analysis failed; do not treat lexical analysis as semantic understanding." };
 }

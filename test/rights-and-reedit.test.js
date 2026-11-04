@@ -498,3 +498,19 @@ test("semantic connected excerpt accepts an evidence-validated setup followed by
   assert.deepEqual(plan.editDecisionList.map(item => item.segmentId), ["setup", "relief", "confirmation"]);
   assert.equal(plan.editorialQuality.semanticStoryWindow.qualified, true);
 });
+
+
+test("hook teaser extracts the actual high-stakes phrase instead of unrelated opening words", () => {
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 15,
+    transcriptSegments: [{
+      id: "landing-relief", start: 10, end: 18,
+      text: "Roger, Tranquility, we copy you on the ground. You got a bunch of guys about to turn blue. We're breathing again.",
+      signals: { hook: 9, curiosity: 9, emotion: 9, payoff: 9, clarity: 9 }
+    }]
+  });
+  assert.match(plan.hookOverlay.text, /about to turn blue/i);
+  assert.doesNotMatch(plan.hookOverlay.text, /roger|tranquility/i);
+  assert.doesNotMatch(plan.hookOverlay.text, /breathing again/i);
+});

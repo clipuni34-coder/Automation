@@ -202,7 +202,7 @@ test("creative provider uses the OpenRouter free-model router when it is the onl
   let request;
   const result = await generateEditorialPlan({
     dossier, geminiApiKey: "", openaiApiKey: "", openrouterApiKey: "openrouter-test-key",
-    openrouterModel: "google/gemma-4-31b-it:free",
+    openrouterModel: "openrouter/free",
     fetchImpl: async (url, options) => {
       request = { url, options };
       return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(validPlan) } }] }), { status: 200 });
@@ -212,7 +212,7 @@ test("creative provider uses the OpenRouter free-model router when it is the onl
   assert.equal(result.provider, "openrouter-free");
   assert.equal(request.url, "https://openrouter.ai/api/v1/chat/completions");
   assert.equal(request.options.headers.authorization, "Bearer openrouter-test-key");
-  assert.equal(JSON.parse(request.options.body).model, "google/gemma-4-31b-it:free");
+  assert.equal(JSON.parse(request.options.body).model, "openrouter/free");
   assert.equal("reasoning" in JSON.parse(request.options.body), false);
 });
 

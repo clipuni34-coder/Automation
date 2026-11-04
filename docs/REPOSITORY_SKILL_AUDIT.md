@@ -62,3 +62,20 @@ These repositories provide useful editorial knowledge, platform-specific practic
 3. **Borrow the multimodal timing idea from autoshorts**, not its input assumptions: use word-level transcription plus visual/audio scene understanding for timing and context, but our discovery engine must find the subject and source material itself.
 4. Keep discovery, content production and publishing decoupled. A trend/reference discovery connector should never imply rights to reuse the referenced video.
 5. Before adoption, inspect source modules, dependency trees, CI/tests, license/NOTICE, environment secrets, outbound network behavior, subprocess use, file writes and API calls. Run imported code in an isolated test environment first.
+
+
+## Odysseus repository assessment (2026-11-04)
+
+Reviewed: [odysseus-dev/odysseus](https://github.com/odysseus-dev/odysseus), its current README, the Codex integration skill, and the Claude integration guide.
+
+- **What it is:** a self-hosted AI workspace for chat, autonomous agents, tools/MCP, research, documents, email, notes, tasks, calendar, model serving and persistent skills. It is not a video discovery, editing, rendering or social-publishing engine.
+- **License:** AGPL-3.0-or-later. Do not copy its implementation or bundle its skill files into this repository without an explicit license decision and compliance plan. Keep any future evaluation isolated and retain upstream attribution.
+- **Runtime:** its documented quick start uses Docker Compose and a persistent host; the web UI listens on port 7011. The project advises keeping authentication enabled and not exposing raw model/service ports. This is not a drop-in dependency for the current GitHub Actions-based Automation pipeline.
+- **Agent integration:** the Codex/Claude skill is an API client for an already-running Odysseus instance. It requires an instance URL and scoped integration token, checks capabilities, and restricts access to enabled scopes. It does not add video automation capabilities to this repository.
+- **Decision:** **not installed as a runtime or copied into Automation.** The overlap is a general-purpose agent workspace, while this product needs a specialized discovery-to-production pipeline. Installing it would add a separate service, operational/security burden and AGPL obligations without solving the current video workflow gaps.
+- **What we can adopt independently:** verify state after every external action; keep explicit evidence for completion; treat skills as procedures rather than executable runtime; use scoped credentials and capability checks; stop when a required tool or permission is missing; and never claim a task is complete without a verified result. These are engineering principles, not copied source code.
+
+Upstream references:
+- [Odysseus README and license](https://github.com/odysseus-dev/odysseus)
+- [Odysseus Codex integration skill](https://github.com/odysseus-dev/odysseus/blob/dev/integrations/codex/skills/odysseus/SKILL.md)
+- [Odysseus Claude integration guide](https://github.com/odysseus-dev/odysseus/blob/dev/integrations/claude/README.md)

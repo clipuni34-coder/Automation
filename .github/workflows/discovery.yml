@@ -140,10 +140,11 @@ jobs:
           YOUTUBE_DATA_API_KEY: ${{ secrets.YOUTUBE_DATA_API_KEY }}
           DISCOVERY_REGIONS: ${{ vars.DISCOVERY_REGIONS || 'US,GB,CA,AU,IN,NG,ZA,BR,MX,DE,JP,KR' }}
           DISCOVERY_CATEGORIES: ${{ vars.DISCOVERY_CATEGORIES || '1,2,10,15,17,19,20,22,23,24,25,26,27,28,29' }}
-          DISCOVERY_SEARCH_QUERIES: ${{ vars.DISCOVERY_SEARCH_QUERIES || 'viral funny moments|unexpected reaction moments|gaming streamer moments|viral sports moments|surprising real-life moments' }}
+          DISCOVERY_SEARCH_QUERIES: ${{ vars.DISCOVERY_SEARCH_QUERIES || 'funny fails caught on camera|Roblox gaming funny moments|unbelievable sports moments|street food cooking unusual|animal rescue unexpected moments' }}
           DISCOVERY_SEARCH_MAX_RESULTS: '20'
           DISCOVERY_SEARCH_ORDER: 'viewCount'
-          DISCOVERY_SEARCH_REGION: 'US'
+          DISCOVERY_SEARCH_REGION: 'NG'
+          DISCOVERY_SEARCH_WINDOW_DAYS: '7'
           DISCOVERY_CONCURRENCY: '5'
           RSS_FEEDS: ${{ vars.RSS_FEEDS || 'https://trends.google.com/trending/rss?geo=NG,https://trends.google.com/trending/rss?geo=US,https://trends.google.com/trending/rss?geo=GB,https://trends.google.com/trending/rss?geo=IN,https://trends.google.com/trending/rss?geo=ZA,https://trends.google.com/trending/rss?geo=CA,https://trends.google.com/trending/rss?geo=AU' }}
           DISCOVERY_STORE_PATH: data/discovery.json

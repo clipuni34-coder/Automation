@@ -39,7 +39,7 @@ test("semantic story analysis validates every adjacent transition and accepts cl
     { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
     { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
   ], { openaiApiKey: "test-key", geminiApiKey: "", fetchImpl });
-  assert.equal(result.status, "contextually_connected");
+  assert.equal(result.status, "contextually_connected", JSON.stringify(result.errors ?? result));
   assert.equal(result.qualified, true);
   assert.equal(result.transitions.length, 1);
 });

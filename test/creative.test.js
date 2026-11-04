@@ -202,6 +202,7 @@ test("creative provider uses the OpenRouter free-model router when it is the onl
   let request;
   const result = await generateEditorialPlan({
     dossier, geminiApiKey: "", openaiApiKey: "", openrouterApiKey: "openrouter-test-key",
+    openrouterModel: "nvidia/nemotron-3.5-lightning:free",
     fetchImpl: async (url, options) => {
       request = { url, options };
       return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(validPlan) } }] }), { status: 200 });

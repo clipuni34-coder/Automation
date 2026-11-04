@@ -177,7 +177,7 @@ jobs:
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
-          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
           YOUTUBE_ANALYTICS_PATH: data/youtube-analytics.json
         run: npm run youtube-analytics
 
@@ -186,7 +186,7 @@ jobs:
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
-          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
           YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
           YOUTUBE_COMMENTS_PATH: data/youtube-comment-inbox.json
           YOUTUBE_COMMENTS_MAX_RESULTS: '50'
@@ -364,7 +364,7 @@ jobs:
           INPUT_RENDER_APPROVED_BRIEF: ${{ inputs.render_preapproved_brief || false }}
           SYNC_YOUTUBE_ANALYTICS: ${{ vars.SYNC_YOUTUBE_ANALYTICS || 'false' }}
           SYNC_YOUTUBE_COMMENTS: ${{ vars.SYNC_YOUTUBE_COMMENTS || 'false' }}
-          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
           YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
         run: |
           node --input-type=module <<'NODE'

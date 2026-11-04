@@ -1,6 +1,6 @@
 import { summarizeMomentSignals } from "./media-signals.js";
-const HOOK = /\b(wait until you see|why|how|what if|what happens if|what would happen if|the secret is|the truth is|here is why|here's why|the reason is|you won't believe|the surprising part)\b/i;
-const CURIOSITY = /\b(wait until you see|why|how|what if|what happens if|what would happen if|the secret is|the truth is|here is why|here's why|the reason is|you won't believe|the surprising part)\b/i;
+const HOOK = /\b(wait until you see|why|how|what if|what happens if|what would happen if|the secret is|the truth is|here is why|here's why|the reason is|you won't believe|the surprising part|about to turn blue|can't breathe|cannot breathe|running out of air|running out of oxygen)\b/i;
+const CURIOSITY = /\b(wait until you see|why|how|what if|what happens if|what would happen if|the secret is|the truth is|here is why|here's why|the reason is|you won't believe|the surprising part|about to turn blue|can't breathe|cannot breathe|running out of air|running out of oxygen)\b/i;
 const EMOTION = /\b(love|hate|fear|afraid|angry|furious|cry|tears|laugh|funny|scared|shocked|surprised|incredible|terrible|beautiful|disaster|win|lost|fail|success|breathing again|we made it|we are safe|we(?:'|’)re safe|we survived|made it out|landed safely|touchdown)\b/i;
 const PAYOFF = /\b(therefore|that means|the result|in the end|finally|turns out|which is why|because of that|here's what happened|and then|the answer is|the answer was|the solution is|the solution was|what happened next|we copy you on the ground|breathing again|we made it|we are safe|we(?:'|’)re safe|we survived|made it out|landed safely|touchdown)\b/i;
 const FILLER = /\b(um|uh|erm|you know|like|basically|actually)\b/gi;

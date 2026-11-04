@@ -117,10 +117,13 @@ test("short adjacent sentences merge until they form a usable timed moment", () 
     { word: "blue.", start: 4.4, end: 4.8 }
   ];
   const moments = buildTranscriptCandidates(words, { minSeconds: 2, maxPauseSeconds: 1.5 });
-  assert.equal(moments.length, 1);
-  assert.equal(moments[0].text, "Eagle. Tranquility. We copy you on the ground. You got a bunch of guys about to turn blue.");
+  assert.equal(moments.length, 2);
+  assert.equal(moments[0].text, "Eagle. Tranquility. We copy you on the ground.");
   assert.equal(moments[0].start, 0);
-  assert.equal(moments[0].end, 4.8);
+  assert.equal(moments[0].end, 2.5);
+  assert.equal(moments[1].text, "You got a bunch of guys about to turn blue.");
+  assert.equal(moments[1].start, 2.7);
+  assert.equal(moments[1].end, 4.8);
 });
 
 test("short sentence fragments separated by a long silence are not merged", () => {

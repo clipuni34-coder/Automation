@@ -399,3 +399,26 @@ test("invalid semantic story-window claims do not discard valid moment assessmen
   assert.equal(result.storyWindowStatus, "invalid");
   assert.equal(result.qualified, false);
 });
+
+
+test("Nemotron 3.5 Super VL free route disables hidden reasoning to preserve JSON output budget", async () => {
+  let requestBody;
+  const fetchImpl = async (_url, options) => {
+    requestBody = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ model: "nvidia/nemotron-3.5-super-vl:free", choices: [{ message: { content: JSON.stringify({ transitions: [{
+      fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.9,
+      explanation: "The second chunk continues the rescue.", evidence: "They carried the injured climber"
+    }] }) } }] }) };
+  };
+  const result = await analyzeSemanticStory([
+    { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
+    { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
+  ], { geminiApiKey: "", groqApiKey: "", openrouterApiKey: "test-key", openaiApiKey: "",
+    openrouterModel: "nvidia/nemotron-3.5-super-vl:free", fetchImpl });
+  assert.equal(requestBody.model, "nvidia/nemotron-3.5-super-vl:free");
+  assert.equal(requestBody.max_tokens, 12000);
+  assert.deepEqual(requestBody.provider.options.chat_template_kwargs, { enable_thinking: false });
+  assert.equal(requestBody.response_format.type, "json_object");
+  assert.equal(result.provider, "openrouter-free");
+  assert.equal(result.qualified, true);
+});

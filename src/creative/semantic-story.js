@@ -288,7 +288,7 @@ export async function analyzeSemanticStory(segments, {
   const providers = [
     ...(geminiApiKey ? [["gemini", (activePrompt) => requestGemini(activePrompt, geminiApiKey, fetchImpl, timeoutMs)]] : []),
     ...(groqApiKey ? [["groq", (activePrompt) => requestGroq(activePrompt, groqApiKey, fetchImpl, timeoutMs)]] : []),
-    ...(openrouterApiKey ? [["openrouter-free", (activePrompt) => requestOpenRouter(activePrompt, openrouterApiKey, fetchImpl, timeoutMs)]] : []),
+    ...(openrouterApiKey ? [["openrouter-free", (activePrompt) => requestOpenRouter(activePrompt, openrouterApiKey, fetchImpl, Math.max(timeoutMs, 120000))]] : []),
     ...(cloudflareAccountId && cloudflareApiToken ? [["cloudflare-workers-ai", (activePrompt) => requestCloudflare(activePrompt, cloudflareAccountId, cloudflareApiToken, fetchImpl, timeoutMs)]] : []),
     ...(openaiApiKey ? [["openai", (activePrompt) => requestOpenAI(activePrompt, openaiApiKey, fetchImpl, timeoutMs)]] : [])
   ];

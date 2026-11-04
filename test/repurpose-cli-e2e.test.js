@@ -33,6 +33,7 @@ test("repurpose CLI produces an MP4, thumbnail, transcript evidence and posting 
         title: "Original source title",
         creator: "Original creator",
         rightsStatus: "owned_by_user",
+        rightsEvidenceReference: "test-fixture-owned-source-record",
         allowedPlatforms: ["youtube_shorts"]
       },
       transcriptWords,

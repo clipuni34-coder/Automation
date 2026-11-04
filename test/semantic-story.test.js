@@ -417,6 +417,7 @@ test("Nemotron 3.5 Super VL free route disables hidden reasoning to preserve JSO
     openrouterModel: "nvidia/nemotron-3.5-super-vl:free", fetchImpl });
   assert.equal(requestBody.model, "nvidia/nemotron-3.5-super-vl:free");
   assert.equal(requestBody.max_tokens, 12000);
+  assert.deepEqual(requestBody.reasoning, { enabled: false });
   assert.deepEqual(requestBody.provider.options.chat_template_kwargs, { enable_thinking: false });
   assert.equal(requestBody.response_format.type, "json_object");
   assert.equal(result.provider, "openrouter-free");

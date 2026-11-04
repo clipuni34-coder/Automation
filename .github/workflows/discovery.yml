@@ -14,7 +14,7 @@ on:
         type: boolean
         default: false
       publish_videos:
-        description: "Explicitly allow YouTube uploads. Leave off for a test render."
+        description: "Reserved for future human-approved publishing; uploads are currently disabled."
         required: false
         type: boolean
         default: false
@@ -338,42 +338,12 @@ jobs:
             exit 1
           fi
 
-      - name: Publish only fully approved videos to YouTube
-        if: vars.ENABLE_ORIGINAL_AI_CONTENT == 'true' && inputs.publish_videos == true && vars.YOUTUBE_AUTO_PUBLISH == 'true' && (vars.PRODUCE_VIDEOS == 'true' || inputs.produce_videos == true)
-        env:
-          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
-          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
-          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
-          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
-          YOUTUBE_AUTO_PUBLISH: ${{ vars.YOUTUBE_AUTO_PUBLISH || 'false' }}
-          YOUTUBE_ALLOW_PUBLIC_PUBLISH: ${{ vars.YOUTUBE_ALLOW_PUBLIC_PUBLISH || 'false' }}
-          YOUTUBE_PUBLISH_PRIVACY: ${{ vars.YOUTUBE_PUBLISH_PRIVACY || 'private' }}
-          CONTENT_HISTORY_PATH: data/content-history.json
+      - name: Keep publication behind explicit human approval
+        if: always()
         run: |
-          if [ -z "$YOUTUBE_REFRESH_TOKEN" ] || [ -z "$YOUTUBE_EXPECTED_CHANNEL_ID" ]; then
-            echo "::warning::YouTube OAuth refresh token or expected channel ID is missing; no uploads will be attempted."
-            exit 0
-          fi
-          shopt -s globstar nullglob
-          packages=(output/**/publishing-package.json)
-          uploaded=0
-          held=0
-          failed=0
-          for package in "${packages[@]}"; do
-            if jq -e '.publication.status == "approved_for_upload" and .publication.manualApprovalRequired == false and .quality.visualQualityStatus == "passed" and .monetizationPreflight.status == "preflight_passed" and (.monetizationPreflight.blockers | length) == 0 and .contentDistinctness.distinct == true' "$package" >/dev/null; then
-              if npm run youtube-upload -- "$package"; then
-                uploaded=$((uploaded + 1))
-              else
-                failed=$((failed + 1))
-                echo "::error::Upload failed for $package"
-              fi
-            else
-              held=$((held + 1))
-              echo "Holding $package: one or more originality, rights, factual, or visual gates did not pass."
-            fi
-          done
-          echo "YouTube uploads completed: $uploaded; held for quality/policy gates: $held; failed: $failed"
-          if [ "$failed" -gt 0 ]; then exit 1; fi
+          echo "Automated publication is disabled. Rendered videos remain review artifacts."
+          echo "A human must inspect the finished MP4, rights evidence, factual claims, title, description and visibility before any upload."
+          echo "The publish_videos input is intentionally not acted upon by this workflow."
 
       - name: Report workflow readiness
         if: always()

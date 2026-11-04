@@ -202,15 +202,15 @@ async function requestGroq(prompt, key, fetchImpl, timeoutMs, model = process.en
   } finally { clearTimeout(timer); }
 }
 
-async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-lightning:free") {
+async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "openrouter/free") {
   if (model !== "openrouter/free" && !model.endsWith(":free")) throw new Error("OpenRouter semantic fallback is restricted to explicitly free models");
   let lastError;
-  for (const requireJsonMode of (model === "nvidia/nemotron-3.5-lightning:free" ? [false] : [true, false])) {
+  for (const requireJsonMode of [true, false]) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const body = {
-        model, temperature: 0.1, max_tokens: 6000, reasoning: { effort: "low" },
+        model, temperature: 0.1, max_tokens: 8000,
         messages: [
           { role: "system", content: "Return valid JSON only. Be conservative and do not invent context." },
           { role: "user", content: prompt }
@@ -304,7 +304,7 @@ export async function analyzeSemanticStory(segments, {
   fetchImpl = fetch,
   timeoutMs = 45000,
   targetDurationSeconds = 45,
-  openrouterModel = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-lightning:free"
+  openrouterModel = process.env.OPENROUTER_MODEL ?? "openrouter/free"
 } = {}) {
   const ordered = [...(segments ?? [])].sort((a, b) => a.start - b.start || a.end - b.end);
   if (ordered.length > 80 || ordered.some(item => String(item.text ?? "").length > 1200) || ordered.reduce((sum, item) => sum + String(item.text ?? "").length, 0) > 24000) {

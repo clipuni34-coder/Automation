@@ -615,13 +615,18 @@ test("rights declarations are never represented as independently verified permis
   assert.ok(assessment.reasons.some(reason => /not been independently verified/i.test(reason)));
 });
 
-test("owned-by-user declarations are also explicitly marked as unverified", () => {
-  const assessment = assessAssetRights({
+test("owned-by-user claims need an evidence reference and remain unverified", () => {
+  const asset = {
     sourceUrl: "https://media.example/owned.mp4",
     rightsStatus: "owned_by_user",
     allowedPlatforms: ["youtube_shorts"]
-  }, { platform: "youtube_shorts" });
-  assert.equal(assessment.allowed, true);
-  assert.equal(assessment.verificationStatus, "declaration_only");
-  assert.equal(assessment.status, "declared_not_independently_verified");
+  };
+  const missingEvidence = assessAssetRights(asset, { platform: "youtube_shorts" });
+  assert.equal(missingEvidence.allowed, false);
+  assert.ok(missingEvidence.reasons.some(reason => reason.includes("evidence reference is missing")));
+
+  const documented = assessAssetRights({ ...asset, rightsEvidenceReference: "ownership-record-123" }, { platform: "youtube_shorts" });
+  assert.equal(documented.allowed, true);
+  assert.equal(documented.verificationStatus, "declaration_only");
+  assert.equal(documented.status, "declared_not_independently_verified");
 });

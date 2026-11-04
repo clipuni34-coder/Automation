@@ -36,7 +36,7 @@ function selectTightSemanticWindow(windowSegments, semanticWindow, transitions, 
       const sourceSpan = candidate.at(-1).end - candidate[0].start;
       if (duration > maxDuration || sourceSpan > maxSourceSpan) continue;
       const path = candidate.slice(0, -1).map((item, index) => transitionByPair.get(item.id + "->" + candidate[index + 1].id));
-      if (path.some(item => !item || item.relationship !== "connected" || Number(item.confidence) < 0.7)) continue;
+      if (path.some(item => !item || item.relationship !== "connected" || item.evidenceValidated !== true || Number(item.confidence) < 0.7)) continue;
       const averageScore = candidate.reduce((sum, item) => sum + item.score, 0) / candidate.length;
       const roles = new Set(candidate.map(item => item.semanticAssessment?.role).filter(Boolean));
       const storyCoverage = ["setup", "tension"].filter(role => roles.has(role)).length;

@@ -230,6 +230,7 @@ async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = proc
         ]
       };
       if (model === "nvidia/nemotron-3.5-super-vl:free") {
+        body.reasoning = { enabled: false };
         body.provider = { options: { chat_template_kwargs: { enable_thinking: false } } };
       }
       // Some free upstreams return an empty assistant message despite HTTP 200

@@ -66,8 +66,9 @@ jobs:
       - name: Prepare a bounded real-footage sample
         run: |
           mkdir -p work output/real-footage
-          # This 15-minute-59-second public-domain NASA film covers Apollo 11's powered descent through touchdown, including mission-control warnings and the landing announcement.
-          ffmpeg -y -hide_banner -loglevel error -i work/apollo-11-powered-descent.mov -t 960 -c:v libx264 -preset veryfast -crf 23 -c:a aac -movflags +faststart work/source-sample.mp4
+          # Focus on the final 259 seconds: the 1,200-foot alarm, final descent, contact and touchdown announcement.
+          # Source timecodes in the result are relative to this excerpt; excerptStartSeconds records the original offset.
+          ffmpeg -y -hide_banner -loglevel error -ss 700 -i work/apollo-11-powered-descent.mov -t 259 -c:v libx264 -preset veryfast -crf 23 -c:a aac -movflags +faststart work/source-sample.mp4
           ffprobe -v error -show_entries format=duration:stream=codec_name,width,height -of json work/source-sample.mp4
       - name: Transcribe, select moments and render from real audio
         env:
@@ -95,7 +96,8 @@ jobs:
             "outputPath": "output/real-footage/short.mp4",
             "source": {
               "sourceUrl": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/A11Landing.mov",
-              "title": "Apollo 11 — powered descent, fuel warnings and the lunar landing",
+              "title": "Apollo 11 — final descent and touchdown excerpt",
+              "excerptStartSeconds": 700,
               "creator": "NASA Apollo Lunar Surface Journal; 16mm landing film by Gary Neff",
               "rightsStatus": "public_domain",
               "rightsEvidenceUrl": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/video11.html",

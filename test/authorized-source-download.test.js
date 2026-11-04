@@ -58,3 +58,22 @@ test("downloader refuses redirects outside the allowlist", async () => {
     allowedHosts: ["media.example"], fetchImpl, resolveHost
   }), /not on/);
 });
+
+
+test("downloader accepts Ogg Theora/Vorbis media containers", async () => {
+  const resolveHost = async () => [{ address: "8.8.8.8", family: 4 }];
+  const fetchImpl = async () => new Response(new Uint8Array(2048), { status: 200, headers: { "content-type": "application/ogg" } });
+  const { mkdtemp, rm } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const dir = await mkdtemp(join(tmpdir(), "ogg-download-test-"));
+  try {
+    const result = await downloadAuthorizedSource("https://media.example/final-approach.ogv", join(dir, "source.ogv"), {
+      allowedHosts: ["media.example"], maxBytes: 4096, fetchImpl, resolveHost
+    });
+    assert.equal(result.contentType, "application/ogg");
+    assert.equal(result.bytes, 2048);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});

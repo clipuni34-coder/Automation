@@ -423,3 +423,36 @@ test("Nemotron 3.5 Super VL free route disables hidden reasoning to preserve JSO
   assert.equal(result.provider, "openrouter-free");
   assert.equal(result.qualified, true);
 });
+
+
+test("a final progress metric cannot validate a complete story without a self-contained outcome", async () => {
+  let calls = 0;
+  const segments = [
+    { id: "a", start: 0, end: 3, text: "The rescue helicopter reached the stranded climber." },
+    { id: "b", start: 4, end: 7, text: "The swimmer lowered the rescue basket." },
+    { id: "c", start: 8, end: 11, text: "The basket is now fifty feet above the water." }
+  ];
+  const response = {
+    transitions: [
+      { fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.9, explanation: "The swimmer follows the helicopter arrival.", evidence: "rescue helicopter reached the stranded climber" },
+      { fromSegmentId: "b", toSegmentId: "c", relationship: "connected", confidence: 0.9, explanation: "The basket is being raised.", evidence: "swimmer lowered the rescue basket" }
+    ],
+    momentAssessments: [
+      { segmentId: "a", compellingScore: 8, confidence: 0.9, role: "hook", selfContained: false, rationale: "Rescue begins.", evidence: "rescue helicopter reached the stranded climber" },
+      { segmentId: "b", compellingScore: 8, confidence: 0.9, role: "tension", selfContained: false, rationale: "Rescue operation continues.", evidence: "swimmer lowered the rescue basket" },
+      { segmentId: "c", compellingScore: 7, confidence: 0.9, role: "payoff", selfContained: false, rationale: "The basket is still being raised.", evidence: "fifty feet above the water" }
+    ],
+    storyWindow: { arcStatus: "complete", segmentIds: ["a", "b", "c"], hookSegmentId: "a", payoffSegmentId: "c",
+      hookEvidence: "rescue helicopter reached the stranded climber", payoffEvidence: "fifty feet above the water", confidence: 0.9,
+      summary: "A helicopter begins a rescue and raises a basket.", rationale: "The last metric is not a completed rescue." }
+  };
+  const result = await analyzeSemanticStory(segments, { geminiApiKey: "", groqApiKey: "", openrouterApiKey: "test-key", openaiApiKey: "",
+    openrouterModel: "nvidia/nemotron-3.5-super-vl:free",
+    fetchImpl: async () => { calls += 1; return { ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify(response) } }] }) }; } });
+  assert.equal(calls, 2);
+  assert.equal(result.status, "human_review_required");
+  assert.equal(result.momentAssessmentStatus, "complete");
+  assert.equal(result.storyWindow, null);
+  assert.equal(result.storyWindowStatus, "invalid");
+  assert.equal(result.qualified, false);
+});

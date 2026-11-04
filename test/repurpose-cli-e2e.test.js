@@ -22,8 +22,8 @@ test("repurpose CLI produces an MP4, thumbnail, transcript evidence and posting 
     ]);
     assert.equal(media.status, 0, media.stderr?.toString());
     const transcriptWords = [
-      ["Why", 0, 0.4], ["does", 0.4, 0.8], ["this", 0.8, 1.2], ["happen?", 1.2, 2.4],
-      ["Here", 3, 3.4], ["is", 3.4, 3.7], ["the", 3.7, 4], ["answer.", 4, 5.4]
+      ["Why", 0, 0.4], ["did", 0.4, 0.8], ["this", 0.8, 1.2], ["happen?", 1.2, 2.0], ["This", 2.0, 2.2], ["is", 2.2, 2.4], ["incredible!", 2.4, 2.8],
+      ["Why", 3, 3.2], ["is", 3.2, 3.4], ["the", 3.4, 3.6], ["result", 3.6, 4], ["so", 4, 4.2], ["incredible?", 4.2, 4.7], ["The", 4.7, 4.9], ["result", 4.9, 5.1], ["was", 5.1, 5.3], ["incredible!", 5.3, 5.8]
     ].map(([word, start, end]) => ({ word, start, end }));
     await writeFile(inputPath, JSON.stringify({
       sourceLocalPath: sourcePath,

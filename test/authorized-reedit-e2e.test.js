@@ -73,7 +73,7 @@ test("weak but technically renderable edits are held before FFmpeg rendering", a
       },
       targetDurationSeconds: 8,
       transcriptSegments: [
-        { id: "weak-one", start: 0, end: 3, text: "A routine opening statement.", signals: { hook: 2, emotion: 2, curiosity: 2, payoff: 2, clarity: 5 } },
+        { id: "weak-one", start: 0, end: 3, text: "A routine opening statement.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } },
         { id: "weak-two", start: 4, end: 7, text: "The same routine statement continues.", signals: { hook: 2, emotion: 2, curiosity: 2, payoff: 2, clarity: 5 } }
       ]
     }, {

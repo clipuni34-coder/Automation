@@ -289,7 +289,7 @@ export async function generateEditorialPlan({
   cloudflareApiToken = process.env.ENABLE_CLOUDFLARE_CREATIVE === "true" ? (process.env.CLOUDFLARE_API_TOKEN ?? "") : "",
   openaiApiKey = process.env.ENABLE_OPENAI_CREATIVE === "true" ? (process.env.OPENAI_API_KEY ?? "") : "",
   openrouterApiKey = process.env.OPENROUTER_API_KEY ?? "",
-  openrouterModel = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-super-vl:free",
+  openrouterModel = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-lightning:free",
   fetchImpl = fetch,
   timeoutMs = 120000,
   sleepImpl,

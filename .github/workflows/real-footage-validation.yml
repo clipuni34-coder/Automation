@@ -16,6 +16,8 @@ on:
       - src/creative/semantic-story.js
       - src/clips/transcript-candidates.js
       - requirements/repurposing.txt
+      - scripts/download-authorized-source.js
+      - test/authorized-source-download.test.js
   workflow_dispatch:
 
 permissions:

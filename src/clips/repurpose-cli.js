@@ -56,6 +56,7 @@ if (!inputPath) {
       outputPath: input.outputPath,
       source,
       transcriptSegments: candidates,
+      minMomentScore: ["provider_rate_limited", "provider_error", "not_configured"].includes(narrativeSemanticAnalysis?.status) ? (Number(input.fallbackMinimumMomentScore) || 3.5) : (Number(input.minMomentScore) || 0),
       narrativeSemanticAnalysis,
       mediaSignals,
       targetDurationSeconds: input.targetDurationSeconds ?? 45,

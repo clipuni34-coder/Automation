@@ -188,7 +188,7 @@ async function requestGroq(prompt, key, fetchImpl, timeoutMs, model = process.en
   try {
     const response = await fetchImpl("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json" },
-      body: JSON.stringify({ model, temperature: 0.1, max_tokens: 8000, reasoning: { max_tokens: 1024 }, response_format: { type: "json_object" }, messages: [
+      body: JSON.stringify({ model, temperature: 0.1, max_tokens: 6000, reasoning: { effort: "low", max_tokens: 512 }, response_format: { type: "json_object" }, messages: [
         { role: "system", content: "Return valid JSON only. Be conservative and do not invent context." },
         { role: "user", content: prompt }
       ] }),
@@ -202,10 +202,10 @@ async function requestGroq(prompt, key, fetchImpl, timeoutMs, model = process.en
   } finally { clearTimeout(timer); }
 }
 
-async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-super-vl:free") {
+async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-lightning:free") {
   if (model !== "openrouter/free" && !model.endsWith(":free")) throw new Error("OpenRouter semantic fallback is restricted to explicitly free models");
   let lastError;
-  for (const requireJsonMode of [true, false]) {
+  for (const requireJsonMode of (model === "nvidia/nemotron-3.5-lightning:free" ? [false] : [true, false])) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
@@ -303,7 +303,8 @@ export async function analyzeSemanticStory(segments, {
   openaiApiKey = process.env.ENABLE_OPENAI_CREATIVE === "true" ? process.env.OPENAI_API_KEY ?? "" : "",
   fetchImpl = fetch,
   timeoutMs = 45000,
-  targetDurationSeconds = 45
+  targetDurationSeconds = 45,
+  openrouterModel = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-lightning:free"
 } = {}) {
   const ordered = [...(segments ?? [])].sort((a, b) => a.start - b.start || a.end - b.end);
   if (ordered.length > 80 || ordered.some(item => String(item.text ?? "").length > 1200) || ordered.reduce((sum, item) => sum + String(item.text ?? "").length, 0) > 24000) {
@@ -315,7 +316,7 @@ export async function analyzeSemanticStory(segments, {
   const providers = [
     ...(geminiApiKey ? [["gemini", (activePrompt) => requestGemini(activePrompt, geminiApiKey, fetchImpl, timeoutMs)]] : []),
     ...(groqApiKey ? [["groq", (activePrompt) => requestGroq(activePrompt, groqApiKey, fetchImpl, timeoutMs)]] : []),
-    ...(openrouterApiKey ? [["openrouter-free", (activePrompt) => requestOpenRouter(activePrompt, openrouterApiKey, fetchImpl, Math.max(timeoutMs, 120000))]] : []),
+    ...(openrouterApiKey ? [["openrouter-free", (activePrompt) => requestOpenRouter(activePrompt, openrouterApiKey, fetchImpl, Math.max(timeoutMs, 120000), openrouterModel)]] : []),
     ...(cloudflareAccountId && cloudflareApiToken ? [["cloudflare-workers-ai", (activePrompt) => requestCloudflare(activePrompt, cloudflareAccountId, cloudflareApiToken, fetchImpl, timeoutMs)]] : []),
     ...(openaiApiKey ? [["openai", (activePrompt) => requestOpenAI(activePrompt, openaiApiKey, fetchImpl, timeoutMs)]] : [])
   ];

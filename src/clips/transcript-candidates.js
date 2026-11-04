@@ -26,7 +26,7 @@ function scoreSignals(text, duration, words, media = {}) {
  * Scores are transparent lexical/structural heuristics, not claims of true emotion
  * or guaranteed audience retention. The original word timings are retained.
  */
-export function buildTranscriptCandidates(words, { minSeconds = 2, maxSeconds = 11, maxWords = 32, maxPauseSeconds = 1.5, mediaSignals = null } = {}) {
+export function buildTranscriptCandidates(words, { minSeconds = 1.25, maxSeconds = 11, maxWords = 32, maxPauseSeconds = 1.5, mediaSignals = null } = {}) {
   if (!Array.isArray(words) || words.length === 0) throw new Error("A non-empty word-timestamp array is required");
   const clean = words.map((item, index) => {
     const start = Number(item.start), end = Number(item.end);

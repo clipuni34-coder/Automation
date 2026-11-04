@@ -371,3 +371,31 @@ test("semantic evidence accepts the entire source when a transcript segment has 
   assert.equal(result.qualified, true);
   assert.equal(result.momentAssessmentStatus, "complete");
 });
+
+
+test("invalid semantic story-window claims do not discard valid moment assessments", async () => {
+  let calls = 0;
+  const response = {
+    transitions: [{ fromSegmentId: "a", toSegmentId: "b", relationship: "connected", confidence: 0.9,
+      explanation: "The second chunk continues the rescue.", evidence: "They carried the injured climber" }],
+    momentAssessments: [
+      { segmentId: "a", compellingScore: 8, confidence: 0.9, role: "hook", selfContained: false, rationale: "The rescue begins.", evidence: "The rescue team reached" },
+      { segmentId: "b", compellingScore: 9, confidence: 0.9, role: "payoff", selfContained: true, rationale: "The climber is safe.", evidence: "They carried the injured" }
+    ],
+    storyWindow: { arcStatus: "complete", segmentIds: ["a", "missing", "b"], hookSegmentId: "a", payoffSegmentId: "b",
+      hookEvidence: "The rescue team reached", payoffEvidence: "They carried the injured", confidence: 0.95,
+      summary: "A rescue reaches safety.", rationale: "The ending resolves the danger." }
+  };
+  const result = await analyzeSemanticStory([
+    { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
+    { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
+  ], { geminiApiKey: "", groqApiKey: "", openrouterApiKey: "test-key", openaiApiKey: "", openrouterModel: "openrouter/free",
+    fetchImpl: async () => { calls += 1; return { ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify(response) } }] }) }; } });
+  assert.equal(calls, 2);
+  assert.equal(result.status, "human_review_required");
+  assert.equal(result.momentAssessmentStatus, "complete");
+  assert.equal(result.momentAssessments.length, 2);
+  assert.equal(result.storyWindow, null);
+  assert.equal(result.storyWindowStatus, "invalid");
+  assert.equal(result.qualified, false);
+});

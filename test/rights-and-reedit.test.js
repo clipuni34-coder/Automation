@@ -604,3 +604,24 @@ test("selects a quote-validated connected excerpt when the provider omits a stor
   assert.equal(plan.editorialQuality.semanticStoryWindow.qualified, true);
   assert.deepEqual(plan.editDecisionList.map(item => item.segmentId), ["setup", "relief", "thanks"]);
 });
+
+
+test("rights declarations are never represented as independently verified permission", () => {
+  const assessment = assessAssetRights(licensed, { platform: "youtube_shorts" });
+  assert.equal(assessment.allowed, true, "a documented submitter declaration may proceed to editing");
+  assert.equal(assessment.status, "declared_not_independently_verified");
+  assert.equal(assessment.verificationStatus, "declaration_only");
+  assert.equal(assessment.evidenceReferenceProvided, true);
+  assert.ok(assessment.reasons.some(reason => /not been independently verified/i.test(reason)));
+});
+
+test("owned-by-user declarations are also explicitly marked as unverified", () => {
+  const assessment = assessAssetRights({
+    sourceUrl: "https://media.example/owned.mp4",
+    rightsStatus: "owned_by_user",
+    allowedPlatforms: ["youtube_shorts"]
+  }, { platform: "youtube_shorts" });
+  assert.equal(assessment.allowed, true);
+  assert.equal(assessment.verificationStatus, "declaration_only");
+  assert.equal(assessment.status, "declared_not_independently_verified");
+});

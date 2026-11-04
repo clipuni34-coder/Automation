@@ -191,6 +191,30 @@ async function callGroq(prompt, apiKey, fetchImpl, timeoutMs, model = process.en
   } finally { clearTimeout(timeout); }
 }
 
+async function callCloudflare(prompt, accountId, token, fetchImpl, timeoutMs, model = process.env.CLOUDFLARE_MODEL ?? "@cf/meta/llama-3.3-70b-instruct-fp8-fast") {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetchImpl(`https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId)}/ai/run/${model}`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+      body: JSON.stringify({
+        messages: [
+          { role: "system", content: "Return only valid JSON. Do not invent facts. Follow the requested schema exactly." },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" }
+      }),
+      signal: controller.signal
+    });
+    if (!response.ok) throw new Error(`Cloudflare Workers AI returned HTTP ${response.status}: ${(await response.text()).slice(0, 700)}`);
+    const payload = await response.json();
+    const content = payload.result?.response ?? payload.result?.output ?? payload.response;
+    if (!content) throw new Error("Cloudflare Workers AI returned an empty response");
+    return extractJson(content);
+  } finally { clearTimeout(timeout); }
+}
+
 async function callOpenAI(prompt, apiKey, fetchImpl, timeoutMs) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -260,6 +284,8 @@ export async function generateEditorialPlan({
   dossier,
   geminiApiKey = process.env.ENABLE_GEMINI_CREATIVE === "true" ? (process.env.GEMINI_API_KEY ?? "") : "",
   groqApiKey = process.env.ENABLE_GROQ_CREATIVE === "true" ? (process.env.GROQ_API_KEY ?? "") : "",
+  cloudflareAccountId = process.env.ENABLE_CLOUDFLARE_CREATIVE === "true" ? (process.env.CLOUDFLARE_ACCOUNT_ID ?? "") : "",
+  cloudflareApiToken = process.env.ENABLE_CLOUDFLARE_CREATIVE === "true" ? (process.env.CLOUDFLARE_API_TOKEN ?? "") : "",
   openaiApiKey = process.env.ENABLE_OPENAI_CREATIVE === "true" ? (process.env.OPENAI_API_KEY ?? "") : "",
   openrouterApiKey = process.env.OPENROUTER_API_KEY ?? "",
   openrouterModel = process.env.OPENROUTER_MODEL ?? "openrouter/free",
@@ -271,13 +297,14 @@ export async function generateEditorialPlan({
   if (!dossier || typeof dossier !== "object" || !dossier.topic) {
     throw new Error("A research dossier with a topic is required");
   }
-  if (!geminiApiKey && !groqApiKey && !openaiApiKey && !openrouterApiKey) {
+  if (!geminiApiKey && !groqApiKey && !(cloudflareAccountId && cloudflareApiToken) && !openaiApiKey && !openrouterApiKey) {
     return { status: "not_configured", provider: null, plan: null };
   }
   const prompt = buildPrompt(dossier, outputLanguage);
   const providers = [
     ...(geminiApiKey ? [["gemini", () => callGemini(prompt, geminiApiKey, fetchImpl, timeoutMs, sleepImpl)]] : []),
     ...(groqApiKey ? [["groq", () => callGroq(prompt, groqApiKey, fetchImpl, timeoutMs)]] : []),
+    ...(cloudflareAccountId && cloudflareApiToken ? [["cloudflare-workers-ai", () => callCloudflare(prompt, cloudflareAccountId, cloudflareApiToken, fetchImpl, timeoutMs)]] : []),
     ...(openaiApiKey ? [["openai", () => callOpenAI(prompt, openaiApiKey, fetchImpl, timeoutMs)]] : []),
     ...(openrouterApiKey ? [["openrouter-free", () => callOpenRouter(prompt, openrouterApiKey, fetchImpl, timeoutMs, openrouterModel)]] : [])
   ];

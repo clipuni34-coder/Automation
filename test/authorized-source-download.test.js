@@ -3,10 +3,11 @@ import assert from "node:assert/strict";
 import { isPublicAddress, isAllowedHostname, validateSourceUrl, downloadAuthorizedSource } from "../scripts/download-authorized-source.js";
 
 test("network guard blocks private, loopback, link-local and reserved IP ranges", () => {
-  for (const address of ["127.0.0.1", "10.1.2.3", "172.20.0.1", "192.168.1.2", "169.254.1.1", "100.64.0.1", "::1", "fc00::1", "fe80::1"]) {
+  for (const address of ["127.0.0.1", "10.1.2.3", "172.20.0.1", "192.168.1.2", "169.254.1.1", "100.64.0.1", "192.0.2.1", "198.51.100.1", "203.0.113.1", "::1", "fc00::1", "fe80::1", "2001:db8::1"]) {
     assert.equal(isPublicAddress(address), false, address);
   }
   assert.equal(isPublicAddress("8.8.8.8"), true);
+  assert.equal(isPublicAddress("192.0.66.1"), true, "public 192.0/16 address outside IANA special-use blocks");
   assert.equal(isPublicAddress("2606:4700:4700::1111"), true);
 });
 

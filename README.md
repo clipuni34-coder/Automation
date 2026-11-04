@@ -245,3 +245,14 @@ Creative briefs now try Gemini, then OpenAI, then OpenRouter's free-model router
 Gemini creative, Gemini TTS, Gemini image generation, OpenAI creative and OpenAI vision QC are disabled by default. They only run when the matching GitHub Actions variable is explicitly set to `true`. The normal no-paid path is OpenRouter's free-model router for creative briefs, Kokoro local TTS, Pixabay stock where relevant, and original local graphics. This keeps the workflow from silently consuming paid API credits.
 
 The same OpenRouter free-model router is also used for scene-by-scene visual QC when OpenAI vision is not explicitly enabled. It receives sampled rendered frames and checks them against the planned scene; a failed or ambiguous scene blocks auto-publishing. Free routing is capped by OpenRouter's current free-tier limits, so large multi-channel production batches must be throttled.
+
+
+## Creative model provider configuration
+
+Add provider credentials only under GitHub repository **Settings → Secrets and variables → Actions → Secrets**; never commit or paste API keys into source files or chat.
+
+- **OpenRouter:** the workflows accept either `OPENROUTER_API_KEY` or the existing `OPENROUTER_API` secret name. The free-model route is rate-limited and can return HTTP 429 when the account's daily allowance is exhausted; the workflow must hold/review rather than fabricate a semantic result.
+- **Groq:** `GROQ_API_KEY` is an optional fallback. The discovery workflow enables it by default when a key is present and the `ENABLE_GROQ_CREATIVE` Actions variable is not explicitly set to `false`. The default model is `openai/gpt-oss-120b`. Groq's Free plan has published per-model rate limits; usage beyond those limits is rejected rather than silently bypassed. Upgrading to a paid plan may incur charges. See [Groq rate limits](https://console.groq.com/docs/rate-limits) and [Groq Free Plan FAQ](https://community.groq.com/t/do-i-get-charged-for-anything-on-the-groq-free-plan/832).
+- **Gemini, Cloudflare Workers AI and OpenAI:** remain opt-in through their corresponding `ENABLE_*_CREATIVE` Actions variables because availability and billing depend on the user's account.
+
+A configured key is not proof that a provider is currently available. Rate limits, quotas, model changes and malformed model output are handled as unavailable/needs-review states; they do not lower editorial quality gates.

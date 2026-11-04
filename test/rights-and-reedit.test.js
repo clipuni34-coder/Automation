@@ -28,6 +28,66 @@ test("standalone re-edit preserves the original offset of a bounded source excer
   assert.equal(plan.editDecisionList[1].sourceIn, 5);
 });
 
+test("partial semantic story windows may select a quote-validated connected excerpt without claiming a complete arc", () => {
+  const transcriptSegments = [
+    { id: "context", start: 10, end: 12.7, text: "We copy you on the ground.", signals: { hook: 3, emotion: 3, curiosity: 3, payoff: 3, clarity: 3 } },
+    { id: "relief", start: 13, end: 15.7, text: "We're breathing again.", signals: { hook: 3, emotion: 3, curiosity: 3, payoff: 3, clarity: 3 } },
+    { id: "confirmation", start: 16, end: 18.7, text: "You're looking good here.", signals: { hook: 3, emotion: 3, curiosity: 3, payoff: 3, clarity: 3 } }
+  ];
+  const narrativeSemanticAnalysis = {
+    status: "human_review_required",
+    provider: "gemini",
+    momentAssessments: [
+      { segmentId: "context", compellingScore: 6, confidence: 0.9, role: "context", selfContained: false, evidenceValidated: true, evidence: "We copy you on the ground." },
+      { segmentId: "relief", compellingScore: 8, confidence: 0.9, role: "tension", selfContained: true, evidenceValidated: true, evidence: "We're breathing again." },
+      { segmentId: "confirmation", compellingScore: 7, confidence: 0.9, role: "payoff", selfContained: true, evidenceValidated: true, evidence: "You're looking good here." }
+    ],
+    transitions: [
+      { fromSegmentId: "context", toSegmentId: "relief", relationship: "connected", confidence: 0.9, evidenceSegmentId: "context", evidenceValidated: true, evidence: "We copy you on the ground." },
+      { fromSegmentId: "relief", toSegmentId: "confirmation", relationship: "connected", confidence: 0.9, evidenceSegmentId: "relief", evidenceValidated: true, evidence: "We're breathing again." }
+    ],
+    storyWindow: { arcStatus: "partial", segmentIds: ["context", "relief", "confirmation"], confidence: 0.6, evidenceValidated: false, summary: "A short connected reaction excerpt.", rationale: "The larger story context is not included." }
+  };
+  const plan = buildReeditPlan({
+    source: { ...licensed, excerptStartSeconds: 700 },
+    targetDurationSeconds: 45,
+    transcriptSegments,
+    narrativeSemanticAnalysis
+  });
+  assert.equal(plan.status, "edit_plan_ready");
+  assert.equal(plan.editorialQuality.selectionStrategy, "semantic_connected_excerpt");
+  assert.deepEqual(plan.editDecisionList.map(item => item.segmentId), ["context", "relief", "confirmation"]);
+  assert.ok(plan.editorialQuality.averageSelectedScore >= 5.5);
+  assert.equal(plan.editorialQuality.semanticStoryWindow.arcStatus, "partial");
+  assert.equal(plan.editorialQuality.semanticStoryWindow.qualified, true);
+  assert.match(plan.editorialNotes.join(" "), /not a claim that the full story arc is present/);
+  assert.equal(plan.hookOverlay.segmentId, "relief");
+});
+
+test("partial semantic story windows do not qualify when adjacent evidence is not verified", () => {
+  const transcriptSegments = [
+    { id: "context", start: 10, end: 12.7, text: "We copy you on the ground.", signals: { hook: 3, emotion: 3, curiosity: 3, payoff: 3, clarity: 3 } },
+    { id: "relief", start: 13, end: 15.7, text: "We're breathing again.", signals: { hook: 3, emotion: 3, curiosity: 3, payoff: 3, clarity: 3 } },
+    { id: "confirmation", start: 16, end: 18.7, text: "You're looking good here.", signals: { hook: 3, emotion: 3, curiosity: 3, payoff: 3, clarity: 3 } }
+  ];
+  const narrativeSemanticAnalysis = {
+    status: "human_review_required",
+    provider: "gemini",
+    momentAssessments: [
+      { segmentId: "context", compellingScore: 6, confidence: 0.9, role: "context", selfContained: false, evidenceValidated: true },
+      { segmentId: "relief", compellingScore: 8, confidence: 0.9, role: "tension", selfContained: true, evidenceValidated: true },
+      { segmentId: "confirmation", compellingScore: 7, confidence: 0.9, role: "payoff", selfContained: true, evidenceValidated: true }
+    ],
+    transitions: [
+      { fromSegmentId: "context", toSegmentId: "relief", relationship: "connected", confidence: 0.9, evidenceSegmentId: "context", evidenceValidated: true, evidence: "We copy you on the ground." },
+      { fromSegmentId: "relief", toSegmentId: "confirmation", relationship: "uncertain", confidence: 0.4, evidenceSegmentId: null, evidenceValidated: false, evidence: "" }
+    ],
+    storyWindow: { arcStatus: "partial", segmentIds: ["context", "relief", "confirmation"], confidence: 0.6, evidenceValidated: false }
+  };
+  const plan = buildReeditPlan({ source: licensed, targetDurationSeconds: 45, transcriptSegments, narrativeSemanticAnalysis });
+  assert.notEqual(plan.editorialQuality.selectionStrategy, "semantic_connected_excerpt");
+});
+
 test("standalone viral re-edit selects high-value transcript windows and preserves source timestamps", () => {
   const plan = buildReeditPlan({ source: licensed, targetDurationSeconds: 30, transcriptSegments: [
     { id: "slow", start: 0, end: 12, text: "Long setup", signals: { hook: 2, emotion: 1 } },

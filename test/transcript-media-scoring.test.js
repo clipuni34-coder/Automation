@@ -36,6 +36,7 @@ test("re-edit planner uses media signals as a modest tie-breaker without overrid
       sourceUrl: "https://example.org/owned.mp4",
       durationSeconds: 20,
       rightsStatus: "owned_by_user",
+      rightsEvidenceReference: "test-fixture-owned-source-record",
       allowedPlatforms: ["youtube_shorts"]
     },
     transcriptSegments: [

@@ -210,7 +210,7 @@ async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = proc
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const body = {
-        model, temperature: 0.1, max_tokens: 6000, reasoning: { effort: "low", max_tokens: 512 },
+        model, temperature: 0.1, max_tokens: 6000, reasoning: { effort: "low" },
         messages: [
           { role: "system", content: "Return valid JSON only. Be conservative and do not invent context." },
           { role: "user", content: prompt }

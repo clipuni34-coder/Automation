@@ -251,7 +251,7 @@ jobs:
           SELECTED_DOSSIER: ${{ steps.select_dossier.outputs.path }}
           CREATIVE_LANGUAGE: ${{ vars.CREATIVE_LANGUAGE || 'English' }}
         run: |
-          if { [ "$ENABLE_GEMINI_CREATIVE" != "true" ] || [ -z "$GEMINI_API_KEY" ]; } && { [ "$ENABLE_OPENAI_CREATIVE" != "true" ] || [ -z "$OPENAI_API_KEY" ]; } && [ -z "$OPENROUTER_API_KEY" ]; then
+          if { [ "$ENABLE_GEMINI_CREATIVE" != "true" ] || [ -z "$GEMINI_API_KEY" ]; } && { [ "$ENABLE_GROQ_CREATIVE" != "true" ] || [ -z "$GROQ_API_KEY" ]; } && { [ "$ENABLE_CLOUDFLARE_CREATIVE" != "true" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$CLOUDFLARE_API_TOKEN" ]; } && { [ "$ENABLE_OPENAI_CREATIVE" != "true" ] || [ -z "$OPENAI_API_KEY" ]; } && [ -z "$OPENROUTER_API_KEY" ]; then
             echo "::warning::No creative model key configured; research dossiers are saved without creative briefs."
             exit 0
           fi
@@ -401,6 +401,8 @@ jobs:
           const files = name => existsSync(name);
           const creativeEnabled =
             (process.env.ENABLE_GEMINI_CREATIVE === 'true' && Boolean(process.env.GEMINI_API_KEY)) ||
+            (process.env.ENABLE_GROQ_CREATIVE === 'true' && Boolean(process.env.GROQ_API_KEY)) ||
+            (process.env.ENABLE_CLOUDFLARE_CREATIVE === 'true' && Boolean(process.env.CLOUDFLARE_ACCOUNT_ID) && Boolean(process.env.CLOUDFLARE_API_TOKEN)) ||
             (process.env.ENABLE_OPENAI_CREATIVE === 'true' && Boolean(process.env.OPENAI_API_KEY)) ||
             Boolean(process.env.OPENROUTER_API_KEY);
           const { readdirSync } = await import('node:fs');

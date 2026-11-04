@@ -93,3 +93,51 @@ test("explanatory that's why language is not scored as a curiosity hook", () => 
   assert.equal(candidate.signals.hook, 2);
   assert.equal(candidate.signals.curiosity, 0);
 });
+
+
+test("short adjacent sentences merge until they form a usable timed moment", () => {
+  const words = [
+    { word: "Eagle.", start: 0, end: 0.3 },
+    { word: "Tranquility.", start: 0.5, end: 1.0 },
+    { word: "We", start: 1.2, end: 1.4 },
+    { word: "copy", start: 1.4, end: 1.6 },
+    { word: "you", start: 1.6, end: 1.8 },
+    { word: "on", start: 1.8, end: 2.0 },
+    { word: "the", start: 2.0, end: 2.2 },
+    { word: "ground.", start: 2.2, end: 2.5 },
+    { word: "You", start: 2.7, end: 2.9 },
+    { word: "got", start: 2.9, end: 3.1 },
+    { word: "a", start: 3.1, end: 3.2 },
+    { word: "bunch", start: 3.2, end: 3.5 },
+    { word: "of", start: 3.5, end: 3.6 },
+    { word: "guys", start: 3.6, end: 3.9 },
+    { word: "about", start: 3.9, end: 4.1 },
+    { word: "to", start: 4.1, end: 4.2 },
+    { word: "turn", start: 4.2, end: 4.4 },
+    { word: "blue.", start: 4.4, end: 4.8 }
+  ];
+  const moments = buildTranscriptCandidates(words, { minSeconds: 2, maxPauseSeconds: 1.5 });
+  assert.equal(moments.length, 1);
+  assert.equal(moments[0].text, "Eagle. Tranquility. We copy you on the ground. You got a bunch of guys about to turn blue.");
+  assert.equal(moments[0].start, 0);
+  assert.equal(moments[0].end, 4.8);
+});
+
+test("short sentence fragments separated by a long silence are not merged", () => {
+  const words = [
+    { word: "Eagle.", start: 0, end: 0.3 },
+    { word: "We", start: 4, end: 4.2 },
+    { word: "copy", start: 4.2, end: 4.4 },
+    { word: "you", start: 4.4, end: 4.6 },
+    { word: "on", start: 4.6, end: 4.8 },
+    { word: "the", start: 4.8, end: 5.0 },
+    { word: "ground.", start: 5.0, end: 5.3 },
+    { word: "You", start: 5.5, end: 5.7 },
+    { word: "got", start: 5.7, end: 5.9 },
+    { word: "there.", start: 5.9, end: 6.3 }
+  ];
+  const moments = buildTranscriptCandidates(words, { minSeconds: 2, maxPauseSeconds: 1.5 });
+  assert.equal(moments.length, 1);
+  assert.equal(moments[0].text, "We copy you on the ground. You got there.");
+  assert.equal(moments[0].start, 4);
+});

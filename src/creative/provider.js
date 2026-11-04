@@ -262,6 +262,7 @@ async function callOpenRouter(prompt, apiKey, fetchImpl, timeoutMs, model = proc
         model,
         temperature: 0.7,
         max_tokens: 6000,
+        reasoning: { max_tokens: 1024 },
         messages: [
           { role: "system", content: "Return only valid JSON. Do not invent facts. Follow the requested schema exactly." },
           { role: "user", content: prompt }

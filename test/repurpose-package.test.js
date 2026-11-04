@@ -21,7 +21,9 @@ test("builds platform-specific draft metadata from selected source moments", () 
     renderResult: { status: "rendered", outputPath: "short.mp4", durationSeconds: 11, width: 1080, height: 1920, videoCodec: "h264", audioCodec: "aac", sourceAudioPreserved: true, visualQuality: { status: "passed", score: 85, warnings: [] } },
     thumbnailPath: "short.thumbnail.jpg"
   });
-  assert.equal(result.status, "draft");
+  assert.equal(result.status, "editorial_review_required");
+  assert.equal(result.editorialApproval.approved, false);
+  assert.ok(result.editorialApproval.reasons.some(reason => reason.includes("not been independently verified")));
   assert.equal(result.manualPublishingApprovalRequired, true);
   assert.equal(result.title, "Why this surprising moment matters");
   assert.equal(result.platformPackages.youtube_shorts.title, result.title);
@@ -124,8 +126,8 @@ test("a validated complete semantic story window overrides unrelated source-leve
     plan,
     renderResult: { status: "rendered", outputPath: "short.mp4", durationSeconds: 11, width: 1080, height: 1920, videoCodec: "h264", audioCodec: "aac", sourceAudioPreserved: true, visualQuality: { status: "passed", score: 95, warnings: [] } }
   });
-  assert.equal(result.status, "draft");
-  assert.equal(result.editorialApproval.status, "eligible_for_human_approval");
+  assert.equal(result.status, "editorial_review_required");
+  assert.equal(result.editorialApproval.status, "review_required");
   assert.equal(result.editorialApproval.approved, false);
-  assert.deepEqual(result.editorialApproval.reasons, []);
+  assert.ok(result.editorialApproval.reasons.some(reason => reason.includes("not been independently verified")));
 });

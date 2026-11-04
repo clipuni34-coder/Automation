@@ -76,7 +76,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           ENABLE_CLOUDFLARE_CREATIVE: ${{ vars.ENABLE_CLOUDFLARE_CREATIVE || 'false' }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY || secrets.OPENROUTER_API }}
-          OPENROUTER_MODEL: 'openrouter/free'
+          OPENROUTER_MODEL: 'nvidia/nemotron-3.5-super-vl:free'
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ENABLE_OPENAI_CREATIVE: ${{ vars.ENABLE_OPENAI_CREATIVE || 'false' }}
           SEMANTIC_DEBUG_EVIDENCE: 'true'
@@ -89,7 +89,7 @@ jobs:
             "sourceLocalPath": "work/source-sample.mp4",
             "outputPath": "output/real-footage/short.mp4",
             "source": {
-              "sourceUrl": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/a11.v1092338.mov",
+              "sourceUrl": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/A11Landing.mov",
               "title": "Apollo 11 — powered descent, fuel warnings and the lunar landing",
               "creator": "NASA Apollo Lunar Surface Journal; 16mm landing film by Gary Neff",
               "rightsStatus": "public_domain",

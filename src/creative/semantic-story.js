@@ -227,7 +227,7 @@ async function requestCloudflare(prompt, accountId, token, fetchImpl, timeoutMs,
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetchImpl(`https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId)}/ai/run/${encodeURIComponent(model)}`, {
+    const response = await fetchImpl(`https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId)}/ai/run/${model}`, {
       method: "POST", headers: { authorization: "Bearer " + token, "content-type": "application/json" },
       body: JSON.stringify({ messages: [
         { role: "system", content: "Return valid JSON only. Be conservative and do not invent context." },

@@ -62,34 +62,50 @@ function selectTightSemanticWindow(windowSegments, semanticWindow, transitions, 
 }
 
 function selectConnectedSemanticExcerpt(segments, semanticWindow, transitions, maxDuration, maxSourceSpan) {
-  if (semanticWindow?.arcStatus !== "partial" || Number(semanticWindow.confidence) < 0.6 || !Array.isArray(semanticWindow.segmentIds)) return null;
-  const excerpt = semanticWindow.segmentIds.map(id => segments.find(segment => segment.id === id));
-  if (excerpt.length < 3 || excerpt.some(item => !item)) return null;
-  if (!excerpt.every((item, index) => index === 0 || item.index === excerpt[index - 1].index + 1)) return null;
-  const roles = excerpt.map(item => item.semanticAssessment?.role);
-  const contextIndex = roles.indexOf("context");
-  const tensionIndex = roles.indexOf("tension");
-  const payoffIndex = roles.indexOf("payoff");
-  if (contextIndex < 0 || tensionIndex <= contextIndex || payoffIndex <= tensionIndex) return null;
-  if (excerpt.some(item => !item.semanticAssessment?.evidenceValidated
-    || Number(item.semanticAssessment.confidence) < 0.85
-    || Number(item.semanticAssessment.compellingScore) < 6)) return null;
-  const transitionByPair = new Map((transitions ?? []).map(item => [item.fromSegmentId + "->" + item.toSegmentId, item]));
-  const path = excerpt.slice(0, -1).map((item, index) => transitionByPair.get(item.id + "->" + excerpt[index + 1].id));
-  if (path.some(item => !item || item.relationship !== "connected" || item.evidenceValidated !== true || Number(item.confidence) < 0.85)) return null;
-  const duration = excerpt.reduce((sum, item) => sum + item.end - item.start, 0);
-  const sourceSpan = excerpt.at(-1).end - excerpt[0].start;
-  const averageScore = excerpt.reduce((sum, item) => sum + item.score, 0) / excerpt.length;
-  if (duration > maxDuration || sourceSpan > maxSourceSpan || averageScore < 5.5) return null;
-  return {
-    segments: excerpt,
-    averageScore: Number(averageScore.toFixed(2)),
-    durationSeconds: Number(duration.toFixed(2)),
-    sourceSpanSeconds: Number(sourceSpan.toFixed(2)),
-    selectedSegmentIds: excerpt.map(item => item.id),
-    method: "quote_validated_connected_partial_story_excerpt",
-    limitation: "This is a coherent excerpt from a larger story, not a claim that the full story arc is present."
-  };
+  if (!Array.isArray(segments) || !Array.isArray(transitions) || !transitions.length) return null;
+  const ordered = [...segments].sort((a, b) => a.index - b.index || a.start - b.start);
+  const transitionByPair = new Map(transitions.map(item => [item.fromSegmentId + "->" + item.toSegmentId, item]));
+  const candidates = [];
+  for (let left = 0; left < ordered.length; left += 1) {
+    for (let right = left + 1; right < Math.min(ordered.length, left + 5); right += 1) {
+      const excerpt = ordered.slice(left, right + 1);
+      if (!excerpt.every((item, index) => index === 0 || item.index === excerpt[index - 1].index + 1)) continue;
+      const roles = excerpt.map(item => item.semanticAssessment?.role);
+      const hasPayoff = roles.includes("payoff");
+      const hasSupportingBeat = roles.some(role => ["context", "tension", "hook", "emotion"].includes(role));
+      if (!hasPayoff || !hasSupportingBeat) continue;
+      if (excerpt.some(item => !item.semanticAssessment?.evidenceValidated
+        || Number(item.semanticAssessment.confidence) < 0.8
+        || Number(item.semanticAssessment.compellingScore) < 6)) continue;
+      const path = excerpt.slice(0, -1).map((item, index) => transitionByPair.get(item.id + "->" + excerpt[index + 1].id));
+      if (path.some(item => !item || item.relationship !== "connected" || item.evidenceValidated !== true || Number(item.confidence) < 0.85)) continue;
+      const duration = excerpt.reduce((sum, item) => sum + item.end - item.start, 0);
+      const sourceSpan = excerpt.at(-1).end - excerpt[0].start;
+      const averageScore = excerpt.reduce((sum, item) => sum + item.score, 0) / excerpt.length;
+      if (duration > maxDuration || sourceSpan > maxSourceSpan || averageScore < 5.5) continue;
+      const confidence = Math.min(
+        ...excerpt.map(item => Number(item.semanticAssessment.confidence)),
+        ...path.map(item => Number(item.confidence))
+      );
+      const utility = averageScore + (roles.includes("tension") ? 0.3 : 0)
+        + (roles.includes("context") ? 0.2 : 0) + (roles.includes("hook") ? 0.2 : 0)
+        - sourceSpan * 0.001;
+      candidates.push({
+        segments: excerpt,
+        averageScore: Number(averageScore.toFixed(2)),
+        durationSeconds: Number(duration.toFixed(2)),
+        sourceSpanSeconds: Number(sourceSpan.toFixed(2)),
+        selectedSegmentIds: excerpt.map(item => item.id),
+        confidence: Number(confidence.toFixed(2)),
+        modelWindowArcStatus: semanticWindow?.arcStatus ?? "not_provided",
+        modelWindowConfidence: semanticWindow?.confidence ?? null,
+        summary: excerpt.map(item => item.text).join(" ").replace(/\\s+/g, " ").trim().slice(0, 500),
+        method: "quote_validated_connected_excerpt",
+        limitation: "This is a connected excerpt from the larger source, not a claim that the full story arc is present."
+      , utility });
+    }
+  }
+  return candidates.sort((a, b) => b.utility - a.utility || a.sourceSpanSeconds - b.sourceSpanSeconds)[0] ?? null;
 }
 
 function summarizeNarrativeStructure(segments) {
@@ -246,7 +262,7 @@ export function buildReeditPlan({ source, transcriptSegments, targetDurationSeco
     && arcTransitions.length === lastBeatIndex - firstBeatIndex
     && arcTransitions.every(transition => transition.linked);
   narrativeStructure.semanticContextAnalysis = narrativeSemanticAnalysis ?? { status: "not_configured", qualified: false, method: "semantic_provider_not_configured" };
-narrativeStructure.semanticStoryWindow = semanticWindowQualified ? { ...semanticWindow, qualified: true } : semanticConnectedExcerptQualified ? { ...semanticWindow, qualified: true, selectionType: "connected_excerpt", selectedSegmentIds: semanticConnectedExcerpt.selectedSegmentIds, limitation: semanticConnectedExcerpt.limitation } : { status: semanticWindow?.arcStatus ?? "not_qualified", qualified: false, confidence: semanticWindow?.confidence ?? null, summary: semanticWindow?.summary ?? null, rationale: semanticWindow?.rationale ?? null };
+narrativeStructure.semanticStoryWindow = semanticWindowQualified ? { ...semanticWindow, qualified: true } : semanticConnectedExcerptQualified ? { ...semanticWindow, arcStatus: "partial", qualified: true, selectionType: "connected_excerpt", modelArcStatus: semanticConnectedExcerpt.modelWindowArcStatus, modelConfidence: semanticConnectedExcerpt.modelWindowConfidence, confidence: semanticConnectedExcerpt.confidence, summary: semanticConnectedExcerpt.summary, selectedSegmentIds: semanticConnectedExcerpt.selectedSegmentIds, limitation: semanticConnectedExcerpt.limitation } : { status: semanticWindow?.arcStatus ?? "not_qualified", qualified: false, confidence: semanticWindow?.confidence ?? null, summary: semanticWindow?.summary ?? null, rationale: semanticWindow?.rationale ?? null };
   const semanticTransitions = narrativeSemanticAnalysis?.transitions ?? [];
   const semanticByPair = new Map(semanticTransitions.map(item => [item.fromSegmentId + "->" + item.toSegmentId, item]));
   const semanticOrderedSegments = [...segments].sort((a, b) => a.start - b.start || a.end - b.end);
@@ -316,7 +332,7 @@ narrativeStructure.semanticStoryWindow = semanticWindowQualified ? { ...semantic
   return {
     mode: "standalone_reedit", status: rights.allowed ? "edit_plan_ready" : "analysis_only",
     source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds, excerptStartSeconds: Number(source.excerptStartSeconds) || 0, rightsStatus: source.rightsStatus, rightsEvidenceUrl: source.rightsEvidenceUrl ?? null, rightsEvidenceReference: source.rightsEvidenceReference ?? null, allowedPlatforms: source.allowedPlatforms ?? [], expiresAt: source.expiresAt ?? null, license: source.license ?? "Authorized source media" },
-    rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore, sourceSpanSeconds, selectedDurationSeconds, sourceContinuity, selectionStrategy: semanticWindowQualified ? "semantic_complete_story_window" : semanticConnectedExcerptQualified ? "semantic_connected_excerpt" : semanticMomentById.size === segments.length ? "semantic_plus_heuristic_chronological_story_window" : "best_scoring_chronological_story_window", semanticStoryWindow: { qualified: semanticSelectionQualified, arcStatus: semanticWindow?.arcStatus ?? "not_provided", confidence: semanticWindow?.confidence ?? null, summary: semanticWindow?.summary ?? null, modelRecommendedSegmentIds: semanticWindow?.segmentIds ?? [], selectedSegmentIds: semanticWindowQualified ? semanticWindowTrim.selectedSegmentIds : semanticConnectedExcerptQualified ? semanticConnectedExcerpt.selectedSegmentIds : [], trim: semanticWindowTrim, connectedExcerpt: semanticConnectedExcerptQualified ? semanticConnectedExcerpt : null }, semanticMomentAssessment: { status: semanticMomentById.size === segments.length ? "complete" : "not_complete", assessedMoments: semanticMomentById.size, totalMoments: segments.length, trustedMoments: segments.filter(item => item.semanticAssessment && item.semanticAssessment.evidenceValidated && Number(item.semanticAssessment.confidence) >= 0.7).length, scoreBlend: "30_percent_heuristic_70_percent_semantic_when_confidence_at_least_0.8_and_evidence_validated; otherwise_40_percent_heuristic_60_percent_semantic" }, contextualStoryAnalysis, beatRoles: ordered.map(item => ({ segmentId: item.id, role: item.beatRole })), storyArcCoverage: new Set(ordered.map(item => item.beatRole)).size, narrativeStructure },
+    rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore, sourceSpanSeconds, selectedDurationSeconds, sourceContinuity, selectionStrategy: semanticWindowQualified ? "semantic_complete_story_window" : semanticConnectedExcerptQualified ? "semantic_connected_excerpt" : semanticMomentById.size === segments.length ? "semantic_plus_heuristic_chronological_story_window" : "best_scoring_chronological_story_window", semanticStoryWindow: { qualified: semanticSelectionQualified, arcStatus: semanticConnectedExcerptQualified ? "partial" : semanticWindow?.arcStatus ?? "not_provided", confidence: semanticConnectedExcerptQualified ? semanticConnectedExcerpt.confidence : semanticWindow?.confidence ?? null, summary: semanticConnectedExcerptQualified ? semanticConnectedExcerpt.summary : semanticWindow?.summary ?? null, modelRecommendedSegmentIds: semanticWindow?.segmentIds ?? [], selectedSegmentIds: semanticWindowQualified ? semanticWindowTrim.selectedSegmentIds : semanticConnectedExcerptQualified ? semanticConnectedExcerpt.selectedSegmentIds : [], trim: semanticWindowTrim, connectedExcerpt: semanticConnectedExcerptQualified ? semanticConnectedExcerpt : null }, semanticMomentAssessment: { status: semanticMomentById.size === segments.length ? "complete" : "not_complete", assessedMoments: semanticMomentById.size, totalMoments: segments.length, trustedMoments: segments.filter(item => item.semanticAssessment && item.semanticAssessment.evidenceValidated && Number(item.semanticAssessment.confidence) >= 0.7).length, scoreBlend: "30_percent_heuristic_70_percent_semantic_when_confidence_at_least_0.8_and_evidence_validated; otherwise_40_percent_heuristic_60_percent_semantic" }, contextualStoryAnalysis, beatRoles: ordered.map(item => ({ segmentId: item.id, role: item.beatRole })), storyArcCoverage: new Set(ordered.map(item => item.beatRole)).size, narrativeStructure },
     openingHook: { segmentId: opening.id, sourceIn: opening.start, sourceOut: opening.end, score: opening.score },
     hookOverlay: teaserMoment ? { text: hookOverlayText, segmentId: teaserMoment.id, sourceIn: teaserMoment.start, score: teaserMoment.score, durationSeconds: 2.4, method: "explicit_curiosity_or_question_cue_without_dialogue_reordering" } : null,
     editDecisionList: ordered.map((segment, index) => ({ order: index + 1, segmentId: segment.id, sourceIn: segment.start, sourceOut: segment.end, durationSeconds: Number((segment.end-segment.start).toFixed(2)), caption: segment.text, score: segment.score, beatRole: segment.beatRole, wordTimings: segment.words, treatment: {

@@ -62,12 +62,13 @@ export function buildTranscriptCandidates(words, { minSeconds = 2, maxSeconds = 
     if (current.length) {
       const elapsed = item.end - current[0].start;
       const previous = current.at(-1);
+      const currentDuration = previous.end - current[0].start;
       const sentenceEnded = /[.!?]$/.test(previous.word);
       const pause = item.start - previous.end;
-      // Do not throw away short, high-value dialogue such as "We copy you on the ground."
-      // Keep adjacent short sentences together until they reach minSeconds, but never bridge
-      // a meaningful silence or exceed the normal source-window limits.
-      if ((sentenceEnded && elapsed >= minSeconds) || pause > maxPauseSeconds || elapsed > maxSeconds || current.length >= maxWords) flush();
+      // Measure the already-collected sentence, not the next word: using elapsed here
+      // can flush and discard a 1.9s payoff just because the following word crosses 2s.
+      // Keep adjacent short sentences together until the current group reaches minSeconds.
+      if ((sentenceEnded && currentDuration >= minSeconds) || pause > maxPauseSeconds || elapsed > maxSeconds || current.length >= maxWords) flush();
     }
     current.push(item);
   }

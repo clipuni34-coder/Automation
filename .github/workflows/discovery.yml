@@ -242,7 +242,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY || secrets.OPENROUTER_API }}
           OPENROUTER_MODEL: 'openrouter/free'
           ENABLE_GEMINI_CREATIVE: ${{ vars.ENABLE_GEMINI_CREATIVE || 'false' }}
           ENABLE_GROQ_CREATIVE: ${{ vars.ENABLE_GROQ_CREATIVE || 'true' }}
@@ -294,7 +294,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY || secrets.OPENROUTER_API }}
           OPENROUTER_VISION_MODEL: 'openrouter/free'
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
           ENABLE_GEMINI_TTS: ${{ vars.ENABLE_GEMINI_TTS || 'false' }}
@@ -357,7 +357,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY || secrets.OPENROUTER_API }}
           PRODUCE_VIDEOS: ${{ vars.PRODUCE_VIDEOS || 'false' }}
           YOUTUBE_AUTO_PUBLISH: ${{ vars.YOUTUBE_AUTO_PUBLISH || 'false' }}
           INPUT_PRODUCE_VIDEOS: ${{ inputs.produce_videos || false }}

@@ -20,8 +20,8 @@ export async function runDiscovery({
       concurrency: config.youtubeConcurrency ?? 5
     }),
     (collectors.rss ?? collectRssFeeds)({ feedUrls: config.rssFeeds ?? [] }),
-    (collectors.youtubeSearch ?? searchYouTubeVideos)({ apiKey: config.youtubeApiKey, queries: config.searchQueries ?? [], maxResults: config.searchMaxResults ?? 20, order: config.searchOrder ?? "viewCount", regionCode: config.searchRegion ?? "US" }),
-    (collectors.youtubeRecentSearch ?? searchYouTubeVideos)({ apiKey: config.youtubeApiKey, queries: config.searchQueries ?? [], maxResults: config.recentSearchMaxResults ?? config.searchMaxResults ?? 20, order: "date", regionCode: config.searchRegion ?? "US" })
+    (collectors.youtubeSearch ?? searchYouTubeVideos)({ apiKey: config.youtubeApiKey, queries: config.searchQueries ?? [], maxResults: config.searchMaxResults ?? 20, order: config.searchOrder ?? "viewCount", regionCode: config.searchRegion ?? "NG", publishedAfter: config.searchPublishedAfter }),
+    (collectors.youtubeRecentSearch ?? searchYouTubeVideos)({ apiKey: config.youtubeApiKey, queries: config.searchQueries ?? [], maxResults: config.recentSearchMaxResults ?? config.searchMaxResults ?? 20, order: "date", regionCode: config.searchRegion ?? "NG", publishedAfter: config.searchPublishedAfter })
   ]);
 
   const sources = sourceResults.map((result, index) => {

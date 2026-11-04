@@ -245,11 +245,11 @@ test("high-confidence semantic moment assessment can change which source moment 
 
 test("semantic story window trims redundant edges but preserves the validated hook-to-payoff path", () => {
   const transcriptSegments = [
-    { id: "pre-context", start: 0, end: 3, text: "Earlier background information was introduced.", signals: { hook: 2, curiosity: 2, clarity: 8 } },
-    { id: "hook", start: 3, end: 6, text: "The bridge suddenly collapsed during the storm.", signals: { hook: 1, curiosity: 1, clarity: 9 } },
-    { id: "setup", start: 6, end: 9, text: "The support cable had weakened during the storm.", signals: { clarity: 9 } },
-    { id: "payoff", start: 9, end: 12, text: "Engineers rebuilt the bridge and reopened the road.", signals: { payoff: 9, clarity: 9 } },
-    { id: "post-context", start: 12, end: 15, text: "The presenter then repeated the general safety message.", signals: { clarity: 7 } }
+    { id: "pre-context", start: 0, end: 5, text: "Earlier background information was introduced.", signals: { hook: 2, curiosity: 2, clarity: 8 } },
+    { id: "hook", start: 5, end: 8, text: "The bridge suddenly collapsed during the storm.", signals: { hook: 1, curiosity: 1, clarity: 9 } },
+    { id: "setup", start: 8, end: 11, text: "The support cable had weakened during the storm.", signals: { clarity: 9 } },
+    { id: "payoff", start: 11, end: 14, text: "Engineers rebuilt the bridge and reopened the road.", signals: { payoff: 9, clarity: 9 } },
+    { id: "post-context", start: 14, end: 19, text: "The presenter then repeated the general safety message.", signals: { clarity: 7 } }
   ];
   const momentAssessments = transcriptSegments.map((segment, index) => ({
     segmentId: segment.id, compellingScore: [2, 9, 8, 9, 2][index], confidence: 0.95,

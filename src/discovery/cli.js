@@ -15,7 +15,8 @@ const result = await runDiscovery({
     searchQueries: (process.env.DISCOVERY_SEARCH_QUERIES ?? "").split("|").map((value) => value.trim()).filter(Boolean),
     searchMaxResults: Number(process.env.DISCOVERY_SEARCH_MAX_RESULTS ?? 20),
     searchOrder: process.env.DISCOVERY_SEARCH_ORDER ?? "viewCount",
-    searchRegion: process.env.DISCOVERY_SEARCH_REGION ?? "US"
+    searchRegion: process.env.DISCOVERY_SEARCH_REGION ?? "NG",
+    searchPublishedAfter: new Date(Date.now() - Math.max(1, Number(process.env.DISCOVERY_SEARCH_WINDOW_DAYS ?? 7)) * 24 * 60 * 60 * 1000).toISOString()
   },
   storePath: process.env.DISCOVERY_STORE_PATH ?? "data/discovery.json"
 });

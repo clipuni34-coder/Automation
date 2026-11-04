@@ -144,3 +144,24 @@ test("short sentence fragments separated by a long silence are not merged", () =
   assert.equal(moments[0].text, "We copy you on the ground. You got there.");
   assert.equal(moments[0].start, 4);
 });
+
+
+test("does not discard a short payoff when the next word crosses the minimum-duration boundary", () => {
+  const words = [
+    { word: "Tranquility.", start: 0, end: 0.44 },
+    { word: "We", start: 0.74, end: 0.9 },
+    { word: "copy", start: 0.9, end: 1.05 },
+    { word: "you", start: 1.05, end: 1.2 },
+    { word: "on", start: 1.2, end: 1.3 },
+    { word: "the", start: 1.3, end: 1.4 },
+    { word: "ground.", start: 1.4, end: 1.76 },
+    { word: "You", start: 2.06, end: 2.2 },
+    { word: "got", start: 2.2, end: 2.4 },
+    { word: "there.", start: 2.4, end: 2.7 }
+  ];
+  const moments = buildTranscriptCandidates(words, { minSeconds: 2 });
+  assert.equal(moments.length, 1);
+  assert.equal(moments[0].text, "Tranquility. We copy you on the ground. You got there.");
+  assert.equal(moments[0].start, 0);
+  assert.equal(moments[0].end, 2.7);
+});

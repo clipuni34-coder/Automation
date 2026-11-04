@@ -304,9 +304,9 @@ export async function generateEditorialPlan({
   const providers = [
     ...(geminiApiKey ? [["gemini", () => callGemini(prompt, geminiApiKey, fetchImpl, timeoutMs, sleepImpl)]] : []),
     ...(groqApiKey ? [["groq", () => callGroq(prompt, groqApiKey, fetchImpl, timeoutMs)]] : []),
+    ...(openrouterApiKey ? [["openrouter-free", () => callOpenRouter(prompt, openrouterApiKey, fetchImpl, timeoutMs, openrouterModel)]] : []),
     ...(cloudflareAccountId && cloudflareApiToken ? [["cloudflare-workers-ai", () => callCloudflare(prompt, cloudflareAccountId, cloudflareApiToken, fetchImpl, timeoutMs)]] : []),
-    ...(openaiApiKey ? [["openai", () => callOpenAI(prompt, openaiApiKey, fetchImpl, timeoutMs)]] : []),
-    ...(openrouterApiKey ? [["openrouter-free", () => callOpenRouter(prompt, openrouterApiKey, fetchImpl, timeoutMs, openrouterModel)]] : [])
+    ...(openaiApiKey ? [["openai", () => callOpenAI(prompt, openaiApiKey, fetchImpl, timeoutMs)]] : [])
   ];
   const errors = [];
   for (const [provider, invoke] of providers) {

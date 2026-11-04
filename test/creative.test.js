@@ -262,3 +262,47 @@ test("creative provider uses Gemini Flash-Lite after all primary Flash models hi
   ]);
 });
 
+
+
+test("creative provider uses Groq when it is the only explicitly configured provider", async () => {
+  let request;
+  const result = await generateEditorialPlan({
+    dossier, geminiApiKey: "", groqApiKey: "groq-test-key", openaiApiKey: "", openrouterApiKey: "",
+    fetchImpl: async (url, options) => {
+      request = { url, body: JSON.parse(options.body) };
+      return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(validPlan) } }] }), { status: 200 });
+    }
+  });
+  assert.equal(result.status, "ok");
+  assert.equal(result.provider, "groq");
+  assert.equal(request.url, "https://api.groq.com/openai/v1/chat/completions");
+  assert.equal(request.body.model, "openai/gpt-oss-120b");
+});
+
+test("creative provider prefers the free OpenRouter route over optional OpenAI fallback", async () => {
+  const calls = [];
+  const result = await generateEditorialPlan({
+    dossier, geminiApiKey: "", groqApiKey: "", openaiApiKey: "openai-key", openrouterApiKey: "router-key",
+    fetchImpl: async (url) => {
+      calls.push(url);
+      return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(validPlan) } }] }), { status: 200 });
+    }
+  });
+  assert.equal(result.provider, "openrouter-free");
+  assert.deepEqual(calls, ["https://openrouter.ai/api/v1/chat/completions"]);
+});
+
+test("creative provider uses Cloudflare Workers AI when it is the only configured provider", async () => {
+  let request;
+  const result = await generateEditorialPlan({
+    dossier, geminiApiKey: "", groqApiKey: "", cloudflareAccountId: "account-test",
+    cloudflareApiToken: "cloudflare-test-token", openaiApiKey: "", openrouterApiKey: "",
+    fetchImpl: async (url, options) => {
+      request = { url, body: JSON.parse(options.body) };
+      return new Response(JSON.stringify({ success: true, result: { response: JSON.stringify(validPlan) } }), { status: 200 });
+    }
+  });
+  assert.equal(result.status, "ok");
+  assert.equal(result.provider, "cloudflare-workers-ai");
+  assert.equal(request.url, "https://api.cloudflare.com/client/v4/accounts/account-test/ai/run/@cf/meta/llama-3.3-70b-instruct-fp8-fast");
+});

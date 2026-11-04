@@ -201,7 +201,7 @@ async function requestGroq(prompt, key, fetchImpl, timeoutMs, model = process.en
   try {
     const response = await fetchImpl("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json" },
-      body: JSON.stringify({ model, temperature: 0.1, max_tokens: 8000, response_format: { type: "json_object" }, messages: [
+      body: JSON.stringify({ model, temperature: 0.1, max_tokens: 12000, response_format: { type: "json_object" }, messages: [
         { role: "system", content: "Return valid JSON only. Be conservative and do not invent context." },
         { role: "user", content: prompt }
       ] }),
@@ -215,8 +215,8 @@ async function requestGroq(prompt, key, fetchImpl, timeoutMs, model = process.en
   } finally { clearTimeout(timer); }
 }
 
-async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "openrouter/free") {
-  if (model !== "openrouter/free" && !model.endsWith(":free")) throw new Error("OpenRouter semantic fallback is restricted to explicitly free models");
+async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-super-vl:free") {
+  if (model !== "nvidia/nemotron-3.5-super-vl:free" && !model.endsWith(":free")) throw new Error("OpenRouter semantic fallback is restricted to explicitly free models");
   let lastError;
   for (const requireJsonMode of [true, false]) {
     const controller = new AbortController();
@@ -229,6 +229,9 @@ async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = proc
           { role: "user", content: prompt }
         ]
       };
+      if (model === "nvidia/nemotron-3.5-super-vl:free") {
+        body.provider = { options: { chat_template_kwargs: { enable_thinking: false } } };
+      }
       // Some free upstreams return an empty assistant message despite HTTP 200
       // when structured-output parameters are not implemented consistently.
       // Retry once without response_format, then still validate JSON locally.
@@ -317,7 +320,7 @@ export async function analyzeSemanticStory(segments, {
   fetchImpl = fetch,
   timeoutMs = 45000,
   targetDurationSeconds = 45,
-  openrouterModel = process.env.OPENROUTER_MODEL ?? "openrouter/free"
+  openrouterModel = process.env.OPENROUTER_MODEL ?? "nvidia/nemotron-3.5-super-vl:free"
 } = {}) {
   const ordered = [...(segments ?? [])].sort((a, b) => a.start - b.start || a.end - b.end);
   if (ordered.length > 80 || ordered.some(item => String(item.text ?? "").length > 1200) || ordered.reduce((sum, item) => sum + String(item.text ?? "").length, 0) > 24000) {

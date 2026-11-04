@@ -2,7 +2,7 @@
 
 ## Product intent
 
-This product does not wait for a user to upload a video. It continuously discovers promising video topics, formats and reference examples; researches the subject; creates an original, rights-aware treatment; produces platform-ready video; checks quality; publishes through supported official integrations after one-time account authorization and consent; and learns from available performance data.
+This product does not depend on a user uploading a finished video. It discovers promising topics, formats and reference examples; researches the subject; creates an original, rights-aware treatment; produces platform-ready video; checks quality; prepares a posting package; and learns from available performance data. **Every public post remains behind explicit human approval; unattended publishing is disabled.**
 
 The goal is to improve the probability of strong audience retention, completion, shares and saves. Virality is never guaranteed.
 
@@ -10,7 +10,7 @@ This is a standalone personal automation project. It is not Syntheniq and is not
 
 ## Operating loop
 
-`Discover → Qualify → Research → Rights check → Creative brief → Produce → QC → Package → Publish → Measure → Learn`
+`Discover → Qualify → Research → Rights check → Creative brief → Produce → QC → Package → Human approval → Publish → Measure → Learn`
 
 ### 1. Discovery engine
 - Run scheduled discovery jobs over permitted sources and APIs.
@@ -93,7 +93,7 @@ Repair and rerender when possible. Otherwise reject the candidate and log why. N
 ### 8. Packaging and publishing
 Create platform-specific titles, descriptions, captions, hashtags, cover/thumbnail and disclosure fields. Keep a record of exactly what was sent to each platform.
 
-Publishing must use supported official APIs and respect each platform's consent, review, account-type, media and product requirements. One-time account connection is required. Autonomous scheduling may only be enabled for actions and platforms where the user has expressly configured that behavior and the platform's rules allow it. Some API flows require user-facing confirmation at posting time; the system must stop rather than bypass it.
+Publishing must use supported official APIs and respect each platform's consent, review, account-type, media and product requirements. One-time account connection is required, but it does not authorize unattended public posting. **A human must review and approve every upload before the publishing adapter is invoked.** Some API flows require user-facing confirmation at posting time; the system must stop rather than bypass it. The current implementation keeps publication disabled and produces reviewable drafts only.
 
 ### 9. Analytics and learning
 - Retrieve only metrics made available and permitted by each platform.
@@ -114,6 +114,7 @@ The adapters must expose capability flags and fail closed when a requested actio
 - No automatic copying/reuploading of trending creators' videos.
 - No scraping private APIs, browser sessions, or private analytics.
 - No guarantee of virality or fixed view counts.
+- No unattended public publication; explicit human approval is required for every post.
 - No automatic publication when rights, factual checks, API permissions or required consent are missing.
 - No dependence on a single third-party clipping or generation vendor.
 

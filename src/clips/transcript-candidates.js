@@ -26,7 +26,7 @@ function scoreSignals(text, duration, words, media = {}) {
  * Scores are transparent lexical/structural heuristics, not claims of true emotion
  * or guaranteed audience retention. The original word timings are retained.
  */
-export function buildTranscriptCandidates(words, { minSeconds = 2, maxSeconds = 11, maxWords = 32, mediaSignals = null } = {}) {
+export function buildTranscriptCandidates(words, { minSeconds = 2, maxSeconds = 11, maxWords = 32, maxPauseSeconds = 1.5, mediaSignals = null } = {}) {
   if (!Array.isArray(words) || words.length === 0) throw new Error("A non-empty word-timestamp array is required");
   const clean = words.map((item, index) => {
     const start = Number(item.start), end = Number(item.end);
@@ -63,7 +63,11 @@ export function buildTranscriptCandidates(words, { minSeconds = 2, maxSeconds = 
       const elapsed = item.end - current[0].start;
       const previous = current.at(-1);
       const sentenceEnded = /[.!?]$/.test(previous.word);
-      if (sentenceEnded || elapsed > maxSeconds || current.length >= maxWords) flush();
+      const pause = item.start - previous.end;
+      // Do not throw away short, high-value dialogue such as "We copy you on the ground."
+      // Keep adjacent short sentences together until they reach minSeconds, but never bridge
+      // a meaningful silence or exceed the normal source-window limits.
+      if ((sentenceEnded && elapsed >= minSeconds) || pause > maxPauseSeconds || elapsed > maxSeconds || current.length >= maxWords) flush();
     }
     current.push(item);
   }

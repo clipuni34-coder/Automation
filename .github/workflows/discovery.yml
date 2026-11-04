@@ -244,7 +244,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY || secrets.OPENROUTER_API }}
           OPENROUTER_MODEL: 'openrouter/free'
-          ENABLE_GEMINI_CREATIVE: ${{ vars.ENABLE_GEMINI_CREATIVE || 'false' }}
+          ENABLE_GEMINI_CREATIVE: ${{ vars.ENABLE_GEMINI_CREATIVE || 'true' }}
           ENABLE_GROQ_CREATIVE: ${{ vars.ENABLE_GROQ_CREATIVE || 'true' }}
           ENABLE_CLOUDFLARE_CREATIVE: ${{ vars.ENABLE_CLOUDFLARE_CREATIVE || 'false' }}
           ENABLE_OPENAI_CREATIVE: ${{ vars.ENABLE_OPENAI_CREATIVE || 'false' }}
@@ -348,7 +348,7 @@ jobs:
       - name: Report workflow readiness
         if: always()
         env:
-          ENABLE_GEMINI_CREATIVE: ${{ vars.ENABLE_GEMINI_CREATIVE || 'false' }}
+          ENABLE_GEMINI_CREATIVE: ${{ vars.ENABLE_GEMINI_CREATIVE || 'true' }}
           ENABLE_GROQ_CREATIVE: ${{ vars.ENABLE_GROQ_CREATIVE || 'true' }}
           ENABLE_CLOUDFLARE_CREATIVE: ${{ vars.ENABLE_CLOUDFLARE_CREATIVE || 'false' }}
           ENABLE_OPENAI_CREATIVE: ${{ vars.ENABLE_OPENAI_CREATIVE || 'false' }}

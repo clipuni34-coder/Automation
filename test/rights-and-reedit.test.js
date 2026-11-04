@@ -560,3 +560,47 @@ test("a model-labelled hook without an actual hook cue cannot override a clear h
   assert.equal(plan.hookOverlay.segmentId, "oxygen-risk");
   assert.match(plan.hookOverlay.text, /about to turn blue/i);
 });
+
+
+test("selects a quote-validated connected excerpt when the provider omits a storyWindow object", () => {
+  const transcriptSegments = [
+    { id: "setup", start: 10, end: 13, text: "The crew confirms the landing.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } },
+    { id: "relief", start: 13.3, end: 16.3, text: "We're breathing again.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } },
+    { id: "thanks", start: 16.6, end: 19.6, text: "Thank you, we made it.", signals: { hook: 5, emotion: 5, curiosity: 5, payoff: 5, clarity: 5 } }
+  ];
+  const momentAssessments = transcriptSegments.map((segment, index) => ({
+    segmentId: segment.id,
+    compellingScore: [7, 8, 8][index],
+    confidence: 0.9,
+    role: ["setup", "payoff", "payoff"][index],
+    selfContained: true,
+    evidenceValidated: true,
+    rationale: "Evidence-backed setup and outcome.",
+    evidence: segment.text
+  }));
+  const transitions = transcriptSegments.slice(0, -1).map((segment, index) => ({
+    fromSegmentId: segment.id,
+    toSegmentId: transcriptSegments[index + 1].id,
+    relationship: "connected",
+    confidence: 0.9,
+    evidenceSegmentId: transcriptSegments[index + 1].id,
+    evidenceValidated: true,
+    evidence: transcriptSegments[index + 1].text
+  }));
+  const plan = buildReeditPlan({
+    source: licensed,
+    targetDurationSeconds: 30,
+    transcriptSegments,
+    narrativeSemanticAnalysis: {
+      status: "human_review_required",
+      provider: "gemini",
+      transitions,
+      momentAssessments,
+      storyWindow: null
+    }
+  });
+  assert.equal(plan.status, "edit_plan_ready");
+  assert.equal(plan.editorialQuality.selectionStrategy, "semantic_connected_excerpt");
+  assert.equal(plan.editorialQuality.semanticStoryWindow.qualified, true);
+  assert.deepEqual(plan.editDecisionList.map(item => item.segmentId), ["setup", "relief", "thanks"]);
+});

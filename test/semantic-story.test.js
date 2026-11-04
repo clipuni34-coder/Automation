@@ -322,10 +322,8 @@ test("OpenRouter free retry leaves provider reasoning enabled when JSON mode ret
   assert.equal(calls, 2);
   assert.equal(requestBodies[0].response_format.type, "json_object");
   assert.equal("response_format" in requestBodies[1], false);
-  assert.equal(requestBodies[0].reasoning.max_tokens, 512);
-  assert.equal(requestBodies[1].reasoning.max_tokens, 512);
-  assert.equal(requestBodies[0].reasoning.effort, "low");
-  assert.equal(requestBodies[1].reasoning.effort, "low");
+  assert.deepEqual(requestBodies[0].reasoning, { effort: "low" });
+  assert.deepEqual(requestBodies[1].reasoning, { effort: "low" });
   assert.equal(result.provider, "openrouter-free");
   assert.equal(result.qualified, true);
 });
@@ -349,7 +347,7 @@ test("Nemotron Lightning free skips unsupported JSON response_format and keeps b
   ], { geminiApiKey: "", groqApiKey: "", openrouterApiKey: "test-key", openaiApiKey: "", fetchImpl });
   assert.equal(requestBody.model, "nvidia/nemotron-3.5-lightning:free");
   assert.equal("response_format" in requestBody, false);
-  assert.deepEqual(requestBody.reasoning, { effort: "low", max_tokens: 512 });
+  assert.deepEqual(requestBody.reasoning, { effort: "low" });
   assert.equal(result.provider, "openrouter-free");
   assert.equal(result.qualified, true);
 });

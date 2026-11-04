@@ -9,6 +9,8 @@ test("viral report includes ranked evidence and only safe HTTPS source links", (
       creator: "Creator",
       platform: "youtube",
       sourceUrl: "https://youtube.com/watch?v=abc",
+      rightsStatus: "reference_only",
+      rightsEvidenceUrl: "https://example.com/rights",
       score: 81,
       confidence: "high",
       momentum: "breakout_candidate",
@@ -30,6 +32,9 @@ test("viral report includes ranked evidence and only safe HTTPS source links", (
   assert.match(html, /&lt;script&gt;/);
   assert.match(html, /Breakout candidate/);
   assert.match(html, /Football highlights/);
+  assert.match(html, /Reference only — not cleared for reuse/);
+  assert.match(html, /Rights evidence/);
+  assert.match(html, /Rights unverified — do not download or republish/);
 });
 
 test("viral report handles an empty discovery store without throwing", () => {

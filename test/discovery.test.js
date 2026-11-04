@@ -95,7 +95,9 @@ test("discovery stores candidates, observations and source status", async (t) =>
         title: "A new science discovery", creator: "Example", publishedAt: "2026-10-31T23:00:00Z",
         observedAt: "2026-11-01T01:00:00Z", metrics: { views: 100, likes: 5, comments: 1 }
       }] }),
-      rss: async () => ({ source: "rss", status: "not_configured", items: [] })
+      rss: async () => ({ source: "rss", status: "not_configured", items: [] }),
+      youtubeSearch: async () => ({ source: "youtube_search", status: "ok", items: [] }),
+      youtubeRecentSearch: async () => ({ source: "youtube_recent_search", status: "ok", items: [] })
     }
   });
   assert.equal(result.candidates.length, 1);
@@ -103,4 +105,29 @@ test("discovery stores candidates, observations and source status", async (t) =>
   assert.equal(saved.candidates[0].id, "youtube:1");
   assert.equal(saved.observations.length, 1);
   assert.equal(saved.runs.length, 1);
+});
+
+
+test("discovery deduplicates the same video found by popularity and newest searches", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "discovery-dedupe-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const storePath = join(directory, "discovery.json");
+  const video = {
+    id: "youtube:shared", platform: "youtube", sourceUrl: "https://youtube.com/watch?v=shared",
+    title: "A newly rising moment", creator: "Example", publishedAt: "2026-11-01T00:00:00Z",
+    observedAt: "2026-11-01T01:00:00Z", metrics: { views: 900, likes: 40, comments: 5 }
+  };
+  const result = await runDiscovery({
+    storePath, now: () => new Date("2026-11-01T01:00:00Z"),
+    collectors: {
+      youtube: async () => ({ source: "youtube", status: "ok", items: [] }),
+      rss: async () => ({ source: "rss", status: "not_configured", items: [] }),
+      youtubeSearch: async () => ({ source: "youtube_search", status: "ok", items: [{ ...video, searchQueries: ["funny moments"] }] }),
+      youtubeRecentSearch: async () => ({ source: "youtube_recent_search", status: "ok", items: [{ ...video, searchQueries: ["unexpected moments"] }] })
+    }
+  });
+  assert.equal(result.candidates.length, 1);
+  assert.equal(result.run.accepted, 1);
+  assert.equal((await readDiscoveryStore(storePath)).observations.length, 1);
+  assert.deepEqual(result.candidates[0].searchQueries, ["funny moments", "unexpected moments"]);
 });

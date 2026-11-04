@@ -23,6 +23,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: real-footage-validation-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   real-footage:
     runs-on: ubuntu-latest

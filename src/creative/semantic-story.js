@@ -20,7 +20,7 @@ function parseObject(raw) {
   return parsed;
 }
 
-function validate(result, segments) {
+function validate(result, segments, allowInvalidStoryWindow = false) {
   if (!Array.isArray(result.transitions)) throw new Error("Semantic story response must contain transitions");
   const expected = new Set(segments.slice(1).map((item, index) => segments[index].id + "->" + item.id));
   const byId = new Map(segments.map(item => [String(item.id), String(item.text ?? "")]));
@@ -81,6 +81,7 @@ function validate(result, segments) {
     if (assessmentIds.size !== segments.length) throw new Error("Semantic story response omitted one or more moment assessments");
   }
   let storyWindow = null;
+  let storyWindowError = null;
   if (result.storyWindow !== undefined && result.storyWindow !== null) {
     const item = result.storyWindow;
     const ids = Array.isArray(item.segmentIds) ? item.segmentIds.map(String) : [];
@@ -89,28 +90,36 @@ function validate(result, segments) {
     const consecutive = indexes.length >= 2 && indexes.every((index, position) => index >= 0 && (position === 0 || index === indexes[position - 1] + 1));
     const arcStatus = item.arcStatus;
     const confidence = Number(item.confidence);
-    if (!["complete", "partial", "none"].includes(arcStatus) || !Number.isFinite(confidence) || confidence < 0 || confidence > 1 || ids.length > 8 || unique.size !== ids.length || (ids.length && !consecutive)) {
-      throw new Error("Semantic story-window assessment has invalid IDs, order, arc status, or confidence");
-    }
-    if (arcStatus === "complete") {
+    const invalidWindow = !["complete", "partial", "none"].includes(arcStatus)
+      || !Number.isFinite(confidence) || confidence < 0 || confidence > 1
+      || ids.length > 8 || unique.size !== ids.length || (ids.length && !consecutive);
+    if (invalidWindow) {
+      const detail = "Semantic story-window assessment has invalid IDs, order, arc status, or confidence";
+      if (!allowInvalidStoryWindow) throw new Error(detail);
+      storyWindowError = detail;
+    } else if (arcStatus === "complete") {
       const hookSegmentId = String(item.hookSegmentId ?? "");
       const payoffSegmentId = String(item.payoffSegmentId ?? "");
       const hookIndex = ids.indexOf(hookSegmentId);
       const payoffIndex = ids.indexOf(payoffSegmentId);
       const hookEvidence = String(item.hookEvidence ?? "").trim().slice(0, 300);
       const payoffEvidence = String(item.payoffEvidence ?? "").trim().slice(0, 300);
-      if (ids.length < 3 || hookIndex < 0 || payoffIndex <= hookIndex
+      const invalidCompleteWindow = ids.length < 3 || hookIndex < 0 || payoffIndex <= hookIndex
         || !evidenceMatches(byId.get(hookSegmentId), hookEvidence)
-        || !evidenceMatches(byId.get(payoffSegmentId), payoffEvidence)) {
-        throw new Error("A complete semantic story window requires an ordered hook and payoff with source-verified evidence");
+        || !evidenceMatches(byId.get(payoffSegmentId), payoffEvidence);
+      if (invalidCompleteWindow) {
+        const detail = "A complete semantic story window requires an ordered hook and payoff with source-verified evidence";
+        if (!allowInvalidStoryWindow) throw new Error(detail);
+        storyWindowError = detail;
+      } else {
+        storyWindow = {
+          arcStatus, segmentIds: ids, hookSegmentId, payoffSegmentId,
+          hookEvidence, payoffEvidence, confidence: Number(confidence.toFixed(3)),
+          summary: String(item.summary ?? "").slice(0, 500),
+          rationale: String(item.rationale ?? "").slice(0, 500),
+          evidenceValidated: true
+        };
       }
-      storyWindow = {
-        arcStatus, segmentIds: ids, hookSegmentId, payoffSegmentId,
-        hookEvidence, payoffEvidence, confidence: Number(confidence.toFixed(3)),
-        summary: String(item.summary ?? "").slice(0, 500),
-        rationale: String(item.rationale ?? "").slice(0, 500),
-        evidenceValidated: true
-      };
     } else {
       storyWindow = {
         arcStatus, segmentIds: ids, confidence: Number(confidence.toFixed(3)),
@@ -121,17 +130,18 @@ function validate(result, segments) {
     }
   }
   return {
-    status: disconnected.length ? "human_review_required" : "contextually_connected",
+    status: disconnected.length || storyWindowError ? "human_review_required" : "contextually_connected",
     provider: result.provider,
     method: "llm_adjacent_chunk_semantic_relationship_review",
     transitions,
     momentAssessments,
     momentAssessmentStatus: momentAssessments.length === segments.length ? "complete" : "not_provided",
     storyWindow,
-    storyWindowStatus: storyWindow ? "assessed" : "not_provided",
+    storyWindowStatus: storyWindow ? "assessed" : storyWindowError ? "invalid" : "not_provided",
+    storyWindowError,
     connectedTransitions: transitions.length - disconnected.length,
     disconnectedOrUncertainTransitions: disconnected.length,
-    qualified: transitions.length > 0 && disconnected.length === 0,
+    qualified: transitions.length > 0 && disconnected.length === 0 && !storyWindowError,
     limitation: "Model judgments are fallible interpretations of supplied transcript text, not proof of truth, causality, or visual events. Human review remains necessary."
   };
 }
@@ -335,9 +345,19 @@ export async function analyzeSemanticStory(segments, {
         // keeping all transcript-evidence checks strict.
         const correctionPrompt = prompt + "\n\nYour previous JSON response failed source-evidence validation: "
           + validationError.message
-          + ". Return the complete JSON again. Re-check every evidence field against the exact transcript text. Each momentAssessment evidence, and each hookEvidence/payoffEvidence, must be 3-12 consecutive words copied verbatim from its specified source segment. Never paraphrase, repair, or invent a quote. If you cannot provide a valid quote, lower confidence and choose a non-complete arc where appropriate.";
+          + ". Return the complete JSON again. Re-check every evidence field against the exact transcript text. Each momentAssessment evidence, and each hookEvidence/payoffEvidence, must be 3-12 consecutive words copied verbatim from its specified source segment, or the entire segment if it contains fewer than three words. Never paraphrase, repair, or invent a quote. If you cannot provide a valid quote, lower confidence and choose a non-complete arc where appropriate.";
         response = await call(correctionPrompt);
-        return validate({ ...response, provider }, ordered);
+        try {
+          return validate({ ...response, provider }, ordered);
+        } catch (finalValidationError) {
+          if (/Semantic story-window assessment|complete semantic story window/.test(finalValidationError.message)) {
+            // Preserve fully validated transitions and moment scores while
+            // discarding only a malformed story-window claim. This remains
+            // human-review-required and cannot be treated as a complete arc.
+            return validate({ ...response, provider }, ordered, true);
+          }
+          throw finalValidationError;
+        }
       }
     } catch (error) {
       errors.push(provider + ": " + error.message);

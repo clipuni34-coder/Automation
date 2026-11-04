@@ -220,7 +220,7 @@ async function requestGemini(prompt, key, fetchImpl, timeoutMs) {
       try {
         const response = await fetchImpl(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`, {
           method: "POST", headers: { "content-type": "application/json" },
-          body: JSON.stringify({ systemInstruction: { parts: [{ text: "Return valid JSON only. Be conservative and do not invent context." }] }, contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.1 } }),
+          body: JSON.stringify({ systemInstruction: { parts: [{ text: "Return valid JSON only. Be conservative and do not invent context." }] }, contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }),
           signal: controller.signal
         });
         if (!response.ok) throw await httpFailure(response, "Gemini");

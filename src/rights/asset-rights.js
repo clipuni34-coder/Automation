@@ -22,7 +22,15 @@ export function assessAssetRights(asset, { platform = null, now = new Date() } =
     const expiry = Date.parse(asset.expiresAt);
     if (!Number.isFinite(expiry) || expiry <= now.getTime()) reasons.push("Asset permission/license is expired or has an invalid expiry");
   }
-  return { allowed: reasons.length === 0, status: reasons.length ? "blocked" : "approved", rightsStatus, reasons };
+  const allowed = reasons.length === 0;
+  return {
+    allowed,
+    status: allowed ? "declared_not_independently_verified" : "blocked",
+    verificationStatus: allowed ? "declaration_only" : "not_assessed",
+    rightsStatus,
+    evidenceReferenceProvided: Boolean(asset.rightsEvidenceUrl || asset.rightsEvidenceReference),
+    reasons: [...reasons, ...(allowed ? ["Rights are based on the submitter’s declaration; evidence has not been independently verified. Human rights review is required before publication."] : [])]
+  };
 }
 
 export function assertAssetRights(asset, options = {}) {

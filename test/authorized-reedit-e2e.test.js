@@ -34,7 +34,7 @@ test("authorized source re-edit runs from timed transcript through real vertical
       },
       targetDurationSeconds: 5,
       transcriptSegments: [
-        { id: "setup", start: 0, end: 2, text: "The story starts here", signals: { hook: 2, clarity: 7 } },
+        { id: "setup", start: 0, end: 2, text: "The story starts here", signals: { hook: 8, emotion: 8, curiosity: 8, payoff: 8, clarity: 8 } },
         { id: "payoff", start: 4, end: 7, text: "And then the unexpected payoff happens", signals: { hook: 9, emotion: 9, curiosity: 9, payoff: 10, clarity: 9 } }
       ]
     });
@@ -49,6 +49,43 @@ test("authorized source re-edit runs from timed transcript through real vertical
     assert.equal(result.rendered.sourceAudioPreserved, true);
     const stat = await readFile(outputPath);
     assert.ok(stat.length > 10000);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+
+test("weak but technically renderable edits are held before FFmpeg rendering", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "weak-editorial-reedit-"));
+  try {
+    const sourceLocalPath = join(dir, "source.mp4");
+    await writeFile(sourceLocalPath, "fixture source");
+    let renderCalled = false;
+    const result = await runAuthorizedReedit({
+      sourceLocalPath,
+      outputPath: join(dir, "should-not-exist.mp4"),
+      source: {
+        sourceUrl: "https://creator.example/authorized/weak.mp4",
+        durationSeconds: 10,
+        rightsStatus: "permission_granted",
+        rightsEvidenceReference: "fixture-consent-record",
+        allowedPlatforms: ["youtube_shorts"]
+      },
+      targetDurationSeconds: 8,
+      transcriptSegments: [
+        { id: "weak-one", start: 0, end: 3, text: "A routine opening statement.", signals: { hook: 2, emotion: 2, curiosity: 2, payoff: 2, clarity: 5 } },
+        { id: "weak-two", start: 4, end: 7, text: "The same routine statement continues.", signals: { hook: 2, emotion: 2, curiosity: 2, payoff: 2, clarity: 5 } }
+      ]
+    }, {
+      render: async () => { renderCalled = true; throw new Error("renderer must not be called"); }
+    });
+    assert.equal(result.status, "editorial_review_required");
+    assert.equal(result.rendered, null);
+    assert.equal(result.outputPath, null);
+    assert.equal(result.plan.editorialQuality.status, "below_render_threshold");
+    assert.equal(result.plan.editorialQuality.minimumRenderScore, 5.5);
+    assert.equal(result.plan.rights.status, "not_editorially_qualified");
+    assert.equal(renderCalled, false);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

@@ -292,7 +292,7 @@ test("Cloudflare Workers AI semantic fallback parses its REST response envelope"
     geminiApiKey: "", groqApiKey: "", openrouterApiKey: "", openaiApiKey: "",
     cloudflareAccountId: "account-test", cloudflareApiToken: "token-test", fetchImpl
   });
-  assert.match(requestedUrl, /accounts\/account-test\/ai\/run\/%40cf%2Fmeta%2Fllama-3\.3-70b-instruct-fp8-fast$/);
+  assert.match(requestedUrl, /accounts\/account-test\/ai\/run\/@cf\/meta\/llama-3\.3-70b-instruct-fp8-fast$/);
   assert.equal(result.provider, "cloudflare-workers-ai");
   assert.equal(result.qualified, true);
 });

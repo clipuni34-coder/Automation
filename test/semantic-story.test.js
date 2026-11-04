@@ -318,18 +318,18 @@ test("OpenRouter free retry leaves provider reasoning enabled when JSON mode ret
   const result = await analyzeSemanticStory([
     { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
     { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
-  ], { geminiApiKey: "", groqApiKey: "", openrouterApiKey: "test-key", openaiApiKey: "", openrouterModel: "nvidia/nemotron-3.5-super-vl:free", fetchImpl });
+  ], { geminiApiKey: "", groqApiKey: "", openrouterApiKey: "test-key", openaiApiKey: "", openrouterModel: "openrouter/free", fetchImpl });
   assert.equal(calls, 2);
   assert.equal(requestBodies[0].response_format.type, "json_object");
   assert.equal("response_format" in requestBodies[1], false);
-  assert.deepEqual(requestBodies[0].reasoning, { effort: "low" });
-  assert.deepEqual(requestBodies[1].reasoning, { effort: "low" });
+  assert.equal("reasoning" in requestBodies[0], false);
+  assert.equal("reasoning" in requestBodies[1], false);
   assert.equal(result.provider, "openrouter-free");
   assert.equal(result.qualified, true);
 });
 
 
-test("Nemotron Lightning free skips unsupported JSON response_format and keeps bounded reasoning", async () => {
+test("OpenRouter free default preserves upstream reasoning behavior", async () => {
   let requestBody;
   const fetchImpl = async (_url, options) => {
     requestBody = JSON.parse(options.body);
@@ -344,10 +344,10 @@ test("Nemotron Lightning free skips unsupported JSON response_format and keeps b
   const result = await analyzeSemanticStory([
     { id: "a", start: 0, end: 2, text: "The rescue team reached the mountain." },
     { id: "b", start: 3, end: 5, text: "They carried the injured climber to safety." }
-  ], { geminiApiKey: "", groqApiKey: "", openrouterApiKey: "test-key", openaiApiKey: "", fetchImpl });
-  assert.equal(requestBody.model, "nvidia/nemotron-3.5-lightning:free");
-  assert.equal("response_format" in requestBody, false);
-  assert.deepEqual(requestBody.reasoning, { effort: "low" });
+  ], { geminiApiKey: "", groqApiKey: "", openrouterApiKey: "test-key", openaiApiKey: "", openrouterModel: "openrouter/free", fetchImpl });
+  assert.equal(requestBody.model, "openrouter/free");
+  assert.equal(requestBody.response_format.type, "json_object");
+  assert.equal("reasoning" in requestBody, false);
   assert.equal(result.provider, "openrouter-free");
   assert.equal(result.qualified, true);
 });

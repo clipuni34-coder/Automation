@@ -84,8 +84,11 @@ test("semantic story analysis rejects incomplete model transition coverage", asy
     { id: "a", start: 0, end: 2, text: "First chunk." },
     { id: "b", start: 3, end: 5, text: "Second chunk." }
   ], { openaiApiKey: "test-key", geminiApiKey: "", fetchImpl });
-  assert.equal(result.status, "provider_error");
+  assert.equal(result.status, "human_review_required");
   assert.equal(result.qualified, false);
+  assert.equal(result.transitions.length, 1);
+  assert.equal(result.transitions[0].relationship, "uncertain");
+  assert.equal(result.transitions[0].confidence, 0);
 });
 
 test("semantic story analysis rejects evidence that is not quoted from the transcript", async () => {

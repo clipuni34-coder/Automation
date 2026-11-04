@@ -204,23 +204,50 @@ async function requestGroq(prompt, key, fetchImpl, timeoutMs, model = process.en
 
 async function requestOpenRouter(prompt, key, fetchImpl, timeoutMs, model = process.env.OPENROUTER_MODEL ?? "openrouter/free") {
   if (model !== "openrouter/free" && !model.endsWith(":free")) throw new Error("OpenRouter semantic fallback is restricted to explicitly free models");
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetchImpl("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json", "HTTP-Referer": "https://github.com/clipuni34-coder/Automation", "X-Title": "Personal Autonomous Creator Workflow" },
-      body: JSON.stringify({ model, temperature: 0.1, max_tokens: 8000, response_format: { type: "json_object" }, messages: [
-        { role: "system", content: "Return valid JSON only. Be conservative and do not invent context." },
-        { role: "user", content: prompt }
-      ] }),
-      signal: controller.signal
-    });
-    if (!response.ok) throw await httpFailure(response, "OpenRouter");
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-    if (!content) throw new Error("OpenRouter returned an empty response");
-    return parseObject(Array.isArray(content) ? content.map(part => part.text ?? "").join("") : content);
-  } finally { clearTimeout(timer); }
+  let lastError;
+  for (const requireJsonMode of [true, false]) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const body = {
+        model, temperature: 0.1, max_tokens: 8000,
+        messages: [
+          { role: "system", content: "Return valid JSON only. Be conservative and do not invent context." },
+          { role: "user", content: prompt }
+        ]
+      };
+      // Some free upstreams return an empty assistant message despite HTTP 200
+      // when structured-output parameters are not implemented consistently.
+      // Retry once without response_format, then still validate JSON locally.
+      if (requireJsonMode) body.response_format = { type: "json_object" };
+      const response = await fetchImpl("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json", "HTTP-Referer": "https://github.com/clipuni34-coder/Automation", "X-Title": "Personal Autonomous Creator Workflow" },
+        body: JSON.stringify(body),
+        signal: controller.signal
+      });
+      if (!response.ok) throw await httpFailure(response, "OpenRouter");
+      const data = await response.json();
+      const choice = data.choices?.[0];
+      const content = choice?.message?.content;
+      if (!content || (Array.isArray(content) && !content.some(part => part.text))) {
+        const diagnostic = {
+          model: data.model ?? null,
+          finishReason: choice?.finish_reason ?? null,
+          hasReasoning: Boolean(choice?.message?.reasoning),
+          hasError: Boolean(data.error)
+        };
+        lastError = new Error("OpenRouter returned an empty response: " + JSON.stringify(diagnostic));
+        if (requireJsonMode) continue;
+        throw lastError;
+      }
+      return parseObject(Array.isArray(content) ? content.map(part => part.text ?? "").join("") : content);
+    } catch (error) {
+      lastError = error;
+      if (requireJsonMode && /empty response/i.test(error.message)) continue;
+      throw error;
+    } finally { clearTimeout(timer); }
+  }
+  throw lastError ?? new Error("OpenRouter returned no usable response");
 }
 
 async function requestCloudflare(prompt, accountId, token, fetchImpl, timeoutMs, model = process.env.CLOUDFLARE_MODEL ?? "@cf/meta/llama-3.3-70b-instruct-fp8-fast") {

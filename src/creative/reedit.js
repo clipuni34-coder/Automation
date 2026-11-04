@@ -3,6 +3,23 @@ import { analyzeContextualStory } from "./contextual-story.js";
 
 function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 
+function extractHookTeaser(text) {
+  const normalized = String(text ?? "").replace(/\s+/g, " ").trim();
+  if (!normalized) return "";
+  const cue = /\b(about to turn blue|can't breathe|cannot breathe|running out of air|running out of oxygen|wait until you see|you won't believe|the surprising part|what happens next|what happened next)\b/i.exec(normalized);
+  if (cue) {
+    const words = normalized.split(/\s+/);
+    const cueWords = cue[0].split(/\s+/).length;
+    const cueIndex = normalized.slice(0, cue.index).trim().split(/\s+/).filter(Boolean).length;
+    const start = Math.max(0, cueIndex - 5);
+    return words.slice(start, Math.min(words.length, cueIndex + cueWords + 2)).join(" ");
+  }
+  const sentence = normalized.split(/(?<=[.!?])\s+/)[0];
+  return /[?]|\b(why|how|what if|what happens if|the secret is|the truth is|here's why|the reason is)\b/i.test(sentence)
+    ? sentence
+    : "";
+}
+
 function classifyBeat(text, signals = {}) {
   const normalized = String(text ?? "").toLowerCase();
   const payoffPhrase = /\b(the result is|the result was|in the end|finally|it turned out|turns out|that means|which is why|here is what happened|here's what happened|what happened next|the answer is|the answer was|the solution is|the solution was|managed to|made it out|escaped|survived|was rescued|found a way|reached the other side|solved the problem|got away)\b/.test(normalized);
@@ -335,7 +352,7 @@ narrativeStructure.semanticStoryWindow = semanticWindowQualified ? { ...semantic
     source: { sourceUrl: source.sourceUrl, title: source.title ?? null, creator: source.creator ?? null, durationSeconds: source.durationSeconds, excerptStartSeconds: Number(source.excerptStartSeconds) || 0, rightsStatus: source.rightsStatus, rightsEvidenceUrl: source.rightsEvidenceUrl ?? null, rightsEvidenceReference: source.rightsEvidenceReference ?? null, allowedPlatforms: source.allowedPlatforms ?? [], expiresAt: source.expiresAt ?? null, license: source.license ?? "Authorized source media" },
     rights, targetDurationSeconds: used, platform, editorialQuality: { status: "qualified_for_automated_edit", minimumScore: threshold, eligibleMoments: eligible.length, selectedMoments: selected.length, candidateCount: segments.length, averageSelectedScore, sourceSpanSeconds, selectedDurationSeconds, sourceContinuity, selectionStrategy: semanticWindowQualified ? "semantic_complete_story_window" : semanticConnectedExcerptQualified ? "semantic_connected_excerpt" : semanticMomentById.size === segments.length ? "semantic_plus_heuristic_chronological_story_window" : "best_scoring_chronological_story_window", semanticStoryWindow: { qualified: semanticSelectionQualified, arcStatus: semanticConnectedExcerptQualified ? "partial" : semanticWindow?.arcStatus ?? "not_provided", confidence: semanticConnectedExcerptQualified ? semanticConnectedExcerpt.confidence : semanticWindow?.confidence ?? null, summary: semanticConnectedExcerptQualified ? semanticConnectedExcerpt.summary : semanticWindow?.summary ?? null, modelRecommendedSegmentIds: semanticWindow?.segmentIds ?? [], selectedSegmentIds: semanticWindowQualified ? semanticWindowTrim.selectedSegmentIds : semanticConnectedExcerptQualified ? semanticConnectedExcerpt.selectedSegmentIds : [], trim: semanticWindowTrim, connectedExcerpt: semanticConnectedExcerptQualified ? semanticConnectedExcerpt : null }, semanticMomentAssessment: { status: semanticMomentById.size === segments.length ? "complete" : "not_complete", assessedMoments: semanticMomentById.size, totalMoments: segments.length, trustedMoments: segments.filter(item => item.semanticAssessment && item.semanticAssessment.evidenceValidated && Number(item.semanticAssessment.confidence) >= 0.7).length, scoreBlend: "30_percent_heuristic_70_percent_semantic_when_confidence_at_least_0.8_and_evidence_validated; otherwise_40_percent_heuristic_60_percent_semantic" }, contextualStoryAnalysis, beatRoles: ordered.map(item => ({ segmentId: item.id, role: item.beatRole })), storyArcCoverage: new Set(ordered.map(item => item.beatRole)).size, narrativeStructure },
     openingHook: { segmentId: opening.id, sourceIn: opening.start, sourceOut: opening.end, score: opening.score },
-    hookOverlay: teaserMoment ? { text: hookOverlayText, segmentId: teaserMoment.id, sourceIn: teaserMoment.start, score: teaserMoment.score, durationSeconds: 2.4, method: "explicit_curiosity_or_question_cue_without_dialogue_reordering" } : null,
+    hookOverlay: teaserMoment ? { text: hookOverlayText, segmentId: teaserMoment.id, sourceIn: teaserMoment.start, score: teaserMoment.score, durationSeconds: 2.4, method: "evidence_backed_cue_teaser_without_dialogue_reordering" } : null,
     editDecisionList: ordered.map((segment, index) => ({ order: index + 1, segmentId: segment.id, sourceIn: segment.start, sourceOut: segment.end, durationSeconds: Number((segment.end-segment.start).toFixed(2)), caption: segment.text, score: segment.score, beatRole: segment.beatRole, wordTimings: segment.words, treatment: {
         pacing: "tight",
         captions: "word_timed_karaoke",

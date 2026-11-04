@@ -27,8 +27,9 @@
 - [ ] Improve topic-level clustering across different videos and sources.
 - [ ] Add saturation, trend lifecycle and rejection-reason analysis.
 - [ ] Add compliant TikTok and Instagram discovery adapters after access/terms verification.
-- [x] Add a scheduled daily editorial-plan generation step and archive its output as a workflow artifact.
-- [x] Generate a self-contained mobile-friendly viral discovery report with ranking evidence, growth velocity, breakout flags, and topic lifecycle/saturation; archive it as a workflow artifact.
+- [x] Configure a scheduled daily editorial-plan workflow and archive its output as a workflow artifact; GitHub scheduled events only run from the default branch, so this feature-branch schedule is not active yet.
+- [ ] Activate the daily schedule after explicit authorization to merge the reviewed branch into the default branch.
+- [x] Implement a self-contained mobile-friendly viral discovery report with ranking evidence, growth velocity, breakout flags, and topic lifecycle/saturation; a live scheduled discovery report still requires workflow activation and configured source API credentials.
 - [ ] Replace short-lived workflow cache history with durable database/object storage and add operational monitoring.
 
 ## Phase 3 — Research and editorial intelligence

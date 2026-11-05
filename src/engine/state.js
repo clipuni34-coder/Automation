@@ -46,7 +46,7 @@ export class ChannelState {
     db.sources[fp] = {
       fingerprint: fp, sourceUrl: candidate.sourceUrl, title: candidate.title ?? null,
       creator: candidate.creator ?? null,
-      rightsVerification: candidate.rightsVerification ? { status: candidate.rightsVerification.status, observedLicence: candidate.rightsVerification.observedLicence ?? null, commercialUse: candidate.rightsVerification.commercialUse ?? null, derivativesAllowed: candidate.rightsVerification.derivativesAllowed ?? null, checkedAt: candidate.rightsVerification.checkedAt ?? null } : null,
+      rightsVerification: candidate.rightsVerification ? { status: candidate.rightsVerification.status, observedLicence: candidate.rightsVerification.observedLicence ?? null, licenceFamily: candidate.rightsVerification.licenceFamily ?? null, licenceVersion: candidate.rightsVerification.licenceVersion ?? null, shareAlike: candidate.rightsVerification.shareAlike ?? null, licenceUrl: candidate.rightsVerification.licenceUrl ?? null, attributionRequired: candidate.rightsVerification.attributionRequired ?? null, commercialUse: candidate.rightsVerification.commercialUse ?? null, derivativesAllowed: candidate.rightsVerification.derivativesAllowed ?? null, checkedAt: candidate.rightsVerification.checkedAt ?? null } : null,
       firstSeenAt: db.sources[fp]?.firstSeenAt ?? new Date().toISOString(),
       lastOutcome: outcome, updatedAt: new Date().toISOString()
     };
@@ -63,7 +63,7 @@ export class ChannelState {
     const fp = sourceFingerprint(candidate.sourceUrl);
     const existing = db.sources[fp];
     if (!existing) return null;
-    existing.rightsVerification = { status: candidate.rightsVerification.status, observedLicence: candidate.rightsVerification.observedLicence ?? null, commercialUse: candidate.rightsVerification.commercialUse ?? null, derivativesAllowed: candidate.rightsVerification.derivativesAllowed ?? null, checkedAt: candidate.rightsVerification.checkedAt ?? null };
+    existing.rightsVerification = { status: candidate.rightsVerification.status, observedLicence: candidate.rightsVerification.observedLicence ?? null, licenceFamily: candidate.rightsVerification.licenceFamily ?? null, licenceVersion: candidate.rightsVerification.licenceVersion ?? null, shareAlike: candidate.rightsVerification.shareAlike ?? null, licenceUrl: candidate.rightsVerification.licenceUrl ?? null, attributionRequired: candidate.rightsVerification.attributionRequired ?? null, commercialUse: candidate.rightsVerification.commercialUse ?? null, derivativesAllowed: candidate.rightsVerification.derivativesAllowed ?? null, checkedAt: candidate.rightsVerification.checkedAt ?? null };
     existing.updatedAt = new Date().toISOString();
     await writeJsonAtomic(this.path("sources.json"), db);
     return existing;

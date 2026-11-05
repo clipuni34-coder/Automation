@@ -28,7 +28,12 @@ test("Primeplug seed candidates are rights-licensed, HTTPS and pass screening", 
   assert.ok(seeds.length >= 3);
   for (const seed of seeds) {
     assert.ok(seed.sourceUrl.startsWith("https://upload.wikimedia.org/"), seed.id);
-    const screen = screenCandidate({ sourceUrl: seed.sourceUrl, creator: seed.creator, rightsEvidenceUrl: seed.rightsEvidenceUrl, license: seed.license });
+    const raw = { sourceUrl: seed.sourceUrl, creator: seed.creator, rightsEvidenceUrl: seed.rightsEvidenceUrl, license: seed.license };
+    // A recorded claim alone is never sufficient: without independent
+    // verification in the cycle, screening must reject.
+    assert.equal(screenCandidate(raw).eligible, false, `${seed.id} must not pass on claim alone`);
+    const verified = { ...raw, rightsVerification: { status: "rights_verified_with_evidence", observedLicence: seed.license.type, attributionRequired: true } };
+    const screen = screenCandidate(verified);
     assert.equal(screen.eligible, true, `${seed.id}: ${screen.reasons.join("; ")}`);
   }
   // Research references must never pass.
@@ -44,7 +49,7 @@ test("scheduler: production-disabled (deferred) jobs stay queued and burn no att
   const root = await mkdtemp(join(tmpdir(), "pp-defer-"));
   const state = await openChannelState(root, "Primeplug");
   const channel = { id: "Primeplug", niche: "funny-moments", operation: { enabled: true, paused: false, maxCandidatesPerDay: 4 } };
-  const candidate = { id: "c1", title: "t", sourceUrl: "https://upload.wikimedia.org/x.webm", creator: "c", rightsEvidenceUrl: "https://commons.wikimedia.org/x", license: { rightsStatus: "licensed" } };
+  const candidate = { id: "c1", title: "t", sourceUrl: "https://upload.wikimedia.org/x.webm", creator: "c", rightsEvidenceUrl: "https://commons.wikimedia.org/x", license: { rightsStatus: "licensed", attributionRequirement: "Credit: c, CC BY 4.0" }, rightsVerification: { status: "rights_verified_with_evidence", observedLicence: "CC BY 4.0", attributionRequired: true } };
   const run1 = await runChannelCycle({ channel, niche: { id: "funny-moments" }, state, candidateProvider: async () => [candidate], produceJob: async () => ({ deferred: true, produced: false, reason: "Production disabled for this run" }) });
   assert.equal(run1.deferred, 1);
   let q = await state.getQueue();

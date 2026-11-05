@@ -16,16 +16,24 @@ export function screenCandidate(candidate) {
   if (!APPROVED_RIGHTS.has(lic.rightsStatus ?? candidate?.rightsStatus)) reasons.push("Reuse rights status is not approved");
   if (!candidate?.rightsEvidenceUrl?.startsWith("https://") && !lic.evidenceUrl?.startsWith("https://")) reasons.push("Licence evidence URL is missing");
   if (candidate?.researchOnly) reasons.push("Research reference only — no reuse evidence; not eligible for production");
-  const rv = candidate?.rightsVerification?.status;
-  if (rv === "reuse_prohibited") reasons.push("Independent rights check: reuse is PROHIBITED by the observed licence terms");
-  if (rv === "permission_unclear") reasons.push("Independent rights check: licence could not be reconciled with the recorded claim (permission unclear)");
+  const rv = candidate?.rightsVerification;
+  if (rv) {
+    // Uncertain rights are rejected, never guessed. Only independently
+    // verified evidence (exact licence match on the source page) passes.
+    if (rv.status === "reuse_prohibited") reasons.push("Independent rights check: reuse is PROHIBITED by the observed licence terms");
+    else if (rv.status === "permission_unclear") reasons.push("Independent rights check: licence could not be reconciled exactly with the recorded claim (permission unclear)");
+    else if (rv.status !== "rights_verified_with_evidence") reasons.push(`Independent rights check did not verify this source (status: ${rv.status}); recorded evidence alone is not sufficient for production`);
+    if (rv.attributionRequired && !(lic.attributionRequirement || candidate?.attributionText)) reasons.push("Licence requires attribution but no attribution text is recorded for the posting package");
+  } else if (candidate?.rightsEvidenceUrl?.startsWith("https://") || lic.evidenceUrl?.startsWith("https://")) {
+    reasons.push("Rights evidence exists but was not independently verified in this cycle");
+  }
   const licText = `${candidate?.license?.type ?? ""} ${candidate?.license?.usageTerms ?? ""}`;
   if (/noncommercial|no ?derivatives/i.test(licText)) reasons.push("Licence terms restrict commercial use or derivative works");
   return { eligible: reasons.length === 0, reasons };
 }
 
 export async function runChannelCycle({ channel, niche, state, candidateProvider, produceJob, now = new Date(), maxAttempts = 3 }) {
-  const run = { channelId: channel.id, niche: niche?.id ?? channel.niche, startedAt: now.toISOString(), discovered: 0, duplicates: 0, rejected: [], enqueued: 0, completed: 0, failed: 0, retried: 0, status: "ok" };
+  const run = { channelId: channel.id, niche: niche?.id ?? channel.niche, startedAt: now.toISOString(), discovered: 0, researchOnlyRejected: 0, rightsVerified: 0, eligible: 0, duplicates: 0, rejected: [], enqueued: 0, awaitingPlan: 0, produced: 0, qcPassed: 0, completed: 0, failed: 0, retried: 0, status: "ok" };
   const control = await state.getControl();
   if (control.paused || channel.operation?.paused) { run.status = "paused"; run.finishedAt = new Date().toISOString(); await state.appendRun(run); return run; }
   if (channel.operation?.enabled !== true) { run.status = "disabled"; run.finishedAt = new Date().toISOString(); await state.appendRun(run); return run; }
@@ -43,9 +51,19 @@ export async function runChannelCycle({ channel, niche, state, candidateProvider
       await state.refreshSourceRights(candidate).catch(() => null);
       run.duplicates += 1; continue;
     }
+    if (candidate?.rightsVerification?.status === "rights_verified_with_evidence") run.rightsVerified += 1;
+    if (candidate?.researchOnly) run.researchOnlyRejected += 1;
     const screen = screenCandidate(candidate);
     await state.recordSource(candidate, screen.eligible ? "eligible" : "rejected");
     if (!screen.eligible) { run.rejected.push({ title: candidate.title ?? null, sourceUrl: candidate.sourceUrl ?? null, reasons: screen.reasons }); continue; }
+    run.eligible += 1;
+    if (candidate?.needsProductionPlan) {
+      // Rights-verified discovery: recorded as eligible footage, but no
+      // production plan (narration script / edit plan) exists yet. It is
+      // NOT a production candidate until a plan is authored and reviewed.
+      run.awaitingPlan += 1;
+      continue;
+    }
     if (accepted >= limit) continue;
     const { enqueued } = await state.enqueue({ fingerprint, type: "produce", candidate, channelId: channel.id });
     if (enqueued) { run.enqueued += 1; accepted += 1; }
@@ -72,6 +90,10 @@ export async function runChannelCycle({ channel, niche, state, candidateProvider
       }
       job.status = "completed"; job.result = result ?? { ok: true }; job.finishedAt = new Date().toISOString();
       run.completed += 1;
+      // A completed job is an execution outcome, not necessarily a
+      // produced video. Production counts are tracked separately so a
+      // zero-production run can never masquerade as production success.
+      if (result?.produced === true) { run.produced += 1; run.qcPassed += 1; }
     } catch (error) {
       job.status = job.attempts >= maxAttempts ? "failed" : "queued"; // queued = will retry next cycle; attempts bound the total
       if (job.status === "failed") run.failed += 1;

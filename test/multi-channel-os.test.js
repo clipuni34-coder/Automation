@@ -16,7 +16,7 @@ const registry = new Map([
   ["funny", { id: "funny", discovery: { searchQueries: ["funny"] }, editorial: { minEditorialScore: 5.5 } }]
 ]);
 const mkChannel = (id, niche, extra = {}) => validateChannels({ channels: [{ id, name: id, niche, youtubeChannelId: `UC-${id}`, operation: { enabled: true, productionEnabled: true, publishingMode: "private_only", maxCandidatesPerDay: 5 }, ...extra }] })[0];
-const goodCandidate = (n) => ({ id: `c${n}`, title: `Video ${n}`, sourceUrl: `https://upload.wikimedia.org/v${n}.webm`, creator: "NASA", rightsEvidenceUrl: "https://commons.wikimedia.org/wiki/File:V", license: { rightsStatus: "public_domain" } });
+const goodCandidate = (n) => ({ id: `c${n}`, title: `Video ${n}`, sourceUrl: `https://upload.wikimedia.org/v${n}.webm`, creator: "NASA", rightsEvidenceUrl: "https://commons.wikimedia.org/wiki/File:V", license: { rightsStatus: "public_domain" }, rightsVerification: { status: "rights_verified_with_evidence", observedLicence: "Public domain", attributionRequired: false } });
 
 test("channels resolve different niches independently; new niches need config only", () => {
   const a = resolveChannelNiche(mkChannel("a", "space"), registry);

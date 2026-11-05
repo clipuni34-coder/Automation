@@ -33,9 +33,17 @@ on:
         type: boolean
         default: false
       approve_private_upload:
-        description: "Owner approval: upload produced+QC-passed Primeplug videos PRIVATELY (never public) after identity verification"
+        description: "Deprecated gate kept for scheduler compatibility; uploading ALSO requires the per-video approval below"
         type: boolean
         default: false
+      approve_candidate_id:
+        description: "Per-video approval: candidate id of the ONE video approved for private upload"
+        type: string
+        default: ""
+      approve_sha256:
+        description: "Per-video approval: exact SHA-256 of that video's rendered output"
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -111,10 +119,12 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: npm run daily-operations
       - name: Approval-gated PRIVATE upload of produced Primeplug videos (never public)
-        if: inputs.approve_private_upload == true
+        if: inputs.approve_private_upload == true && inputs.approve_candidate_id != '' && inputs.approve_sha256 != ''
         env:
           STATE_DIR: state
           HUMAN_APPROVED_PRIVATE: "true"
+          APPROVED_CANDIDATE_ID: ${{ inputs.approve_candidate_id }}
+          APPROVED_SHA256: ${{ inputs.approve_sha256 }}
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
@@ -122,10 +132,12 @@ jobs:
           PUBLISH_REPORT: output/publishing/publish-report.json
         run: npm run publish-awaiting
       - name: Duplicate-upload prevention proof (second pass must record zero new uploads)
-        if: inputs.approve_private_upload == true
+        if: inputs.approve_private_upload == true && inputs.approve_candidate_id != '' && inputs.approve_sha256 != ''
         env:
           STATE_DIR: state
           HUMAN_APPROVED_PRIVATE: "true"
+          APPROVED_CANDIDATE_ID: ${{ inputs.approve_candidate_id }}
+          APPROVED_SHA256: ${{ inputs.approve_sha256 }}
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}

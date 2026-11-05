@@ -17,12 +17,20 @@ export function parseBlackdetect(stderr) {
   return { blackSegments: matches.length, blackSeconds: Number(totalBlack.toFixed(2)) };
 }
 
-export function parseSilencedetect(stderr) {
+export function parseSilencedetect(stderr, durationSeconds = 0) {
   const starts = [...(stderr ?? "").matchAll(/silence_start:\s*([\d.]+)/g)].map((m) => Number(m[1]));
   const ends = [...(stderr ?? "").matchAll(/silence_end:\s*([\d.]+)/g)].map((m) => Number(m[1]));
   let total = 0;
   for (let i = 0; i < Math.min(starts.length, ends.length); i++) total += Math.max(0, ends[i] - starts[i]);
-  return { silenceSegments: starts.length, silenceSeconds: Number(total.toFixed(2)) };
+  // ffmpeg emits no silence_end for silence that runs to end-of-file.
+  // That trailing silence must be counted (closed at the file duration),
+  // not silently dropped.
+  let trailingSilenceSeconds = 0;
+  if (starts.length > ends.length && durationSeconds > 0) {
+    trailingSilenceSeconds = Math.max(0, durationSeconds - starts[starts.length - 1]);
+    total += trailingSilenceSeconds;
+  }
+  return { silenceSegments: starts.length, silenceSeconds: Number(total.toFixed(2)), trailingSilenceSeconds: Number(trailingSilenceSeconds.toFixed(2)) };
 }
 
 export function parseSceneChanges(stderr) {
@@ -51,12 +59,16 @@ export function evaluateAdvancedQc({ probe, volume, black, silence, scenes, dura
   const v = (probe?.streams ?? []).find((s) => s.codec_type === "video");
   const a = (probe?.streams ?? []).find((s) => s.codec_type === "audio");
   add("resolution_1080x1920", v?.width === 1080 && v?.height === 1920, `video=${v?.width}x${v?.height}`);
-  add("codec_h264_aac", v?.codec_name === "h264" && (!a || a.codec_name === "aac"), `video=${v?.codec_name} audio=${a?.codec_name ?? "none"}`);
+  add("codec_h264", v?.codec_name === "h264", `video=${v?.codec_name}`);
+  // The narrated/speech production modes require audio. A render with no
+  // audio stream FAILS — it must never pass because a check was optional.
+  add("audio_present_aac", Boolean(a) && a.codec_name === "aac", `audio=${a?.codec_name ?? "none"}`);
   add("duration_8_to_58s", durationSeconds >= 8 && durationSeconds <= 58, `duration=${durationSeconds}s`);
-  add("narration_audible", volume?.meanDb !== null && volume?.meanDb >= -22 && volume?.meanDb <= -8, `mean=${volume?.meanDb} dB`);
-  add("no_clipping", volume?.maxDb !== null && volume?.maxDb <= -0.3, `max=${volume?.maxDb} dB`);
+  add("narration_audible", volume?.meanDb !== null && volume?.meanDb !== undefined && volume?.meanDb >= -22 && volume?.meanDb <= -8, `mean=${volume?.meanDb} dB`);
+  add("no_clipping", volume?.maxDb !== null && volume?.maxDb !== undefined && volume?.maxDb <= -0.3, `max=${volume?.maxDb} dB`);
   add("limited_black_frames", durationSeconds > 0 && black.blackSeconds / durationSeconds <= 0.1, `black=${black.blackSeconds}s of ${durationSeconds}s`);
   add("limited_silence", durationSeconds > 0 && silence.silenceSeconds / durationSeconds <= 0.45, `silence=${silence.silenceSeconds}s of ${durationSeconds}s`);
+  add("no_trailing_silence", (silence.trailingSilenceSeconds ?? 0) <= 1.5, `trailingSilence=${silence.trailingSilenceSeconds ?? 0}s`);
   add("scene_pacing", scenes.sceneChanges >= 1, `sceneChanges=${scenes.sceneChanges}`);
   add("faststart", fastStart?.fastStart === true, fastStart?.reason ?? "unknown");
   return { passed: checks.every((c) => c.passed), checks, metrics: { volume, black, silence, scenes: { sceneChanges: scenes.sceneChanges } } };
@@ -80,7 +92,7 @@ export async function runAdvancedQc(path, { ffmpegPath = "ffmpeg", ffprobePath =
     probe,
     volume: parseVolumedetect(vol.stderr),
     black: parseBlackdetect(blk.stderr),
-    silence: parseSilencedetect(sil.stderr),
+    silence: parseSilencedetect(sil.stderr, durationSeconds),
     scenes: parseSceneChanges(scn.stderr),
     durationSeconds,
     fastStart

@@ -22,7 +22,7 @@ import numpy as np
 from PIL import Image
 
 
-def extract_frames(video, start, seconds, outdir, count=6):
+def extract_frames(video, start, seconds, outdir, count=12):
     paths = []
     duration = max(1.0, seconds)
     for i in range(count):
@@ -46,14 +46,15 @@ def analyse(frames):
     imgs = [np.asarray(Image.open(p).convert("RGB"), dtype=np.float32) for p in frames]
     if len(imgs) < 3:
         return {"status": "insufficient_frames", "frames": len(imgs), "overlays": []}
-    whole_diffs, top_diffs, bottom_diffs = [], [], []
-    top_colour, bottom_colour = [], []
+    whole_diffs, top_diffs, bottom_diffs, centre_diffs = [], [], [], []
+    top_colour, bottom_colour, centre_colour = [], [], []
     for a, b in zip(imgs, imgs[1:]):
         whole_diffs.append(np.abs(a - b).mean())
         top_diffs.append(np.abs(band(a, 0, 0.2) - band(b, 0, 0.2)).mean())
         bottom_diffs.append(np.abs(band(a, 0.8, 1.0) - band(b, 0.8, 1.0)).mean())
+        centre_diffs.append(np.abs(band(a, 0.4, 0.6) - band(b, 0.4, 0.6)).mean())
     for im in imgs:
-        for target, (y0, y1) in ((top_colour, (0, 0.2)), (bottom_colour, (0.8, 1.0))):
+        for target, (y0, y1) in ((top_colour, (0, 0.2)), (bottom_colour, (0.8, 1.0)), (centre_colour, (0.4, 0.6))):
             px = band(im, y0, y1).reshape(-1, 3)
             # saturated pixels (strong colour) as a fraction of the band
             mx, mn = px.max(axis=1), px.min(axis=1)
@@ -83,6 +84,7 @@ def analyse(frames):
     for name, diffs, colour, frac, yr in (
         ("top", top_diffs, top_colour, 0.20, (0, 0.2)),
         ("bottom", bottom_diffs, bottom_colour, 0.20, (0.8, 1.0)),
+        ("centre", centre_diffs, centre_colour, 0.20, (0.4, 0.6)),
     ):
         staticness, colourful = verdict(diffs, colour)
         static_detected = staticness > 0.72 and colourful > 0.02 and whole > 4

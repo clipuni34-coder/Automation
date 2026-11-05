@@ -17,7 +17,7 @@ test("caption cues cover the full narration with a flagged hook cue", () => {
 });
 
 test("narrated entry validation enforces a complete story plan", () => {
-  assert.equal(validateNarratedEntry({ productionMode: "narrated", narrationScript: SCRIPT, postingTitle: "A proper title here", hookText: "A planned hook line" }).valid, true);
+  assert.equal(validateNarratedEntry({ productionMode: "narrated", narrationScript: SCRIPT, postingTitle: "A proper title here", hookText: "Meet Chiitan, the fearless mascot", visualSubject: "mascot", storyBeats: { hook: "Meet Chiitan", development: "The landing has other ideas", payoff: "Always go again" } }).valid, true);
   assert.equal(validateNarratedEntry({ productionMode: "narrated", narrationScript: "Too short.", postingTitle: "A proper title here", hookText: "A planned hook line" }).valid, false);
   assert.equal(validateNarratedEntry({ productionMode: "excerpt", narrationScript: SCRIPT, postingTitle: "A proper title here", hookText: "A planned hook line" }).valid, false);
 });

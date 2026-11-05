@@ -15,6 +15,8 @@ import { openChannelState, sourceFingerprint } from "../src/engine/state.js";
 import { runDailyOperations } from "../src/engine/scheduler.js";
 import { runDiscovery } from "../src/discovery/engine.js";
 import { verifyCandidateRights } from "../src/engine/rights-verification.js";
+import { collectCommonsCandidates } from "../src/discovery/sources/commons.js";
+import { buildProductionReport } from "../src/engine/run-report.js";
 
 const stateRoot = resolve(process.env.STATE_DIR ?? "data/state");
 const channelsPath = process.env.CHANNEL_PROFILES_PATH ?? "config/channels.json";
@@ -45,6 +47,18 @@ async function candidateProvider(channel, niche) {
         candidates.push(enriched);
       }
     } catch (error) { console.error(`[${channel.id}] seed manifest unreadable: ${error.message}`); }
+  }
+  // (c) Verified reusable-footage discovery (Wikimedia Commons API).
+  // Every returned candidate has an exact licence verified on its own
+  // file page; unverifiable or non-reusable results are rejected inside
+  // the collector and never counted as production candidates.
+  if (process.env.COMMONS_DISCOVERY !== "off" && channel.seedCandidateManifest) {
+    try {
+      const queries = (channel.nicheKeywords ?? []).slice(0, 3);
+      const commons = await collectCommonsCandidates({ queries, perQuery: 3 });
+      globalThis.__commonsDiscovery = { items: commons.items.length, rejected: commons.rejected.slice(0, 25) };
+      for (const item of commons.items) candidates.push(item);
+    } catch (error) { console.error(`[${channel.id}] commons discovery failed: ${error.message}`); }
   }
   // (b) Live daily discovery (research references only — never auto-cleared for reuse).
   if (process.env.YOUTUBE_DATA_API_KEY) {
@@ -160,5 +174,9 @@ const summary = await runDailyOperations({
   openState: (id) => openChannelState(stateRoot, id),
   candidateProvider, produceJob
 });
+// Production outcome is reported separately from execution outcome: a
+// production-enabled run with zero produced videos is `no_production`.
+summary.commonsDiscovery = globalThis.__commonsDiscovery ?? { items: 0, rejected: [] };
+summary.productionReport = buildProductionReport(summary, { productionEnabled });
 await writeFile(join(reportDir, "summary.json"), JSON.stringify(summary, null, 2));
-console.log(JSON.stringify(summary, null, 2));
+console.log(JSON.stringify({ ...summary, runs: summary.runs?.map((r) => ({ channelId: r.channelId, status: r.status, discovered: r.discovered, rightsVerified: r.rightsVerified, eligible: r.eligible, produced: r.produced })) }, null, 2));

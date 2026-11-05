@@ -24,7 +24,7 @@
       "startSeconds": 5,
       "seconds": 30
     },
-    "hookText": "This mascot never gives up — and gravity always wins.",
+    "hookText": "Meet Chiitan, the fearless Japanese mascot who treats every stunt like a world championship final.",
     "postingTitle": "The Mascot Who Refuses To Stay Down 😂 Chiitan's Funniest Fails",
     "narrationScript": "Meet Chiitan, the fearless Japanese mascot who treats every stunt like a world championship final. The plan always starts with total confidence. The landing, however, has other ideas. Watch the commitment, though — every fall is followed by an instant comeback. That is the real lesson here: fall spectacularly, get up immediately, and go again.",
     "hashtags": [
@@ -33,7 +33,13 @@
       "#fails",
       "#mascot",
       "#japan"
-    ]
+    ],
+    "storyBeats": {
+      "hook": "Meet Chiitan, the fearless Japanese mascot who treats every stunt like a world championship final.",
+      "development": "The plan always starts with total confidence. The landing, however, has other ideas. Watch the commitment, though — every fall is followed by an instant comeback.",
+      "payoff": "That is the real lesson here: fall spectacularly, get up immediately, and go again."
+    },
+    "visualSubject": "mascot"
   },
   {
     "id": "animals-belly-rub-compilation",
@@ -79,7 +85,7 @@
       "startSeconds": 0,
       "seconds": 32
     },
-    "hookText": "Baby elephants discovering mud for the first time is pure chaos.",
+    "hookText": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
     "postingTitle": "Baby Elephants' Funniest First Moments 🐘",
     "narrationScript": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.",
     "hashtags": [
@@ -88,7 +94,13 @@
       "#elephant",
       "#animals",
       "#cute"
-    ]
+    ],
+    "storyBeats": {
+      "hook": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
+      "development": "Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love.",
+      "payoff": "Pure joy, zero worries."
+    },
+    "visualSubject": "baby elephant"
   },
   {
     "id": "don-pettit-kids-questions",
@@ -155,7 +167,7 @@
       "startSeconds": 0,
       "seconds": 30
     },
-    "hookText": "Baby elephants discovering mud for the first time is pure chaos.",
+    "hookText": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
     "postingTitle": "Baby Elephants' Funniest First Moments 🐘",
     "narrationScript": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.",
     "hashtags": [
@@ -165,7 +177,13 @@
       "#animals",
       "#cute"
     ],
-    "supersedesCandidateId": "baby-elephant-funny-moments"
+    "supersedesCandidateId": "baby-elephant-funny-moments",
+    "storyBeats": {
+      "hook": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
+      "development": "Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love.",
+      "payoff": "Pure joy, zero worries."
+    },
+    "visualSubject": "baby elephant"
   },
   {
     "id": "baby-elephant-funny-moments-v3",
@@ -190,7 +208,7 @@
       "startSeconds": 0,
       "seconds": 30
     },
-    "hookText": "Baby elephants discovering mud for the first time is pure chaos.",
+    "hookText": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
     "postingTitle": "Baby Elephants' Funniest First Moments 🐘",
     "narrationScript": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.",
     "hashtags": [
@@ -200,7 +218,13 @@
       "#animals",
       "#cute"
     ],
-    "supersedesCandidateId": "baby-elephant-funny-moments-v2"
+    "supersedesCandidateId": "baby-elephant-funny-moments-v2",
+    "storyBeats": {
+      "hook": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
+      "development": "Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love.",
+      "payoff": "Pure joy, zero worries."
+    },
+    "visualSubject": "baby elephant"
   },
   {
     "id": "baby-elephant-funny-moments-v4",
@@ -225,7 +249,7 @@
       "startSeconds": 0,
       "seconds": 30
     },
-    "hookText": "Baby elephants discovering mud for the first time is pure chaos.",
+    "hookText": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
     "postingTitle": "Baby Elephants' Funniest First Moments 🐘",
     "narrationScript": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.",
     "hashtags": [
@@ -235,7 +259,13 @@
       "#animals",
       "#cute"
     ],
-    "supersedesCandidateId": "baby-elephant-funny-moments-v3"
+    "supersedesCandidateId": "baby-elephant-funny-moments-v3",
+    "storyBeats": {
+      "hook": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
+      "development": "Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love.",
+      "payoff": "Pure joy, zero worries."
+    },
+    "visualSubject": "baby elephant"
   },
   {
     "id": "baby-elephant-funny-moments-v5",
@@ -260,7 +290,7 @@
       "startSeconds": 0,
       "seconds": 30
     },
-    "hookText": "Baby elephants discovering mud for the first time is pure chaos.",
+    "hookText": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
     "postingTitle": "Baby Elephants' Funniest First Moments 🐘",
     "narrationScript": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.",
     "hashtags": [
@@ -270,7 +300,13 @@
       "#animals",
       "#cute"
     ],
-    "supersedesCandidateId": "baby-elephant-funny-moments-v4"
+    "supersedesCandidateId": "baby-elephant-funny-moments-v4",
+    "storyBeats": {
+      "hook": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
+      "development": "Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love.",
+      "payoff": "Pure joy, zero worries."
+    },
+    "visualSubject": "baby elephant"
   },
   {
     "id": "baby-elephant-funny-moments-v6",
@@ -295,7 +331,7 @@
       "startSeconds": 0,
       "seconds": 30
     },
-    "hookText": "Baby elephants discovering mud for the first time is pure chaos.",
+    "hookText": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
     "postingTitle": "Baby Elephants' Funniest First Moments 🐘",
     "narrationScript": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.",
     "hashtags": [
@@ -305,6 +341,12 @@
       "#animals",
       "#cute"
     ],
-    "supersedesCandidateId": "baby-elephant-funny-moments-v5"
+    "supersedesCandidateId": "baby-elephant-funny-moments-v5",
+    "storyBeats": {
+      "hook": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
+      "development": "Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love.",
+      "payoff": "Pure joy, zero worries."
+    },
+    "visualSubject": "baby elephant"
   }
 ]

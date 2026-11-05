@@ -25,8 +25,11 @@ test("rights verifier reads the Commons API and never invents a licence on failu
 });
 
 test("rights gate blocks prohibited/unclear and NC-ND terms at scheduling", () => {
-  const base = { sourceUrl: "https://upload.wikimedia.org/x.webm", creator: "c", rightsEvidenceUrl: "https://commons.wikimedia.org/wiki/File:X.webm", license: { type: "CC BY 3.0", rightsStatus: "licensed" } };
+  const base = { sourceUrl: "https://upload.wikimedia.org/x.webm", creator: "c", rightsEvidenceUrl: "https://commons.wikimedia.org/wiki/File:X.webm", license: { type: "CC BY 3.0", rightsStatus: "licensed", attributionRequirement: "Credit: c, CC BY 3.0" }, rightsVerification: { status: "rights_verified_with_evidence", observedLicence: "CC BY 3.0", attributionRequired: true } };
   assert.equal(screenCandidate(base).eligible, true);
+  // Recorded-but-unverified evidence is blocked: uncertain rights are rejected, never guessed.
+  assert.equal(screenCandidate({ ...base, rightsVerification: { status: "evidence_recorded_not_independently_verified" } }).eligible, false);
+  assert.equal(screenCandidate({ ...base, rightsVerification: undefined }).eligible, false);
   assert.equal(screenCandidate({ ...base, rightsVerification: { status: "reuse_prohibited" } }).eligible, false);
   assert.equal(screenCandidate({ ...base, rightsVerification: { status: "permission_unclear" } }).eligible, false);
   assert.equal(screenCandidate({ ...base, license: { type: "CC BY-NC 4.0", rightsStatus: "licensed", usageTerms: "NonCommercial" } }).eligible, false);
@@ -54,7 +57,7 @@ test("stress: invalid, unavailable and duplicate candidates are handled truthful
   const root = await mkdtemp(join(tmpdir(), "pp-stress-"));
   const state = await openChannelState(root, "Primeplug");
   const channel = { id: "Primeplug", niche: "funny-moments", operation: { enabled: true, paused: false, maxCandidatesPerDay: 6 } };
-  const good = { id: "g", title: "t", sourceUrl: "https://upload.wikimedia.org/good.webm", creator: "c", rightsEvidenceUrl: "https://commons.wikimedia.org/wiki/File:G.webm", license: { rightsStatus: "licensed" } };
+  const good = { id: "g", title: "t", sourceUrl: "https://upload.wikimedia.org/good.webm", creator: "c", rightsEvidenceUrl: "https://commons.wikimedia.org/wiki/File:G.webm", license: { rightsStatus: "licensed", attributionRequirement: "Credit: c" }, rightsVerification: { status: "rights_verified_with_evidence", observedLicence: "CC BY 4.0", attributionRequired: true } };
   const invalid = { id: "bad", title: "t", sourceUrl: "http://insecure.example/x.mp4", creator: "c", license: { rightsStatus: "licensed" } };
   let attempts = 0;
   const run = await runChannelCycle({ channel, niche: { id: "funny-moments" }, state, candidateProvider: async () => [good, invalid, good], produceJob: async () => { attempts += 1; if (attempts < 3) throw new Error("simulated network interruption"); return { produced: true }; } });

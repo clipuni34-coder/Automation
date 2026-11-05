@@ -179,12 +179,25 @@ for (const entry of manifest) {
     continue;
   }
 
-  // Post-render proof: the overlay must actually be gone from our output
-  // (sampled below our caption zones — captions are ours and expected).
+  // Post-render proof: the overlay must actually be gone from our output.
+  // This is a GATE, not a recording: a failed check or a detected overlay
+  // holds the render. A heuristic that fails to run must never pass a video.
   try {
     const detOut = run(process.env.PYTHON ?? "python3", ["scripts/detect_overlay.py", outputPath, "0", String(Math.min(windowSeconds, narrationSeconds))], { timeout: 300000 });
     outcome.outputOverlayDetection = JSON.parse(detOut.stdout.trim().split("\n").at(-1));
   } catch { outcome.outputOverlayDetection = { status: "check_failed" }; }
+  if (outcome.outputOverlayDetection.status !== "ok") {
+    await done("held_output_overlay_check_failed", "Output overlay detection could not be completed; render held rather than passed on a failed check.");
+    continue;
+  }
+  if (outcome.outputOverlayDetection.detected) {
+    await done("held_output_overlay", `Output still contains a detected source overlay: ${JSON.stringify(outcome.outputOverlayDetection.overlays)}`);
+    continue;
+  }
+  if (!(cues.length >= 3)) {
+    await done("held_story_incomplete", `Only ${cues.length} caption/story beats; a complete Short needs hook, development and payoff beats.`);
+    continue;
+  }
 
   // Advanced measurable QC (resolution/codec/duration/loudness/clipping/
   // black frames/silence/pacing/fast-start). A failed check holds the

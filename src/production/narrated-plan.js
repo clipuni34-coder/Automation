@@ -66,11 +66,29 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 export function validateNarratedEntry(entry) {
   const reasons = [];
   if (entry?.productionMode !== "narrated") reasons.push("productionMode is not 'narrated'");
-  const words = String(entry?.narrationScript ?? "").trim().split(/\s+/).filter(Boolean).length;
+  const script = String(entry?.narrationScript ?? "");
+  const words = script.trim().split(/\s+/).filter(Boolean).length;
   if (words < 25) reasons.push(`Narration script too short (${words} words; minimum 25 for a complete story beat structure)`);
   if (words > 90) reasons.push(`Narration script too long (${words} words; maximum 90 for a Short)`);
   if (!entry?.postingTitle || entry.postingTitle.length < 10) reasons.push("postingTitle missing or too short");
   if (!entry?.hookText || entry.hookText.length < 8) reasons.push("hookText missing (the opening line must be planned, not improvised)");
+  // Complete-story structure: hook, development and payoff must be
+  // planned beats, and the script itself must contain at least three
+  // sentences so the beats can actually land. A single gag or an
+  // unfinished setup is not a story.
+  const beats = entry?.storyBeats ?? {};
+  for (const beat of ["hook", "development", "payoff"]) {
+    if (!String(beats[beat] ?? "").trim()) reasons.push(`storyBeats.${beat} is missing: a complete Short needs a planned hook, development and payoff`);
+  }
+  const sentences = splitScriptSentences(script);
+  if (sentences.length < 3) reasons.push(`Narration script has only ${sentences.length} sentence(s); at least 3 are required for hook, development and payoff`);
+  if (entry?.hookText && sentences.length && !sentences[0].toLowerCase().includes(String(entry.hookText).trim().toLowerCase().slice(0, 24))) {
+    reasons.push("The script's opening sentence does not contain the planned hookText: the opening must be the planned hook, not an unrelated start");
+  }
+  // Narration must describe THIS footage: the recorded visual subject
+  // must actually be mentioned in the script.
+  if (!entry?.visualSubject) reasons.push("visualSubject missing: the footage's actual subject must be recorded so narration can be checked against it");
+  else if (!script.toLowerCase().includes(String(entry.visualSubject).toLowerCase())) reasons.push(`Narration script never mentions the recorded visual subject ("${entry.visualSubject}"); narration must describe the footage it plays over`);
   return { valid: reasons.length === 0, reasons, narrationWords: words };
 }
 
@@ -84,6 +102,7 @@ export function decideOverlayCorrection(detection) {
   if (!overlays.length) return { action: "none", reason: null };
   if (overlays.length > 1) return { action: "hold", reason: "Source overlays on multiple bands cannot be reframed away safely" };
   const [o] = overlays;
+  if (o.band !== "top" && o.band !== "bottom") return { action: "hold", reason: `Source overlay is in the ${o.band} band; only top/bottom edge bands can be reframed safely` };
   if (o.fraction > 0.25) return { action: "hold", reason: `Source overlay band is ${(o.fraction * 100).toFixed(0)}% of frame height (> 25%): reframing would damage the subject` };
   return { action: "reframe", band: o.band, fraction: o.fraction, reason: null };
 }

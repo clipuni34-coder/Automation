@@ -2,9 +2,10 @@
 //
 // A video becomes uploadable only when ALL of these hold:
 //   - it was produced by the pipeline and passed QC (job result),
-//   - the owner recorded approval for this run (HUMAN_APPROVED_PRIVATE=true,
-//     set from an explicit workflow_dispatch input — the approval queue is
-//     every produced-but-unpublished job, visible in state + dashboard),
+//   - the owner recorded a PER-VIDEO approval naming this exact candidate
+//     id AND the exact SHA-256 of its rendered output
+//     (APPROVED_CANDIDATE_ID / APPROVED_SHA256). Approval of one video
+//     never authorizes another; a re-render (new hash) needs new approval,
 //   - decidePublish() passes: channel not paused, publishing not disabled,
 //     privacy locked to "private", public requires the separate global
 //     opt-in, content fingerprint not already published (idempotency),
@@ -20,11 +21,15 @@ import { resolve, dirname } from "node:path";
 import { loadChannels } from "../src/config/channels.js";
 import { openChannelState } from "../src/engine/state.js";
 import { decidePublish } from "../src/engine/publisher-guard.js";
+import { matchApproval } from "../src/engine/approval.js";
 import { refreshYouTubeAccessToken, uploadYouTubeVideo, waitForYouTubeProcessing, getAuthorizedYouTubeChannel } from "../src/platforms/youtube/publisher.js";
 
 const stateRoot = resolve(process.env.STATE_DIR ?? "data/state");
 const channelId = process.env.PUBLISH_CHANNEL_ID ?? "Primeplug";
-const approved = process.env.HUMAN_APPROVED_PRIVATE === "true";
+// Per-video approval only: one candidate id + its exact output hash.
+const approvedCandidateId = process.env.APPROVED_CANDIDATE_ID ?? "";
+const approvedSha256 = process.env.APPROVED_SHA256 ?? "";
+const approved = Boolean(approvedCandidateId && approvedSha256);
 const reportPath = resolve(process.env.PUBLISH_REPORT ?? "output/publishing/publish-report.json");
 
 const channels = await loadChannels(process.env.CHANNEL_PROFILES_PATH ?? "config/channels.json");
@@ -44,7 +49,8 @@ const awaiting = queue.jobs.filter((j) =>
   j.status === "completed" && j.result?.produced === true && j.result?.sha256 &&
   !publishedFingerprints.has(j.result.sha256) && !supersededIds.has(j.candidate?.id));
 
-const report = { channelId, generatedAt: new Date().toISOString(), approvedByHuman: approved, awaitingApproval: awaiting.map((j) => ({ candidateId: j.candidate?.id ?? null, fingerprint: j.result.sha256, title: j.result.title ?? null })), results: [] };
+const approvalMatch = matchApproval(awaiting, { approvedCandidateId, approvedSha256 });
+const report = { channelId, generatedAt: new Date().toISOString(), approval: { candidateId: approvedCandidateId || null, sha256: approvedSha256 ? `${String(approvedSha256).slice(0, 12)}…` : null, matched: Boolean(approvalMatch.job), reasons: approvalMatch.reasons }, awaitingApproval: awaiting.map((j) => ({ candidateId: j.candidate?.id ?? null, fingerprint: j.result.sha256, title: j.result.title ?? null })), results: [] };
 
 async function sha256File(path) {
   const hash = createHash("sha256");
@@ -62,6 +68,11 @@ async function verifyIdentity(ch) {
 for (const job of awaiting) {
   const entry = { candidateId: job.candidate?.id ?? null, fingerprint: job.result.sha256, status: "not_attempted", reasons: [] };
   report.results.push(entry);
+  if (job !== approvalMatch.job) {
+    entry.status = "awaiting_per_video_approval";
+    entry.reasons.push("No per-video approval names this candidate id and output hash; not authorized for upload.");
+    continue;
+  }
   const videoPath = job.result.outputPath ? resolve(job.result.outputPath) : null;
   let filePresent = false;
   if (videoPath) { try { await access(videoPath); filePresent = true; } catch { filePresent = false; } }

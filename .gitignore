@@ -13,3 +13,5 @@ data/*.tmp
 # Local validation artifacts
 work/
 output/
+
+output/candidates-cloud/

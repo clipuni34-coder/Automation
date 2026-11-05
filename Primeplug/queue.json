@@ -295,8 +295,8 @@
       "finishedAt": "2026-11-05T12:37:10.922Z"
     },
     {
-      "attempts": 0,
-      "status": "queued",
+      "attempts": 1,
+      "status": "completed",
       "createdAt": "2026-11-05T13:02:10.479Z",
       "fingerprint": "45ce84fc50512e59f1f08a6e",
       "type": "produce",
@@ -352,14 +352,28 @@
         }
       },
       "channelId": "Primeplug",
-      "updatedAt": "2026-11-05T13:37:23.802Z",
+      "updatedAt": "2026-11-05T13:38:22.337Z",
       "result": {
-        "deferred": true,
-        "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "chiitan-mascot-fails"
+        "produced": true,
+        "outcome": "completed",
+        "pathway": "narrated",
+        "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/chiitan-mascot-fails.mp4",
+        "sha256": "86b28d1c3b33a7fc211eb3f4ec348a169b80f7436e55cd37dcf93d8a95e1fd71",
+        "thumbnailPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/chiitan-mascot-fails.thumbnail.jpg",
+        "title": "The Mascot Who Refuses To Stay Down 😂 Chiitan's Funniest Fails",
+        "postingPackage": {
+          "title": "The Mascot Who Refuses To Stay Down 😂 Chiitan's Funniest Fails",
+          "description": "Meet Chiitan, the fearless Japanese mascot who treats every stunt like a world championship final. The plan always starts with total confidence. The landing, however, has other ideas. Watch the commitment, though — every fall is followed by an instant comeback. That is the real lesson here: fall spectacularly, get up immediately, and go again.\n\nSource: https://upload.wikimedia.org/wikipedia/commons/d/d0/%E3%80%90Part3%E3%80%91Japanese_Mascot_Fails%2C_Fights_%26_Funny_Moments_Video_%E3%81%A1%E3%81%83%E3%81%9F%E3%82%93%E2%98%86%E6%AC%B2%E5%BC%B5%E3%82%8A%E5%8B%95%E7%94%BB%E3%82%BB%E3%83%83%E3%83%88.webm\nCredit: Chiitan (official mascot channel, via Wikimedia Commons). Rights: CC BY 3.0 — Credit: Chiitan (official channel) via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ must appear in the video description.\nOriginal commentary narration, captions and edit by Primeplug.",
+          "hashtags": [
+            "#Shorts",
+            "#funny",
+            "#fails",
+            "#mascot",
+            "#japan"
+          ]
+        }
       },
-      "finishedAt": "2026-11-05T13:09:16.735Z"
+      "finishedAt": "2026-11-05T13:39:00.008Z"
     },
     {
       "attempts": 1,
@@ -413,8 +427,8 @@
       "finishedAt": "2026-11-05T13:10:11.918Z"
     },
     {
-      "attempts": 0,
-      "status": "queued",
+      "attempts": 1,
+      "status": "completed",
       "createdAt": "2026-11-05T13:02:10.490Z",
       "fingerprint": "80213f8020ffaf02f8b9cbce",
       "type": "produce",
@@ -468,14 +482,28 @@
         }
       },
       "channelId": "Primeplug",
-      "updatedAt": "2026-11-05T13:37:23.803Z",
+      "updatedAt": "2026-11-05T13:39:00.009Z",
       "result": {
-        "deferred": true,
-        "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "baby-elephant-funny-moments"
+        "produced": true,
+        "outcome": "completed",
+        "pathway": "narrated",
+        "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/baby-elephant-funny-moments.mp4",
+        "sha256": "c317bf983d503856de3c536200916918c39fe83f51d3ec08301c3401040ba34b",
+        "thumbnailPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/baby-elephant-funny-moments.thumbnail.jpg",
+        "title": "Baby Elephants' Funniest First Moments 🐘",
+        "postingPackage": {
+          "title": "Baby Elephants' Funniest First Moments 🐘",
+          "description": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.\n\nSource: https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm\nCredit: YouTube creator via Wikimedia Commons (CC BY). Rights: CC BY 3.0 — Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.\nOriginal commentary narration, captions and edit by Primeplug.",
+          "hashtags": [
+            "#Shorts",
+            "#funny",
+            "#elephant",
+            "#animals",
+            "#cute"
+          ]
+        }
       },
-      "finishedAt": "2026-11-05T13:10:24.381Z"
+      "finishedAt": "2026-11-05T13:39:22.473Z"
     },
     {
       "attempts": 1,

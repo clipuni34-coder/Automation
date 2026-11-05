@@ -18,6 +18,21 @@
       "excerptSeconds": 200,
       "scaleHeight": 720,
       "targetDurationSeconds": 15
-    }
+    },
+    "productionMode": "narrated",
+    "window": {
+      "startSeconds": 5,
+      "seconds": 32
+    },
+    "hookText": "This mascot never gives up — and gravity always wins.",
+    "postingTitle": "The Mascot Who Refuses To Stay Down 😂 Chiitan's Funniest Fails",
+    "narrationScript": "Meet Chiitan, the fearless Japanese mascot who treats every stunt like a world championship final. The plan always starts with total confidence. The landing, however, has other ideas. Watch the commitment, though — every fall is followed by an instant comeback. That is the real lesson here: fall spectacularly, get up immediately, and go again.",
+    "hashtags": [
+      "#Shorts",
+      "#funny",
+      "#fails",
+      "#mascot",
+      "#japan"
+    ]
   }
 ]

@@ -22,6 +22,28 @@
       "uploadedAt": "2026-11-05T13:16:11Z",
       "processingStatus": "succeeded",
       "repairedFromPublishReport": "Run 42033639811 publish-report.json: uploaded_private_verified; repaired as above."
+    },
+    {
+      "recordedAt": "2026-11-05T13:39:56.799Z",
+      "fingerprint": "86b28d1c3b33a7fc211eb3f4ec348a169b80f7436e55cd37dcf93d8a95e1fd71",
+      "videoId": "KBHalqUmHxk",
+      "candidateId": "chiitan-mascot-fails",
+      "title": "The Mascot Who Refuses To Stay Down 😂 Chiitan's Funniest Fails",
+      "privacyStatus": "private",
+      "channelId": "UCB7EhjM0bj2wtIBy_A_kkkg",
+      "uploadedAt": "2026-11-05T13:39:56.799Z",
+      "processingStatus": "succeeded"
+    },
+    {
+      "recordedAt": "2026-11-05T13:40:29.496Z",
+      "fingerprint": "c317bf983d503856de3c536200916918c39fe83f51d3ec08301c3401040ba34b",
+      "videoId": "dQwD_It3oXM",
+      "candidateId": "baby-elephant-funny-moments",
+      "title": "Baby Elephants' Funniest First Moments 🐘",
+      "privacyStatus": "private",
+      "channelId": "UCB7EhjM0bj2wtIBy_A_kkkg",
+      "uploadedAt": "2026-11-05T13:40:29.496Z",
+      "processingStatus": "succeeded"
     }
   ]
 }

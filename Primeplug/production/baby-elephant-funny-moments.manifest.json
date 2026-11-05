@@ -16,6 +16,21 @@
     "processing": {
       "mode": "full",
       "targetDurationSeconds": 15
-    }
+    },
+    "productionMode": "narrated",
+    "window": {
+      "startSeconds": 0,
+      "seconds": 32
+    },
+    "hookText": "Baby elephants discovering mud for the first time is pure chaos.",
+    "postingTitle": "Baby Elephants' Funniest First Moments 🐘",
+    "narrationScript": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.",
+    "hashtags": [
+      "#Shorts",
+      "#funny",
+      "#elephant",
+      "#animals",
+      "#cute"
+    ]
   }
 ]

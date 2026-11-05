@@ -12,13 +12,13 @@
     "attributionRequirement": "Credit: Bernard DUPONT, via Wikimedia Commons, CC BY-SA 2.0 — https://creativecommons.org/licenses/by-sa/2.0 — derivative shared alike.",
     "verificationStatus": "evidence_recorded_on_commons_file_page"
   },
-  "status": "held_advanced_qc",
-  "reason": "Advanced QC held this render: scene_pacing (sceneChanges=0)",
+  "status": "completed",
+  "reason": null,
   "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/cape-fox-pups-playing.mp4",
   "thumbnailPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/cape-fox-pups-playing.thumbnail.jpg",
-  "sha256": null,
-  "startedAt": "2026-11-05T16:15:38.581Z",
-  "finishedAt": "2026-11-05T16:16:43.862Z",
+  "sha256": "434986fe9305c97b82001759ff4d1465092b0b91f7067d1c7e77976185c2a3f5",
+  "startedAt": "2026-11-05T16:22:50.264Z",
+  "finishedAt": "2026-11-05T16:23:56.004Z",
   "narrationWords": 55,
   "originalProbe": {
     "width": 1920,
@@ -43,18 +43,18 @@
   },
   "captionCues": 4,
   "audioLevels": {
-    "meanDb": -17.7,
-    "maxDb": -2
+    "meanDb": -18.1,
+    "maxDb": -1.9
   },
   "outputOverlayDetection": {
     "status": "ok",
     "frames": 23,
-    "wholeFrameChange": 49.33,
+    "wholeFrameChange": 49.03,
     "overlays": [],
     "detected": false
   },
   "advancedQc": {
-    "passed": false,
+    "passed": true,
     "checks": [
       {
         "name": "resolution_1080x1920",
@@ -79,12 +79,12 @@
       {
         "name": "narration_audible",
         "passed": true,
-        "detail": "mean=-17.7 dB"
+        "detail": "mean=-18.1 dB"
       },
       {
         "name": "no_clipping",
         "passed": true,
-        "detail": "max=-2 dB"
+        "detail": "max=-1.9 dB"
       },
       {
         "name": "limited_black_frames",
@@ -103,8 +103,8 @@
       },
       {
         "name": "scene_pacing",
-        "passed": false,
-        "detail": "sceneChanges=0"
+        "passed": true,
+        "detail": "sceneChanges=25"
       },
       {
         "name": "faststart",
@@ -114,8 +114,8 @@
     ],
     "metrics": {
       "volume": {
-        "meanDb": -17.7,
-        "maxDb": -2
+        "meanDb": -18.1,
+        "maxDb": -1.9
       },
       "black": {
         "blackSegments": 0,
@@ -127,8 +127,58 @@
         "trailingSilenceSeconds": 0
       },
       "scenes": {
-        "sceneChanges": 0
+        "sceneChanges": 25
       }
     }
+  },
+  "qc": {
+    "status": "passed",
+    "repaired": false,
+    "probe": {
+      "width": 1080,
+      "height": 1920,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fps": 25,
+      "durationSeconds": 23,
+      "sizeBytes": 29215570,
+      "hasAudio": true
+    },
+    "failures": [],
+    "attempts": 0
+  },
+  "outputProbe": {
+    "width": 1080,
+    "height": 1920,
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "fps": 25,
+    "durationSeconds": 23,
+    "sizeBytes": 29215570,
+    "hasAudio": true
+  },
+  "pipeline": {
+    "status": "completed",
+    "pathway": "narrated",
+    "wordCount": 55,
+    "editorialAverage": null,
+    "title": "Cape Fox Pups Turn The Savanna Into A Play Arena 🦊",
+    "selectedMoments": [
+      "These Cape fox pups have turned a dry patch of savanna into their own play arena.",
+      "One pup stands guard first, giant ears up, scanning the grass like a tiny sentinel.",
+      "Then its sibling arrives and the digging contest begins, paws flying everywhere.",
+      "Whatever they are hunting stays hidden, but the effort deserves a medal."
+    ]
+  },
+  "postingPackage": {
+    "title": "Cape Fox Pups Turn The Savanna Into A Play Arena 🦊",
+    "description": "Original commentary narration and edit by Primeplug over public reusable footage.\n\nSource: https://upload.wikimedia.org/wikipedia/commons/d/d6/Cape_Foxes_%28Vulpes_chama%29_pups_playing_....webm\nCredit: Bernard DUPONT via Wikimedia Commons (Flickr). Rights: CC BY-SA 2.0 — Credit: Bernard DUPONT, via Wikimedia Commons, CC BY-SA 2.0 — https://creativecommons.org/licenses/by-sa/2.0 — derivative shared alike.\nOriginal commentary narration, captions and edit by Primeplug.",
+    "hashtags": [
+      "#Shorts",
+      "#fox",
+      "#animals",
+      "#cute",
+      "#wildlife"
+    ]
   }
 }

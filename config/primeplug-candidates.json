@@ -348,5 +348,193 @@
       "payoff": "Pure joy, zero worries."
     },
     "visualSubject": "baby elephant"
+  },
+  {
+    "id": "cape-fox-pups-playing",
+    "label": "Cape fox pups playing in the savanna — fresh verified CC BY-SA source",
+    "creator": "Bernard DUPONT via Wikimedia Commons (Flickr)",
+    "sourceResolution": "1920x1080",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/Cape_Foxes_%28Vulpes_chama%29_pups_playing_....webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Cape_Foxes_(Vulpes_chama)_pups_playing_....webm",
+    "license": {
+      "type": "CC BY-SA 2.0",
+      "basis": "Wikimedia Commons file page records CC BY-SA 2.0 for this footage (verified live via Commons API). ShareAlike: derivative works must be shared under the same licence terms.",
+      "rightsStatus": "licensed",
+      "attributionRequirement": "Credit: Bernard DUPONT, via Wikimedia Commons, CC BY-SA 2.0 — https://creativecommons.org/licenses/by-sa/2.0 — derivative shared alike.",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "processing": {
+      "mode": "full",
+      "targetDurationSeconds": 22
+    },
+    "productionMode": "narrated",
+    "window": {
+      "startSeconds": 0,
+      "seconds": 23
+    },
+    "hookText": "These Cape fox pups have turned a dry patch of savanna into their own play arena.",
+    "storyBeats": {
+      "hook": "These Cape fox pups have turned a dry patch of savanna into their own play arena.",
+      "development": "One pup stands guard, ears up, then its sibling arrives and a digging contest begins.",
+      "payoff": "Whatever they are hunting stays hidden, but the effort deserves a medal."
+    },
+    "visualSubject": "Cape fox",
+    "postingTitle": "Cape Fox Pups Turn The Savanna Into A Play Arena 🦊",
+    "postingDescription": "Original commentary narration and edit by Primeplug over public reusable footage.",
+    "narrationScript": "These Cape fox pups have turned a dry patch of savanna into their own play arena. One pup stands guard first, giant ears up, scanning the grass like a tiny sentinel. Then its sibling arrives and the digging contest begins, paws flying everywhere. Whatever they are hunting stays hidden, but the effort deserves a medal.",
+    "hashtags": [
+      "#Shorts",
+      "#fox",
+      "#animals",
+      "#cute",
+      "#wildlife"
+    ]
+  },
+  {
+    "id": "audit-parrot-burned-subtitles",
+    "label": "Einstein the talking parrot (public domain) — burned-in subtitle overlay scenario",
+    "creator": "Voice of America via Wikimedia Commons",
+    "sourceResolution": "1080x1080",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Talking_Parrot_-_VOANews.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Talking_Parrot_-_VOANews.webm",
+    "license": {
+      "type": "Public domain",
+      "basis": "VOA material on Wikimedia Commons, public domain (verified live via Commons API).",
+      "rightsStatus": "public_domain",
+      "attributionRequirement": "Credit: Voice of America, via Wikimedia Commons (public domain).",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "processing": {
+      "mode": "full",
+      "targetDurationSeconds": 25
+    },
+    "productionMode": "narrated",
+    "window": {
+      "startSeconds": 35,
+      "seconds": 27
+    },
+    "hookText": "Einstein is an African grey parrot with a microphone habit he takes very seriously.",
+    "storyBeats": {
+      "hook": "Einstein the parrot leans into the microphone like a tiny celebrity.",
+      "development": "Perched at Zoo Knoxville, he tilts his head and chatters through the interview.",
+      "payoff": "He answers in his own unmistakable voice — and works entirely for treats."
+    },
+    "visualSubject": "parrot",
+    "postingTitle": "Einstein The Parrot Takes His Interview Very Seriously 🦜",
+    "narrationScript": "Einstein is an African grey parrot with a microphone habit he takes very seriously. Perched at Zoo Knoxville, he leans into every question like a tiny celebrity at a press conference. Between the head tilts and the chatter, he answers in his own unmistakable voice. Not bad for an interviewee who works entirely for treats.",
+    "hashtags": [
+      "#Shorts",
+      "#parrot",
+      "#animals",
+      "#funny"
+    ]
+  },
+  {
+    "id": "audit-licence-version-mismatch",
+    "label": "Otter playing with a rock — recorded claim CC BY-SA 4.0, file page records CC BY-SA 3.0 (must be rejected)",
+    "creator": "Grendelkhan via Wikimedia Commons",
+    "sourceResolution": "1280x720",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Asian_small-clawed_otter_playing_with_rock.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Asian_small-clawed_otter_playing_with_rock.webm",
+    "license": {
+      "type": "CC BY-SA 4.0",
+      "basis": "DELIBERATE AUDIT FIXTURE: this claim intentionally disagrees with the file page (CC BY-SA 3.0) to prove version-mismatch rejection.",
+      "rightsStatus": "licensed",
+      "attributionRequirement": "Credit: Grendelkhan, via Wikimedia Commons.",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "processing": {
+      "mode": "full",
+      "targetDurationSeconds": 20
+    },
+    "productionMode": "narrated",
+    "window": {
+      "startSeconds": 0,
+      "seconds": 20
+    },
+    "hookText": "This otter has a favourite rock and a daily routine to protect.",
+    "storyBeats": {
+      "hook": "An otter guards its favourite rock.",
+      "development": "It rolls and balances the rock with surprising focus.",
+      "payoff": "The routine ends exactly where it began: otter, rock, total devotion."
+    },
+    "visualSubject": "otter",
+    "postingTitle": "The Otter And Its Favourite Rock",
+    "narrationScript": "This otter has a favourite rock and a daily routine to protect. It rolls the rock across its paws, balances it, and guards it like treasure. Other otters play with anything, but this one chose its companion carefully. The routine ends exactly where it began: otter, rock, total devotion.",
+    "hashtags": [
+      "#Shorts",
+      "#otter",
+      "#animals"
+    ]
+  },
+  {
+    "id": "audit-duplicate-elephant-source",
+    "label": "AUDIT FIXTURE: duplicate of the already-used elephant source (must be deduped, never produced)",
+    "creator": "YouTube creator via Wikimedia Commons (CC BY)",
+    "sourceResolution": "1920x1072",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Most_Funny_and_Cute_Baby_Elephant_Videos_(Copyright_Free)_Full_HD.webm",
+    "license": {
+      "type": "CC BY 3.0",
+      "basis": "Wikimedia Commons file page records Creative Commons Attribution 3.0 Unported for this footage. Reuse permitted with attribution.",
+      "rightsStatus": "licensed",
+      "attributionRequirement": "Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "processing": {
+      "mode": "full",
+      "targetDurationSeconds": 15
+    },
+    "window": {
+      "startSeconds": 0,
+      "seconds": 32
+    },
+    "hookText": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
+    "postingTitle": "Baby Elephants' Funniest First Moments 🐘",
+    "narrationScript": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.",
+    "hashtags": [
+      "#Shorts",
+      "#funny",
+      "#elephant",
+      "#animals",
+      "#cute"
+    ],
+    "storyBeats": {
+      "hook": "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
+      "development": "Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love.",
+      "payoff": "Pure joy, zero worries."
+    },
+    "visualSubject": "baby elephant"
+  },
+  {
+    "id": "audit-weak-story-kitten",
+    "label": "Kitten playing in Tokyo — deliberately weak/incomplete story (must be held)",
+    "creator": "Nesnad via Wikimedia Commons",
+    "sourceResolution": "1920x1080",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Kitten_playing_-_Tokyo_-_Jan_7_2020.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Kitten_playing_-_Tokyo_-_Jan_7_2020.webm",
+    "license": {
+      "type": "CC BY 4.0",
+      "basis": "Wikimedia Commons file page records CC BY 4.0 (verified live via Commons API).",
+      "rightsStatus": "licensed",
+      "attributionRequirement": "Credit: Nesnad, via Wikimedia Commons, CC BY 4.0 — https://creativecommons.org/licenses/by/4.0",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "processing": {
+      "mode": "full",
+      "targetDurationSeconds": 15
+    },
+    "productionMode": "narrated",
+    "window": {
+      "startSeconds": 0,
+      "seconds": 8
+    },
+    "hookText": "Look at this kitten.",
+    "postingTitle": "A Kitten Playing In Tokyo",
+    "narrationScript": "Look at this kitten playing in Tokyo. It is very cute and it loves its toy.",
+    "hashtags": [
+      "#Shorts",
+      "#kitten"
+    ]
   }
 ]

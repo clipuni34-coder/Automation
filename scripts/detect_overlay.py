@@ -22,7 +22,11 @@ import numpy as np
 from PIL import Image
 
 
-def extract_frames(video, start, seconds, outdir, count=12):
+def extract_frames(video, start, seconds, outdir, count=None):
+    # Denser sampling (up to 24 frames) so transient burned-in graphics
+    # that appear for only a second or two are still sampled.
+    if count is None:
+        count = int(min(24, max(12, round(seconds))))
     paths = []
     duration = max(1.0, seconds)
     for i in range(count):
@@ -77,8 +81,12 @@ def analyse(frames):
         b = band(im, y0, y1).astype(np.int16)
         r, g, bl = b[:, :, 0], b[:, :, 1], b[:, :, 2]
         promo_red = float(((r > 140) & (r - g > 70) & (r - bl > 70)).mean())
+        # Burned-in subtitles are often saturated yellow. The strict
+        # thresholds were calibrated against clean dry-grass/savanna
+        # footage (0.0000) versus real burned subtitles (0.06+).
+        yellow_sub = float(((r > 180) & (g > 170) & (bl < 80) & ((r - bl) > 120) & ((g - bl) > 100)).mean())
         edges = float((np.abs(np.diff(b.astype(np.float32), axis=1)).mean(axis=2) > 28).mean())
-        return promo_red, edges
+        return promo_red, yellow_sub, edges
 
     overlays = []
     for name, diffs, colour, frac, yr in (
@@ -88,8 +96,8 @@ def analyse(frames):
     ):
         staticness, colourful = verdict(diffs, colour)
         static_detected = staticness > 0.72 and colourful > 0.02 and whole > 4
-        sig_hits = sum(1 for im in imgs if (lambda se: se[0] > 0.02 and se[1] > 0.04)(text_signature(im, *yr)))
-        text_detected = sig_hits >= 1
+        sig_hits = sum(1 for im in imgs if (lambda se: (se[0] > 0.02 and se[2] > 0.04) or (se[1] > 0.01 and se[2] > 0.03))(text_signature(im, *yr)))
+        text_detected = sig_hits >= 2
         if static_detected or text_detected:
             overlays.append({
                 "band": name, "fraction": frac,

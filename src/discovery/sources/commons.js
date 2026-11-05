@@ -72,7 +72,7 @@ export async function collectCommonsCandidates({ queries = [], fetchImpl = fetch
   for (const query of queries) {
     const api = "https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search"
       + `&gsrsearch=${encodeURIComponent(`filetype:video ${query}`)}&gsrnamespace=6&gsrlimit=20`
-      + "&prop=imageinfo&iiprop=url%7Csize%7Cextmetadata";
+      + "&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Cextmetadata";
     let payload;
     try {
       const res = await fetchImpl(api, { headers: { "user-agent": "PrimePlugDiscovery/1.0" } });

@@ -118,7 +118,7 @@ jobs:
         run: npm run sync-analytics
       - name: Persist updated channel state
         run: |
-          printf '*.mp4\n*.webm\n*.wav\nproduction/work/\n' > state/.gitignore
+          printf '*.mp4\n*.webm\n*.wav\n*.source\n**/production/work/\n' > state/.gitignore
           cd state
           git add -A
           if git diff --cached --quiet; then echo "No state changes"; else

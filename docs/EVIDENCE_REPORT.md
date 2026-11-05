@@ -92,3 +92,21 @@ Limitations: Whisper "base" model garbles occasional words (e.g. one question in
 - CI independently reproduced the winning candidate from the raw Commons source: 346 words transcribed, 30 candidates, **completed** render (1080x1920 H.264/AAC, 12.27s), visual QC **100**, editorial average **6.07**, auto-title "My question for you today is What does it feel like to see Earth from space?", rank 8.03 in the cloud comparison. Artifact `candidate-shorts` on that run contains the MP4, thumbnail, captions, transcript and comparison.json.
 - Note: in the CI artifact, `comparison.json` lists the other manifest candidates as `failed_no_result` because their result JSONs exist only in the local evidence run (output/ is not committed); the full 6-candidate comparison is the table above, produced locally with identical code. The cloud run's purpose was reproducing the winner end-to-end from source, which it did.
 - No YouTube upload was made in this round. All uploads remain private; the only uploaded video remains the earlier private smoke test (S7a-kQh3W6E).
+
+## Multi-candidate cloud production — 2026-11-05 (independent verification)
+Commits: production `c367d83` (this evidence commit follows). Workflow: Candidate Shorts production run **42021789734** — https://github.com/clipuni34-coder/Automation/actions/runs/42021789734 (success). Tests run 42021789758 — success (**298/298**, also 298/298 locally; cloud and local are reported separately). Artifact: `candidate-shorts` (ID 13412327438) on that run — https://github.com/clipuni34-coder/Automation/actions/runs/42021789734/artifacts/13412327438 — contains 2 MP4s, 2 thumbnails, transcripts, caption files, per-candidate JSON records, comparison.json/.md, production-summary.json and SHA256SUMS.txt.
+
+Every manifest entry was processed independently **by the cloud runner from the original sources** (no local files used). Outcomes (cloud):
+| Candidate | Native source | Outcome (cloud) | Editorial | Visual QC | Output |
+|---|---|---|---|---|---|
+| Astronaut Williams student Q&A | 1920x1080 (AV1, 1185s original) | **completed** | 6.15 | 100 | 13.47s 1080x1920 H.264/AAC, SHA256 `2f4b422e…f932` |
+| Astronaut news interview | 1920x1080 | **completed** | 6.22 | 100 | 8.10s 1080x1920 H.264/AAC, SHA256 `4e0ddc7b…e14` |
+| Apollo 11 landing baseline | 320x240 | **rejected_low_resolution** | — | — | none (upscaling not credited as HD) |
+| Perseverance onboard (4K) | 3840x2160 | **held_editorial_gate** (4.02 < 5.5) | 4.02 | — | none |
+| Curiosity Seven Minutes narration | 1280x720 | **held_editorial_gate** (4.40 < 5.5) | 4.40 | — | none |
+| Perseverance animation | 1920x1080 | **rejected_no_speech** | — | — | none |
+
+Winner (cloud, rank 8.46/10): **Astronaut Williams student Q&A** — highest-ranked candidate that completed and passed QC; the news interview (8.04) is second on duration fitness. Only completed+QC-passed candidates receive scores; held/rejected candidates carry their exact recorded reasons and `rankScore: null`, and `winner` would be `null` had none passed (unit-tested).
+Rights per candidate: public domain (U.S. federal government work, 17 U.S.C. § 105) with Commons file-page evidence URL, NASA attribution requirement, status `evidence_recorded_not_independently_verified` — recorded in each `<id>.candidate.json`. Unverified/incomplete rights records are blocked before processing (unit-tested and enforced in the orchestrator).
+Local-vs-cloud note: local production (identical code) produced the same 2 completions and same 4 rejection families (Perseverance held at 4.56 locally vs 4.02 in cloud — Whisper/scoring variance on different excerpt handling; both below the gate, outcome unchanged). Cloud results above are the authoritative reproduction.
+Limitations: Whisper `base` occasionally garbles a word; auto-titles remain transcript fragments; rights are evidence-recorded declarations (no independent verifier exists); render targets are capped at 12–15s for CPU-runner reliability; no YouTube upload was performed in this round.

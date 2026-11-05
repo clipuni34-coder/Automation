@@ -1,0 +1,46 @@
+{
+  "id": "baby-elephant-funny-moments",
+  "label": "Baby elephants discovering the world — funny first moments",
+  "creator": "YouTube creator via Wikimedia Commons (CC BY)",
+  "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm",
+  "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Most_Funny_and_Cute_Baby_Elephant_Videos_(Copyright_Free)_Full_HD.webm",
+  "license": {
+    "type": "CC BY 3.0",
+    "basis": "Wikimedia Commons file page records Creative Commons Attribution 3.0 Unported for this footage. Reuse permitted with attribution.",
+    "rightsStatus": "licensed",
+    "attributionRequirement": "Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.",
+    "verificationStatus": "evidence_recorded_on_commons_file_page"
+  },
+  "status": "failed_pipeline",
+  "reason": "Repurpose pipeline failed: {\"status\":\"failed\",\"error\":\"No transcript moments met the minimum duration; adjust minSeconds or provide a longer transcript\"}",
+  "sourceProbe": {
+    "width": 1920,
+    "height": 1072,
+    "durationSeconds": 64.288,
+    "sizeBytes": 28948253,
+    "videoCodec": "av1",
+    "audioCodec": "opus",
+    "hasAudio": true
+  },
+  "pipeline": null,
+  "qc": null,
+  "outputPath": null,
+  "thumbnailPath": null,
+  "sha256": null,
+  "startedAt": "2026-11-05T13:10:11.951Z",
+  "finishedAt": "2026-11-05T13:10:24.371Z",
+  "rightsVerification": {
+    "status": "evidence_recorded_on_commons_file_page",
+    "basis": "Wikimedia Commons file page records Creative Commons Attribution 3.0 Unported for this footage. Reuse permitted with attribution.",
+    "attributionRequirement": "Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description."
+  },
+  "originalProbe": {
+    "width": 1920,
+    "height": 1072,
+    "durationSeconds": 64.288,
+    "sizeBytes": 28948253,
+    "videoCodec": "av1",
+    "audioCodec": "opus",
+    "hasAudio": true
+  }
+}

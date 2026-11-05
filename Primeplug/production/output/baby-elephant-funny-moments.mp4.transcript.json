@@ -1,0 +1,23 @@
+{
+  "status": "transcribed",
+  "engine": "faster-whisper",
+  "model": "base",
+  "language": "en",
+  "languageProbability": 0.4864,
+  "wordCount": 2,
+  "droppedWordCount": 6,
+  "words": [
+    {
+      "word": "I'm",
+      "start": 0.0,
+      "end": 0.48,
+      "probability": 0.1206
+    },
+    {
+      "word": "I'm",
+      "start": 0.48,
+      "end": 0.86,
+      "probability": 0.2892
+    }
+  ]
+}

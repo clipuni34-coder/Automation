@@ -1,0 +1,46 @@
+{
+  "id": "chiitan-mascot-fails",
+  "label": "Chiitan, the Japanese mascot whose stunts always end in spectacular fails",
+  "creator": "Chiitan (official mascot channel, via Wikimedia Commons)",
+  "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d0/%E3%80%90Part3%E3%80%91Japanese_Mascot_Fails%2C_Fights_%26_Funny_Moments_Video_%E3%81%A1%E3%81%83%E3%81%9F%E3%82%93%E2%98%86%E6%AC%B2%E5%BC%B5%E3%82%8A%E5%8B%95%E7%94%BB%E3%82%BB%E3%83%83%E3%83%88.webm",
+  "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:%E3%80%90Part3%E3%80%91Japanese_Mascot_Fails%2C_Fights_%26_Funny_Moments_Video_%E3%81%A1%E3%81%83%E3%81%9F%E3%82%93%E2%98%86%E6%AC%B2%E5%BC%B5%E3%82%8A%E5%8B%95%E7%94%BB%E3%82%BB%E3%83%83%E3%83%88.webm",
+  "license": {
+    "type": "CC BY 3.0",
+    "basis": "Wikimedia Commons file page records Creative Commons Attribution 3.0 Unported (originally published by the official Chiitan YouTube channel under CC BY). Reuse permitted with attribution; no endorsement implied.",
+    "rightsStatus": "licensed",
+    "attributionRequirement": "Credit: Chiitan (official channel) via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ must appear in the video description.",
+    "verificationStatus": "evidence_recorded_on_commons_file_page"
+  },
+  "status": "rejected_no_audio",
+  "reason": "Original footage has no audio stream.",
+  "sourceProbe": {
+    "width": 1280,
+    "height": 720,
+    "durationSeconds": 200.000762,
+    "sizeBytes": 47545350,
+    "videoCodec": "h264",
+    "audioCodec": null,
+    "hasAudio": false
+  },
+  "pipeline": null,
+  "qc": null,
+  "outputPath": null,
+  "thumbnailPath": null,
+  "sha256": null,
+  "startedAt": "2026-11-05T13:07:43.099Z",
+  "finishedAt": "2026-11-05T13:09:16.721Z",
+  "rightsVerification": {
+    "status": "evidence_recorded_on_commons_file_page",
+    "basis": "Wikimedia Commons file page records Creative Commons Attribution 3.0 Unported (originally published by the official Chiitan YouTube channel under CC BY). Reuse permitted with attribution; no endorsement implied.",
+    "attributionRequirement": "Credit: Chiitan (official channel) via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ must appear in the video description."
+  },
+  "originalProbe": {
+    "width": 1920,
+    "height": 1080,
+    "durationSeconds": 233.349,
+    "sizeBytes": 80735476,
+    "videoCodec": "vp9",
+    "audioCodec": null,
+    "hasAudio": false
+  }
+}

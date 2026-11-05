@@ -1,0 +1,19 @@
+{
+  "sourceLocalPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/work/animals-belly-rub-compilation.mp4",
+  "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/animals-belly-rub-compilation.mp4",
+  "source": {
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Adorable_Animals_Enjoying_A_Belly_Rub_Compilation_2014_NEW.webm",
+    "title": "Animals who cannot resist a belly rub — with live commentary",
+    "creator": "YouTube creator compilation via Wikimedia Commons (CC BY)",
+    "rightsStatus": "licensed",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Adorable_Animals_Enjoying_A_Belly_Rub_Compilation_2014_NEW.webm",
+    "allowedPlatforms": [
+      "youtube_shorts"
+    ],
+    "attribution": "Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description."
+  },
+  "targetDurationSeconds": 15,
+  "platform": "youtube_shorts",
+  "whisperModel": "base",
+  "pythonPath": "python"
+}

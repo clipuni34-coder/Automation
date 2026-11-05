@@ -1,0 +1,21 @@
+[
+  {
+    "id": "baby-elephant-funny-moments",
+    "label": "Baby elephants discovering the world — funny first moments",
+    "creator": "YouTube creator via Wikimedia Commons (CC BY)",
+    "sourceResolution": "1920x1072",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Most_Funny_and_Cute_Baby_Elephant_Videos_(Copyright_Free)_Full_HD.webm",
+    "license": {
+      "type": "CC BY 3.0",
+      "basis": "Wikimedia Commons file page records Creative Commons Attribution 3.0 Unported for this footage. Reuse permitted with attribution.",
+      "rightsStatus": "licensed",
+      "attributionRequirement": "Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "processing": {
+      "mode": "full",
+      "targetDurationSeconds": 15
+    }
+  }
+]

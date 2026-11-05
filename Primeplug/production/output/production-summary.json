@@ -1,0 +1,15 @@
+{
+  "producedAt": "2026-11-05T13:10:24.376Z",
+  "manifest": "/home/runner/work/Automation/Automation/state/Primeplug/production/baby-elephant-funny-moments.manifest.json",
+  "total": 1,
+  "completed": 0,
+  "heldOrRejected": 0,
+  "failed": 1,
+  "outcomes": [
+    {
+      "id": "baby-elephant-funny-moments",
+      "status": "failed_pipeline",
+      "reason": "Repurpose pipeline failed: {\"status\":\"failed\",\"error\":\"No transcript moments met the minimum duration; adjust minSeconds or provide a longer transcript\"}"
+    }
+  ]
+}

@@ -3,7 +3,7 @@
   "jobs": [
     {
       "attempts": 0,
-      "status": "queued",
+      "status": "cancelled",
       "createdAt": "2026-11-05T12:37:10.888Z",
       "fingerprint": "577283275b774ba839f7f74c",
       "type": "produce",
@@ -46,16 +46,14 @@
       "channelId": "Primeplug",
       "updatedAt": "2026-11-05T13:06:12.840Z",
       "result": {
-        "deferred": true,
         "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "astronaut-Williams-student-qa"
+        "reason": "Superseded: seed is no longer in this channel's current niche manifest."
       },
       "finishedAt": "2026-11-05T12:37:10.918Z"
     },
     {
       "attempts": 0,
-      "status": "queued",
+      "status": "cancelled",
       "createdAt": "2026-11-05T12:37:10.890Z",
       "fingerprint": "1f3c2f573576f49abfe680b7",
       "type": "produce",
@@ -98,16 +96,14 @@
       "channelId": "Primeplug",
       "updatedAt": "2026-11-05T13:06:12.841Z",
       "result": {
-        "deferred": true,
         "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "astronaut-news-interview"
+        "reason": "Superseded: seed is no longer in this channel's current niche manifest."
       },
       "finishedAt": "2026-11-05T12:37:10.919Z"
     },
     {
       "attempts": 0,
-      "status": "queued",
+      "status": "cancelled",
       "createdAt": "2026-11-05T12:37:10.892Z",
       "fingerprint": "0ef066f9cbf37873c2fbafdb",
       "type": "produce",
@@ -148,16 +144,14 @@
       "channelId": "Primeplug",
       "updatedAt": "2026-11-05T13:06:12.841Z",
       "result": {
-        "deferred": true,
         "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "apollo11-landing-baseline"
+        "reason": "Superseded: seed is no longer in this channel's current niche manifest."
       },
       "finishedAt": "2026-11-05T12:37:10.919Z"
     },
     {
       "attempts": 0,
-      "status": "queued",
+      "status": "cancelled",
       "createdAt": "2026-11-05T12:37:10.893Z",
       "fingerprint": "317f4ac33398f09664f900c1",
       "type": "produce",
@@ -199,16 +193,14 @@
       "channelId": "Primeplug",
       "updatedAt": "2026-11-05T13:06:12.842Z",
       "result": {
-        "deferred": true,
         "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "perseverance-onboard"
+        "reason": "Superseded: seed is no longer in this channel's current niche manifest."
       },
       "finishedAt": "2026-11-05T12:37:10.920Z"
     },
     {
       "attempts": 0,
-      "status": "queued",
+      "status": "cancelled",
       "createdAt": "2026-11-05T12:37:10.895Z",
       "fingerprint": "7491d83bfabe81806a1a75c7",
       "type": "produce",
@@ -249,16 +241,14 @@
       "channelId": "Primeplug",
       "updatedAt": "2026-11-05T13:06:12.843Z",
       "result": {
-        "deferred": true,
         "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "curiosity-seven-minutes"
+        "reason": "Superseded: seed is no longer in this channel's current niche manifest."
       },
       "finishedAt": "2026-11-05T12:37:10.921Z"
     },
     {
       "attempts": 0,
-      "status": "queued",
+      "status": "cancelled",
       "createdAt": "2026-11-05T12:37:10.896Z",
       "fingerprint": "5d9784484ad8cc5f9c99ef75",
       "type": "produce",
@@ -299,16 +289,14 @@
       "channelId": "Primeplug",
       "updatedAt": "2026-11-05T13:06:12.844Z",
       "result": {
-        "deferred": true,
         "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "perseverance-animation-narrationless"
+        "reason": "Superseded: seed is no longer in this channel's current niche manifest."
       },
       "finishedAt": "2026-11-05T12:37:10.922Z"
     },
     {
-      "attempts": 0,
-      "status": "queued",
+      "attempts": 1,
+      "status": "completed",
       "createdAt": "2026-11-05T13:02:10.479Z",
       "fingerprint": "45ce84fc50512e59f1f08a6e",
       "type": "produce",
@@ -349,18 +337,17 @@
         }
       },
       "channelId": "Primeplug",
-      "updatedAt": "2026-11-05T13:06:12.844Z",
+      "updatedAt": "2026-11-05T13:07:43.062Z",
       "result": {
-        "deferred": true,
         "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "chiitan-mascot-fails"
+        "outcome": "rejected_no_audio",
+        "reason": "Original footage has no audio stream."
       },
-      "finishedAt": "2026-11-05T13:02:10.505Z"
+      "finishedAt": "2026-11-05T13:09:16.735Z"
     },
     {
-      "attempts": 0,
-      "status": "queued",
+      "attempts": 1,
+      "status": "completed",
       "createdAt": "2026-11-05T13:02:10.489Z",
       "fingerprint": "2fcfd9b3ba9bdc5204655c2b",
       "type": "produce",
@@ -401,18 +388,17 @@
         }
       },
       "channelId": "Primeplug",
-      "updatedAt": "2026-11-05T13:06:12.845Z",
+      "updatedAt": "2026-11-05T13:09:16.735Z",
       "result": {
-        "deferred": true,
         "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "animals-belly-rub-compilation"
+        "outcome": "rejected_no_speech",
+        "reason": "Transcription produced no usable speech (no intelligible spoken words found)."
       },
-      "finishedAt": "2026-11-05T13:02:10.506Z"
+      "finishedAt": "2026-11-05T13:10:11.918Z"
     },
     {
-      "attempts": 0,
-      "status": "queued",
+      "attempts": 1,
+      "status": "completed",
       "createdAt": "2026-11-05T13:02:10.490Z",
       "fingerprint": "80213f8020ffaf02f8b9cbce",
       "type": "produce",
@@ -451,14 +437,13 @@
         }
       },
       "channelId": "Primeplug",
-      "updatedAt": "2026-11-05T13:06:12.846Z",
+      "updatedAt": "2026-11-05T13:10:11.918Z",
       "result": {
-        "deferred": true,
         "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "baby-elephant-funny-moments"
+        "outcome": "failed_pipeline",
+        "reason": "Repurpose pipeline failed: {\"status\":\"failed\",\"error\":\"No transcript moments met the minimum duration; adjust minSeconds or provide a longer transcript\"}"
       },
-      "finishedAt": "2026-11-05T13:02:10.507Z"
+      "finishedAt": "2026-11-05T13:10:24.381Z"
     }
   ]
 }

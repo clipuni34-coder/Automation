@@ -1,0 +1,19 @@
+{
+  "sourceLocalPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/work/baby-elephant-funny-moments.source",
+  "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/baby-elephant-funny-moments.mp4",
+  "source": {
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm",
+    "title": "Baby elephants discovering the world — funny first moments",
+    "creator": "YouTube creator via Wikimedia Commons (CC BY)",
+    "rightsStatus": "licensed",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Most_Funny_and_Cute_Baby_Elephant_Videos_(Copyright_Free)_Full_HD.webm",
+    "allowedPlatforms": [
+      "youtube_shorts"
+    ],
+    "attribution": "Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description."
+  },
+  "targetDurationSeconds": 15,
+  "platform": "youtube_shorts",
+  "whisperModel": "base",
+  "pythonPath": "python"
+}

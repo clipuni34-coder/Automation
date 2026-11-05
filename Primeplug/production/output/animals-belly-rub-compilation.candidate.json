@@ -1,0 +1,46 @@
+{
+  "id": "animals-belly-rub-compilation",
+  "label": "Animals who cannot resist a belly rub — with live commentary",
+  "creator": "YouTube creator compilation via Wikimedia Commons (CC BY)",
+  "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Adorable_Animals_Enjoying_A_Belly_Rub_Compilation_2014_NEW.webm",
+  "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Adorable_Animals_Enjoying_A_Belly_Rub_Compilation_2014_NEW.webm",
+  "license": {
+    "type": "CC BY 3.0",
+    "basis": "Wikimedia Commons file page records Creative Commons Attribution 3.0 Unported, confirmed by YouTubeReviewBot review of the original CC BY YouTube publication. Reuse permitted with attribution.",
+    "rightsStatus": "licensed",
+    "attributionRequirement": "Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.",
+    "verificationStatus": "evidence_recorded_on_commons_file_page"
+  },
+  "status": "rejected_no_speech",
+  "reason": "Transcription produced no usable speech (no intelligible spoken words found).",
+  "sourceProbe": {
+    "width": 1280,
+    "height": 720,
+    "durationSeconds": 180.003,
+    "sizeBytes": 40158820,
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "hasAudio": true
+  },
+  "pipeline": null,
+  "qc": null,
+  "outputPath": null,
+  "thumbnailPath": null,
+  "sha256": null,
+  "startedAt": "2026-11-05T13:09:16.772Z",
+  "finishedAt": "2026-11-05T13:10:11.899Z",
+  "rightsVerification": {
+    "status": "evidence_recorded_on_commons_file_page",
+    "basis": "Wikimedia Commons file page records Creative Commons Attribution 3.0 Unported, confirmed by YouTubeReviewBot review of the original CC BY YouTube publication. Reuse permitted with attribution.",
+    "attributionRequirement": "Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description."
+  },
+  "originalProbe": {
+    "width": 1280,
+    "height": 720,
+    "durationSeconds": 180.848,
+    "sizeBytes": 34343710,
+    "videoCodec": "vp8",
+    "audioCodec": "vorbis",
+    "hasAudio": true
+  }
+}

@@ -92,6 +92,27 @@ for (const channel of channels) {
   } catch (error) { console.error(`[${channel.id}] revive failed: ${error.message}`); }
 }
 
+// Cancel queued seed jobs superseded by a niche/config change (their seed is
+// no longer in the channel's current manifest) so stale off-niche work is
+// never produced. Discovery-sourced jobs (no seed entry) are untouched.
+for (const channel of channels) {
+  if (!channel.seedCandidateManifest) continue;
+  try {
+    const seeds = JSON.parse(await readFile(channel.seedCandidateManifest, "utf8"));
+    const currentIds = new Set(seeds.map((x) => x.id));
+    const st = await openChannelState(stateRoot, channel.id);
+    const q = await st.getQueue();
+    let cancelled = 0;
+    for (const job of q.jobs) {
+      if (job.status === "queued" && job.candidate?.seedManifestEntry && !currentIds.has(job.candidate.id)) {
+        job.status = "cancelled"; job.result = { produced: false, reason: "Superseded: seed is no longer in this channel's current niche manifest." };
+        cancelled += 1;
+      }
+    }
+    if (cancelled) { await st.saveQueue(q); console.log(`[${channel.id}] cancelled ${cancelled} superseded off-niche job(s)`); }
+  } catch (error) { console.error(`[${channel.id}] supersede cleanup failed: ${error.message}`); }
+}
+
 const summary = await runDailyOperations({
   channels, nicheRegistry,
   openState: (id) => openChannelState(stateRoot, id),

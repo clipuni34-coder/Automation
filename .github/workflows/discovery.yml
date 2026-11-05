@@ -300,7 +300,7 @@ jobs:
           ENABLE_GEMINI_TTS: ${{ vars.ENABLE_GEMINI_TTS || 'false' }}
           ENABLE_GEMINI_IMAGE_GENERATION: ${{ vars.ENABLE_GEMINI_IMAGE_GENERATION || 'false' }}
           ENABLE_OPENAI_VISION_QC: ${{ vars.ENABLE_OPENAI_VISION_QC || 'false' }}
-          ENABLE_GEMINI_VISION_QC: ${{ vars.ENABLE_GEMINI_VISION_QC || 'false' }}
+          ENABLE_GEMINI_VISION_QC: ${{ vars.ENABLE_GEMINI_VISION_QC || vars.ENABLE_GEMINI_VISION_Q || 'false' }}
           YOUTUBE_AUTO_PUBLISH: ${{ vars.YOUTUBE_AUTO_PUBLISH || 'false' }}
           YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
           CONTENT_HISTORY_PATH: data/content-history.json

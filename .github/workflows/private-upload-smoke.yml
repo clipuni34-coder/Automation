@@ -1,0 +1,111 @@
+name: Private upload smoke test (real footage)
+
+# End-to-end: download rights-cleared NASA footage -> Faster-Whisper ->
+# moment selection -> vertical render -> QC -> posting package ->
+# PRIVATE YouTube upload to the verified Primeplug channel -> processing check.
+# Manual dispatch with confirm_private_upload=true is the human approval
+# record for this single private test. Public publishing is impossible here.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_private_upload:
+        description: "Upload the rendered Short to Primeplug as PRIVATE (never public)"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: private-upload-smoke
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    if: inputs.confirm_private_upload == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install FFmpeg and transcription dependencies
+        run: |
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y ffmpeg; fi
+          python -m pip install --disable-pip-version-check -r requirements/repurposing.txt
+      - name: Download public-domain NASA landing footage (allowlisted)
+        env:
+          REPURPOSE_SOURCE_URL: https://nasa.gov/wp-content/uploads/static/history/alsj/a11/A11Landing.mov
+          REPURPOSE_SOURCE_PATH: work/A11Landing.mov
+          MEDIA_SOURCE_ALLOWED_HOSTS: nasa.gov
+          MEDIA_MAX_UPLOAD_MB: "100"
+        run: node scripts/download-authorized-source.js
+      - name: Transcribe, select, render and package (rights-gated)
+        env:
+          PYTHON: python
+        run: |
+          mkdir -p output/real-landing
+          cat > landing-input.json <<'JSON'
+          {
+            "sourceLocalPath": "work/A11Landing.mov",
+            "outputPath": "output/real-landing/short.mp4",
+            "source": {
+              "sourceUrl": "https://nasa.gov/wp-content/uploads/static/history/alsj/a11/A11Landing.mov",
+              "title": "Apollo 11 Powered Descent and Landing",
+              "creator": "NASA",
+              "rightsStatus": "public_domain",
+              "rightsEvidenceUrl": "https://www.nasa.gov/image-article/apollo-11-landing/",
+              "allowedPlatforms": ["youtube_shorts"],
+              "attribution": "NASA. Public-domain U.S. government work (Apollo 11 landing)."
+            },
+            "targetDurationSeconds": 45,
+            "platform": "youtube_shorts",
+            "whisperModel": "base",
+            "pythonPath": "python"
+          }
+          JSON
+          set +e
+          npm run repurpose -- landing-input.json output/real-landing/result.json
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ] && [ "$code" -ne 2 ]; then exit "$code"; fi
+          node -e "const r=require('./output/real-landing/result.json'); if(r.status!=='completed'){console.log('Pipeline held/rejected the footage (status='+r.status+'); upload will be skipped.'); require('fs').writeFileSync('pipeline-held.txt', r.status)}"
+          if [ -s output/real-landing/short.mp4 ]; then ffprobe -v error -show_entries format=duration:stream=codec_name,width,height,r_frame_rate -of json output/real-landing/short.mp4; fi
+      - name: Upload PRIVATE smoke test (only when a package was produced)
+        if: hashFiles('output/real-landing/short.mp4') != ''
+        env:
+          SMOKE_UPLOAD_CONFIRM: "true"
+          HUMAN_APPROVED: "true"
+          YOUTUBE_PUBLISH_PRIVACY: private
+          YOUTUBE_ALLOW_PUBLIC_PUBLISH: "false"
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+        run: node scripts/upload-private-smoke.mjs output/real-landing/result.json output/real-landing/upload-smoke-result.json
+      - name: Live YouTube Analytics sync
+        if: always()
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
+          YOUTUBE_ANALYTICS_PATH: output/analytics/youtube-analytics.json
+        run: |
+          mkdir -p output/analytics
+          set +e
+          npm run youtube-analytics
+          echo "analytics_exit=$?" | tee output/analytics/status.txt
+          set -e
+          ls -la output/analytics || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: private-upload-smoke-evidence
+          path: output/
+          retention-days: 30

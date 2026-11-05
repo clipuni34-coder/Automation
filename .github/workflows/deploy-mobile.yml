@@ -1,0 +1,92 @@
+name: Deploy mobile status page (GitHub Pages)
+
+# Publishes a permanent, phone-friendly status page at
+# https://clipuni34-coder.github.io/Automation/
+# The dynamic control server (src/server.js) still runs on a host; this
+# Pages deployment is the always-accessible status/approval-gate view,
+# rebuilt on every push with a fresh credential-readiness snapshot
+# (capability names only — never secret values).
+
+on:
+  push:
+    branches: [editorial-evidence-hold]
+    paths:
+      - "src/server.js"
+      - "src/config/credentials.js"
+      - ".github/workflows/deploy-mobile.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build static mobile status page
+        env:
+          YOUTUBE_DATA_API_KEY: ${{ secrets.YOUTUBE_DATA_API_KEY }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY || secrets.OPENROUTER_API }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          mkdir -p site
+          node src/config/credentials.js > readiness.json
+          node --input-type=module <<'EOF'
+          import { readFileSync, writeFileSync } from "node:fs";
+          const raw = readFileSync("readiness.json", "utf8");
+          const r = JSON.parse(raw.slice(raw.indexOf("{")));
+          const rows = Object.entries(r.capabilities).map(([k, v]) =>
+            `<div class="row"><span>${k.replaceAll("_", " ")}</span><b class="${v.ready ? "ok" : "warn"}">${v.ready ? "Ready" : "Missing: " + v.missing.join(", ")}</b></div>`).join("");
+          const stages = ["Discovery","Source verification","Rights approval","Story analysis","Clip selection","Editing","Rendering","Quality control","Posting package","Private YouTube upload","Analytics feedback"]
+            .map((s, i) => `<span class="pill">${i + 1}. ${s}</span>`).join(" ");
+          const html = `<!doctype html><html lang="en"><head><meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+          <title>Automation Control</title><style>
+          :root{color-scheme:dark}body{margin:0;font-family:-apple-system,system-ui,sans-serif;background:#0b0f14;color:#e8eef4;padding:16px}
+          .card{background:#131a21;border:1px solid #22303c;border-radius:14px;padding:14px;margin-bottom:12px}
+          .row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #1d2933;font-size:14px}
+          .ok{color:#4ade80}.warn{color:#fbbf24}.bad{color:#f87171}.pill{display:inline-block;margin:2px;padding:4px 8px;border-radius:99px;background:#1d2933;font-size:12px}
+          a{color:#60a5fa}.small{font-size:12px;color:#8fa3b0;line-height:1.6}
+          </style></head><body>
+          <h1>🎬 Automation Control</h1>
+          <p class="small">YouTube Shorts pipeline · Primeplug channel · Public publishing is <b class="bad">OFF</b> · Uploads are private-only behind human approval, rights, editorial and QC gates.</p>
+          <div class="card"><h2>Credential readiness (names only)</h2>${rows}</div>
+          <div class="card"><h2>Pipeline</h2>${stages}</div>
+          <div class="card"><h2>Run things</h2>
+          <p class="small">From your phone: GitHub app / Safari → repo → Actions → choose a workflow → Run workflow.</p>
+          <p><a href="https://github.com/clipuni34-coder/Automation/actions/workflows/private-upload-smoke.yml">▶ Private upload smoke test</a></p>
+          <p><a href="https://github.com/clipuni34-coder/Automation/actions/workflows/e2e-smoke.yml">▶ End-to-end smoke + OAuth validation</a></p>
+          <p><a href="https://github.com/clipuni34-coder/Automation/actions/workflows/discovery.yml">▶ Discovery scan</a></p>
+          <p><a href="https://github.com/clipuni34-coder/Automation/blob/editorial-evidence-hold/docs/EVIDENCE_REPORT.md">📄 Evidence report</a></p></div>
+          <p class="small">Static status snapshot rebuilt on each deploy. The interactive control server deploys separately from src/server.js (binds 0.0.0.0:$PORT).</p>
+          </body></html>`;
+          writeFileSync("site/index.html", html);
+          console.log("Built site/index.html");
+          EOF
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "videos": [
+    {
+      "fingerprint": "a6099961a98119ab153d17b01d5d889daff039e5a6241694fa196520eae5ea0f",
+      "videoId": "ITRMwg5DbxA",
+      "candidateId": "don-pettit-kids-questions",
+      "title": "What do you do for fun in the International Space Station and do you play video games?",
+      "privacyStatus": "private",
+      "channelId": "UCB7EhjM0bj2wtIBy_A_kkkg",
+      "uploadedAt": "2026-11-05T13:16:11Z",
+      "processingStatus": "succeeded",
+      "repairedFromPublishReport": "Run 42033639811 publish-report.json: uploaded_private_verified; original in-run state commit was rejected by GitHub large-file limits (raw .source downloads), repaired manually from the verified report."
+    },
+    {
+      "fingerprint": "0e5ea4eff8e109f8a1a5f2c74c485cc41dba959a0c9d39fb6c11e694fe12056f",
+      "videoId": "sQZOvhrNEdE",
+      "candidateId": "astronaut-pennsylvania-students-2026",
+      "title": "Station, this is Houston, are you ready for the event?",
+      "privacyStatus": "private",
+      "channelId": "UCB7EhjM0bj2wtIBy_A_kkkg",
+      "uploadedAt": "2026-11-05T13:16:11Z",
+      "processingStatus": "succeeded",
+      "repairedFromPublishReport": "Run 42033639811 publish-report.json: uploaded_private_verified; repaired as above."
+    }
+  ]
+}

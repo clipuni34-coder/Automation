@@ -287,13 +287,13 @@
       "creator": "Chiitan (official mascot channel, via Wikimedia Commons)",
       "firstSeenAt": "2026-11-05T13:02:10.478Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T15:43:00.334Z",
+      "updatedAt": "2026-11-05T15:43:42.709Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T15:42:55.467Z"
+        "checkedAt": "2026-11-05T15:43:38.684Z"
       }
     },
     "2fcfd9b3ba9bdc5204655c2b": {
@@ -303,13 +303,13 @@
       "creator": "YouTube creator compilation via Wikimedia Commons (CC BY)",
       "firstSeenAt": "2026-11-05T13:02:10.480Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T15:43:00.339Z",
+      "updatedAt": "2026-11-05T15:43:42.711Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T15:42:55.833Z"
+        "checkedAt": "2026-11-05T15:43:38.956Z"
       }
     },
     "80213f8020ffaf02f8b9cbce": {
@@ -322,11 +322,11 @@
         "observedLicence": "CC BY 3.0",
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T15:42:56.298Z"
+        "checkedAt": "2026-11-05T15:43:39.488Z"
       },
       "firstSeenAt": "2026-11-05T13:02:10.490Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T15:43:00.379Z"
+      "updatedAt": "2026-11-05T15:43:42.761Z"
     },
     "6193b6c449d823aeeb905acc": {
       "fingerprint": "6193b6c449d823aeeb905acc",
@@ -1025,9 +1025,9 @@
         "observedLicence": "Public domain",
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T15:42:56.011Z"
+        "checkedAt": "2026-11-05T15:43:39.168Z"
       },
-      "updatedAt": "2026-11-05T15:43:00.345Z"
+      "updatedAt": "2026-11-05T15:43:42.736Z"
     },
     "3166a6060b079e1aebb360eb": {
       "fingerprint": "3166a6060b079e1aebb360eb",
@@ -1042,9 +1042,9 @@
         "observedLicence": "Public domain",
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T15:42:56.131Z"
+        "checkedAt": "2026-11-05T15:43:39.274Z"
       },
-      "updatedAt": "2026-11-05T15:43:00.355Z"
+      "updatedAt": "2026-11-05T15:43:42.754Z"
     },
     "b574bb140017fde5e443e9e1": {
       "fingerprint": "b574bb140017fde5e443e9e1",
@@ -1733,6 +1733,66 @@
       "firstSeenAt": "2026-11-05T15:43:00.390Z",
       "lastOutcome": "rejected",
       "updatedAt": "2026-11-05T15:43:00.390Z"
+    },
+    "2248cdd4d36150baf46c6022": {
+      "fingerprint": "2248cdd4d36150baf46c6022",
+      "sourceUrl": "https://www.youtube.com/watch?v=1I62duLvafQ",
+      "title": "नानी: बिटिया, इस दिवाली आ जाऊँ कुछ दिन…❤️‍🩹 #Sad #explore #Diwali #Cry #Youtube #shorts",
+      "creator": "Sahil gambhir",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T15:43:42.765Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T15:43:42.765Z"
+    },
+    "dc7ff4d8b1f668da10ba2d3e": {
+      "fingerprint": "dc7ff4d8b1f668da10ba2d3e",
+      "sourceUrl": "https://www.youtube.com/watch?v=11z_O-J8mKE",
+      "title": "The REAL Jack and Rose 😳🚢⚓️🌊",
+      "creator": "Helen Christie",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T15:43:42.769Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T15:43:42.769Z"
+    },
+    "396d3acc5c74d1d0dbf60af7": {
+      "fingerprint": "396d3acc5c74d1d0dbf60af7",
+      "sourceUrl": "https://www.youtube.com/watch?v=hFpdlBeuPaA",
+      "title": "I definitely went running  👀 🤣￼",
+      "creator": "Bridey Drake",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T15:43:42.771Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T15:43:42.771Z"
+    },
+    "d63338ed8429acde52cd10d1": {
+      "fingerprint": "d63338ed8429acde52cd10d1",
+      "sourceUrl": "https://www.youtube.com/watch?v=deM7JREohjk",
+      "title": "Why X-Men Toys Were Ruled Nonhuman 🤔",
+      "creator": "Zack D. Films",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T15:43:42.772Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T15:43:42.772Z"
+    },
+    "163684a7546f245e76681184": {
+      "fingerprint": "163684a7546f245e76681184",
+      "sourceUrl": "https://www.youtube.com/watch?v=b33Re-2oPaE",
+      "title": "The Funniest Marriage Moments Caught On Camera😂 #funny #fails #marriage #wedding",
+      "creator": "Vexrop",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T15:43:42.775Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T15:43:42.775Z"
+    },
+    "8d06ec9c92c133680da0c0da": {
+      "fingerprint": "8d06ec9c92c133680da0c0da",
+      "sourceUrl": "https://www.youtube.com/watch?v=-tJzeHStkeQ",
+      "title": "Top secret Amazing DIY Diya Decoration Hacks 😯 Daily tips in hindi #shorts #shortvideo #diwali",
+      "creator": "Fcat Water ",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T15:43:42.776Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T15:43:42.776Z"
     }
   }
 }

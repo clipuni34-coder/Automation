@@ -49,6 +49,16 @@ export async function runChannelCycle({ channel, niche, state, candidateProvider
     await state.saveQueue(queue);
     try {
       const result = await produceJob(job, channel, niche);
+      if (result?.deferred) {
+        // Not a failure and not a completion: production was disabled for
+        // this cycle. Keep the job queued and do not burn a retry attempt,
+        // so the next production-enabled cycle actually produces it.
+        job.status = "queued"; job.attempts = Math.max(0, job.attempts - 1);
+        job.result = result; job.updatedAt = new Date().toISOString();
+        run.deferred = (run.deferred ?? 0) + 1;
+        await state.saveQueue(queue);
+        continue;
+      }
       job.status = "completed"; job.result = result ?? { ok: true }; job.finishedAt = new Date().toISOString();
       run.completed += 1;
     } catch (error) {

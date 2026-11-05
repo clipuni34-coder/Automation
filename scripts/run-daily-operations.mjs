@@ -55,7 +55,7 @@ async function candidateProvider(channel, niche) {
 }
 
 async function produceJob(job, channel) {
-  if (!productionEnabled) return { produced: false, reason: "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.", candidate: job.candidate?.id ?? null };
+  if (!productionEnabled) return { deferred: true, produced: false, reason: "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.", candidate: job.candidate?.id ?? null };
   const seed = job.candidate?.seedManifestEntry;
   if (!seed) throw new Error("Job candidate has no seed manifest entry; cannot produce");
   const channelWork = join(stateRoot, channel.id, "production");
@@ -74,6 +74,22 @@ async function produceJob(job, channel) {
   }
   // Held/rejected is a successful *decision*, not a job failure to retry forever.
   return { produced: false, outcome: outcome.status, reason: outcome.reason };
+}
+
+// Revive deferred jobs stuck as completed by production-disabled cycles.
+for (const channel of channels) {
+  try {
+    const st = await openChannelState(stateRoot, channel.id);
+    const q = await st.getQueue();
+    let revived = 0;
+    for (const job of q.jobs) {
+      if (job.status === "completed" && job.result?.produced === false && /Production disabled/i.test(job.result?.reason ?? "")) {
+        job.status = "queued"; job.attempts = 0; job.result = { ...(job.result ?? {}), revivedAt: new Date().toISOString(), note: "Re-queued: earlier completion was a production-disabled deferral, not production." };
+        revived += 1;
+      }
+    }
+    if (revived) { await st.saveQueue(q); console.log(`[${channel.id}] revived ${revived} production-disabled deferral(s)`); }
+  } catch (error) { console.error(`[${channel.id}] revive failed: ${error.message}`); }
 }
 
 const summary = await runDailyOperations({

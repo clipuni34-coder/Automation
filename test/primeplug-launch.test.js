@@ -34,3 +34,24 @@ test("Primeplug seed candidates are rights-licensed, HTTPS and pass screening", 
   // Research references must never pass.
   assert.equal(screenCandidate({ sourceUrl: "https://www.youtube.com/watch?v=x", creator: "someone", researchOnly: true }).eligible, false);
 });
+
+test("scheduler: production-disabled (deferred) jobs stay queued and burn no attempts", async () => {
+  const { runChannelCycle } = await import("../src/engine/scheduler.js");
+  const { openChannelState } = await import("../src/engine/state.js");
+  const { mkdtemp } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const root = await mkdtemp(join(tmpdir(), "pp-defer-"));
+  const state = await openChannelState(root, "Primeplug");
+  const channel = { id: "Primeplug", niche: "funny-moments", operation: { enabled: true, paused: false, maxCandidatesPerDay: 4 } };
+  const candidate = { id: "c1", title: "t", sourceUrl: "https://upload.wikimedia.org/x.webm", creator: "c", rightsEvidenceUrl: "https://commons.wikimedia.org/x", license: { rightsStatus: "licensed" } };
+  const run1 = await runChannelCycle({ channel, niche: { id: "funny-moments" }, state, candidateProvider: async () => [candidate], produceJob: async () => ({ deferred: true, produced: false, reason: "Production disabled for this run" }) });
+  assert.equal(run1.deferred, 1);
+  let q = await state.getQueue();
+  assert.equal(q.jobs[0].status, "queued");
+  assert.equal(q.jobs[0].attempts, 0);
+  const run2 = await runChannelCycle({ channel, niche: { id: "funny-moments" }, state, candidateProvider: async () => [], produceJob: async () => ({ produced: true, outcome: "completed" }) });
+  assert.equal(run2.completed, 1);
+  q = await state.getQueue();
+  assert.equal(q.jobs[0].status, "completed");
+});

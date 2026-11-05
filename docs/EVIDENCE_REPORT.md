@@ -176,3 +176,40 @@ Dynamic server (`src/server.js`) shows per-channel queue, awaiting-approval coun
 2. Daily scheduler depends on the scheduler repo's `DISPATCH_TOKEN` remaining authorized; revocation stops daily dispatch (visibly).
 3. Analytics-driven improvement needs real watch data; none exists yet.
 4. Chiitan/belly-rub/elephant-style no-speech footage cannot pass the speech-driven editorial pipeline; future funny coverage needs either speech-rich sources or a narration-first production path (not yet built — not claimed).
+
+## Final production audit — 2026-11-05
+Audit basis: independent re-inspection, not the previous report. Remote branch head re-read via GitHub API = `781ab75942e449663dff6c16602b4039d3f68c15` (matches the reported commit). Improvements commit: `11fcbbe`. Tests: **314/314** locally and in GitHub Tests at `11fcbbe`.
+
+### Independent verification of the previous launch
+- Scheduler repo clipuni34-coder/Primeplug-scheduler: workflow 408158799 "Daily Primeplug dispatch" is `active`, cron `30 5 * * *` (06:30 Africa/Lagos). Only ONE scheduler run exists so far — the manual test dispatch 42035124026 (success) which triggered Automation run 42035148836 (success). **No true cron-fired run has occurred yet; the first is due 2026-11-06 05:30 UTC.** This is stated plainly: daily automation is armed and dispatch-proven, but a natural scheduled cycle is still pending at audit time.
+- Both previously reported private uploads were re-verified against the live YouTube API by the new `scripts/verify-published.mjs` (identity-verified OAuth re-read): ITRMwg5DbxA and sQZOvhrNEdE exist, are `private`, and belong to UCB7EhjM0bj2wtIBy_A_kkkg. Status: `all_verified`.
+- automation-state branch: published registry now contains 4 private videos; state is committed by the workflow itself (latest state commits bd10e4a/efd3247). Duplicate protection re-proven: second publish pass and full re-runs record zero new uploads.
+- Public publishing remains disabled everywhere; the other three channels remain inactive/paused. Primeplug is the only active channel.
+
+### Hands-on video audit of the two speech-pathway videos (frames inspected)
+Both are technically valid (1080x1920, H.264/AAC) but editorially WEAK — recorded here without inflation:
+- `don-pettit-kids-questions` (ITRMwg5DbxA): **4.7 seconds, a single moment** — a student asks "What do you do for fun in the International Space Station and do you play video games?" and the video ends. The hook question creates curiosity but there is NO answer and NO payoff; Don Pettit never speaks. Vertical crop cuts subjects at frame edges. Score: hook 5/10, story 2/10, payoff 0/10. **Recommendation: do not publish publicly; owner may delete.**
+- `astronaut-pennsylvania-students-2026` (sQZOvhrNEdE): **6.4 seconds of mission-control radio check** ("Station, this is Houston, are you ready for the event?") — procedural chatter, no story, no surprising moment; title is literally the radio call. The astronaut appears only standing silently at the end. Not suitable for the funny/surprising niche. **Recommendation: do not publish publicly; owner may delete.**
+Root cause: the lexical editorial scorer over-rewards interrogative/comms phrasing, and the pipeline accepted 1–3 micro-moments totalling <8s. Fixed below.
+
+### Fixes implemented and tested this audit
+1. **Stronger quality gate** (`computeQualityAudit` in scripts/candidate-utils.mjs, enforced in produce-candidates as `held_quality_review`): requires >=2 moments, >=8s of selected story, hook >=5, payoff >=4.5, average >=5.5, and rejects procedural radio-chatter openings. Unit tests encode BOTH real failure shapes above; under the new gate both launch videos would be held, not completed.
+2. **Narration-first pathway** (`scripts/produce-narrated.mjs` + `src/production/narrated-plan.js`): non-speech footage with a planned original commentary script (hook line, 25–90 words, posting title) is narrated via configured TTS, re-edited vertically to the narration, captions burned (hook cue styled separately), thumbnail extracted, same QC + SHA-256 + posting package. No TTS configured = truthful `held_tts_not_configured` (verified locally).
+3. **Published-registry API verification** (`scripts/verify-published.mjs`) runs in the daily workflow: registry claims are checked against the live API every cycle.
+4. State migration requeues previously speech-rejected candidates whose seeds now route to the narrated pathway.
+
+### Cloud proof of the fixes (run 42037298594, artifact 13420060174)
+- `chiitan-mascot-fails` (CC BY 3.0): narrated pathway completed — Gemini TTS narration, 24.9s vertical 1080x1920, 5 caption cues, QC passed, SHA-256 86b28d1c…, uploaded PRIVATE and API-verified as **KBHalqUmHxk**. Frames inspected: hook caption over a mid-air mascot flip — genuinely funny, on-niche.
+- `baby-elephant-funny-moments` (CC BY 3.0): narrated, 25.0s, QC passed, SHA-256 c317bf98…, PRIVATE **dQwD_It3oXM**. Frames inspected: narration captions clean, BUT the source footage's own "Subscribe for more" creator CTA is partially visible at the top of some frames — a real quality defect to fix by choosing windows that avoid source CTAs before any public use.
+- `animals-belly-rub-compilation` remains `rejected_no_speech` on the speech pathway and has no narrated plan, so it was not produced (no forced quantity).
+- Second publish pass: zero uploads. Analytics sync identity-verified (still zero measured metrics — private videos, nothing fabricated).
+
+### Rights-evidence limitations (unchanged, stated plainly)
+Licence evidence is the Wikimedia Commons file-page record (CC BY 3.0 / NASA public domain) captured in each seed's `rightsEvidenceUrl` with `verificationStatus: evidence_recorded_on_commons_file_page`. There is still no independent licence-verification service; a human must inspect the evidence before any public release, and the posting packages carry the attribution/licence text. Research-only YouTube references remain barred from production by the rights screen.
+
+### Remaining blockers
+1. First natural cron-fired scheduler run is pending (due 2026-11-06 06:30 Lagos); only the dispatch mechanism is proven so far.
+2. The two weak speech-pathway private videos (ITRMwg5DbxA, sQZOvhrNEdE) should not be published; deletion is the owner's decision in YouTube Studio.
+3. Narrated renders can inherit source burned-in text/CTAs (elephant video) — window selection must avoid them; not yet automated.
+4. Analytics feedback still needs >=5 publicly watched videos; all current uploads are private with zero metrics.
+5. Public publishing remains OFF pending explicit owner authorization.

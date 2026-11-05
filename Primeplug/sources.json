@@ -301,11 +301,11 @@
     "80213f8020ffaf02f8b9cbce": {
       "fingerprint": "80213f8020ffaf02f8b9cbce",
       "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm",
-      "title": "Baby elephants discovering the world — funny first moments (final corrected render)",
+      "title": "Baby elephants discovering the world — funny first moments (punch-in edit, advanced-QC render)",
       "creator": "YouTube creator via Wikimedia Commons (CC BY)",
       "firstSeenAt": "2026-11-05T13:02:10.490Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T14:19:16.816Z"
+      "updatedAt": "2026-11-05T14:32:45.685Z"
     },
     "6193b6c449d823aeeb905acc": {
       "fingerprint": "6193b6c449d823aeeb905acc",
@@ -1314,6 +1314,51 @@
       "firstSeenAt": "2026-11-05T14:15:56.091Z",
       "lastOutcome": "rejected",
       "updatedAt": "2026-11-05T14:15:56.091Z"
+    },
+    "b5b526db31c943bb2d92835b": {
+      "fingerprint": "b5b526db31c943bb2d92835b",
+      "sourceUrl": "https://www.youtube.com/watch?v=dfBFySR9_Ro",
+      "title": "why did felicia do that at the end 🐘🐘🐘",
+      "creator": "ian lex",
+      "firstSeenAt": "2026-11-05T14:32:45.697Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T14:32:45.697Z"
+    },
+    "ef94dfdd0385873862c97daf": {
+      "fingerprint": "ef94dfdd0385873862c97daf",
+      "sourceUrl": "https://www.youtube.com/watch?v=bPv2jfp58zk",
+      "title": "All Those Balls, but Maggie Is Waiting for the Puck",
+      "creator": "Brighter Paws",
+      "firstSeenAt": "2026-11-05T14:32:45.699Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T14:32:45.699Z"
+    },
+    "0f8366b1d828e86ac23d72a9": {
+      "fingerprint": "0f8366b1d828e86ac23d72a9",
+      "sourceUrl": "https://www.youtube.com/watch?v=u7rRTg-2muc",
+      "title": "QUAL BARCO NÃO AFUNDA?",
+      "creator": "Natan por Aí",
+      "firstSeenAt": "2026-11-05T14:32:45.700Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T14:32:45.700Z"
+    },
+    "b5454968ce7c84461db678a7": {
+      "fingerprint": "b5454968ce7c84461db678a7",
+      "sourceUrl": "https://www.youtube.com/watch?v=HhDhEBZRL3g",
+      "title": "#cachorro  #cachorros #cachorrosdivertidos  #cachorrosfofos  #carameloengraçado #humor",
+      "creator": "Uma Família de Goiás em minas",
+      "firstSeenAt": "2026-11-05T14:32:45.702Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T14:32:45.702Z"
+    },
+    "4ddf20ac6a5a6aedc65bce1f": {
+      "fingerprint": "4ddf20ac6a5a6aedc65bce1f",
+      "sourceUrl": "https://www.youtube.com/watch?v=2gzTkVO50cA",
+      "title": "Wait for End 🤣🔥 #shorts",
+      "creator": "Kratika Moyal",
+      "firstSeenAt": "2026-11-05T14:32:45.704Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T14:32:45.704Z"
     }
   }
 }

@@ -12,13 +12,13 @@
     "attributionRequirement": "Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.",
     "verificationStatus": "evidence_recorded_on_commons_file_page"
   },
-  "status": "held_advanced_qc",
-  "reason": "Advanced QC held this render: faststart (moov follows mdat (not fast-start))",
+  "status": "completed",
+  "reason": null,
   "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/baby-elephant-funny-moments-v5.mp4",
   "thumbnailPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/baby-elephant-funny-moments-v5.thumbnail.jpg",
-  "sha256": null,
-  "startedAt": "2026-11-05T14:33:35.290Z",
-  "finishedAt": "2026-11-05T14:34:11.646Z",
+  "sha256": "bd76eba46843c3e29117e8340911d1e07cd00ec63d14e397aa1d9ca47c8aa0a0",
+  "startedAt": "2026-11-05T14:36:50.708Z",
+  "finishedAt": "2026-11-05T14:37:25.179Z",
   "narrationWords": 56,
   "originalProbe": {
     "width": 1920,
@@ -54,18 +54,18 @@
   },
   "captionCues": 4,
   "audioLevels": {
-    "meanDb": -17.9,
-    "maxDb": -1.5
+    "meanDb": -17.3,
+    "maxDb": -1.6
   },
   "outputOverlayDetection": {
     "status": "ok",
     "frames": 6,
-    "wholeFrameChange": 50.33,
+    "wholeFrameChange": 49.17,
     "overlays": [],
     "detected": false
   },
   "advancedQc": {
-    "passed": false,
+    "passed": true,
     "checks": [
       {
         "name": "resolution_1080x1920",
@@ -80,27 +80,27 @@
       {
         "name": "duration_8_to_58s",
         "passed": true,
-        "detail": "duration=22.566667s"
+        "detail": "duration=22.166667s"
       },
       {
         "name": "narration_audible",
         "passed": true,
-        "detail": "mean=-17.9 dB"
+        "detail": "mean=-17.3 dB"
       },
       {
         "name": "no_clipping",
         "passed": true,
-        "detail": "max=-1.5 dB"
+        "detail": "max=-1.6 dB"
       },
       {
         "name": "limited_black_frames",
         "passed": true,
-        "detail": "black=0s of 22.566667s"
+        "detail": "black=0s of 22.166667s"
       },
       {
         "name": "limited_silence",
         "passed": true,
-        "detail": "silence=0s of 22.566667s"
+        "detail": "silence=0s of 22.166667s"
       },
       {
         "name": "scene_pacing",
@@ -109,14 +109,14 @@
       },
       {
         "name": "faststart",
-        "passed": false,
-        "detail": "moov follows mdat (not fast-start)"
+        "passed": true,
+        "detail": "moov precedes mdat"
       }
     ],
     "metrics": {
       "volume": {
-        "meanDb": -17.9,
-        "maxDb": -1.5
+        "meanDb": -17.3,
+        "maxDb": -1.6
       },
       "black": {
         "blackSegments": 0,
@@ -130,5 +130,55 @@
         "sceneChanges": 2
       }
     }
+  },
+  "qc": {
+    "status": "passed",
+    "repaired": false,
+    "probe": {
+      "width": 1080,
+      "height": 1920,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fps": 30,
+      "durationSeconds": 22.166667,
+      "sizeBytes": 10227525,
+      "hasAudio": true
+    },
+    "failures": [],
+    "attempts": 0
+  },
+  "outputProbe": {
+    "width": 1080,
+    "height": 1920,
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "fps": 30,
+    "durationSeconds": 22.166667,
+    "sizeBytes": 10227525,
+    "hasAudio": true
+  },
+  "pipeline": {
+    "status": "completed",
+    "pathway": "narrated",
+    "wordCount": 56,
+    "editorialAverage": null,
+    "title": "Baby Elephants' Funniest First Moments 🐘",
+    "selectedMoments": [
+      "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
+      "Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress.",
+      "The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love.",
+      "Pure joy, zero worries."
+    ]
+  },
+  "postingPackage": {
+    "title": "Baby Elephants' Funniest First Moments 🐘",
+    "description": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.\n\nSource: https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm\nCredit: YouTube creator via Wikimedia Commons (CC BY). Rights: CC BY 3.0 — Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.\nOriginal commentary narration, captions and edit by Primeplug.",
+    "hashtags": [
+      "#Shorts",
+      "#funny",
+      "#elephant",
+      "#animals",
+      "#cute"
+    ]
   }
 }

@@ -1,0 +1,184 @@
+{
+  "id": "baby-elephant-funny-moments-v6",
+  "label": "Baby elephants discovering the world — funny first moments (final: punch-in edit, advanced QC, fast-start)",
+  "creator": "YouTube creator via Wikimedia Commons (CC BY)",
+  "pathway": "narrated",
+  "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm",
+  "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Most_Funny_and_Cute_Baby_Elephant_Videos_(Copyright_Free)_Full_HD.webm",
+  "license": {
+    "type": "CC BY 3.0",
+    "basis": "Wikimedia Commons file page records Creative Commons Attribution 3.0 Unported for this footage. Reuse permitted with attribution.",
+    "rightsStatus": "licensed",
+    "attributionRequirement": "Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.",
+    "verificationStatus": "evidence_recorded_on_commons_file_page"
+  },
+  "status": "completed",
+  "reason": null,
+  "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/baby-elephant-funny-moments-v6.mp4",
+  "thumbnailPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/baby-elephant-funny-moments-v6.thumbnail.jpg",
+  "sha256": "709fafe45508a6cf5e9a03e29d40784abac1f66bdcb1b7ecfb390a1f75cf26ac",
+  "startedAt": "2026-11-05T14:37:25.236Z",
+  "finishedAt": "2026-11-05T14:38:01.137Z",
+  "narrationWords": 56,
+  "originalProbe": {
+    "width": 1920,
+    "height": 1072,
+    "durationSeconds": 64.288,
+    "hasAudio": true
+  },
+  "narration": {
+    "provider": "gemini",
+    "model": "gemini-3.8-flash-tts"
+  },
+  "sourceOverlayDetection": {
+    "status": "ok",
+    "frames": 6,
+    "wholeFrameChange": 56.52,
+    "overlays": [
+      {
+        "band": "top",
+        "fraction": 0.2,
+        "staticness": 0,
+        "colourfulness": 0.241,
+        "signatureFrames": 2,
+        "method": "text-signature"
+      }
+    ],
+    "detected": true
+  },
+  "overlayDecision": {
+    "action": "reframe",
+    "band": "top",
+    "fraction": 0.2,
+    "reason": null
+  },
+  "captionCues": 4,
+  "audioLevels": {
+    "meanDb": -17.6,
+    "maxDb": -1.7
+  },
+  "outputOverlayDetection": {
+    "status": "ok",
+    "frames": 6,
+    "wholeFrameChange": 42.65,
+    "overlays": [],
+    "detected": false
+  },
+  "advancedQc": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "resolution_1080x1920",
+        "passed": true,
+        "detail": "video=1080x1920"
+      },
+      {
+        "name": "codec_h264_aac",
+        "passed": true,
+        "detail": "video=h264 audio=aac"
+      },
+      {
+        "name": "duration_8_to_58s",
+        "passed": true,
+        "detail": "duration=25.8s"
+      },
+      {
+        "name": "narration_audible",
+        "passed": true,
+        "detail": "mean=-17.6 dB"
+      },
+      {
+        "name": "no_clipping",
+        "passed": true,
+        "detail": "max=-1.7 dB"
+      },
+      {
+        "name": "limited_black_frames",
+        "passed": true,
+        "detail": "black=0s of 25.8s"
+      },
+      {
+        "name": "limited_silence",
+        "passed": true,
+        "detail": "silence=0s of 25.8s"
+      },
+      {
+        "name": "scene_pacing",
+        "passed": true,
+        "detail": "sceneChanges=4"
+      },
+      {
+        "name": "faststart",
+        "passed": true,
+        "detail": "moov precedes mdat"
+      }
+    ],
+    "metrics": {
+      "volume": {
+        "meanDb": -17.6,
+        "maxDb": -1.7
+      },
+      "black": {
+        "blackSegments": 0,
+        "blackSeconds": 0
+      },
+      "silence": {
+        "silenceSegments": 0,
+        "silenceSeconds": 0
+      },
+      "scenes": {
+        "sceneChanges": 4
+      }
+    }
+  },
+  "qc": {
+    "status": "passed",
+    "repaired": false,
+    "probe": {
+      "width": 1080,
+      "height": 1920,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fps": 30,
+      "durationSeconds": 25.8,
+      "sizeBytes": 10816944,
+      "hasAudio": true
+    },
+    "failures": [],
+    "attempts": 0
+  },
+  "outputProbe": {
+    "width": 1080,
+    "height": 1920,
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "fps": 30,
+    "durationSeconds": 25.8,
+    "sizeBytes": 10816944,
+    "hasAudio": true
+  },
+  "pipeline": {
+    "status": "completed",
+    "pathway": "narrated",
+    "wordCount": 56,
+    "editorialAverage": null,
+    "title": "Baby Elephants' Funniest First Moments 🐘",
+    "selectedMoments": [
+      "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
+      "Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress.",
+      "The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love.",
+      "Pure joy, zero worries."
+    ]
+  },
+  "postingPackage": {
+    "title": "Baby Elephants' Funniest First Moments 🐘",
+    "description": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.\n\nSource: https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm\nCredit: YouTube creator via Wikimedia Commons (CC BY). Rights: CC BY 3.0 — Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.\nOriginal commentary narration, captions and edit by Primeplug.",
+    "hashtags": [
+      "#Shorts",
+      "#funny",
+      "#elephant",
+      "#animals",
+      "#cute"
+    ]
+  }
+}

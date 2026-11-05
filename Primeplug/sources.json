@@ -287,7 +287,14 @@
       "creator": "Chiitan (official mascot channel, via Wikimedia Commons)",
       "firstSeenAt": "2026-11-05T13:02:10.478Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T13:02:10.478Z"
+      "updatedAt": "2026-11-05T15:43:00.334Z",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "CC BY 3.0",
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-05T15:42:55.467Z"
+      }
     },
     "2fcfd9b3ba9bdc5204655c2b": {
       "fingerprint": "2fcfd9b3ba9bdc5204655c2b",
@@ -296,7 +303,14 @@
       "creator": "YouTube creator compilation via Wikimedia Commons (CC BY)",
       "firstSeenAt": "2026-11-05T13:02:10.480Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T13:02:10.480Z"
+      "updatedAt": "2026-11-05T15:43:00.339Z",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "CC BY 3.0",
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-05T15:42:55.833Z"
+      }
     },
     "80213f8020ffaf02f8b9cbce": {
       "fingerprint": "80213f8020ffaf02f8b9cbce",
@@ -308,11 +322,11 @@
         "observedLicence": "CC BY 3.0",
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T15:39:50.133Z"
+        "checkedAt": "2026-11-05T15:42:56.298Z"
       },
       "firstSeenAt": "2026-11-05T13:02:10.490Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T15:39:55.684Z"
+      "updatedAt": "2026-11-05T15:43:00.379Z"
     },
     "6193b6c449d823aeeb905acc": {
       "fingerprint": "6193b6c449d823aeeb905acc",
@@ -1005,7 +1019,15 @@
       "creator": "NASA",
       "outcome": "eligible",
       "recordedAt": "2026-11-05T13:12:41Z",
-      "repairedNote": "Recorded in run 42033639811; in-run state commit rejected (large raw sources), repaired from verified run artifacts."
+      "repairedNote": "Recorded in run 42033639811; in-run state commit rejected (large raw sources), repaired from verified run artifacts.",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "Public domain",
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-05T15:42:56.011Z"
+      },
+      "updatedAt": "2026-11-05T15:43:00.345Z"
     },
     "3166a6060b079e1aebb360eb": {
       "fingerprint": "3166a6060b079e1aebb360eb",
@@ -1014,7 +1036,15 @@
       "creator": "NASA",
       "outcome": "eligible",
       "recordedAt": "2026-11-05T13:12:41Z",
-      "repairedNote": "Recorded in run 42033639811; in-run state commit rejected (large raw sources), repaired from verified run artifacts."
+      "repairedNote": "Recorded in run 42033639811; in-run state commit rejected (large raw sources), repaired from verified run artifacts.",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "Public domain",
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-05T15:42:56.131Z"
+      },
+      "updatedAt": "2026-11-05T15:43:00.355Z"
     },
     "b574bb140017fde5e443e9e1": {
       "fingerprint": "b574bb140017fde5e443e9e1",
@@ -1683,6 +1713,26 @@
       "firstSeenAt": "2026-11-05T15:39:55.726Z",
       "lastOutcome": "rejected",
       "updatedAt": "2026-11-05T15:39:55.726Z"
+    },
+    "01ad98940bf18f87c8f5e5d9": {
+      "fingerprint": "01ad98940bf18f87c8f5e5d9",
+      "sourceUrl": "https://www.youtube.com/watch?v=g0vVxEfdtjo",
+      "title": "POV: AS REDES SOCIAIS QUANDO VC APAGA UMA MENSAGEM 😹",
+      "creator": "MoriMura",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T15:43:00.387Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T15:43:00.387Z"
+    },
+    "d07c7cdbb58ac7098787771a": {
+      "fingerprint": "d07c7cdbb58ac7098787771a",
+      "sourceUrl": "https://www.youtube.com/watch?v=YRVz3Nikwac",
+      "title": "FALLEN STAR - SONIA UCHE, JOHN EKANEM, WARRI PIKIN LATEST 2026 NIGERIAN MOVIE",
+      "creator": "Sonia Uche Tv",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T15:43:00.390Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T15:43:00.390Z"
     }
   }
 }

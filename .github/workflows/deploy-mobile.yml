@@ -56,7 +56,7 @@ jobs:
           const raw = readFileSync("readiness.json", "utf8");
           const r = JSON.parse(raw.slice(raw.indexOf("{")));
           const channelsData = JSON.parse(readFileSync("config/channels.json", "utf8"));
-          const channelRows = (channelsData.channels ?? []).map((c) => `<div class="row"><span><b>${c.name}</b><br><span class="small">${c.niche} · ${c.youtubeChannelId ?? "not connected"}</span></span><span class="pill">${c.status}${c.operation?.paused ? " · paused" : ""}</span></div>`).join("");
+          const channelRows = (channelsData.channels ?? []).map((c) => { const primary = c.role === "primary"; return `<div class="row"><span><b>${primary ? "⭐ " : ""}${c.name}</b><br><span class="small">${c.niche} · ${c.youtubeChannelId ?? "not connected"}${c.handle ? " · " + c.handle : ""}</span></span><span class="pill">${primary ? "PRIMARY · ACTIVE" : "INACTIVE"} · ${c.status}${c.operation?.paused ? " · paused" : ""}</span></div>`; }).join("");
           const rows = Object.entries(r.capabilities).map(([k, v]) =>
             `<div class="row"><span>${k.replaceAll("_", " ")}</span><b class="${v.ready ? "ok" : "warn"}">${v.ready ? "Ready" : "Missing: " + v.missing.join(", ")}</b></div>`).join("");
           const stages = ["Discovery","Source verification","Rights approval","Story analysis","Clip selection","Editing","Rendering","Quality control","Posting package","Private YouTube upload","Analytics feedback"]

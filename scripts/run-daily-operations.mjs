@@ -67,7 +67,11 @@ async function produceJob(job, channel) {
   let outcome = null;
   try { outcome = JSON.parse(await readFile(join(outDir, `${job.candidate.id}.candidate.json`), "utf8")); } catch { /* below */ }
   if (!outcome) throw new Error(`Production produced no outcome record: ${(r.stderr || r.stdout || "").slice(-300)}`);
-  if (outcome.status === "completed") return { produced: true, outcome: outcome.status, outputPath: outcome.outputPath, sha256: outcome.sha256 };
+  if (outcome.status === "completed") {
+    let pkg = null;
+    try { const rep = JSON.parse(await readFile(join(outDir, `${job.candidate.id}.repurpose.json`), "utf8")); pkg = rep.postingPackage?.platformPackages?.youtube_shorts ?? null; } catch { /* package optional */ }
+    return { produced: true, outcome: outcome.status, outputPath: outcome.outputPath, sha256: outcome.sha256, thumbnailPath: outcome.thumbnailPath ?? null, title: pkg?.title ?? outcome.pipeline?.title ?? null, postingPackage: pkg ? { title: pkg.title, description: pkg.description, hashtags: pkg.hashtags } : null };
+  }
   // Held/rejected is a successful *decision*, not a job failure to retry forever.
   return { produced: false, outcome: outcome.status, reason: outcome.reason };
 }

@@ -32,7 +32,9 @@ test("real config files load: 4 channels, distinct niches, only Primeplug connec
   const niches = await loadNicheRegistry(new URL("../config/niches.json", import.meta.url).pathname);
   const channels = validateChannels(JSON.parse(await readFile(new URL("../config/channels.json", import.meta.url), "utf8")));
   assert.equal(channels.length, 4);
-  assert.equal(new Set(channels.map((c) => c.niche)).size, 4);
+  // Primeplug-only phase: Primeplug now owns the funny-moments niche; the paused
+  // funny placeholder may share the niche id but is disabled and cannot operate.
+  assert.equal(channels.find((c) => c.id === "Primeplug").niche, "funny-moments");
   for (const c of channels) assert.ok(niches.has(c.niche), c.niche);
   const connected = channels.filter((c) => c.status === "connected");
   assert.equal(connected.length, 1);

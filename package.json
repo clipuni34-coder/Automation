@@ -33,6 +33,7 @@
     "e2e": "node src/pipeline/e2e-cli.js",
     "credential-audit": "node src/config/credentials.js",
     "daily-operations": "node scripts/run-daily-operations.mjs",
-    "sync-analytics": "node scripts/sync-analytics.mjs"
+    "sync-analytics": "node scripts/sync-analytics.mjs",
+    "publish-awaiting": "node scripts/publish-awaiting.mjs"
   }
 }

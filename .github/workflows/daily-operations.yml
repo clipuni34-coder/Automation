@@ -32,6 +32,10 @@ on:
         description: "Produce eligible candidates (rendering) during this run"
         type: boolean
         default: false
+      approve_private_upload:
+        description: "Owner approval: upload produced+QC-passed Primeplug videos PRIVATELY (never public) after identity verification"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -43,7 +47,7 @@ concurrency:
 jobs:
   operate:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
         with:
@@ -81,6 +85,28 @@ jobs:
           RSS_FEEDS: ${{ vars.RSS_FEEDS }}
           DAILY_PRODUCTION_ENABLED: ${{ inputs.production_enabled || 'false' }}
         run: npm run daily-operations
+      - name: Approval-gated PRIVATE upload of produced Primeplug videos (never public)
+        if: inputs.approve_private_upload == true
+        env:
+          STATE_DIR: state
+          HUMAN_APPROVED_PRIVATE: "true"
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+          PUBLISH_REPORT: output/publishing/publish-report.json
+        run: npm run publish-awaiting
+      - name: Duplicate-upload prevention proof (second pass must record zero new uploads)
+        if: inputs.approve_private_upload == true
+        env:
+          STATE_DIR: state
+          HUMAN_APPROVED_PRIVATE: "true"
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+          PUBLISH_REPORT: output/publishing/publish-report-second-pass.json
+        run: npm run publish-awaiting
       - name: Sync YouTube analytics per connected channel (identity-verified)
         if: vars.SYNC_YOUTUBE_ANALYTICS == 'true'
         env:
@@ -92,6 +118,7 @@ jobs:
         run: npm run sync-analytics
       - name: Persist updated channel state
         run: |
+          printf '*.mp4\n*.webm\n*.wav\nproduction/work/\n' > state/.gitignore
           cd state
           git add -A
           if git diff --cached --quiet; then echo "No state changes"; else
@@ -106,5 +133,9 @@ jobs:
         if: always()
         with:
           name: daily-operations-report
-          path: output/daily/
+          path: |
+            output/daily/
+            output/publishing/
+            state/Primeplug/production/output/
+          if-no-files-found: warn
           retention-days: 30

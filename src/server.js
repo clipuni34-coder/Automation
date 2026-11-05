@@ -47,7 +47,7 @@ export async function getSystemStatus(env = process.env) {
         });
       } catch { /* state not created yet for this channel */ }
       channels.push({
-        id: c.id, name: c.name, status: c.status, niche: c.niche,
+        id: c.id, name: c.name, role: c.role ?? null, handle: c.handle ?? null, status: c.status, niche: c.niche,
         youtubeChannelId: c.youtubeChannelId || null,
         operation: c.operation,
         publishingEnabled: c.publishing.enabled, privacyStatus: c.publishing.privacyStatus,
@@ -96,7 +96,7 @@ const el=id=>document.getElementById(id);
 async function load(){try{const s=await (await fetch('/api/status')).json();
 el('sys').innerHTML='<div class="row"><span>Environment</span><b>'+s.environment+'</b></div><div class="row"><span>Approval required</span><b>'+(s.approvalRequired?'Yes':'No')+'</b></div><div class="row"><span>Public publishing</span><b class="bad">Disabled</b></div>';
 el('caps').innerHTML=Object.entries(s.capabilities).map(([k,v])=>'<div class="row"><span>'+k.replaceAll('_',' ')+'</span><b class="'+(v.ready?'ok':'warn')+'">'+(v.ready?'Ready':'Missing: '+v.missing.join(', '))+'</b></div>').join('');
-el('channels').innerHTML=s.channels.length?s.channels.map(c=>{const st=c.state||{};const jobs=st.jobs||{};return '<div class="row"><span><b>'+c.name+'</b><br><span class="small">'+c.niche+' · '+(c.youtubeChannelId||'not connected')+'</span></span><span class="pill">'+c.status+(st.paused?' · ⏸ paused':'')+'</span></div><div class="row"><span>Queue</span><span>'+(jobs.queued||0)+' queued · '+(jobs.completed||0)+' done · '+(jobs.failed||0)+' failed</span></div><div class="row"><span>Published (recorded)</span><span>'+(st.publishedCount||0)+'</span></div><div class="row"><span>Sources seen</span><span>'+(st.sourcesSeen||0)+'</span></div><button onclick="ctl(\''+c.id+'\','+(st.paused?'\'resume\'':'\'pause\')+')">'+(st.paused?'▶ Resume':'⏸ Pause')+' this channel</button>'}).join(''):'<div class="warn">'+(s.channelConfigError||'No channels')+'</div>';
+el('channels').innerHTML=s.channels.length?s.channels.map(c=>{const st=c.state||{};const jobs=st.jobs||{};return '<div class="row"><span><b>'+c.name+'</b><br><span class="small">'+c.niche+' · '+(c.youtubeChannelId||'not connected')+'</span></span><span class="pill">'+c.status+(st.paused?' · ⏸ paused':'')+'</span></div><div class="row"><span>Queue</span><span>'+(jobs.queued||0)+' queued · '+(jobs.completed||0)+' done · '+(jobs.failed||0)+' failed</span></div><div class="row"><span>Awaiting approval</span><span>'+(st.awaitingApproval||0)+'</span></div><div class="row"><span>Published (recorded)</span><span>'+(st.publishedCount||0)+'</span></div><div class="row"><span>Sources seen</span><span>'+(st.sourcesSeen||0)+'</span></div>'+(st.analytics?'<div class="row"><span>Views (analytics)</span><span>'+((st.analytics.totals||{}).views??0)+'</span></div>':'')+(st.lastError?'<div class="row"><span>Last error</span><span class="warn">'+String(st.lastError).slice(0,120)+'</span></div>':'')<button onclick="ctl(\''+c.id+'\','+(st.paused?'\'resume\'':'\'pause\')+')">'+(st.paused?'▶ Resume':'⏸ Pause')+' this channel</button>'}).join(''):'<div class="warn">'+(s.channelConfigError||'No channels')+'</div>';
 el('stages').innerHTML=s.pipelineStages.map((x,i)=>'<span class="stage">'+(i+1)+'. '+x+'</span>').join('');
 }catch(e){el('sys').innerHTML='<span class="bad">Failed to load status</span>'}}
 async function decide(d){const packageId=el('pkg').value.trim();if(!packageId){el('msg').textContent='Enter a package/video ID first.';return}

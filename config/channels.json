@@ -8,14 +8,41 @@
       "countryCode": "NG",
       "timezone": "Africa/Lagos",
       "status": "connected",
-      "niche": "discoveries-science",
-      "nicheKeywords": ["nasa", "astronaut", "mars", "space station", "apollo"],
+      "niche": "funny-moments",
+      "nicheKeywords": [
+        "funny fails",
+        "unexpected moments",
+        "incredible human moments",
+        "surprising events",
+        "funny animals",
+        "mascot fails",
+        "caught on camera"
+      ],
       "targetFormat": "youtube_shorts",
       "youtubeChannelId": "UCB7EhjM0bj2wtIBy_A_kkkg",
       "refreshTokenEnv": "YOUTUBE_REFRESH_TOKEN",
       "expectedChannelIdEnv": "YOUTUBE_EXPECTED_CHANNEL_ID",
-      "operation": { "enabled": true, "paused": false, "postingDays": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"], "postsPerDay": 1, "maxCandidatesPerDay": 6, "productionEnabled": true, "publishingMode": "private_only" },
-      "seedCandidateManifest": "config/candidate-manifest.json"
+      "operation": {
+        "enabled": true,
+        "paused": false,
+        "postingDays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ],
+        "postsPerDay": 1,
+        "maxCandidatesPerDay": 4,
+        "productionEnabled": true,
+        "publishingMode": "private_only"
+      },
+      "seedCandidateManifest": "config/primeplug-candidates.json",
+      "role": "primary",
+      "handle": "@primeplug-f4b",
+      "channelUrl": "https://www.youtube.com/@primeplug-f4b"
     },
     {
       "id": "primeplug-funny",
@@ -25,9 +52,26 @@
       "timezone": "Africa/Lagos",
       "status": "setup_pending",
       "niche": "funny-moments",
-      "nicheKeywords": ["funny", "fails", "rankings"],
+      "nicheKeywords": [
+        "funny",
+        "fails",
+        "rankings"
+      ],
       "targetFormat": "youtube_shorts",
-      "operation": { "enabled": false, "paused": true, "postingDays": ["mon", "wed", "fri"], "postsPerDay": 1, "maxCandidatesPerDay": 4, "productionEnabled": false, "publishingMode": "disabled" }
+      "operation": {
+        "enabled": false,
+        "paused": true,
+        "postingDays": [
+          "mon",
+          "wed",
+          "fri"
+        ],
+        "postsPerDay": 1,
+        "maxCandidatesPerDay": 4,
+        "productionEnabled": false,
+        "publishingMode": "disabled"
+      },
+      "role": "inactive"
     },
     {
       "id": "primeplug-gaming",
@@ -37,9 +81,26 @@
       "timezone": "Africa/Lagos",
       "status": "setup_pending",
       "niche": "gaming-roblox",
-      "nicheKeywords": ["roblox", "gaming", "speedrun"],
+      "nicheKeywords": [
+        "roblox",
+        "gaming",
+        "speedrun"
+      ],
       "targetFormat": "youtube_shorts",
-      "operation": { "enabled": false, "paused": true, "postingDays": ["tue", "thu", "sat"], "postsPerDay": 1, "maxCandidatesPerDay": 4, "productionEnabled": false, "publishingMode": "disabled" }
+      "operation": {
+        "enabled": false,
+        "paused": true,
+        "postingDays": [
+          "tue",
+          "thu",
+          "sat"
+        ],
+        "postsPerDay": 1,
+        "maxCandidatesPerDay": 4,
+        "productionEnabled": false,
+        "publishingMode": "disabled"
+      },
+      "role": "inactive"
     },
     {
       "id": "primeplug-facts",
@@ -49,9 +110,26 @@
       "timezone": "Africa/Lagos",
       "status": "setup_pending",
       "niche": "facts-education",
-      "nicheKeywords": ["facts", "science", "history", "how it works"],
+      "nicheKeywords": [
+        "facts",
+        "science",
+        "history",
+        "how it works"
+      ],
       "targetFormat": "youtube_shorts",
-      "operation": { "enabled": false, "paused": true, "postingDays": ["mon", "thu"], "postsPerDay": 1, "maxCandidatesPerDay": 4, "productionEnabled": false, "publishingMode": "disabled" }
+      "operation": {
+        "enabled": false,
+        "paused": true,
+        "postingDays": [
+          "mon",
+          "thu"
+        ],
+        "postsPerDay": 1,
+        "maxCandidatesPerDay": 4,
+        "productionEnabled": false,
+        "publishingMode": "disabled"
+      },
+      "role": "inactive"
     }
   ]
 }

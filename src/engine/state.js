@@ -97,6 +97,8 @@ export class ChannelState {
         failed: queue.jobs.filter((j) => j.status === "failed").length
       },
       publishedCount: published.videos.length,
+      awaitingApproval: queue.jobs.filter((j) => j.status === "completed" && j.result?.produced === true && j.result?.sha256 && !published.videos.some((v) => v.fingerprint === j.result.sha256)).length,
+      lastError: [...queue.jobs].reverse().find((j) => j.lastError)?.lastError ?? null,
       published: published.videos.slice(-5),
       analytics: analytics ? {
         fetchedAt: analytics.fetchedAt ?? null,

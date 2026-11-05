@@ -1,0 +1,284 @@
+{
+  "version": 1,
+  "sources": {
+    "577283275b774ba839f7f74c": {
+      "fingerprint": "577283275b774ba839f7f74c",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c4/NASA_Astronaut_Christopher_Williams_Discusses_Life_In_Space_With_Columbia_Space_Initiative_%E2%80%93_January_23%2C_2026_%28iss074m260231458%29.webm",
+      "title": "NASA Astronaut Christopher Williams - Life in Space, student Q&A (Columbia)",
+      "creator": "NASA",
+      "firstSeenAt": "2026-11-05T12:37:10.887Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-05T12:37:10.887Z"
+    },
+    "1f3c2f573576f49abfe680b7": {
+      "fingerprint": "1f3c2f573576f49abfe680b7",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/4/49/NASA_Astronaut_Discusses_Life_In_Space_With_Fox_News_%E2%80%93_December_15%2C_2025_%28iss073m263361553%29.webm",
+      "title": "NASA Astronaut - Life in Space, news interview",
+      "creator": "NASA",
+      "firstSeenAt": "2026-11-05T12:37:10.889Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-05T12:37:10.889Z"
+    },
+    "0ef066f9cbf37873c2fbafdb": {
+      "fingerprint": "0ef066f9cbf37873c2fbafdb",
+      "sourceUrl": "https://nasa.gov/wp-content/uploads/static/history/alsj/a11/A11Landing.mov",
+      "title": "Apollo 11 Powered Descent and Landing (baseline, below new resolution standard)",
+      "creator": "NASA",
+      "firstSeenAt": "2026-11-05T12:37:10.891Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-05T12:37:10.891Z"
+    },
+    "317f4ac33398f09664f900c1": {
+      "fingerprint": "317f4ac33398f09664f900c1",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Perseverance_Rover%27s_Descent_and_Touchdown_on_Mars_Onboard_Camera_Views_.webm",
+      "title": "Perseverance Rover Descent and Touchdown, onboard cameras (4K)",
+      "creator": "NASA/JPL-Caltech",
+      "firstSeenAt": "2026-11-05T12:37:10.893Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-05T12:37:10.893Z"
+    },
+    "7491d83bfabe81806a1a75c7": {
+      "fingerprint": "7491d83bfabe81806a1a75c7",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/9/96/Curiosity%27s_Seven_Minutes_of_Terror.ogv",
+      "title": "Curiosity - Seven Minutes of Terror (narrated, 720p)",
+      "creator": "NASA/JPL-Caltech",
+      "firstSeenAt": "2026-11-05T12:37:10.894Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-05T12:37:10.894Z"
+    },
+    "5d9784484ad8cc5f9c99ef75": {
+      "fingerprint": "5d9784484ad8cc5f9c99ef75",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b0/NASA-MarsLanding-PerseveranceRover-18Feb2021-20201221.webm",
+      "title": "Perseverance landing animation (1080p, no speech)",
+      "creator": "NASA/JPL-Caltech",
+      "firstSeenAt": "2026-11-05T12:37:10.895Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-05T12:37:10.895Z"
+    },
+    "424f39141a6338bd10048e44": {
+      "fingerprint": "424f39141a6338bd10048e44",
+      "sourceUrl": "https://www.youtube.com/watch?v=BNAreEtYseM",
+      "title": "Does This ₹10,000 Robot Actually Work?",
+      "creator": "TECH-iELA Shorts",
+      "firstSeenAt": "2026-11-05T12:37:10.897Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.897Z"
+    },
+    "4fb7bdb928be06bdd1daf443": {
+      "fingerprint": "4fb7bdb928be06bdd1daf443",
+      "sourceUrl": "https://www.youtube.com/watch?v=CRQmKc7XQoI",
+      "title": "Astronaut Terry Virts: Earth Is A Spaceship. Be Crew #shorts",
+      "creator": "London Real",
+      "firstSeenAt": "2026-11-05T12:37:10.898Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.898Z"
+    },
+    "c5c17be5364758e0f08c57b3": {
+      "fingerprint": "c5c17be5364758e0f08c57b3",
+      "sourceUrl": "https://www.youtube.com/watch?v=sGaUJIYBzNA",
+      "title": "Why NASA Stopped Landing Rovers in Airbags",
+      "creator": "Unexpected Engineering",
+      "firstSeenAt": "2026-11-05T12:37:10.899Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.899Z"
+    },
+    "c174997b084b674f5ce7f235": {
+      "fingerprint": "c174997b084b674f5ce7f235",
+      "sourceUrl": "https://www.youtube.com/watch?v=-vO_An4U48Y",
+      "title": "How NASA landed a rover with a flying crane",
+      "creator": "alan de souza",
+      "firstSeenAt": "2026-11-05T12:37:10.900Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.900Z"
+    },
+    "18cf552178c8258c36cdd01f": {
+      "fingerprint": "18cf552178c8258c36cdd01f",
+      "sourceUrl": "https://www.youtube.com/watch?v=JmVR6SCS_M4",
+      "title": "Why did NASA bounce a rover?",
+      "creator": "WonderTrace",
+      "firstSeenAt": "2026-11-05T12:37:10.901Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.901Z"
+    },
+    "9def004b436bd305f9c93c91": {
+      "fingerprint": "9def004b436bd305f9c93c91",
+      "sourceUrl": "https://www.youtube.com/watch?v=sKBj2nVoTWg",
+      "title": "PCB Shortage",
+      "creator": "UFD Tech",
+      "firstSeenAt": "2026-11-05T12:37:10.902Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.902Z"
+    },
+    "3815f9ac676dfe40fa4b4419": {
+      "fingerprint": "3815f9ac676dfe40fa4b4419",
+      "sourceUrl": "https://www.youtube.com/watch?v=zZ4T26qbpiE",
+      "title": "I Launched My Selfie Camera Payload to 30,000ft",
+      "creator": "BPS.space",
+      "firstSeenAt": "2026-11-05T12:37:10.902Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.902Z"
+    },
+    "67fc9c8d2495ad64a57cb75c": {
+      "fingerprint": "67fc9c8d2495ad64a57cb75c",
+      "sourceUrl": "https://www.youtube.com/watch?v=g0QapdEMYM0",
+      "title": "Deep Sea Jellyfish Glows Like a Rainbow Firework | NOAA Footage",
+      "creator": "Ocean IQ Daily",
+      "firstSeenAt": "2026-11-05T12:37:10.903Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.903Z"
+    },
+    "d6ffcdc65fe1c9686c4543fd": {
+      "fingerprint": "d6ffcdc65fe1c9686c4543fd",
+      "sourceUrl": "https://www.youtube.com/watch?v=1Hs03mhfZGE",
+      "title": "Phones Now VS Phones In 2050.",
+      "creator": "Ryan HD",
+      "firstSeenAt": "2026-11-05T12:37:10.904Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.904Z"
+    },
+    "036d84c13b7b58289eb89d65": {
+      "fingerprint": "036d84c13b7b58289eb89d65",
+      "sourceUrl": "https://www.youtube.com/watch?v=7fe8V8ge68g",
+      "title": "Apollo 11's Computer Overloaded During the Landing - Mission Control Said GO #shorts",
+      "creator": "Spaceflightpedia",
+      "firstSeenAt": "2026-11-05T12:37:10.905Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.905Z"
+    },
+    "e80794efe9d7ebec16993046": {
+      "fingerprint": "e80794efe9d7ebec16993046",
+      "sourceUrl": "https://www.youtube.com/watch?v=eUTlQeRk8V8",
+      "title": "what's it like to float outside the ISS? - FULL INTERVIEW NOW ONLINE",
+      "creator": "Space Odyssey",
+      "firstSeenAt": "2026-11-05T12:37:10.905Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.905Z"
+    },
+    "19d7d7793302ef5ade674ae3": {
+      "fingerprint": "19d7d7793302ef5ade674ae3",
+      "sourceUrl": "https://www.youtube.com/watch?v=JB9KWfmUkow",
+      "title": "Glowing Creature Found! 🤯#trendingshorts #usashorts #america #youtubeshorts #ytviral 🥰🇺🇸",
+      "creator": "wildora verse",
+      "firstSeenAt": "2026-11-05T12:37:10.906Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.906Z"
+    },
+    "89479c9bfda0d8ad8defb467": {
+      "fingerprint": "89479c9bfda0d8ad8defb467",
+      "sourceUrl": "https://www.youtube.com/watch?v=mKYmurWNgUk",
+      "title": "Sam Altman Wants Your RAMs 👀",
+      "creator": "Archetype Origins",
+      "firstSeenAt": "2026-11-05T12:37:10.907Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.907Z"
+    },
+    "59e1be6574084d93a155262f": {
+      "fingerprint": "59e1be6574084d93a155262f",
+      "sourceUrl": "https://www.youtube.com/watch?v=RUGedZFQZek",
+      "title": "Easiest Ways to Keep Your Smartphone in Good Condition",
+      "creator": "Halka Tech",
+      "firstSeenAt": "2026-11-05T12:37:10.908Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.908Z"
+    },
+    "f5bb8188dfc4618715385b39": {
+      "fingerprint": "f5bb8188dfc4618715385b39",
+      "sourceUrl": "https://www.youtube.com/watch?v=IhpBgLB8JUQ",
+      "title": "Astronaut Anil Menon Speaks With Mark Rober From the International Space Station",
+      "creator": "NASA",
+      "firstSeenAt": "2026-11-05T12:37:10.908Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.908Z"
+    },
+    "2e7dd7afeda36cf34f8daa57": {
+      "fingerprint": "2e7dd7afeda36cf34f8daa57",
+      "sourceUrl": "https://www.youtube.com/watch?v=6cbI0MF05Ow",
+      "title": "Why a Mars Rover Carried a Helicopter Under Its Belly #Shorts",
+      "creator": "Downrange",
+      "firstSeenAt": "2026-11-05T12:37:10.909Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.909Z"
+    },
+    "c1dc77a03bac707104f06d7e": {
+      "fingerprint": "c1dc77a03bac707104f06d7e",
+      "sourceUrl": "https://www.youtube.com/watch?v=-GpbWr8kP_U",
+      "title": "Deep Sea Anglerfish Uses a Lure on Its Head | Sea Toad at 2,475 m",
+      "creator": "Ocean IQ Daily",
+      "firstSeenAt": "2026-11-05T12:37:10.910Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.910Z"
+    },
+    "8b84a52458780dbfac8d853d": {
+      "fingerprint": "8b84a52458780dbfac8d853d",
+      "sourceUrl": "https://www.youtube.com/watch?v=9dzw29oBH54",
+      "title": "Blue Planet Shows You The Deep Sea. Here’s What You’d Actually See.",
+      "creator": "The Blank Parts",
+      "firstSeenAt": "2026-11-05T12:37:10.911Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.911Z"
+    },
+    "fd4dfa6cbc499609778b07d1": {
+      "fingerprint": "fd4dfa6cbc499609778b07d1",
+      "sourceUrl": "https://www.youtube.com/watch?v=P1Or4qRsHyQ",
+      "title": "Unnamed Life, 4km Down, Under 1979 Scars #Shorts",
+      "creator": "Deep Uncovered ",
+      "firstSeenAt": "2026-11-05T12:37:10.912Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.912Z"
+    },
+    "416e3a523a38b38ed055213e": {
+      "fingerprint": "416e3a523a38b38ed055213e",
+      "sourceUrl": "https://www.youtube.com/watch?v=Dpg8uRLQ8Lc",
+      "title": "The Reality Behind TechBurner’s Anarc Watch 2!",
+      "creator": "Gen-Z Way",
+      "firstSeenAt": "2026-11-05T12:37:10.912Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.912Z"
+    },
+    "1d1d54be39a408cd96d5e821": {
+      "fingerprint": "1d1d54be39a408cd96d5e821",
+      "sourceUrl": "https://www.youtube.com/watch?v=Kc0jbiV0JEg",
+      "title": "No Bread In Space?",
+      "creator": "Life in Orbit",
+      "firstSeenAt": "2026-11-05T12:37:10.913Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.913Z"
+    },
+    "01f9995aa576b9d02b06d4b9": {
+      "fingerprint": "01f9995aa576b9d02b06d4b9",
+      "sourceUrl": "https://www.youtube.com/watch?v=xGmqPCVEMjI",
+      "title": "Mars Right Now 🔴  Real Rover Footage from Another World, 225 Million Miles Away! 🚀🌌  #mars",
+      "creator": "Space and Science Lovers",
+      "firstSeenAt": "2026-11-05T12:37:10.914Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.914Z"
+    },
+    "350f1514eeff6af5ab51e346": {
+      "fingerprint": "350f1514eeff6af5ab51e346",
+      "sourceUrl": "https://www.youtube.com/watch?v=c1X-G2-M_Vg",
+      "title": "【実写】火星の地面まで降りてみた｜探査車が着いた「恐怖の7分間」",
+      "creator": "マツ天文台【実写で見る宇宙】",
+      "firstSeenAt": "2026-11-05T12:37:10.915Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.915Z"
+    },
+    "19a7cb233eaef1dd717d5d42": {
+      "fingerprint": "19a7cb233eaef1dd717d5d42",
+      "sourceUrl": "https://www.youtube.com/watch?v=u6-qwxeQ-ds",
+      "title": "لماذا يخاف العلماء من مواجهة هذا الكائن؟ #غموض #علم #اكتشاف #بحر #science",
+      "creator": "Aziz Neo",
+      "firstSeenAt": "2026-11-05T12:37:10.916Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.916Z"
+    },
+    "bdf24465b4e01b03f55d6ca4": {
+      "fingerprint": "bdf24465b4e01b03f55d6ca4",
+      "sourceUrl": "https://www.youtube.com/watch?v=aiLOeQ490Dk",
+      "title": "What Do Astronauts Actually Do All Day in Space? | Dr. Anil Menon",
+      "creator": "Space Odyssey",
+      "firstSeenAt": "2026-11-05T12:37:10.916Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T12:37:10.916Z"
+    }
+  }
+}

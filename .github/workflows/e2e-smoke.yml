@@ -64,9 +64,7 @@ jobs:
           YOUTUBE_PUBLISH_PRIVACY: private
           YOUTUBE_ALLOW_PUBLIC_PUBLISH: "false"
         run: |
-          echo "OAuth refresh + channel identity are validated by the uploader before any upload."
-          echo "A package file must be supplied by the pipeline; without one this step only validates configuration presence."
-          node -e "const m=['YOUTUBE_CLIENT_ID','YOUTUBE_REFRESH_TOKEN','YOUTUBE_EXPECTED_CHANNEL_ID'].filter(k=>!process.env[k]); if(m.length){console.log('::warning::Private upload smoke skipped — missing: '+m.join(', ')); process.exit(0)} console.log('OAuth configuration present (values not shown). Live upload requires a completed, approved package artifact.')"
+          node scripts/validate-youtube-oauth.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

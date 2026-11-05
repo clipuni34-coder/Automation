@@ -76,11 +76,28 @@ jobs:
           fi
           ls state/ || true
       - name: Install FFmpeg and transcription dependencies
-        # Bounded so a stalled package download fails the step fast and the
-        # run can be retried, instead of hanging until the job timeout.
+        # Bounded so a stalled download fails the step fast and the run can
+        # be retried, instead of hanging until the job timeout. FFmpeg comes
+        # from a static GitHub-hosted build: the Ubuntu apt mirror proved
+        # unreliable (run 42053319028 spent 20 min downloading 69 MB of
+        # ffmpeg packages and timed out before pip even started).
         timeout-minutes: 20
         run: |
-          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y ffmpeg; fi
+          if ! command -v ffmpeg >/dev/null; then
+            mkdir -p "$HOME/ffbin"
+            if curl -fsSL --retry 3 --connect-timeout 20 -o /tmp/ffmpeg.tar.xz "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz" && tar -xJf /tmp/ffmpeg.tar.xz -C /tmp; then
+              cp /tmp/ffmpeg-master-latest-linux64-gpl/bin/ffmpeg /tmp/ffmpeg-master-latest-linux64-gpl/bin/ffprobe "$HOME/ffbin/"
+            elif curl -fsSL --retry 3 --connect-timeout 20 -o /tmp/ffmpeg.tar.xz "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz" && tar -xJf /tmp/ffmpeg.tar.xz -C /tmp; then
+              FFDIR=$(find /tmp -maxdepth 1 -type d -name 'ffmpeg-*-amd64-static' | head -1)
+              cp "$FFDIR/ffmpeg" "$FFDIR/ffprobe" "$HOME/ffbin/"
+            else
+              sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+            fi
+            echo "$HOME/ffbin" >> "$GITHUB_PATH"
+            export PATH="$HOME/ffbin:$PATH"
+          fi
+          ffmpeg -version | head -1
+          ffprobe -version | head -1
           python -m pip install --disable-pip-version-check --prefer-binary --timeout 60 --retries 3 -r requirements/repurposing.txt
       - name: Run daily operations for all channels
         env:

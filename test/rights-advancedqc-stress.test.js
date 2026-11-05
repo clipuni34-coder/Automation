@@ -68,3 +68,23 @@ test("stress: invalid, unavailable and duplicate candidates are handled truthful
   const run4 = await runChannelCycle({ channel, niche: { id: "funny-moments" }, state, candidateProvider: async () => [good], produceJob: async () => ({ produced: true }) });
   assert.ok(run4.duplicates >= 1);
 });
+
+test("state: refreshSourceRights backfills verification for deduped sources without changing outcome", async () => {
+  const { mkdtemp } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { ChannelState } = await import("../src/engine/state.js");
+  const root = await mkdtemp(join(tmpdir(), "pp-state-"));
+  const state = await new ChannelState(root, "Primeplug").init();
+  const cand = { sourceUrl: "https://upload.wikimedia.org/x.webm", title: "t", creator: "c" };
+  await state.recordSource(cand, "eligible");
+  assert.equal((await state.getSources()).sources[Object.keys((await state.getSources()).sources)[0]].rightsVerification, null);
+  const rv = { status: "rights_verified_with_evidence", observedLicence: "CC BY 3.0", commercialUse: true, derivativesAllowed: true, checkedAt: "2026-11-05T00:00:00.000Z" };
+  const updated = await state.refreshSourceRights({ ...cand, rightsVerification: rv });
+  assert.equal(updated.rightsVerification.status, "rights_verified_with_evidence");
+  assert.equal(updated.lastOutcome, "eligible");
+  assert.ok(updated.firstSeenAt);
+  // Unknown source and missing verification are no-ops.
+  assert.equal(await state.refreshSourceRights({ sourceUrl: "https://upload.wikimedia.org/unknown.webm", rightsVerification: rv }), null);
+  assert.equal(await state.refreshSourceRights(cand), null);
+});

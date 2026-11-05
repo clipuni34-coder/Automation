@@ -54,6 +54,21 @@ export class ChannelState {
     return db.sources[fp];
   }
 
+  // Backfill/refresh the persisted rights-verification summary for an
+  // already-recorded source (e.g. a deduped seed re-verified this cycle)
+  // without touching its recorded outcome or first-seen timestamp.
+  async refreshSourceRights(candidate) {
+    if (!candidate?.rightsVerification || !candidate?.sourceUrl) return null;
+    const db = await this.getSources();
+    const fp = sourceFingerprint(candidate.sourceUrl);
+    const existing = db.sources[fp];
+    if (!existing) return null;
+    existing.rightsVerification = { status: candidate.rightsVerification.status, observedLicence: candidate.rightsVerification.observedLicence ?? null, commercialUse: candidate.rightsVerification.commercialUse ?? null, derivativesAllowed: candidate.rightsVerification.derivativesAllowed ?? null, checkedAt: candidate.rightsVerification.checkedAt ?? null };
+    existing.updatedAt = new Date().toISOString();
+    await writeJsonAtomic(this.path("sources.json"), db);
+    return existing;
+  }
+
   async getQueue() { return readJson(this.path("queue.json"), { version: 1, jobs: [] }); }
   async saveQueue(queue) { await writeJsonAtomic(this.path("queue.json"), queue); return queue; }
   async enqueue(job) {

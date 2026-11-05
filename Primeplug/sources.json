@@ -287,7 +287,7 @@
       "creator": "Chiitan (official mascot channel, via Wikimedia Commons)",
       "firstSeenAt": "2026-11-05T13:02:10.478Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T16:15:38.477Z",
+      "updatedAt": "2026-11-05T16:21:55.191Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
@@ -298,7 +298,7 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T16:15:32.126Z"
+        "checkedAt": "2026-11-05T16:21:45.702Z"
       }
     },
     "2fcfd9b3ba9bdc5204655c2b": {
@@ -308,7 +308,7 @@
       "creator": "YouTube creator compilation via Wikimedia Commons (CC BY)",
       "firstSeenAt": "2026-11-05T13:02:10.480Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T16:15:38.480Z",
+      "updatedAt": "2026-11-05T16:21:55.193Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
@@ -319,7 +319,7 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T16:15:32.293Z"
+        "checkedAt": "2026-11-05T16:21:45.856Z"
       }
     },
     "80213f8020ffaf02f8b9cbce": {
@@ -337,11 +337,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T16:15:32.826Z"
+        "checkedAt": "2026-11-05T16:21:46.376Z"
       },
       "firstSeenAt": "2026-11-05T13:02:10.490Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T16:15:38.509Z"
+      "updatedAt": "2026-11-05T16:21:55.210Z"
     },
     "6193b6c449d823aeeb905acc": {
       "fingerprint": "6193b6c449d823aeeb905acc",
@@ -1045,9 +1045,9 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T16:15:32.445Z"
+        "checkedAt": "2026-11-05T16:21:45.988Z"
       },
-      "updatedAt": "2026-11-05T16:15:38.484Z"
+      "updatedAt": "2026-11-05T16:21:55.196Z"
     },
     "3166a6060b079e1aebb360eb": {
       "fingerprint": "3166a6060b079e1aebb360eb",
@@ -1067,9 +1067,9 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T16:15:32.503Z"
+        "checkedAt": "2026-11-05T16:21:46.048Z"
       },
-      "updatedAt": "2026-11-05T16:15:38.486Z"
+      "updatedAt": "2026-11-05T16:21:55.197Z"
     },
     "b574bb140017fde5e443e9e1": {
       "fingerprint": "b574bb140017fde5e443e9e1",
@@ -1834,11 +1834,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T16:15:32.655Z"
+        "checkedAt": "2026-11-05T16:21:46.207Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.499Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T16:15:38.499Z"
+      "updatedAt": "2026-11-05T16:21:55.206Z"
     },
     "b1238d7238a453eb97f3aeef": {
       "fingerprint": "b1238d7238a453eb97f3aeef",
@@ -1855,11 +1855,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T16:15:32.711Z"
+        "checkedAt": "2026-11-05T16:21:46.265Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.503Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T16:15:38.503Z"
+      "updatedAt": "2026-11-05T16:21:55.207Z"
     },
     "80e3d83db047fd64e18aee0a": {
       "fingerprint": "80e3d83db047fd64e18aee0a",
@@ -1876,11 +1876,11 @@
         "attributionRequired": null,
         "commercialUse": null,
         "derivativesAllowed": null,
-        "checkedAt": "2026-11-05T16:15:32.766Z"
+        "checkedAt": "2026-11-05T16:21:46.322Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.507Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T16:15:38.507Z"
+      "updatedAt": "2026-11-05T16:21:55.209Z"
     },
     "c010778a4497c7cf56d822d3": {
       "fingerprint": "c010778a4497c7cf56d822d3",
@@ -1897,11 +1897,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T16:15:32.844Z"
+        "checkedAt": "2026-11-05T16:21:46.395Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.511Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T16:15:38.511Z"
+      "updatedAt": "2026-11-05T16:21:55.211Z"
     },
     "d5af0d690333ef54b72cd221": {
       "fingerprint": "d5af0d690333ef54b72cd221",
@@ -1918,11 +1918,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T16:15:32.910Z"
+        "checkedAt": "2026-11-05T16:21:46.452Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.515Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T16:15:38.515Z"
+      "updatedAt": "2026-11-05T16:21:55.213Z"
     },
     "2020f2381e9e97943fd204f5": {
       "fingerprint": "2020f2381e9e97943fd204f5",
@@ -1939,11 +1939,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T16:15:32.910Z"
+        "checkedAt": "2026-11-05T16:21:46.452Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.518Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T16:15:38.518Z"
+      "updatedAt": "2026-11-05T16:21:55.214Z"
     },
     "ba9283727529a5974e0629c3": {
       "fingerprint": "ba9283727529a5974e0629c3",
@@ -1954,6 +1954,126 @@
       "firstSeenAt": "2026-11-05T16:15:38.522Z",
       "lastOutcome": "rejected",
       "updatedAt": "2026-11-05T16:15:38.522Z"
+    },
+    "0360139eefe0cc45124cf991": {
+      "fingerprint": "0360139eefe0cc45124cf991",
+      "sourceUrl": "https://www.youtube.com/watch?v=jthlL1JycK8",
+      "title": "🤔 isso NÃO DÓI?",
+      "creator": "JotaCurioso",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T16:21:55.218Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:21:55.218Z"
+    },
+    "cdde5012d27dba8c33011cd7": {
+      "fingerprint": "cdde5012d27dba8c33011cd7",
+      "sourceUrl": "https://www.youtube.com/watch?v=IWgLLwlGshc",
+      "title": "Is it dark enough?? Let’s make a roux for a pot of gumbo! 🥘",
+      "creator": "Breanna Stark",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T16:21:55.220Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:21:55.220Z"
+    },
+    "d82024971e60b7e1d575610f": {
+      "fingerprint": "d82024971e60b7e1d575610f",
+      "sourceUrl": "https://www.youtube.com/watch?v=IWuwlE07Fys",
+      "title": "SÓ OS VERDADEIROS AMIGOS VÃO COMPARTILHAR",
+      "creator": "BECCA",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T16:21:55.222Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:21:55.222Z"
+    },
+    "d2d53319cac152bed0edd064": {
+      "fingerprint": "d2d53319cac152bed0edd064",
+      "sourceUrl": "https://www.youtube.com/watch?v=6CcyZoBwFPU",
+      "title": "How To Spot An Undercover Cop",
+      "creator": "Law By Mike",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T16:21:55.223Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:21:55.223Z"
+    },
+    "f39b8e4ae6f7cf154fed77d5": {
+      "fingerprint": "f39b8e4ae6f7cf154fed77d5",
+      "sourceUrl": "https://www.youtube.com/watch?v=VeogYRoyXTg",
+      "title": "Bro is too smart to be a dog.#funny #usashorts #dogacting",
+      "creator": "The Smile Corner ",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T16:21:55.225Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:21:55.225Z"
+    },
+    "eb13050c795b738c6a90547a": {
+      "fingerprint": "eb13050c795b738c6a90547a",
+      "sourceUrl": "https://www.youtube.com/watch?v=wB2pZUuHnLk",
+      "title": "Delicious food bite",
+      "creator": "Stevo",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T16:21:55.227Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:21:55.227Z"
+    },
+    "ed034f6fd18f4b362da709e8": {
+      "fingerprint": "ed034f6fd18f4b362da709e8",
+      "sourceUrl": "https://www.youtube.com/watch?v=RGPVpktEcgo",
+      "title": "Top 5 Hilarious Fishing Fails 😂 | Viral Rewind EP32",
+      "creator": "Viral Rewind",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T16:21:55.229Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:21:55.229Z"
+    },
+    "71e006ba0338d869a70267e6": {
+      "fingerprint": "71e006ba0338d869a70267e6",
+      "sourceUrl": "https://www.youtube.com/watch?v=1t_LOESCPyk",
+      "title": "QUEM É O YOUTUBER?",
+      "creator": "Rafa & Luiz",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T16:21:55.230Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:21:55.230Z"
+    },
+    "0fd6c965c6cead68619d1cc9": {
+      "fingerprint": "0fd6c965c6cead68619d1cc9",
+      "sourceUrl": "https://www.youtube.com/watch?v=iNVjUusZhRo",
+      "title": "November 1, 2026",
+      "creator": "Mojo Brookzz",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T16:21:55.231Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:21:55.231Z"
+    },
+    "74a42a6741389dc9ebb8c939": {
+      "fingerprint": "74a42a6741389dc9ebb8c939",
+      "sourceUrl": "https://www.youtube.com/watch?v=YH4mMmoJDvk",
+      "title": "Wait till the end 😂😂 || #funny #comedy #edit #trending #shorts",
+      "creator": "KingstephEdits_",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T16:21:55.233Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:21:55.233Z"
+    },
+    "48f799783196a6495b06927f": {
+      "fingerprint": "48f799783196a6495b06927f",
+      "sourceUrl": "https://www.youtube.com/watch?v=qgjeKWeUpl8",
+      "title": "Tudo é pro natal😂",
+      "creator": "Icaro e Myrella ",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T16:21:55.234Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:21:55.234Z"
+    },
+    "8ce314391e951c169c81e186": {
+      "fingerprint": "8ce314391e951c169c81e186",
+      "sourceUrl": "https://www.youtube.com/watch?v=oDzyjcNKaEg",
+      "title": "When you chase someone who's clearly not interested",
+      "creator": "BYGM",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T16:21:55.238Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:21:55.238Z"
     }
   }
 }

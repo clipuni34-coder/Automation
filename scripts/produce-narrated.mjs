@@ -160,7 +160,7 @@ for (const entry of manifest) {
   } else {
     finalArgs.push("-filter_complex", `${filter};[1:a]loudnorm=I=-14:TP=-1.5:LRA=11[na]`, "-map", "[v]", "-map", "[na]");
   }
-  finalArgs.push("-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", "-shortest", outputPath);
+  finalArgs.push("-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", "-movflags", "+faststart", "-shortest", outputPath);
   const render = run("ffmpeg", finalArgs, { timeout: 1200000 });
   if (render.status !== 0) { await done("failed_render", `Vertical narrated render failed: ${render.stderr.slice(-300)}`); continue; }
   outcome.outputPath = outputPath;

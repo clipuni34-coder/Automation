@@ -110,3 +110,33 @@ Winner (cloud, rank 8.46/10): **Astronaut Williams student Q&A** — highest-ran
 Rights per candidate: public domain (U.S. federal government work, 17 U.S.C. § 105) with Commons file-page evidence URL, NASA attribution requirement, status `evidence_recorded_not_independently_verified` — recorded in each `<id>.candidate.json`. Unverified/incomplete rights records are blocked before processing (unit-tested and enforced in the orchestrator).
 Local-vs-cloud note: local production (identical code) produced the same 2 completions and same 4 rejection families (Perseverance held at 4.56 locally vs 4.02 in cloud — Whisper/scoring variance on different excerpt handling; both below the gate, outcome unchanged). Cloud results above are the authoritative reproduction.
 Limitations: Whisper `base` occasionally garbles a word; auto-titles remain transcript fragments; rights are evidence-recorded declarations (no independent verifier exists); render targets are capped at 12–15s for CPU-runner reliability; no YouTube upload was performed in this round.
+
+## Multi-channel operating system — 2026-11-05
+Commits: OS `69a5147` (evidence commit follows). Branch `editorial-evidence-hold`, HEAD at time of cloud runs: `69a5147`.
+
+### Implemented
+- Data-driven niche registry (`config/niches.json`: discoveries-science, funny-moments, gaming-roblox, facts-education; new niches are config-only) and 4 independently configured channels (`config/channels.json`). Only Primeplug is `connected` (YouTube UCB7EhjM0bj2wtIBy_A_kkkg, publishingMode `private_only`); the other 3 are `setup_pending` + paused — the system does not pretend they are connected.
+- Persistent per-channel state (`src/engine/state.js`): sources with dedupe fingerprints, job queue, published registry, analytics, feedback, pause control; atomic writes; channels isolated by directory.
+- Daily scheduler (`src/engine/scheduler.js`): per-channel niche discovery config, rights screening (approved statuses + evidence required; research references are never auto-cleared), duplicate detection, bounded retries (job requeues across cycles, max attempts), failure isolation per channel, paused/disabled handling, run records (runs.jsonl).
+- Publisher guard (`src/engine/publisher-guard.js`): live per-channel identity verification, human-approval and privacy gates, public blocked unless global opt-in, fingerprint idempotency, dry-run default.
+- Analytics feedback (`src/engine/feedback.js`): measured-data-only topic performance, retention-decline flags, bounded discovery boost; returns `insufficient_data` when there is nothing measured.
+- Monetization readiness (`src/engine/monetization-readiness.js`): YPP numeric thresholds (500/3,000h/3M Shorts; 1,000/4,000h/10M Shorts) plus reused-content, unverified-rights, repetitive-title and strike risk flags; explicitly does not promise acceptance.
+- Mobile dashboard: all channels with niche, connection, queue/published/sources, monetization progress, and per-channel pause/resume (`POST /api/channels/:id/pause|resume`, verified locally). Static status page updated with the channel list.
+
+### Locally tested (298 -> 307 tests; 307/307 pass, also on GitHub)
+9 multi-channel OS tests: niche independence + config-only new niche; real config loading; scheduler isolation (one channel's discovery throws, others complete); duplicate detection across runs; retry-then-succeed across cycles; pause skip; rights screening; publisher-guard identity mismatch / missing approval / duplicate / public blocks; feedback from measured data + insufficient-data honesty; monetization risk flags; state reload after "restart" with cross-channel isolation. Local scheduler run: Primeplug enqueued 6 seed candidates, second run deduped all 6; dashboard pause/resume verified against the running server.
+
+### Cloud tested (GitHub Actions, pushed commit 69a5147)
+- Tests run 42028596783: success (307/307).
+- Daily operations run 42028596934: success — https://github.com/clipuni34-coder/Automation/actions/runs/42028596934 (artifact: daily-operations-report, ID 13415700204). Primeplug: **31 discovered** (6 rights-evidenced seeds + 25 live YouTube Data API research references), 25 research-only correctly rejected for production, 6 jobs processed; the 3 pending channels recorded `paused`. State was checked out from and pushed back to the **`automation-state` branch** (Primeplug sources/queue/runs/analytics/feedback all present), so state survives runners.
+- Analytics sync inside the same run: identity-verified refresh for Primeplug; snapshot stored 2026-11-05T12:37Z; channel reports zero historical metrics and 0 top videos (the true API response; the private smoke-test video has no measured performance yet). Feedback correctly `insufficient_data` — nothing fabricated.
+- Mobile Pages deploy run 42028596762: success; https://clipuni34-coder.github.io/Automation/ verified live (HTTP 200) listing all 4 channels and niches.
+
+### Live API tested
+YouTube OAuth refresh + channel identity (earlier, run 42011675455), private upload + processing verification (run 42014224534), Analytics API retrieval (runs 42014224534 and 42028596934), YouTube Data API discovery (run 42028596934, 25 research candidates recorded in state).
+
+### Not yet verified / genuine blockers
+1. **Truly automatic daily scheduling**: GitHub `schedule:` events fire only from the default branch. The cron is declared in daily-operations.yml and the full cycle is proven by dispatch/push, but hands-off daily firing activates only when this workflow reaches `main` (merging is currently forbidden by the owner) or an external scheduler calls the dispatch API. The system is autonomous per run; the trigger is the remaining step.
+2. The 3 additional channels exist only as configuration: each needs its own YouTube channel created and its own OAuth authorization by the owner before it can connect (a channel-creation API does not exist).
+3. Analytics feedback needs >=5 published videos with measured performance; the channel currently has one private smoke video with no metrics.
+4. No public publishing has been enabled anywhere; automatic public publishing remains off pending explicit owner authorization after these safeguards.

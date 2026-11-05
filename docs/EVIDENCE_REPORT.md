@@ -68,3 +68,21 @@ Server started locally on port 3000: `GET /` → HTTP 200 (3,887 bytes, viewport
 - **YouTube Analytics live sync — PASSED**: same run, `analytics_exit=0`; snapshot fetched 2026-11-05T10:54Z (90/365-day windows; channel currently reports zero historical metrics, which is the true API response, stored in the artifact).
 - **Mobile deployment — LIVE**: GitHub Pages enabled (workflow build), run 42014184104 success. Permanent URL: https://clipuni34-coder.github.io/Automation/ (verified HTTP 200, all 5 credential capabilities "Ready"). Interactive server (src/server.js) remains deployable to any Node host on 0.0.0.0:$PORT.
 - Genuine remaining items: (1) publishable-quality footage selection/render is editorial work, not plumbing — current gates correctly keep this smoke video out of public; (2) TikTok/Instagram adapters remain out of scope/future; (3) Pages page is a status snapshot — approvals are recorded via the control server or workflow confirmations.
+
+## Content-performance addendum — 2026-11-05, candidate Shorts comparison
+Method: real footage from Wikimedia Commons / NASA only, every source public-domain with a recorded evidence page and attribution in its pipeline input (see `config/candidate-manifest.json`). Minimum source standard is now 720p. Ranking script: `scripts/compare-candidates.mjs` (editorial 40%, visual QC 25%, source resolution 20%, duration fitness 15%).
+
+| Rank | Candidate | Source | Rights evidence | Result | Editorial | Visual QC | Duration | Rank |
+|---|---|---|---|---|---|---|---|---|
+| 1 | **Astronaut Williams — student Q&A (Columbia)** | 1280x720 NASA ISS interview, first 240s | Commons file page (PD) | **completed** 1080x1920 render, QC passed | 6.16 | 100 | 13.5s | **8.06** |
+| 2 | Astronaut — news interview | 1280x720 NASA ISS interview | Commons file page (PD) | completed, QC passed | 6.22 | 100 | 8.0s | 7.64 |
+| 3 | Apollo 11 landing (previous smoke video) | 320x240 (below new standard) | nasa.gov (PD) | completed, QC passed, baseline only | 5.87 | 92 | 4.9s | 5.65 |
+| — | Perseverance onboard cameras | 3840x2160 | Commons file page (PD) | **held** — editorial 4.56 < 5.5 gate, not rendered | 4.56 | — | — | 0 |
+| — | Curiosity "Seven Minutes of Terror" narration | 1280x720 | Commons file page (PD) | **held** — editorial 4.57 < 5.5 gate, not rendered | 4.57 | — | — | 0 |
+| — | Perseverance landing animation | 1920x1080 | Commons file page (PD) | **rejected** — no speech track for transcription | — | — | — | 0 |
+
+Why the winner wins: it ties the best visual QC (100) and near-best editorial score, is the longest completed Short (13.5s vs 8.0s), and its selected moments end on a genuine curiosity hook — a student asking an astronaut on the ISS "What does it feel like to see Earth…" — with a bright, clear thumbnail (astronaut floating in the ISS, readable face, clean karaoke captions). The runner-up scores 0.06 higher editorially but is only 8s and its moments are mostly a comms check plus a Whisper-garbled question. The Apollo baseline is disqualified on picture quality (320x240 upscaled, near-black thumbnail) despite its iconic audio.
+
+Findings that matter for the channel: (1) spontaneous Q&A/interview speech clears the editorial gate; polished narration and live mission commentary do not (the lexical scorer under-rewards them — a scorer limitation, documented, NOT fixed by lowering the gate); (2) the gate still rejects weak/no-speech material consistently; (3) on CPU-constrained runners, renders above ~20s of 1080p-sourced material can hit the render timeout — candidate cuts are kept to 12-15s targets for reliability.
+All uploads remain PRIVATE; no candidate here has been uploaded. The winner Short is attached to the run artifacts when the candidate-production workflow runs.
+Limitations: Whisper "base" model garbles occasional words (e.g. one question in the runner-up); auto-titles are transcript fragments and need human polish before any public post; rights remain declaration-based (public-domain evidence pages recorded, no independent verifier).

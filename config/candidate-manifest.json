@@ -1,0 +1,56 @@
+[
+  {
+    "id": "astronaut-Williams-student-qa",
+    "label": "NASA Astronaut Christopher Williams - Life in Space, student Q&A (Columbia)",
+    "creator": "NASA",
+    "resultPath": "output/candidates/astronaut-result-v2.json",
+    "sourceResolution": "1280x720",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c4/NASA_Astronaut_Christopher_Williams_Discusses_Life_In_Space_With_Columbia_Space_Initiative_%E2%80%93_January_23%2C_2026_%28iss074m260231458%29.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:NASA_Astronaut_Christopher_Williams_Discusses_Life_In_Space_With_Columbia_Space_Initiative_%E2%80%93_January_23,_2026_(iss074m260231458).webm"
+  },
+  {
+    "id": "astronaut-news-interview",
+    "label": "NASA Astronaut - Life in Space, news interview",
+    "creator": "NASA",
+    "resultPath": "output/candidates/astronaut-fox-result-v2.json",
+    "sourceResolution": "1280x720",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/4/49/NASA_Astronaut_Discusses_Life_In_Space_With_Fox_News_%E2%80%93_December_15%2C_2025_%28iss073m263361553%29.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:NASA_Astronaut_Discusses_Life_In_Space_With_Fox_News_%E2%80%93_December_15,_2025_(iss073m263361553).webm"
+  },
+  {
+    "id": "apollo11-landing-baseline",
+    "label": "Apollo 11 Powered Descent and Landing (baseline, below new resolution standard)",
+    "creator": "NASA",
+    "resultPath": "output/real-landing/result.json",
+    "sourceResolution": "320x240",
+    "sourceUrl": "https://nasa.gov/wp-content/uploads/static/history/alsj/a11/A11Landing.mov",
+    "rightsEvidenceUrl": "https://www.nasa.gov/image-article/apollo-11-landing/"
+  },
+  {
+    "id": "perseverance-onboard",
+    "label": "Perseverance Rover Descent and Touchdown, onboard cameras (4K)",
+    "creator": "NASA/JPL-Caltech",
+    "resultPath": "output/candidates/persev-onboard-result-v3.json",
+    "sourceResolution": "3840x2160",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Perseverance_Rover%27s_Descent_and_Touchdown_on_Mars_Onboard_Camera_Views_.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Perseverance_Rover%27s_Descent_and_Touchdown_on_Mars_Onboard_Camera_Views_.webm"
+  },
+  {
+    "id": "curiosity-seven-minutes",
+    "label": "Curiosity - Seven Minutes of Terror (narrated, 720p)",
+    "creator": "NASA/JPL-Caltech",
+    "resultPath": "output/candidates/seven-minutes-result-v3.json",
+    "sourceResolution": "1280x720",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/9/96/Curiosity%27s_Seven_Minutes_of_Terror.ogv",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Curiosity%27s_Seven_Minutes_of_Terror.ogv"
+  },
+  {
+    "id": "perseverance-animation-narrationless",
+    "label": "Perseverance landing animation (1080p, no speech)",
+    "creator": "NASA/JPL-Caltech",
+    "resultPath": "output/candidates/perseverance-result.json",
+    "sourceResolution": "1920x1080",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b0/NASA-MarsLanding-PerseveranceRover-18Feb2021-20201221.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:NASA-MarsLanding-PerseveranceRover-18Feb2021-20201221.webm"
+  }
+]

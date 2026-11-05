@@ -1,0 +1,75 @@
+name: Candidate Shorts production (real footage, no upload)
+
+# Produces candidate Shorts from rights-cleared, >=720p real footage and
+# ranks them. This workflow NEVER uploads to YouTube. Winners are uploaded
+# only through the private-upload smoke workflow after owner approval.
+
+on:
+  push:
+    branches: [editorial-evidence-hold]
+    paths:
+      - ".github/workflows/candidate-production.yml"
+      - "config/candidate-manifest.json"
+      - "scripts/compare-candidates.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: candidate-production
+  cancel-in-progress: false
+
+jobs:
+  produce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install FFmpeg and transcription dependencies
+        run: |
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y ffmpeg; fi
+          python -m pip install --disable-pip-version-check -r requirements/repurposing.txt
+      - name: Produce astronaut Q&A candidate (720p excerpt)
+        env:
+          PYTHON: python
+        run: |
+          mkdir -p work/candidates output/candidates
+          ffmpeg -y -hide_banner -loglevel error -i "https://upload.wikimedia.org/wikipedia/commons/c/c4/NASA_Astronaut_Christopher_Williams_Discusses_Life_In_Space_With_Columbia_Space_Initiative_%E2%80%93_January_23%2C_2026_%28iss074m260231458%29.webm" -t 240 -vf "scale=1280:720" -c:v libx264 -preset veryfast -crf 20 -c:a aac work/candidates/astronaut-720.mp4
+          cat > astronaut-input.json <<'JSON'
+          {
+            "sourceLocalPath": "work/candidates/astronaut-720.mp4",
+            "outputPath": "output/candidates/astronaut-short-v2.mp4",
+            "source": {
+              "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c4/NASA_Astronaut_Christopher_Williams_Discusses_Life_In_Space_With_Columbia_Space_Initiative_%E2%80%93_January_23%2C_2026_%28iss074m260231458%29.webm",
+              "title": "NASA Astronaut Christopher Williams Discusses Life in Space with Columbia students",
+              "creator": "NASA",
+              "rightsStatus": "public_domain",
+              "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:NASA_Astronaut_Christopher_Williams_Discusses_Life_In_Space_With_Columbia_Space_Initiative_%E2%80%93_January_23,_2026_(iss074m260231458).webm",
+              "allowedPlatforms": ["youtube_shorts"],
+              "attribution": "NASA. Public domain. First 240 seconds; source: Wikimedia Commons."
+            },
+            "targetDurationSeconds": 15,
+            "platform": "youtube_shorts",
+            "whisperModel": "base",
+            "pythonPath": "python"
+          }
+          JSON
+          set +e
+          npm run repurpose -- astronaut-input.json output/candidates/astronaut-result-v2.json
+          echo "astronaut_exit=$?"
+          set -e
+      - name: Rank candidates
+        run: node scripts/compare-candidates.mjs config/candidate-manifest.json | tee output/candidates/comparison.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: candidate-shorts
+          path: output/candidates/
+          retention-days: 30

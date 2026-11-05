@@ -7,6 +7,11 @@ name: Private upload smoke test (real footage)
 # record for this single private test. Public publishing is impossible here.
 
 on:
+  push:
+    branches: [editorial-evidence-hold]
+    paths:
+      - ".github/workflows/private-upload-smoke.yml"
+      - "scripts/upload-private-smoke.mjs"
   workflow_dispatch:
     inputs:
       confirm_private_upload:

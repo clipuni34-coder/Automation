@@ -28,9 +28,8 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+    # No `environment:` block: the default github-pages environment only
+    # allows the default branch, which would block this feature branch.
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

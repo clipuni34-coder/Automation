@@ -16,6 +16,7 @@ import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { join, resolve } from "node:path";
 import { qcAndRepair, probeVideo } from "../src/production/qc-repair.js";
+import { runAdvancedQc } from "../src/production/advanced-qc.js";
 import { generateNarration } from "../src/production/voice.js";
 import { buildCaptionCues, buildAssDocument, validateNarratedEntry, decideOverlayCorrection } from "../src/production/narrated-plan.js";
 
@@ -134,7 +135,18 @@ for (const entry of manifest) {
   outcome.captionCues = cues.length;
 
   const outputPath = join(outDir, `${entry.id}.mp4`);
-  const filter = `[0:v]trim=start=${windowStart}:duration=${windowSeconds},setpts=PTS-STARTPTS,${preCropFilter}scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1,subtitles=${assPath.replace(/\\/g, "/").replace(/:/g, "\\:").replace(/'/g, "'\\''")}[v]`;
+  // Meaningful re-edit, not a plain extraction: the window is cut into
+  // three story beats with alternating punch-in reframing (wide -> 1.25x
+  // punch -> wide), then our captions are burned over the joined edit.
+  const third = (windowSeconds / 3).toFixed(2);
+  const segScale = (factor) => factor === 1
+    ? "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920"
+    : `scale=${Math.round(1080 * factor)}:${Math.round(1920 * factor)}:force_original_aspect_ratio=increase,crop=1080:1920`;
+  const filter = `[0:v]trim=start=${windowStart}:duration=${windowSeconds},setpts=PTS-STARTPTS,${preCropFilter}split=3[vv1][vv2][vv3];` +
+    `[vv1]trim=start=0:duration=${third},setpts=PTS-STARTPTS,${segScale(1)},setsar=1[v1];` +
+    `[vv2]trim=start=${third}:duration=${third},setpts=PTS-STARTPTS,${segScale(1.25)},setsar=1[v2];` +
+    `[vv3]trim=start=${(2 * Number(third)).toFixed(2)},setpts=PTS-STARTPTS,${segScale(1)},setsar=1[v3];` +
+    `[v1][v2][v3]concat=n=3:v=1:a=0,subtitles=${assPath.replace(/\\/g, "/").replace(/:/g, "\\:").replace(/'/g, "'\\''")}[v]`;
   const args = ["-y", "-hide_banner", "-loglevel", "error", "-i", rawPath, "-i", narrationPath, "-filter_complex", filter];
   if (originalProbe.hasAudio) {
     args.push("-filter_complex", `${filter};[0:a]atrim=start=${windowStart}:duration=${windowSeconds},asetpts=PTS-STARTPTS,volume=0.12[bg];[1:a]asetpts=PTS-STARTPTS[na];[bg][na]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]`, "-map", "[v]", "-map", "[a]");
@@ -173,6 +185,17 @@ for (const entry of manifest) {
     const detOut = run(process.env.PYTHON ?? "python3", ["scripts/detect_overlay.py", outputPath, "0", String(Math.min(windowSeconds, narrationSeconds))], { timeout: 300000 });
     outcome.outputOverlayDetection = JSON.parse(detOut.stdout.trim().split("\n").at(-1));
   } catch { outcome.outputOverlayDetection = { status: "check_failed" }; }
+
+  // Advanced measurable QC (resolution/codec/duration/loudness/clipping/
+  // black frames/silence/pacing/fast-start). A failed check holds the
+  // render: a green status must be earned numerically.
+  const advancedQc = await runAdvancedQc(outputPath, {}).catch((e) => ({ passed: false, checks: [{ name: "advanced_qc_ran", passed: false, detail: e.message }] }));
+  outcome.advancedQc = advancedQc;
+  if (!advancedQc.passed) {
+    const failed = advancedQc.checks.filter((c) => !c.passed).map((c) => `${c.name} (${c.detail})`).join("; ");
+    await done("held_advanced_qc", `Advanced QC held this render: ${failed}`);
+    continue;
+  }
 
   const qc = await qcAndRepair(outputPath, {}).catch((e) => ({ status: "failed", failures: [e.message] }));
   outcome.qc = qc;

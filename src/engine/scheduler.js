@@ -16,6 +16,11 @@ export function screenCandidate(candidate) {
   if (!APPROVED_RIGHTS.has(lic.rightsStatus ?? candidate?.rightsStatus)) reasons.push("Reuse rights status is not approved");
   if (!candidate?.rightsEvidenceUrl?.startsWith("https://") && !lic.evidenceUrl?.startsWith("https://")) reasons.push("Licence evidence URL is missing");
   if (candidate?.researchOnly) reasons.push("Research reference only — no reuse evidence; not eligible for production");
+  const rv = candidate?.rightsVerification?.status;
+  if (rv === "reuse_prohibited") reasons.push("Independent rights check: reuse is PROHIBITED by the observed licence terms");
+  if (rv === "permission_unclear") reasons.push("Independent rights check: licence could not be reconciled with the recorded claim (permission unclear)");
+  const licText = `${candidate?.license?.type ?? ""} ${candidate?.license?.usageTerms ?? ""}`;
+  if (/noncommercial|no ?derivatives/i.test(licText)) reasons.push("Licence terms restrict commercial use or derivative works");
   return { eligible: reasons.length === 0, reasons };
 }
 

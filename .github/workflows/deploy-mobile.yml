@@ -32,6 +32,15 @@ jobs:
     # allows the default branch, which would block this feature branch.
     steps:
       - uses: actions/checkout@v4
+      - name: Restore persisted channel state (actual figures, automation-state branch)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git ls-remote --exit-code --heads origin automation-state >/dev/null 2>&1; then
+            git fetch origin automation-state
+            git worktree add state automation-state || echo "state worktree unavailable"
+          fi
+          ls state/Primeplug/ 2>/dev/null || echo "no state available"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -57,6 +66,15 @@ jobs:
           const r = JSON.parse(raw.slice(raw.indexOf("{")));
           const channelsData = JSON.parse(readFileSync("config/channels.json", "utf8"));
           const channelRows = (channelsData.channels ?? []).map((c) => { const primary = c.role === "primary"; return `<div class="row"><span><b>${primary ? "⭐ " : ""}${c.name}</b><br><span class="small">${c.niche} · ${c.youtubeChannelId ?? "not connected"}${c.handle ? " · " + c.handle : ""}</span></span><span class="pill">${primary ? "PRIMARY · ACTIVE" : "INACTIVE"} · ${c.status}${c.operation?.paused ? " · paused" : ""}</span></div>`; }).join("");
+          let primeState = "";
+          try {
+            const q = JSON.parse(readFileSync("state/Primeplug/queue.json", "utf8"));
+            const pub = JSON.parse(readFileSync("state/Primeplug/published.json", "utf8"));
+            const ana = JSON.parse(readFileSync("state/Primeplug/analytics.json", "utf8"));
+            const src = JSON.parse(readFileSync("state/Primeplug/sources.json", "utf8"));
+            const awaiting = q.jobs.filter((j) => j.status === "completed" && j.result?.produced && !pub.videos.some((v) => v.fingerprint === j.result?.sha256)).length;
+            primeState = `<div class="row"><span>Sources screened (persisted)</span><b>${Object.keys(src.sources ?? {}).length}</b></div><div class="row"><span>Jobs</span><b>${q.jobs.filter((j) => j.status === "completed").length} completed · ${q.jobs.filter((j) => j.status === "queued").length} queued · ${q.jobs.filter((j) => j.status === "failed").length} failed</b></div><div class="row"><span>Awaiting approval</span><b>${awaiting}</b></div><div class="row"><span>Private uploads (registry)</span><b>${pub.videos.length}</b></div><div class="row"><span>Analytics</span><b>synced ${ana.fetchedAt ?? "?"} · views ${ana.totals?.views ?? 0}</b></div><div class="row"><span>Scheduler</span><b>external Primeplug-scheduler · daily 06:30 Lagos</b></div>`;
+          } catch (e) { primeState = `<div class="row"><span>Persisted state</span><b>unavailable at build time</b></div>`; }
           const rows = Object.entries(r.capabilities).map(([k, v]) =>
             `<div class="row"><span>${k.replaceAll("_", " ")}</span><b class="${v.ready ? "ok" : "warn"}">${v.ready ? "Ready" : "Missing: " + v.missing.join(", ")}</b></div>`).join("");
           const stages = ["Discovery","Source verification","Rights approval","Story analysis","Clip selection","Editing","Rendering","Quality control","Posting package","Private YouTube upload","Analytics feedback"]
@@ -72,7 +90,7 @@ jobs:
           </style></head><body>
           <h1>🎬 Automation Control</h1>
           <p class="small">YouTube Shorts pipeline · Primeplug channel · Public publishing is <b class="bad">OFF</b> · Uploads are private-only behind human approval, rights, editorial and QC gates.</p>
-          <div class="card"><h2>Channels</h2>${channelRows}</div>
+          <div class="card"><h2>Channels</h2>${channelRows}</div><div class="card"><h2>Primeplug live state (from automation-state)</h2>${primeState}</div>
           <div class="card"><h2>Credential readiness (names only)</h2>${rows}</div>
           <div class="card"><h2>Pipeline</h2>${stages}</div>
           <div class="card"><h2>Run things</h2>

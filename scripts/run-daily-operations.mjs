@@ -14,6 +14,7 @@ import { loadNicheRegistry, buildDiscoveryConfig } from "../src/engine/niches.js
 import { openChannelState, sourceFingerprint } from "../src/engine/state.js";
 import { runDailyOperations } from "../src/engine/scheduler.js";
 import { runDiscovery } from "../src/discovery/engine.js";
+import { verifyCandidateRights } from "../src/engine/rights-verification.js";
 
 const stateRoot = resolve(process.env.STATE_DIR ?? "data/state");
 const channelsPath = process.env.CHANNEL_PROFILES_PATH ?? "config/channels.json";
@@ -33,12 +34,15 @@ async function candidateProvider(channel, niche) {
     try {
       const seeds = JSON.parse(await readFile(channel.seedCandidateManifest, "utf8"));
       for (const seed of seeds) {
-        candidates.push({
+        const enriched = {
           id: seed.id, title: seed.label, sourceUrl: seed.sourceUrl, creator: seed.creator,
           supersedesCandidateId: seed.supersedesCandidateId ?? null,
           rightsEvidenceUrl: seed.rightsEvidenceUrl, license: seed.license,
           sourceResolution: seed.sourceResolution, seedManifestEntry: seed
-        });
+        };
+        // Independent rights check against the asset's actual file page.
+        enriched.rightsVerification = await verifyCandidateRights(enriched).catch((e) => ({ status: "evidence_recorded_not_independently_verified", verificationError: String(e?.message ?? e).slice(0, 200) }));
+        candidates.push(enriched);
       }
     } catch (error) { console.error(`[${channel.id}] seed manifest unreadable: ${error.message}`); }
   }

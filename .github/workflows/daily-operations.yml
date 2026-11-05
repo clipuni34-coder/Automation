@@ -39,6 +39,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: daily-operations
@@ -141,6 +142,12 @@ jobs:
         if: always()
         run: |
           for f in output/daily/*/summary.json; do echo "### $f"; cat "$f" | head -100; done >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Refresh mobile dashboard with the new persisted state
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-mobile.yml --ref editorial-evidence-hold || echo "dashboard refresh dispatch failed"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

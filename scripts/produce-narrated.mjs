@@ -137,14 +137,14 @@ for (const entry of manifest) {
   const filter = `[0:v]trim=start=${windowStart}:duration=${windowSeconds},setpts=PTS-STARTPTS,${preCropFilter}scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1,subtitles=${assPath.replace(/\\/g, "/").replace(/:/g, "\\:").replace(/'/g, "'\\''")}[v]`;
   const args = ["-y", "-hide_banner", "-loglevel", "error", "-i", rawPath, "-i", narrationPath, "-filter_complex", filter];
   if (originalProbe.hasAudio) {
-    args.push("-filter_complex", `${filter};[0:a]atrim=start=${windowStart}:duration=${windowSeconds},asetpts=PTS-STARTPTS,volume=0.12[bg];[1:a]asetpts=PTS-STARTPTS,loudnorm=I=-14:TP=-1.5:LRA=11[na];[bg][na]amix=inputs=2:duration=first:dropout_transition=0[a]`, "-map", "[v]", "-map", "[a]");
+    args.push("-filter_complex", `${filter};[0:a]atrim=start=${windowStart}:duration=${windowSeconds},asetpts=PTS-STARTPTS,volume=0.12[bg];[1:a]asetpts=PTS-STARTPTS[na];[bg][na]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]`, "-map", "[v]", "-map", "[a]");
   } else {
     args.push("-map", "[v]", "-map", "1:a");
   }
   // Rebuild args cleanly (filter defined once above).
   const finalArgs = ["-y", "-hide_banner", "-loglevel", "error", "-i", rawPath, "-i", narrationPath];
   if (originalProbe.hasAudio) {
-    finalArgs.push("-filter_complex", `${filter};[0:a]atrim=start=${windowStart}:duration=${windowSeconds},asetpts=PTS-STARTPTS,volume=0.12[bg];[1:a]asetpts=PTS-STARTPTS,loudnorm=I=-14:TP=-1.5:LRA=11[na];[bg][na]amix=inputs=2:duration=first:dropout_transition=0[a]`, "-map", "[v]", "-map", "[a]");
+    finalArgs.push("-filter_complex", `${filter};[0:a]atrim=start=${windowStart}:duration=${windowSeconds},asetpts=PTS-STARTPTS,volume=0.12[bg];[1:a]asetpts=PTS-STARTPTS[na];[bg][na]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]`, "-map", "[v]", "-map", "[a]");
   } else {
     finalArgs.push("-filter_complex", `${filter};[1:a]loudnorm=I=-14:TP=-1.5:LRA=11[na]`, "-map", "[v]", "-map", "[na]");
   }
@@ -156,6 +156,16 @@ for (const entry of manifest) {
   const thumbPath = join(outDir, `${entry.id}.thumbnail.jpg`);
   const thumb = run("ffmpeg", ["-y", "-hide_banner", "-loglevel", "error", "-ss", String(Math.min(3, narrationSeconds / 2)), "-i", outputPath, "-frames:v", "1", "-q:v", "2", thumbPath], { timeout: 120000 });
   if (thumb.status === 0) outcome.thumbnailPath = thumbPath;
+
+  // Audio QC: narration must be clearly audible (mean level gate).
+  const vol = run("ffmpeg", ["-i", outputPath, "-af", "volumedetect", "-f", "null", "/dev/null"], { timeout: 300000 });
+  const meanMatch = /mean_volume:\s*(-[\d.]+) dB/.exec(vol.stderr);
+  const maxMatch = /max_volume:\s*(-[\d.]+) dB/.exec(vol.stderr);
+  outcome.audioLevels = { meanDb: meanMatch ? Number(meanMatch[1]) : null, maxDb: maxMatch ? Number(maxMatch[1]) : null };
+  if (outcome.audioLevels.meanDb !== null && outcome.audioLevels.meanDb < -22) {
+    await done("held_audio_qc", `Narration mean level ${outcome.audioLevels.meanDb} dB is below the -22 dB audibility gate after normalization.`);
+    continue;
+  }
 
   // Post-render proof: the overlay must actually be gone from our output
   // (sampled below our caption zones — captions are ours and expected).

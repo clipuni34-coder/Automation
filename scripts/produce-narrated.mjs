@@ -17,7 +17,7 @@ import { createReadStream } from "node:fs";
 import { join, resolve } from "node:path";
 import { qcAndRepair, probeVideo } from "../src/production/qc-repair.js";
 import { generateNarration } from "../src/production/voice.js";
-import { buildCaptionCues, buildAssDocument, validateNarratedEntry } from "../src/production/narrated-plan.js";
+import { buildCaptionCues, buildAssDocument, validateNarratedEntry, decideOverlayCorrection } from "../src/production/narrated-plan.js";
 
 const manifestPath = resolve(process.argv[2] ?? "config/primeplug-candidates.json");
 const outDir = resolve(process.argv[3] ?? "output/narrated");
@@ -103,6 +103,28 @@ for (const entry of manifest) {
   const narrationSeconds = audioDurationSeconds(narrationPath);
   if (!(narrationSeconds >= 8)) { await done("failed_narration", `Narration audio invalid or too short (${narrationSeconds}s).`); continue; }
 
+  // Source-overlay (watermark / promotional CTA) detection on the SOURCE
+  // window, before any of our captions exist. Edge bands may be reframed
+  // away; anything unsafe is held, never covered up.
+  const windowStartPre = Number(entry.window?.startSeconds ?? 0);
+  const windowSecondsPre = Math.min(Number(entry.window?.seconds ?? 30), 60);
+  let overlayDecision = { action: "none", reason: null };
+  try {
+    const det = run(process.env.PYTHON ?? "python3", ["scripts/detect_overlay.py", rawPath, String(windowStartPre), String(windowSecondsPre)], { timeout: 300000 });
+    const detection = JSON.parse(det.stdout.trim().split("\n").at(-1));
+    outcome.sourceOverlayDetection = detection;
+    overlayDecision = decideOverlayCorrection(detection);
+  } catch (e) {
+    overlayDecision = { action: "hold", reason: `Overlay detection failed: ${String(e?.message ?? e).slice(0, 200)}` };
+  }
+  outcome.overlayDecision = overlayDecision;
+  if (overlayDecision.action === "hold") { await done("held_source_overlay", overlayDecision.reason); continue; }
+  const preCropFilter = overlayDecision.action === "reframe"
+    ? (overlayDecision.band === "top"
+      ? `crop=iw:ih*${(1 - overlayDecision.fraction - 0.02).toFixed(3)}:0:ih*${(overlayDecision.fraction + 0.02).toFixed(3)},`
+      : `crop=iw:ih*${(1 - overlayDecision.fraction - 0.02).toFixed(3)}:0:0,`)
+    : "";
+
   // Vertical re-edit of the chosen story window, timed to the narration.
   const windowStart = Number(entry.window?.startSeconds ?? 0);
   const windowSeconds = Math.min(Number(entry.window?.seconds ?? 30), Math.max(10, narrationSeconds + 1));
@@ -112,7 +134,7 @@ for (const entry of manifest) {
   outcome.captionCues = cues.length;
 
   const outputPath = join(outDir, `${entry.id}.mp4`);
-  const filter = `[0:v]trim=start=${windowStart}:duration=${windowSeconds},setpts=PTS-STARTPTS,scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1,subtitles=${assPath.replace(/\\/g, "/").replace(/:/g, "\\:").replace(/'/g, "'\\''")}[v]`;
+  const filter = `[0:v]trim=start=${windowStart}:duration=${windowSeconds},setpts=PTS-STARTPTS,${preCropFilter}scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1,subtitles=${assPath.replace(/\\/g, "/").replace(/:/g, "\\:").replace(/'/g, "'\\''")}[v]`;
   const args = ["-y", "-hide_banner", "-loglevel", "error", "-i", rawPath, "-i", narrationPath, "-filter_complex", filter];
   if (originalProbe.hasAudio) {
     args.push("-filter_complex", `${filter};[0:a]atrim=start=${windowStart}:duration=${windowSeconds},asetpts=PTS-STARTPTS,volume=0.12[bg];[1:a]asetpts=PTS-STARTPTS,volume=1.0[na];[bg][na]amix=inputs=2:duration=first:dropout_transition=0[a]`, "-map", "[v]", "-map", "[a]");
@@ -134,6 +156,13 @@ for (const entry of manifest) {
   const thumbPath = join(outDir, `${entry.id}.thumbnail.jpg`);
   const thumb = run("ffmpeg", ["-y", "-hide_banner", "-loglevel", "error", "-ss", String(Math.min(3, narrationSeconds / 2)), "-i", outputPath, "-frames:v", "1", "-q:v", "2", thumbPath], { timeout: 120000 });
   if (thumb.status === 0) outcome.thumbnailPath = thumbPath;
+
+  // Post-render proof: the overlay must actually be gone from our output
+  // (sampled below our caption zones — captions are ours and expected).
+  try {
+    const detOut = run(process.env.PYTHON ?? "python3", ["scripts/detect_overlay.py", outputPath, "0", String(Math.min(windowSeconds, narrationSeconds))], { timeout: 300000 });
+    outcome.outputOverlayDetection = JSON.parse(detOut.stdout.trim().split("\n").at(-1));
+  } catch { outcome.outputOverlayDetection = { status: "check_failed" }; }
 
   const qc = await qcAndRepair(outputPath, {}).catch((e) => ({ status: "failed", failures: [e.message] }));
   outcome.qc = qc;

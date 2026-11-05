@@ -30,8 +30,9 @@ export async function runChannelCycle({ channel, niche, state, candidateProvider
   const limit = channel.operation?.maxCandidatesPerDay ?? 6;
   let accepted = 0;
   for (const candidate of candidates) {
-    const fingerprint = sourceFingerprint(candidate.sourceUrl ?? candidate.id ?? "");
-    if (await state.hasUsedSource(candidate.sourceUrl ?? "")) { run.duplicates += 1; continue; }
+    const isCorrection = Boolean(candidate?.supersedesCandidateId);
+    const fingerprint = sourceFingerprint(candidate.sourceUrl ?? candidate.id ?? "", isCorrection ? candidate.id : "");
+    if (!isCorrection && await state.hasUsedSource(candidate.sourceUrl ?? "")) { run.duplicates += 1; continue; }
     const screen = screenCandidate(candidate);
     await state.recordSource(candidate, screen.eligible ? "eligible" : "rejected");
     if (!screen.eligible) { run.rejected.push({ title: candidate.title ?? null, sourceUrl: candidate.sourceUrl ?? null, reasons: screen.reasons }); continue; }

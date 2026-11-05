@@ -44,3 +44,12 @@ test("quality audit rejects the two real failure shapes found in the launch audi
   assert.equal(chatter.passed, false);
   assert.ok(chatter.reasons.some((r) => /procedural communications/.test(r)));
 });
+
+test("overlay correction: edge bands reframe, large/central/dual overlays hold", async () => {
+  const { decideOverlayCorrection } = await import("../src/production/narrated-plan.js");
+  assert.equal(decideOverlayCorrection({ status: "ok", overlays: [] }).action, "none");
+  const reframe = decideOverlayCorrection({ status: "ok", overlays: [{ band: "top", fraction: 0.2 }] });
+  assert.equal(reframe.action, "reframe"); assert.equal(reframe.band, "top");
+  assert.equal(decideOverlayCorrection({ status: "ok", overlays: [{ band: "top", fraction: 0.2 }, { band: "bottom", fraction: 0.2 }] }).action, "hold");
+  assert.equal(decideOverlayCorrection({ status: "insufficient_frames", overlays: [] }).action, "hold");
+});

@@ -73,3 +73,17 @@ export function validateNarratedEntry(entry) {
   if (!entry?.hookText || entry.hookText.length < 8) reasons.push("hookText missing (the opening line must be planned, not improvised)");
   return { valid: reasons.length === 0, reasons, narrationWords: words };
 }
+
+// Decide how to handle a source-overlay detection BEFORE rendering.
+// Only edge bands (top/bottom) up to 25% of frame height may be reframed
+// away; anything larger, central, or on both bands is held — we never
+// cover important subjects just to pass QC.
+export function decideOverlayCorrection(detection) {
+  const overlays = detection?.overlays ?? [];
+  if (!detection || detection.status !== "ok") return { action: "hold", reason: "Overlay detection could not be completed on the source window" };
+  if (!overlays.length) return { action: "none", reason: null };
+  if (overlays.length > 1) return { action: "hold", reason: "Source overlays on multiple bands cannot be reframed away safely" };
+  const [o] = overlays;
+  if (o.fraction > 0.25) return { action: "hold", reason: `Source overlay band is ${(o.fraction * 100).toFixed(0)}% of frame height (> 25%): reframing would damage the subject` };
+  return { action: "reframe", band: o.band, fraction: o.fraction, reason: null };
+}

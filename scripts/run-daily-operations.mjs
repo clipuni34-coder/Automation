@@ -35,6 +35,7 @@ async function candidateProvider(channel, niche) {
       for (const seed of seeds) {
         candidates.push({
           id: seed.id, title: seed.label, sourceUrl: seed.sourceUrl, creator: seed.creator,
+          supersedesCandidateId: seed.supersedesCandidateId ?? null,
           rightsEvidenceUrl: seed.rightsEvidenceUrl, license: seed.license,
           sourceResolution: seed.sourceResolution, seedManifestEntry: seed
         });

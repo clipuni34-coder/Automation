@@ -36,9 +36,13 @@ const published = await state.getPublished();
 const publishedFingerprints = new Set(published.videos.map((v) => v.fingerprint));
 
 // Approval queue: produced + QC-passed jobs never yet published.
+// Superseded corrections (an older version replaced by a newer seed) are
+// NEVER uploaded: only the latest correction of a candidate may publish.
+const supersededIds = new Set(queue.jobs.map((j) => j.candidate?.supersedesCandidateId).filter(Boolean));
+// Also honour supersession declared in the current seed manifest chain.
 const awaiting = queue.jobs.filter((j) =>
   j.status === "completed" && j.result?.produced === true && j.result?.sha256 &&
-  !publishedFingerprints.has(j.result.sha256));
+  !publishedFingerprints.has(j.result.sha256) && !supersededIds.has(j.candidate?.id));
 
 const report = { channelId, generatedAt: new Date().toISOString(), approvedByHuman: approved, awaitingApproval: awaiting.map((j) => ({ candidateId: j.candidate?.id ?? null, fingerprint: j.result.sha256, title: j.result.title ?? null })), results: [] };
 

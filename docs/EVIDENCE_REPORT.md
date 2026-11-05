@@ -213,3 +213,31 @@ Licence evidence is the Wikimedia Commons file-page record (CC BY 3.0 / NASA pub
 3. Narrated renders can inherit source burned-in text/CTAs (elephant video) — window selection must avoid them; not yet automated.
 4. Analytics feedback still needs >=5 publicly watched videos; all current uploads are private with zero metrics.
 5. Public publishing remains OFF pending explicit owner authorization.
+
+## Final quality fixes & autonomous-operation proof — 2026-11-05
+Commits: `45cad49` (CTA detection + elephant v2), `6d2ac9d` (loudnorm attempt + v3), `092ceb7` (loudnorm fix + audio gate + v4); evidence commit follows. Tests: **315/315** locally; GitHub Tests success at `11fcbbe` (subsequent commits re-ran the same suite in the daily-operations runner environment). Current time at audit: 2026-11-05 ~15:20 Lagos.
+
+### Elephant CTA: detection, correction, proof
+The source's red "Subscribe for more Video's" CTA is burned into the waterhole segments (measured promotional-red signature 0.136–0.158 of the top band vs 0.000 in clean segments). New `scripts/detect_overlay.py` samples the source window and detects edge-band overlays by (a) staticness while the scene changes and (b) a promotional-colour text signature; `decideOverlayCorrection` reframes a single edge band <=25% and holds anything larger/central/dual — subjects are never covered to force a pass. Detection runs on the source before our captions exist, so our own graphics cannot be confused with source overlays. Cloud proof (run 42042734671, artifact 13423721438): source detection found the top band, decision `reframe`, rendered v2 output re-detection `detected: false`, QC passed, frames inspected clean at 1s/6s/12s/20s. Honest limitation: non-textual or white/watermark logos rely on the staticness method only; keyword OCR is not implemented.
+
+### Audio QC fix
+The elephant narration measured -25.8 dB mean (too quiet). Root cause: loudnorm applied before the mix and amix auto-normalization. Fixed (`092ceb7`): amix `normalize=0`, loudnorm (I=-14) after the mix, plus a hard audio gate (held_audio_qc below -22 dB mean). Final v4 (run 42043674731): **mean -18.1 dB, max -0.7 dB**, gate passed, output CTA detection false, QC passed, SHA-256 34181bdf…. v4 is produced and sits in the approval queue — it has NOT been uploaded (this cycle ran with upload approval off). Superseded v2/v3 renders are now explicitly non-uploadable in `publish-awaiting.mjs`.
+
+### Full audit of the two narrated uploads (KBHalqUmHxk, dQwD_It3oXM)
+Complete audio independently transcribed (faster-whisper): both narrations match their approved scripts essentially verbatim (54/56 words; "Chiitan" is pronounced in a way Whisper hears as "Chiton" — a minor TTS pronunciation weakness, noted). Chiitan: mean -16.8 dB, healthy. Elephant v1: -25.2 dB mean — quiet (now fixed at engine level; the uploaded private copy retains the defect). Captions match narration text and timing by construction (script-derived cues) and were frame-inspected as readable. Chiitan scores: hook 7/10 (mid-flip opening), story 7/10, payoff 6/10 (script moral + comeback footage) — suitable for the niche. Elephant v1: hook 6/10, story 6/10, but CTA defect + quiet audio — the corrected v4 supersedes it for any future approval. Endings: both close on the script's payoff line; neither has a visual cliffhanger — acceptable, not exceptional.
+
+### YouTube registry verification (this cycle)
+`verify-published.mjs` re-read all 4 registry entries via identity-verified OAuth: ITRMwg5DbxA, sQZOvhrNEdE, KBHalqUmHxk, dQwD_It3oXM — all exist, all `private`, all on UCB7EhjM0bj2wtIBy_A_kkkg, all matching the registry (`all_verified`). Registry contains exactly 4 videos: no duplicates, no public video. Nothing was deleted (owner approval required for deletion — not given, not requested by the system).
+
+### Scheduler: natural run still pending (stated plainly)
+At audit time (2026-11-05 ~15:20 Lagos) the scheduler repo shows ONLY the manual test dispatch 42035124026. The first natural cron run is due **2026-11-06 06:30 Lagos** and has not happened yet. It would be dishonest to claim it. The dispatch mechanism, production cycle, state persistence (workflow-committed state f997867), duplicate protection (30/30 dedupe re-runs; second-pass zero uploads) and approval-off daily behaviour are all independently proven; only the calendar-triggered firing remains outstanding, by time, not by defect.
+
+### Rights limitations
+Unchanged: evidence is the Commons file-page licence record (CC BY 3.0 with attribution text in packages; NASA PD). No independent licence verifier; human inspection required before public use. Weak private videos ITRMwg5DbxA / sQZOvhrNEdE remain private and unrecommended; deletion is the owner's YouTube Studio decision.
+
+### Remaining blockers
+1. First natural scheduled run (due 2026-11-06 06:30 Lagos) — pending by calendar.
+2. Corrected elephant v4 awaits owner approval before any private upload; v1 elephant + two weak speech videos await owner delete/keep decisions.
+3. Watermark detection for non-textual logos is heuristic (staticness) only.
+4. Analytics still zero (all videos private/unwatched); feedback needs watched public content.
+5. Public publishing remains OFF pending explicit owner authorization.

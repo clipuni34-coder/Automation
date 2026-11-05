@@ -36,6 +36,18 @@ export function validateChannels(input, env = process.env) {
       nicheKeywords: Array.isArray(c.nicheKeywords) ? c.nicheKeywords.map(String) : [],
       refreshTokenEnv: String(c.refreshTokenEnv ?? (index === 0 ? "YOUTUBE_REFRESH_TOKEN" : "")),
       expectedChannelIdEnv: String(c.expectedChannelIdEnv ?? (index === 0 ? "YOUTUBE_EXPECTED_CHANNEL_ID" : "")),
+      youtubeChannelId: String(c.youtubeChannelId ?? ""),
+      targetAudience: String(c.targetAudience ?? ""),
+      seedCandidateManifest: String(c.seedCandidateManifest ?? ""),
+      operation: Object.freeze({
+        enabled: c.operation?.enabled === true,
+        paused: c.operation?.paused === true,
+        postingDays: Array.isArray(c.operation?.postingDays) ? c.operation.postingDays.map(String) : [],
+        postsPerDay: Math.max(0, Math.min(10, Number(c.operation?.postsPerDay ?? 1) || 0)),
+        maxCandidatesPerDay: Math.max(1, Math.min(50, Number(c.operation?.maxCandidatesPerDay ?? 6) || 6)),
+        productionEnabled: c.operation?.productionEnabled === true,
+        publishingMode: ["disabled", "private_only", "approved_public"].includes(c.operation?.publishingMode) ? c.operation.publishingMode : "disabled"
+      }),
       publishing: Object.freeze({
         enabled: publishing.enabled === true,
         privacyStatus,

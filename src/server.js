@@ -4,6 +4,8 @@ import { dirname } from "node:path";
 import { loadConfig } from "./config/env.js";
 import { auditCredentials } from "./config/credentials.js";
 import { validateChannels } from "./config/channels.js";
+import { openChannelState } from "./engine/state.js";
+import { assessMonetizationReadiness } from "./engine/monetization-readiness.js";
 
 const config = loadConfig();
 
@@ -30,11 +32,30 @@ export async function getSystemStatus(env = process.env) {
   let channelConfigError = null;
   try {
     const raw = await readFile(env.CHANNEL_PROFILES_PATH ?? "config/channels.json", "utf8");
-    channels = validateChannels(JSON.parse(raw), env).map((c) => ({
-      id: c.id, name: c.name, status: c.status, niche: c.niche,
-      publishingEnabled: c.publishing.enabled, privacyStatus: c.publishing.privacyStatus,
-      publicBlocked: c.publishing.publicBlocked
-    }));
+    const validated = validateChannels(JSON.parse(raw), env);
+    const stateRoot = env.STATE_DIR ?? "data/state";
+    for (const c of validated) {
+      let stateSummary = null; let monetization = null;
+      try {
+        const state = await openChannelState(stateRoot, c.id);
+        stateSummary = await state.summary();
+        const analytics = await state.getAnalytics();
+        const published = (await state.getPublished()).videos;
+        monetization = assessMonetizationReadiness({
+          metrics: { shortsViews90d: analytics?.totals?.views ?? 0 },
+          productionHistory: published.map((v) => ({ title: v.title, originalContribution: true, rightsVerificationStatus: "evidence_recorded" }))
+        });
+      } catch { /* state not created yet for this channel */ }
+      channels.push({
+        id: c.id, name: c.name, status: c.status, niche: c.niche,
+        youtubeChannelId: c.youtubeChannelId || null,
+        operation: c.operation,
+        publishingEnabled: c.publishing.enabled, privacyStatus: c.publishing.privacyStatus,
+        publicBlocked: c.publishing.publicBlocked,
+        state: stateSummary,
+        monetization: monetization ? { progress: monetization.progress, risks: monetization.risks } : null
+      });
+    }
   } catch (error) {
     channelConfigError = error.code === "ENOENT" ? "No channel profiles configured yet (config/channels.json missing)" : error.message;
   }
@@ -75,12 +96,13 @@ const el=id=>document.getElementById(id);
 async function load(){try{const s=await (await fetch('/api/status')).json();
 el('sys').innerHTML='<div class="row"><span>Environment</span><b>'+s.environment+'</b></div><div class="row"><span>Approval required</span><b>'+(s.approvalRequired?'Yes':'No')+'</b></div><div class="row"><span>Public publishing</span><b class="bad">Disabled</b></div>';
 el('caps').innerHTML=Object.entries(s.capabilities).map(([k,v])=>'<div class="row"><span>'+k.replaceAll('_',' ')+'</span><b class="'+(v.ready?'ok':'warn')+'">'+(v.ready?'Ready':'Missing: '+v.missing.join(', '))+'</b></div>').join('');
-el('channels').innerHTML=s.channels.length?s.channels.map(c=>'<div class="row"><span>'+c.name+'</span><span class="pill">'+c.status+' · '+c.privacyStatus+'</span></div>').join(''):'<div class="warn">'+(s.channelConfigError||'No channels')+'</div>';
+el('channels').innerHTML=s.channels.length?s.channels.map(c=>{const st=c.state||{};const jobs=st.jobs||{};return '<div class="row"><span><b>'+c.name+'</b><br><span class="small">'+c.niche+' · '+(c.youtubeChannelId||'not connected')+'</span></span><span class="pill">'+c.status+(st.paused?' · ⏸ paused':'')+'</span></div><div class="row"><span>Queue</span><span>'+(jobs.queued||0)+' queued · '+(jobs.completed||0)+' done · '+(jobs.failed||0)+' failed</span></div><div class="row"><span>Published (recorded)</span><span>'+(st.publishedCount||0)+'</span></div><div class="row"><span>Sources seen</span><span>'+(st.sourcesSeen||0)+'</span></div><button onclick="ctl(\''+c.id+'\','+(st.paused?'\'resume\'':'\'pause\')+')">'+(st.paused?'▶ Resume':'⏸ Pause')+' this channel</button>'}).join(''):'<div class="warn">'+(s.channelConfigError||'No channels')+'</div>';
 el('stages').innerHTML=s.pipelineStages.map((x,i)=>'<span class="stage">'+(i+1)+'. '+x+'</span>').join('');
 }catch(e){el('sys').innerHTML='<span class="bad">Failed to load status</span>'}}
 async function decide(d){const packageId=el('pkg').value.trim();if(!packageId){el('msg').textContent='Enter a package/video ID first.';return}
 const r=await fetch('/api/approval',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({packageId,decision:d})});
 const b=await r.json();el('msg').textContent=r.ok?('Recorded: '+b.decision+' for '+b.packageId+' at '+b.at):('Error: '+(b.error||r.status));}
+window.ctl=async(id,action)=>{const r=await fetch('/api/channels/'+id+'/'+action,{method:'POST'});const b=await r.json();el('msg').textContent=r.ok?('Channel '+id+' '+(b.paused?'paused':'resumed')):('Error: '+(b.error||r.status));load()};
 el('approve').onclick=()=>decide('approved');el('reject').onclick=()=>decide('rejected');load();
 </script></body></html>`;
 
@@ -100,6 +122,13 @@ export function createAppServer() {
       }
       if (request.method === "GET" && url.pathname === "/api/status") {
         return sendJson(response, 200, await getSystemStatus());
+      }
+      const channelControlMatch = url.pathname.match(/^\/api\/channels\/([A-Za-z0-9_-]+)\/(pause|resume)$/);
+      if (request.method === "POST" && channelControlMatch) {
+        const [, channelId, action] = channelControlMatch;
+        const state = await openChannelState(process.env.STATE_DIR ?? "data/state", channelId);
+        const control = await state.setPaused(action === "pause", "mobile-dashboard");
+        return sendJson(response, 200, { channelId, paused: control.paused, updatedAt: control.updatedAt, note: "Pause/resume affects only this channel." });
       }
       if (request.method === "POST" && url.pathname === "/api/approval") {
         let body = "";

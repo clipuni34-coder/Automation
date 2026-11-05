@@ -1,0 +1,110 @@
+name: Daily multi-channel operations
+
+# Autonomous daily cycle for every configured channel: per-niche research,
+# rights screening, dedupe against persistent state, per-channel production
+# queues, retries, and run records. Publishing is NOT performed here except
+# through the separate, guarded publishing workflows.
+#
+# Persistent state: the `automation-state` branch (state/ directory) is
+# checked out, updated, and pushed back by this workflow. Runner files are
+# never the database.
+#
+# SCHEDULING NOTE (platform rule): GitHub `schedule` events only fire from
+# the DEFAULT branch. This workflow declares the cron schedule; it becomes
+# active if/when this file reaches the default branch. Until then it can be
+# triggered by workflow_dispatch or an external scheduler calling the
+# workflow dispatch API. It is never triggered manually day-to-day by design
+# of the run itself.
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  push:
+    branches: [editorial-evidence-hold]
+    paths:
+      - ".github/workflows/daily-operations.yml"
+      - "src/engine/**"
+      - "config/channels.json"
+      - "config/niches.json"
+  workflow_dispatch:
+    inputs:
+      production_enabled:
+        description: "Produce eligible candidates (rendering) during this run"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-operations
+  cancel-in-progress: false
+
+jobs:
+  operate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: editorial-evidence-hold
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Restore persistent channel state (automation-state branch)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "automation-bot"
+          git config user.email "PrimePlug"
+          if git ls-remote --exit-code --heads origin automation-state >/dev/null 2>&1; then
+            git fetch origin automation-state
+            git worktree add state automation-state
+          else
+            git worktree add --orphan -b automation-state state
+            cd state && git commit --allow-empty -m "init: automation state" && git push origin automation-state && cd ..
+          fi
+          ls state/ || true
+      - name: Install FFmpeg and transcription dependencies
+        run: |
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y ffmpeg; fi
+          python -m pip install --disable-pip-version-check -r requirements/repurposing.txt
+      - name: Run daily operations for all channels
+        env:
+          PYTHON: python
+          STATE_DIR: state
+          CHANNEL_PROFILES_PATH: config/channels.json
+          YOUTUBE_DATA_API_KEY: ${{ secrets.YOUTUBE_DATA_API_KEY }}
+          RSS_FEEDS: ${{ vars.RSS_FEEDS }}
+          DAILY_PRODUCTION_ENABLED: ${{ inputs.production_enabled || 'false' }}
+        run: npm run daily-operations
+      - name: Sync YouTube analytics per connected channel (identity-verified)
+        if: vars.SYNC_YOUTUBE_ANALYTICS == 'true'
+        env:
+          STATE_DIR: state
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+        run: npm run sync-analytics
+      - name: Persist updated channel state
+        run: |
+          cd state
+          git add -A
+          if git diff --cached --quiet; then echo "No state changes"; else
+            git commit -m "state: daily operations $(date -u +%F)"
+            git push origin automation-state
+          fi
+      - name: Daily summary
+        if: always()
+        run: |
+          for f in output/daily/*/summary.json; do echo "### $f"; cat "$f" | head -100; done >> "$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-operations-report
+          path: output/daily/
+          retention-days: 30

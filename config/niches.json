@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "niches": [
+    {
+      "id": "discoveries-science",
+      "label": "Discoveries, Science & Extraordinary Real-World Stories",
+      "targetAudience": "Curious viewers who love space, science and real-world wonders",
+      "discovery": {
+        "searchQueries": ["NASA astronaut interview space station", "mars rover landing footage", "NASA mission control touchdown", "deep sea discovery footage"],
+        "regions": ["US", "GB", "NG", "IN"],
+        "categories": ["28", "27"],
+        "seedSourceHosts": ["upload.wikimedia.org", "nasa.gov", "svs.gsfc.nasa.gov"]
+      },
+      "editorial": { "captionStyle": "karaoke", "hookStyle": "question_or_revelation", "minEditorialScore": 5.5, "minSourceHeight": 720, "targetSeconds": 15 },
+      "contentRules": ["Prefer primary-source footage (space agencies, universities)", "No unrelated clip stitching", "Preserve chronological dialogue"]
+    },
+    {
+      "id": "funny-moments",
+      "label": "Funny Moments, Fails & Rankings",
+      "targetAudience": "Viewers who enjoy surprising real-life moments and light rankings",
+      "discovery": {
+        "searchQueries": ["funny real life moments", "unexpected reaction caught on camera", "amazing animal moments"],
+        "regions": ["US", "GB", "NG"],
+        "categories": ["23", "24", "15"],
+        "seedSourceHosts": ["upload.wikimedia.org"]
+      },
+      "editorial": { "captionStyle": "bounce", "hookStyle": "wait_for_it", "minEditorialScore": 5.5, "minSourceHeight": 720, "targetSeconds": 20 },
+      "contentRules": ["Only footage with recorded creator permission or public-domain/CC evidence", "No humiliation content", "Rankings must add original commentary"]
+    },
+    {
+      "id": "gaming-roblox",
+      "label": "Gaming & Roblox",
+      "targetAudience": "Young gaming fans who enjoy Roblox discoveries, challenges and records",
+      "discovery": {
+        "searchQueries": ["roblox new update discovery", "roblox world record speedrun", "gaming surprising moments"],
+        "regions": ["US", "GB", "NG", "BR"],
+        "categories": ["20"],
+        "seedSourceHosts": []
+      },
+      "editorial": { "captionStyle": "Hormozi", "hookStyle": "challenge_or_record", "minEditorialScore": 5.5, "minSourceHeight": 720, "targetSeconds": 25 },
+      "contentRules": ["Prefer own gameplay recordings or licensed creator clips with written permission", "No reposting gameplay without permission evidence", "Add original commentary over every clip"]
+    },
+    {
+      "id": "facts-education",
+      "label": "Interesting Facts & Educational Content",
+      "targetAudience": "Learners who enjoy surprising facts explained simply",
+      "discovery": {
+        "searchQueries": ["interesting science facts explained", "how does it work educational footage", "history documentary public domain"],
+        "regions": ["US", "GB", "NG", "IN"],
+        "categories": ["27", "28"],
+        "seedSourceHosts": ["upload.wikimedia.org", "nasa.gov"]
+      },
+      "editorial": { "captionStyle": "minimal", "hookStyle": "did_you_know", "minEditorialScore": 5.5, "minSourceHeight": 720, "targetSeconds": 30 },
+      "contentRules": ["Every factual claim needs a research source reference", "Prefer primary and institutional sources", "No misleading simplification"]
+    }
+  ]
+}

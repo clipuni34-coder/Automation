@@ -1,12 +1,12 @@
 {
-  "producedAt": "2026-11-05T14:19:41.531Z",
+  "producedAt": "2026-11-05T14:34:11.647Z",
   "total": 1,
-  "completed": 1,
+  "completed": 0,
   "outcomes": [
     {
-      "id": "baby-elephant-funny-moments-v4",
-      "status": "completed",
-      "reason": null
+      "id": "baby-elephant-funny-moments-v5",
+      "status": "held_advanced_qc",
+      "reason": "Advanced QC held this render: faststart (moov follows mdat (not fast-start))"
     }
   ]
 }

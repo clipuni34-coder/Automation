@@ -305,7 +305,7 @@
       "creator": "YouTube creator via Wikimedia Commons (CC BY)",
       "firstSeenAt": "2026-11-05T13:02:10.490Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T14:32:45.685Z"
+      "updatedAt": "2026-11-05T14:33:35.229Z"
     },
     "6193b6c449d823aeeb905acc": {
       "fingerprint": "6193b6c449d823aeeb905acc",
@@ -1359,6 +1359,24 @@
       "firstSeenAt": "2026-11-05T14:32:45.704Z",
       "lastOutcome": "rejected",
       "updatedAt": "2026-11-05T14:32:45.704Z"
+    },
+    "428adc313a0135fa2f686d81": {
+      "fingerprint": "428adc313a0135fa2f686d81",
+      "sourceUrl": "https://www.youtube.com/watch?v=VGZK03YzXH8",
+      "title": "Vendeu o bezerro fraco",
+      "creator": "Avós de Novela",
+      "firstSeenAt": "2026-11-05T14:33:35.237Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T14:33:35.237Z"
+    },
+    "129a68daae4d3b959878f60f": {
+      "fingerprint": "129a68daae4d3b959878f60f",
+      "sourceUrl": "https://www.youtube.com/watch?v=i0FSBY8Z8eQ",
+      "title": "My baby’s almost 14 she gets food when she demands it 😂🐶 #dogs #dogshorts",
+      "creator": "Doggosbuzz🐶",
+      "firstSeenAt": "2026-11-05T14:33:35.248Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T14:33:35.248Z"
     }
   }
 }

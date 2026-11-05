@@ -853,8 +853,8 @@
       "finishedAt": "2026-11-05T14:19:41.547Z"
     },
     {
-      "attempts": 0,
-      "status": "queued",
+      "attempts": 1,
+      "status": "completed",
       "createdAt": "2026-11-05T14:32:45.686Z",
       "fingerprint": "c4ad2db0cb138627a4084074",
       "type": "produce",
@@ -929,13 +929,14 @@
         }
       },
       "channelId": "Primeplug",
-      "updatedAt": "2026-11-05T14:32:45.706Z",
+      "updatedAt": "2026-11-05T14:33:35.250Z",
       "result": {
-        "deferred": true,
         "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "baby-elephant-funny-moments-v5"
-      }
+        "outcome": "held_advanced_qc",
+        "pathway": "narrated",
+        "reason": "Advanced QC held this render: faststart (moov follows mdat (not fast-start))"
+      },
+      "finishedAt": "2026-11-05T14:34:11.666Z"
     }
   ]
 }

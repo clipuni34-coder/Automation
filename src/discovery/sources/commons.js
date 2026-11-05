@@ -75,7 +75,13 @@ export async function collectCommonsCandidates({ queries = [], fetchImpl = fetch
       + "&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Cextmetadata";
     let payload;
     try {
-      const res = await fetchImpl(api, { headers: { "user-agent": "PrimePlugDiscovery/1.0" } });
+      // One retry with backoff: the Commons API rate-limits bursts (429
+      // observed in run 42062278022 when several queries fired in one run).
+      let res = await fetchImpl(api, { headers: { "user-agent": "PrimePlugDiscovery/1.0" } });
+      if (res.status === 429 || res.status >= 500) {
+        await new Promise((r) => setTimeout(r, 2500));
+        res = await fetchImpl(api, { headers: { "user-agent": "PrimePlugDiscovery/1.0" } });
+      }
       if (!res.ok) throw new Error(`Commons API HTTP ${res.status}`);
       payload = await res.json();
     } catch (error) {

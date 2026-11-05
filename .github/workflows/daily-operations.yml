@@ -170,7 +170,16 @@ jobs:
           git add -A
           if git diff --cached --quiet; then echo "No state changes"; else
             git commit -m "state: daily operations $(date -u +%F)"
-            git push origin automation-state
+            # Retry with rebase: another run may have advanced the state
+            # branch since checkout (observed in run 42062278022, where a
+            # single push attempt failed with a commit_refs error and the
+            # cycle's state was nearly lost).
+            for attempt in 1 2 3; do
+              if git push origin automation-state; then break; fi
+              if [ "$attempt" = "3" ]; then echo "state push failed after 3 attempts"; exit 1; fi
+              git fetch origin automation-state
+              git rebase -X theirs origin/automation-state
+            done
           fi
       - name: Daily summary
         if: always()

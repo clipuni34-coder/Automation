@@ -19,11 +19,13 @@ export function buildProductionReport(summary, { productionEnabled = false } = {
       produced,
       qcPassed: run.qcPassed ?? 0,
       uploaded: 0, // uploads happen only in the separate per-video approval step
-      productionOutcome: !productionEnabled
-        ? "production_disabled"
-        : produced > 0
-          ? "produced"
-          : "no_production"
+      productionOutcome: run.status === "paused" || run.status === "disabled"
+        ? run.status
+        : !productionEnabled
+          ? "production_disabled"
+          : produced > 0
+            ? "produced"
+            : "no_production"
     };
   });
   const totals = channels.reduce((acc, c) => {

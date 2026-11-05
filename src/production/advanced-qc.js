@@ -86,7 +86,11 @@ export async function runAdvancedQc(path, { ffmpegPath = "ffmpeg", ffprobePath =
   const vol = run(ffmpegPath, ["-i", path, "-af", "volumedetect", "-f", "null", "/dev/null"], 300000);
   const blk = run(ffmpegPath, ["-i", path, "-vf", "blackdetect=d=0.5:pix_th=0.1", "-an", "-f", "null", "/dev/null"], 300000);
   const sil = run(ffmpegPath, ["-i", path, "-af", "silencedetect=noise=-45dB:d=0.8", "-vn", "-f", "null", "/dev/null"], 300000);
-  const scn = run(ffmpegPath, ["-i", path, "-vf", "select='gt(scene,0.35)',showinfo", "-an", "-f", "null", "/dev/null"], 300000);
+  // Threshold 0.1: the original 0.35 only fires on hard cuts and held a
+  // continuous single-shot render that measurably contains 26 visual
+  // changes at 0.1 (cape-fox audit render, run 42062317891). 0.1 counts
+  // real subject/camera/edit changes, including punch-in beat cuts.
+  const scn = run(ffmpegPath, ["-i", path, "-vf", "select='gt(scene,0.1)',showinfo", "-an", "-f", "null", "/dev/null"], 300000);
   const fastStart = await checkFastStart(path).catch((e) => ({ fastStart: false, reason: e.message }));
   return evaluateAdvancedQc({
     probe,

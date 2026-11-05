@@ -131,3 +131,8 @@ test("overlay: centre-band overlays are held, never reframed", () => {
   assert.equal(decideOverlayCorrection({ status: "ok", overlays: [{ band: "top", fraction: 0.2 }] }).action, "reframe");
   assert.equal(decideOverlayCorrection({ status: "check_failed", overlays: [] }).action, "hold");
 });
+
+test("reporting: paused channels report paused, not no_production", () => {
+  const r = buildProductionReport({ generatedAt: "t", runs: [{ channelId: "x", status: "paused", produced: 0, rejected: [] }] }, { productionEnabled: true });
+  assert.equal(r.channels[0].productionOutcome, "paused");
+});

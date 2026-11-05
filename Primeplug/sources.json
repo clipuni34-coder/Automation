@@ -287,13 +287,18 @@
       "creator": "Chiitan (official mascot channel, via Wikimedia Commons)",
       "firstSeenAt": "2026-11-05T13:02:10.478Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T15:43:42.709Z",
+      "updatedAt": "2026-11-05T16:15:38.477Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
+        "licenceFamily": "by",
+        "licenceVersion": "3.0",
+        "shareAlike": false,
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+        "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T15:43:38.684Z"
+        "checkedAt": "2026-11-05T16:15:32.126Z"
       }
     },
     "2fcfd9b3ba9bdc5204655c2b": {
@@ -303,13 +308,18 @@
       "creator": "YouTube creator compilation via Wikimedia Commons (CC BY)",
       "firstSeenAt": "2026-11-05T13:02:10.480Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T15:43:42.711Z",
+      "updatedAt": "2026-11-05T16:15:38.480Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
+        "licenceFamily": "by",
+        "licenceVersion": "3.0",
+        "shareAlike": false,
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+        "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T15:43:38.956Z"
+        "checkedAt": "2026-11-05T16:15:32.293Z"
       }
     },
     "80213f8020ffaf02f8b9cbce": {
@@ -320,13 +330,18 @@
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
+        "licenceFamily": "by",
+        "licenceVersion": "3.0",
+        "shareAlike": false,
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+        "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T15:43:39.488Z"
+        "checkedAt": "2026-11-05T16:15:32.826Z"
       },
       "firstSeenAt": "2026-11-05T13:02:10.490Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T15:43:42.761Z"
+      "updatedAt": "2026-11-05T16:15:38.509Z"
     },
     "6193b6c449d823aeeb905acc": {
       "fingerprint": "6193b6c449d823aeeb905acc",
@@ -1023,11 +1038,16 @@
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "Public domain",
+        "licenceFamily": "public-domain",
+        "licenceVersion": null,
+        "shareAlike": false,
+        "licenceUrl": null,
+        "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T15:43:39.168Z"
+        "checkedAt": "2026-11-05T16:15:32.445Z"
       },
-      "updatedAt": "2026-11-05T15:43:42.736Z"
+      "updatedAt": "2026-11-05T16:15:38.484Z"
     },
     "3166a6060b079e1aebb360eb": {
       "fingerprint": "3166a6060b079e1aebb360eb",
@@ -1040,11 +1060,16 @@
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "Public domain",
+        "licenceFamily": "public-domain",
+        "licenceVersion": null,
+        "shareAlike": false,
+        "licenceUrl": null,
+        "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T15:43:39.274Z"
+        "checkedAt": "2026-11-05T16:15:32.503Z"
       },
-      "updatedAt": "2026-11-05T15:43:42.754Z"
+      "updatedAt": "2026-11-05T16:15:38.486Z"
     },
     "b574bb140017fde5e443e9e1": {
       "fingerprint": "b574bb140017fde5e443e9e1",
@@ -1793,6 +1818,142 @@
       "firstSeenAt": "2026-11-05T15:43:42.776Z",
       "lastOutcome": "rejected",
       "updatedAt": "2026-11-05T15:43:42.776Z"
+    },
+    "d2949055380ef8d76376494e": {
+      "fingerprint": "d2949055380ef8d76376494e",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/Cape_Foxes_%28Vulpes_chama%29_pups_playing_....webm",
+      "title": "Cape fox pups playing in the savanna — fresh verified CC BY-SA source",
+      "creator": "Bernard DUPONT via Wikimedia Commons (Flickr)",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "CC BY-SA 2.0",
+        "licenceFamily": "by-sa",
+        "licenceVersion": "2.0",
+        "shareAlike": true,
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "attributionRequired": true,
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-05T16:15:32.655Z"
+      },
+      "firstSeenAt": "2026-11-05T16:15:38.499Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-05T16:15:38.499Z"
+    },
+    "b1238d7238a453eb97f3aeef": {
+      "fingerprint": "b1238d7238a453eb97f3aeef",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Talking_Parrot_-_VOANews.webm",
+      "title": "Einstein the talking parrot (public domain) — burned-in subtitle overlay scenario",
+      "creator": "Voice of America via Wikimedia Commons",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "Public domain",
+        "licenceFamily": "public-domain",
+        "licenceVersion": null,
+        "shareAlike": false,
+        "licenceUrl": null,
+        "attributionRequired": false,
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-05T16:15:32.711Z"
+      },
+      "firstSeenAt": "2026-11-05T16:15:38.503Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-05T16:15:38.503Z"
+    },
+    "80e3d83db047fd64e18aee0a": {
+      "fingerprint": "80e3d83db047fd64e18aee0a",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Asian_small-clawed_otter_playing_with_rock.webm",
+      "title": "Otter playing with a rock — recorded claim CC BY-SA 4.0, file page records CC BY-SA 3.0 (must be rejected)",
+      "creator": "Grendelkhan via Wikimedia Commons",
+      "rightsVerification": {
+        "status": "permission_unclear",
+        "observedLicence": "CC BY-SA 3.0",
+        "licenceFamily": "by-sa",
+        "licenceVersion": "3.0",
+        "shareAlike": false,
+        "licenceUrl": null,
+        "attributionRequired": null,
+        "commercialUse": null,
+        "derivativesAllowed": null,
+        "checkedAt": "2026-11-05T16:15:32.766Z"
+      },
+      "firstSeenAt": "2026-11-05T16:15:38.507Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:15:38.507Z"
+    },
+    "c010778a4497c7cf56d822d3": {
+      "fingerprint": "c010778a4497c7cf56d822d3",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Kitten_playing_-_Tokyo_-_Jan_7_2020.webm",
+      "title": "Kitten playing in Tokyo — deliberately weak/incomplete story (must be held)",
+      "creator": "Nesnad via Wikimedia Commons",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "CC BY 4.0",
+        "licenceFamily": "by",
+        "licenceVersion": "4.0",
+        "shareAlike": false,
+        "licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+        "attributionRequired": true,
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-05T16:15:32.844Z"
+      },
+      "firstSeenAt": "2026-11-05T16:15:38.511Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-05T16:15:38.511Z"
+    },
+    "d5af0d690333ef54b72cd221": {
+      "fingerprint": "d5af0d690333ef54b72cd221",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Adorable_Animals_Enjoying_A_Belly_Rub_Compilation_2014_NEW.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "title": "Adorable Animals Enjoying A Belly Rub Compilation 2014 NEW",
+      "creator": "hung nguyen",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "CC BY 3.0",
+        "licenceFamily": "by",
+        "licenceVersion": "3.0",
+        "shareAlike": false,
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+        "attributionRequired": true,
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-05T16:15:32.910Z"
+      },
+      "firstSeenAt": "2026-11-05T16:15:38.515Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-05T16:15:38.515Z"
+    },
+    "2020f2381e9e97943fd204f5": {
+      "fingerprint": "2020f2381e9e97943fd204f5",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d0/%E3%80%90Part3%E3%80%91Japanese_Mascot_Fails%2C_Fights_%26_Funny_Moments_Video_%E3%81%A1%E3%81%83%E3%81%9F%E3%82%93%E2%98%86%E6%AC%B2%E5%BC%B5%E3%82%8A%E5%8B%95%E7%94%BB%E3%82%BB%E3%83%83%E3%83%88.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "title": "【Part3】Japanese Mascot Fails, Fights & Funny Moments Video ちぃたん☆欲張り動画セット",
+      "creator": "Chiitan 妖精ちぃたん",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "CC BY 3.0",
+        "licenceFamily": "by",
+        "licenceVersion": "3.0",
+        "shareAlike": false,
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+        "attributionRequired": true,
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-05T16:15:32.910Z"
+      },
+      "firstSeenAt": "2026-11-05T16:15:38.518Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-05T16:15:38.518Z"
+    },
+    "ba9283727529a5974e0629c3": {
+      "fingerprint": "ba9283727529a5974e0629c3",
+      "sourceUrl": "https://www.youtube.com/watch?v=Yzw1EZtpKXI",
+      "title": "QUANTAS MORDIDAS PARA COMER UM HAMBÚRGUER? #shorts",
+      "creator": "Enaldinho",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T16:15:38.522Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T16:15:38.522Z"
     }
   }
 }

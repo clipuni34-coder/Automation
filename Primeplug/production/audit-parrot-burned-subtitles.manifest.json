@@ -1,0 +1,41 @@
+[
+  {
+    "id": "audit-parrot-burned-subtitles",
+    "label": "Einstein the talking parrot (public domain) — burned-in subtitle overlay scenario",
+    "creator": "Voice of America via Wikimedia Commons",
+    "sourceResolution": "1080x1080",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Talking_Parrot_-_VOANews.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Talking_Parrot_-_VOANews.webm",
+    "license": {
+      "type": "Public domain",
+      "basis": "VOA material on Wikimedia Commons, public domain (verified live via Commons API).",
+      "rightsStatus": "public_domain",
+      "attributionRequirement": "Credit: Voice of America, via Wikimedia Commons (public domain).",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "processing": {
+      "mode": "full",
+      "targetDurationSeconds": 25
+    },
+    "productionMode": "narrated",
+    "window": {
+      "startSeconds": 35,
+      "seconds": 27
+    },
+    "hookText": "Einstein is an African grey parrot with a microphone habit he takes very seriously.",
+    "storyBeats": {
+      "hook": "Einstein the parrot leans into the microphone like a tiny celebrity.",
+      "development": "Perched at Zoo Knoxville, he tilts his head and chatters through the interview.",
+      "payoff": "He answers in his own unmistakable voice — and works entirely for treats."
+    },
+    "visualSubject": "parrot",
+    "postingTitle": "Einstein The Parrot Takes His Interview Very Seriously 🦜",
+    "narrationScript": "Einstein is an African grey parrot with a microphone habit he takes very seriously. Perched at Zoo Knoxville, he leans into every question like a tiny celebrity at a press conference. Between the head tilts and the chatter, he answers in his own unmistakable voice. Not bad for an interviewee who works entirely for treats.",
+    "hashtags": [
+      "#Shorts",
+      "#parrot",
+      "#animals",
+      "#funny"
+    ]
+  }
+]

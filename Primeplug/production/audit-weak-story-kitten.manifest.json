@@ -1,0 +1,33 @@
+[
+  {
+    "id": "audit-weak-story-kitten",
+    "label": "Kitten playing in Tokyo — deliberately weak/incomplete story (must be held)",
+    "creator": "Nesnad via Wikimedia Commons",
+    "sourceResolution": "1920x1080",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Kitten_playing_-_Tokyo_-_Jan_7_2020.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Kitten_playing_-_Tokyo_-_Jan_7_2020.webm",
+    "license": {
+      "type": "CC BY 4.0",
+      "basis": "Wikimedia Commons file page records CC BY 4.0 (verified live via Commons API).",
+      "rightsStatus": "licensed",
+      "attributionRequirement": "Credit: Nesnad, via Wikimedia Commons, CC BY 4.0 — https://creativecommons.org/licenses/by/4.0",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "processing": {
+      "mode": "full",
+      "targetDurationSeconds": 15
+    },
+    "productionMode": "narrated",
+    "window": {
+      "startSeconds": 0,
+      "seconds": 8
+    },
+    "hookText": "Look at this kitten.",
+    "postingTitle": "A Kitten Playing In Tokyo",
+    "narrationScript": "Look at this kitten playing in Tokyo. It is very cute and it loves its toy.",
+    "hashtags": [
+      "#Shorts",
+      "#kitten"
+    ]
+  }
+]

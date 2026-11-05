@@ -1,0 +1,134 @@
+{
+  "id": "cape-fox-pups-playing",
+  "label": "Cape fox pups playing in the savanna — fresh verified CC BY-SA source",
+  "creator": "Bernard DUPONT via Wikimedia Commons (Flickr)",
+  "pathway": "narrated",
+  "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/Cape_Foxes_%28Vulpes_chama%29_pups_playing_....webm",
+  "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Cape_Foxes_(Vulpes_chama)_pups_playing_....webm",
+  "license": {
+    "type": "CC BY-SA 2.0",
+    "basis": "Wikimedia Commons file page records CC BY-SA 2.0 for this footage (verified live via Commons API). ShareAlike: derivative works must be shared under the same licence terms.",
+    "rightsStatus": "licensed",
+    "attributionRequirement": "Credit: Bernard DUPONT, via Wikimedia Commons, CC BY-SA 2.0 — https://creativecommons.org/licenses/by-sa/2.0 — derivative shared alike.",
+    "verificationStatus": "evidence_recorded_on_commons_file_page"
+  },
+  "status": "held_advanced_qc",
+  "reason": "Advanced QC held this render: scene_pacing (sceneChanges=0)",
+  "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/cape-fox-pups-playing.mp4",
+  "thumbnailPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/cape-fox-pups-playing.thumbnail.jpg",
+  "sha256": null,
+  "startedAt": "2026-11-05T16:15:38.581Z",
+  "finishedAt": "2026-11-05T16:16:43.862Z",
+  "narrationWords": 55,
+  "originalProbe": {
+    "width": 1920,
+    "height": 1080,
+    "durationSeconds": 23.927,
+    "hasAudio": true
+  },
+  "narration": {
+    "provider": "gemini",
+    "model": "gemini-3.8-flash-tts"
+  },
+  "sourceOverlayDetection": {
+    "status": "ok",
+    "frames": 23,
+    "wholeFrameChange": 42.96,
+    "overlays": [],
+    "detected": false
+  },
+  "overlayDecision": {
+    "action": "none",
+    "reason": null
+  },
+  "captionCues": 4,
+  "audioLevels": {
+    "meanDb": -17.7,
+    "maxDb": -2
+  },
+  "outputOverlayDetection": {
+    "status": "ok",
+    "frames": 23,
+    "wholeFrameChange": 49.33,
+    "overlays": [],
+    "detected": false
+  },
+  "advancedQc": {
+    "passed": false,
+    "checks": [
+      {
+        "name": "resolution_1080x1920",
+        "passed": true,
+        "detail": "video=1080x1920"
+      },
+      {
+        "name": "codec_h264",
+        "passed": true,
+        "detail": "video=h264"
+      },
+      {
+        "name": "audio_present_aac",
+        "passed": true,
+        "detail": "audio=aac"
+      },
+      {
+        "name": "duration_8_to_58s",
+        "passed": true,
+        "detail": "duration=23s"
+      },
+      {
+        "name": "narration_audible",
+        "passed": true,
+        "detail": "mean=-17.7 dB"
+      },
+      {
+        "name": "no_clipping",
+        "passed": true,
+        "detail": "max=-2 dB"
+      },
+      {
+        "name": "limited_black_frames",
+        "passed": true,
+        "detail": "black=0s of 23s"
+      },
+      {
+        "name": "limited_silence",
+        "passed": true,
+        "detail": "silence=0s of 23s"
+      },
+      {
+        "name": "no_trailing_silence",
+        "passed": true,
+        "detail": "trailingSilence=0s"
+      },
+      {
+        "name": "scene_pacing",
+        "passed": false,
+        "detail": "sceneChanges=0"
+      },
+      {
+        "name": "faststart",
+        "passed": true,
+        "detail": "moov precedes mdat"
+      }
+    ],
+    "metrics": {
+      "volume": {
+        "meanDb": -17.7,
+        "maxDb": -2
+      },
+      "black": {
+        "blackSegments": 0,
+        "blackSeconds": 0
+      },
+      "silence": {
+        "silenceSegments": 0,
+        "silenceSeconds": 0,
+        "trailingSilenceSeconds": 0
+      },
+      "scenes": {
+        "sceneChanges": 0
+      }
+    }
+  }
+}

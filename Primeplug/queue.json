@@ -1051,6 +1051,289 @@
         }
       },
       "finishedAt": "2026-11-05T14:38:01.152Z"
+    },
+    {
+      "attempts": 1,
+      "status": "completed",
+      "createdAt": "2026-11-05T16:15:38.500Z",
+      "fingerprint": "d2949055380ef8d76376494e",
+      "type": "produce",
+      "candidate": {
+        "id": "cape-fox-pups-playing",
+        "title": "Cape fox pups playing in the savanna — fresh verified CC BY-SA source",
+        "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/Cape_Foxes_%28Vulpes_chama%29_pups_playing_....webm",
+        "creator": "Bernard DUPONT via Wikimedia Commons (Flickr)",
+        "supersedesCandidateId": null,
+        "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Cape_Foxes_(Vulpes_chama)_pups_playing_....webm",
+        "license": {
+          "type": "CC BY-SA 2.0",
+          "basis": "Wikimedia Commons file page records CC BY-SA 2.0 for this footage (verified live via Commons API). ShareAlike: derivative works must be shared under the same licence terms.",
+          "rightsStatus": "licensed",
+          "attributionRequirement": "Credit: Bernard DUPONT, via Wikimedia Commons, CC BY-SA 2.0 — https://creativecommons.org/licenses/by-sa/2.0 — derivative shared alike.",
+          "verificationStatus": "evidence_recorded_on_commons_file_page"
+        },
+        "sourceResolution": "1920x1080",
+        "seedManifestEntry": {
+          "id": "cape-fox-pups-playing",
+          "label": "Cape fox pups playing in the savanna — fresh verified CC BY-SA source",
+          "creator": "Bernard DUPONT via Wikimedia Commons (Flickr)",
+          "sourceResolution": "1920x1080",
+          "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/Cape_Foxes_%28Vulpes_chama%29_pups_playing_....webm",
+          "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Cape_Foxes_(Vulpes_chama)_pups_playing_....webm",
+          "license": {
+            "type": "CC BY-SA 2.0",
+            "basis": "Wikimedia Commons file page records CC BY-SA 2.0 for this footage (verified live via Commons API). ShareAlike: derivative works must be shared under the same licence terms.",
+            "rightsStatus": "licensed",
+            "attributionRequirement": "Credit: Bernard DUPONT, via Wikimedia Commons, CC BY-SA 2.0 — https://creativecommons.org/licenses/by-sa/2.0 — derivative shared alike.",
+            "verificationStatus": "evidence_recorded_on_commons_file_page"
+          },
+          "processing": {
+            "mode": "full",
+            "targetDurationSeconds": 22
+          },
+          "productionMode": "narrated",
+          "window": {
+            "startSeconds": 0,
+            "seconds": 23
+          },
+          "hookText": "These Cape fox pups have turned a dry patch of savanna into their own play arena.",
+          "storyBeats": {
+            "hook": "These Cape fox pups have turned a dry patch of savanna into their own play arena.",
+            "development": "One pup stands guard, ears up, then its sibling arrives and a digging contest begins.",
+            "payoff": "Whatever they are hunting stays hidden, but the effort deserves a medal."
+          },
+          "visualSubject": "Cape fox",
+          "postingTitle": "Cape Fox Pups Turn The Savanna Into A Play Arena 🦊",
+          "postingDescription": "Original commentary narration and edit by Primeplug over public reusable footage.",
+          "narrationScript": "These Cape fox pups have turned a dry patch of savanna into their own play arena. One pup stands guard first, giant ears up, scanning the grass like a tiny sentinel. Then its sibling arrives and the digging contest begins, paws flying everywhere. Whatever they are hunting stays hidden, but the effort deserves a medal.",
+          "hashtags": [
+            "#Shorts",
+            "#fox",
+            "#animals",
+            "#cute",
+            "#wildlife"
+          ]
+        },
+        "rightsVerification": {
+          "candidateId": "cape-fox-pups-playing",
+          "claimedType": "CC BY-SA 2.0",
+          "claimedStatus": "licensed",
+          "evidenceUrl": "https://commons.wikimedia.org/wiki/File:Cape_Foxes_(Vulpes_chama)_pups_playing_....webm",
+          "checkedAt": "2026-11-05T16:15:32.655Z",
+          "status": "rights_verified_with_evidence",
+          "commercialUse": true,
+          "derivativesAllowed": true,
+          "shareAlike": true,
+          "attributionRequired": true,
+          "artist": "Bernard DUPONT",
+          "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "observedLicence": "CC BY-SA 2.0",
+          "licenceFamily": "by-sa",
+          "licenceVersion": "2.0",
+          "reasons": [
+            "Exact licence observed on the asset's Commons file page (CC BY-SA 2.0) matches the claim and permits commercial reuse and derivative works under ShareAlike conditions, which are recorded and must be honoured. This is recorded evidence, not legal certification."
+          ],
+          "verificationMethod": "wikimedia_commons_api_extmetadata"
+        }
+      },
+      "channelId": "Primeplug",
+      "updatedAt": "2026-11-05T16:15:38.538Z",
+      "result": {
+        "produced": false,
+        "outcome": "held_advanced_qc",
+        "pathway": "narrated",
+        "reason": "Advanced QC held this render: scene_pacing (sceneChanges=0)"
+      },
+      "finishedAt": "2026-11-05T16:16:43.886Z"
+    },
+    {
+      "attempts": 1,
+      "status": "completed",
+      "createdAt": "2026-11-05T16:15:38.504Z",
+      "fingerprint": "b1238d7238a453eb97f3aeef",
+      "type": "produce",
+      "candidate": {
+        "id": "audit-parrot-burned-subtitles",
+        "title": "Einstein the talking parrot (public domain) — burned-in subtitle overlay scenario",
+        "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Talking_Parrot_-_VOANews.webm",
+        "creator": "Voice of America via Wikimedia Commons",
+        "supersedesCandidateId": null,
+        "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Talking_Parrot_-_VOANews.webm",
+        "license": {
+          "type": "Public domain",
+          "basis": "VOA material on Wikimedia Commons, public domain (verified live via Commons API).",
+          "rightsStatus": "public_domain",
+          "attributionRequirement": "Credit: Voice of America, via Wikimedia Commons (public domain).",
+          "verificationStatus": "evidence_recorded_on_commons_file_page"
+        },
+        "sourceResolution": "1080x1080",
+        "seedManifestEntry": {
+          "id": "audit-parrot-burned-subtitles",
+          "label": "Einstein the talking parrot (public domain) — burned-in subtitle overlay scenario",
+          "creator": "Voice of America via Wikimedia Commons",
+          "sourceResolution": "1080x1080",
+          "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Talking_Parrot_-_VOANews.webm",
+          "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Talking_Parrot_-_VOANews.webm",
+          "license": {
+            "type": "Public domain",
+            "basis": "VOA material on Wikimedia Commons, public domain (verified live via Commons API).",
+            "rightsStatus": "public_domain",
+            "attributionRequirement": "Credit: Voice of America, via Wikimedia Commons (public domain).",
+            "verificationStatus": "evidence_recorded_on_commons_file_page"
+          },
+          "processing": {
+            "mode": "full",
+            "targetDurationSeconds": 25
+          },
+          "productionMode": "narrated",
+          "window": {
+            "startSeconds": 35,
+            "seconds": 27
+          },
+          "hookText": "Einstein is an African grey parrot with a microphone habit he takes very seriously.",
+          "storyBeats": {
+            "hook": "Einstein the parrot leans into the microphone like a tiny celebrity.",
+            "development": "Perched at Zoo Knoxville, he tilts his head and chatters through the interview.",
+            "payoff": "He answers in his own unmistakable voice — and works entirely for treats."
+          },
+          "visualSubject": "parrot",
+          "postingTitle": "Einstein The Parrot Takes His Interview Very Seriously 🦜",
+          "narrationScript": "Einstein is an African grey parrot with a microphone habit he takes very seriously. Perched at Zoo Knoxville, he leans into every question like a tiny celebrity at a press conference. Between the head tilts and the chatter, he answers in his own unmistakable voice. Not bad for an interviewee who works entirely for treats.",
+          "hashtags": [
+            "#Shorts",
+            "#parrot",
+            "#animals",
+            "#funny"
+          ]
+        },
+        "rightsVerification": {
+          "candidateId": "audit-parrot-burned-subtitles",
+          "claimedType": "Public domain",
+          "claimedStatus": "public_domain",
+          "evidenceUrl": "https://commons.wikimedia.org/wiki/File:Talking_Parrot_-_VOANews.webm",
+          "checkedAt": "2026-11-05T16:15:32.711Z",
+          "status": "rights_verified_with_evidence",
+          "commercialUse": true,
+          "derivativesAllowed": true,
+          "shareAlike": false,
+          "attributionRequired": false,
+          "artist": "Voice of America",
+          "licenceUrl": null,
+          "observedLicence": "Public domain",
+          "licenceFamily": "public-domain",
+          "licenceVersion": null,
+          "reasons": [
+            "Exact licence observed on the asset's Commons file page (Public domain) matches the claim and permits commercial reuse and derivative works. This is recorded evidence, not legal certification."
+          ],
+          "verificationMethod": "wikimedia_commons_api_extmetadata"
+        }
+      },
+      "channelId": "Primeplug",
+      "updatedAt": "2026-11-05T16:16:43.887Z",
+      "result": {
+        "produced": true,
+        "outcome": "completed",
+        "pathway": "narrated",
+        "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/audit-parrot-burned-subtitles.mp4",
+        "sha256": "fd5d15cc0b55ba9e46cf769aa57c61542ed0c379c62ac283e2c8ca72ebfd9fb7",
+        "thumbnailPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/audit-parrot-burned-subtitles.thumbnail.jpg",
+        "title": "Einstein The Parrot Takes His Interview Very Seriously 🦜",
+        "postingPackage": {
+          "title": "Einstein The Parrot Takes His Interview Very Seriously 🦜",
+          "description": "Einstein is an African grey parrot with a microphone habit he takes very seriously. Perched at Zoo Knoxville, he leans into every question like a tiny celebrity at a press conference. Between the head tilts and the chatter, he answers in his own unmistakable voice. Not bad for an interviewee who works entirely for treats.\n\nSource: https://upload.wikimedia.org/wikipedia/commons/c/cf/Talking_Parrot_-_VOANews.webm\nCredit: Voice of America via Wikimedia Commons. Rights: Public domain — Credit: Voice of America, via Wikimedia Commons (public domain).\nOriginal commentary narration, captions and edit by Primeplug.",
+          "hashtags": [
+            "#Shorts",
+            "#parrot",
+            "#animals",
+            "#funny"
+          ]
+        }
+      },
+      "finishedAt": "2026-11-05T16:17:24.405Z"
+    },
+    {
+      "attempts": 1,
+      "status": "completed",
+      "createdAt": "2026-11-05T16:15:38.513Z",
+      "fingerprint": "c010778a4497c7cf56d822d3",
+      "type": "produce",
+      "candidate": {
+        "id": "audit-weak-story-kitten",
+        "title": "Kitten playing in Tokyo — deliberately weak/incomplete story (must be held)",
+        "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Kitten_playing_-_Tokyo_-_Jan_7_2020.webm",
+        "creator": "Nesnad via Wikimedia Commons",
+        "supersedesCandidateId": null,
+        "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Kitten_playing_-_Tokyo_-_Jan_7_2020.webm",
+        "license": {
+          "type": "CC BY 4.0",
+          "basis": "Wikimedia Commons file page records CC BY 4.0 (verified live via Commons API).",
+          "rightsStatus": "licensed",
+          "attributionRequirement": "Credit: Nesnad, via Wikimedia Commons, CC BY 4.0 — https://creativecommons.org/licenses/by/4.0",
+          "verificationStatus": "evidence_recorded_on_commons_file_page"
+        },
+        "sourceResolution": "1920x1080",
+        "seedManifestEntry": {
+          "id": "audit-weak-story-kitten",
+          "label": "Kitten playing in Tokyo — deliberately weak/incomplete story (must be held)",
+          "creator": "Nesnad via Wikimedia Commons",
+          "sourceResolution": "1920x1080",
+          "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Kitten_playing_-_Tokyo_-_Jan_7_2020.webm",
+          "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Kitten_playing_-_Tokyo_-_Jan_7_2020.webm",
+          "license": {
+            "type": "CC BY 4.0",
+            "basis": "Wikimedia Commons file page records CC BY 4.0 (verified live via Commons API).",
+            "rightsStatus": "licensed",
+            "attributionRequirement": "Credit: Nesnad, via Wikimedia Commons, CC BY 4.0 — https://creativecommons.org/licenses/by/4.0",
+            "verificationStatus": "evidence_recorded_on_commons_file_page"
+          },
+          "processing": {
+            "mode": "full",
+            "targetDurationSeconds": 15
+          },
+          "productionMode": "narrated",
+          "window": {
+            "startSeconds": 0,
+            "seconds": 8
+          },
+          "hookText": "Look at this kitten.",
+          "postingTitle": "A Kitten Playing In Tokyo",
+          "narrationScript": "Look at this kitten playing in Tokyo. It is very cute and it loves its toy.",
+          "hashtags": [
+            "#Shorts",
+            "#kitten"
+          ]
+        },
+        "rightsVerification": {
+          "candidateId": "audit-weak-story-kitten",
+          "claimedType": "CC BY 4.0",
+          "claimedStatus": "licensed",
+          "evidenceUrl": "https://commons.wikimedia.org/wiki/File:Kitten_playing_-_Tokyo_-_Jan_7_2020.webm",
+          "checkedAt": "2026-11-05T16:15:32.844Z",
+          "status": "rights_verified_with_evidence",
+          "commercialUse": true,
+          "derivativesAllowed": true,
+          "shareAlike": false,
+          "attributionRequired": true,
+          "artist": "Nesnad",
+          "licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+          "observedLicence": "CC BY 4.0",
+          "licenceFamily": "by",
+          "licenceVersion": "4.0",
+          "reasons": [
+            "Exact licence observed on the asset's Commons file page (CC BY 4.0) matches the claim and permits commercial reuse and derivative works. This is recorded evidence, not legal certification."
+          ],
+          "verificationMethod": "wikimedia_commons_api_extmetadata"
+        }
+      },
+      "channelId": "Primeplug",
+      "updatedAt": "2026-11-05T16:17:24.409Z",
+      "result": {
+        "produced": false,
+        "outcome": "held_narration_plan_incomplete",
+        "pathway": "narrated",
+        "reason": "Narration plan incomplete: Narration script too short (16 words; minimum 25 for a complete story beat structure) storyBeats.hook is missing: a complete Short needs a planned hook, development and payoff storyBeats.development is missing: a complete Short needs a planned hook, development and payoff storyBeats.payoff is missing: a complete Short needs a planned hook, development and payoff Narration script has only 2 sentence(s); at least 3 are required for hook, development and payoff The script's opening sentence does not contain the planned hookText: the opening must be the planned hook, not an unrelated start visualSubject missing: the footage's actual subject must be recorded so narration can be checked against it"
+      },
+      "finishedAt": "2026-11-05T16:17:24.456Z"
     }
   ]
 }

@@ -1,0 +1,194 @@
+{
+  "id": "audit-parrot-burned-subtitles",
+  "label": "Einstein the talking parrot (public domain) — burned-in subtitle overlay scenario",
+  "creator": "Voice of America via Wikimedia Commons",
+  "pathway": "narrated",
+  "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Talking_Parrot_-_VOANews.webm",
+  "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Talking_Parrot_-_VOANews.webm",
+  "license": {
+    "type": "Public domain",
+    "basis": "VOA material on Wikimedia Commons, public domain (verified live via Commons API).",
+    "rightsStatus": "public_domain",
+    "attributionRequirement": "Credit: Voice of America, via Wikimedia Commons (public domain).",
+    "verificationStatus": "evidence_recorded_on_commons_file_page"
+  },
+  "status": "completed",
+  "reason": null,
+  "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/audit-parrot-burned-subtitles.mp4",
+  "thumbnailPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/audit-parrot-burned-subtitles.thumbnail.jpg",
+  "sha256": "fd5d15cc0b55ba9e46cf769aa57c61542ed0c379c62ac283e2c8ca72ebfd9fb7",
+  "startedAt": "2026-11-05T16:16:43.925Z",
+  "finishedAt": "2026-11-05T16:17:24.390Z",
+  "narrationWords": 55,
+  "originalProbe": {
+    "width": 1080,
+    "height": 1080,
+    "durationSeconds": 62.348,
+    "hasAudio": true
+  },
+  "narration": {
+    "provider": "gemini",
+    "model": "gemini-3.8-flash-tts"
+  },
+  "sourceOverlayDetection": {
+    "status": "ok",
+    "frames": 24,
+    "wholeFrameChange": 26.61,
+    "overlays": [
+      {
+        "band": "bottom",
+        "fraction": 0.2,
+        "staticness": 0,
+        "colourfulness": 0.056,
+        "signatureFrames": 2,
+        "method": "text-signature"
+      }
+    ],
+    "detected": true
+  },
+  "overlayDecision": {
+    "action": "reframe",
+    "band": "bottom",
+    "fraction": 0.2,
+    "reason": null
+  },
+  "captionCues": 4,
+  "audioLevels": {
+    "meanDb": -17.8,
+    "maxDb": -1.5
+  },
+  "outputOverlayDetection": {
+    "status": "ok",
+    "frames": 23,
+    "wholeFrameChange": 31.11,
+    "overlays": [],
+    "detected": false
+  },
+  "advancedQc": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "resolution_1080x1920",
+        "passed": true,
+        "detail": "video=1080x1920"
+      },
+      {
+        "name": "codec_h264",
+        "passed": true,
+        "detail": "video=h264"
+      },
+      {
+        "name": "audio_present_aac",
+        "passed": true,
+        "detail": "audio=aac"
+      },
+      {
+        "name": "duration_8_to_58s",
+        "passed": true,
+        "detail": "duration=24s"
+      },
+      {
+        "name": "narration_audible",
+        "passed": true,
+        "detail": "mean=-17.8 dB"
+      },
+      {
+        "name": "no_clipping",
+        "passed": true,
+        "detail": "max=-1.5 dB"
+      },
+      {
+        "name": "limited_black_frames",
+        "passed": true,
+        "detail": "black=0s of 24s"
+      },
+      {
+        "name": "limited_silence",
+        "passed": true,
+        "detail": "silence=0s of 24s"
+      },
+      {
+        "name": "no_trailing_silence",
+        "passed": true,
+        "detail": "trailingSilence=0s"
+      },
+      {
+        "name": "scene_pacing",
+        "passed": true,
+        "detail": "sceneChanges=2"
+      },
+      {
+        "name": "faststart",
+        "passed": true,
+        "detail": "moov precedes mdat"
+      }
+    ],
+    "metrics": {
+      "volume": {
+        "meanDb": -17.8,
+        "maxDb": -1.5
+      },
+      "black": {
+        "blackSegments": 0,
+        "blackSeconds": 0
+      },
+      "silence": {
+        "silenceSegments": 0,
+        "silenceSeconds": 0,
+        "trailingSilenceSeconds": 0
+      },
+      "scenes": {
+        "sceneChanges": 2
+      }
+    }
+  },
+  "qc": {
+    "status": "passed",
+    "repaired": false,
+    "probe": {
+      "width": 1080,
+      "height": 1920,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fps": 23.976023976023978,
+      "durationSeconds": 24,
+      "sizeBytes": 11248973,
+      "hasAudio": true
+    },
+    "failures": [],
+    "attempts": 0
+  },
+  "outputProbe": {
+    "width": 1080,
+    "height": 1920,
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "fps": 23.976023976023978,
+    "durationSeconds": 24,
+    "sizeBytes": 11248973,
+    "hasAudio": true
+  },
+  "pipeline": {
+    "status": "completed",
+    "pathway": "narrated",
+    "wordCount": 55,
+    "editorialAverage": null,
+    "title": "Einstein The Parrot Takes His Interview Very Seriously 🦜",
+    "selectedMoments": [
+      "Einstein is an African grey parrot with a microphone habit he takes very seriously.",
+      "Perched at Zoo Knoxville, he leans into every question like a tiny celebrity at a press conference.",
+      "Between the head tilts and the chatter, he answers in his own unmistakable voice.",
+      "Not bad for an interviewee who works entirely for treats."
+    ]
+  },
+  "postingPackage": {
+    "title": "Einstein The Parrot Takes His Interview Very Seriously 🦜",
+    "description": "Einstein is an African grey parrot with a microphone habit he takes very seriously. Perched at Zoo Knoxville, he leans into every question like a tiny celebrity at a press conference. Between the head tilts and the chatter, he answers in his own unmistakable voice. Not bad for an interviewee who works entirely for treats.\n\nSource: https://upload.wikimedia.org/wikipedia/commons/c/cf/Talking_Parrot_-_VOANews.webm\nCredit: Voice of America via Wikimedia Commons. Rights: Public domain — Credit: Voice of America, via Wikimedia Commons (public domain).\nOriginal commentary narration, captions and edit by Primeplug.",
+    "hashtags": [
+      "#Shorts",
+      "#parrot",
+      "#animals",
+      "#funny"
+    ]
+  }
+}

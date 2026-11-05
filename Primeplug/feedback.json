@@ -1,6 +1,6 @@
 {
   "status": "insufficient_data",
-  "generatedAt": "2026-11-05T14:12:55.559Z",
+  "generatedAt": "2026-11-05T14:14:13.560Z",
   "reason": "No measured video performance is available for this channel yet. Publish (privately at first), sync analytics, then re-run feedback.",
   "topicPerformance": [],
   "recommendations": [

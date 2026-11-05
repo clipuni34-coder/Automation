@@ -303,9 +303,16 @@
       "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm",
       "title": "Baby elephants discovering the world — funny first moments (final: punch-in edit, advanced QC, fast-start)",
       "creator": "YouTube creator via Wikimedia Commons (CC BY)",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "CC BY 3.0",
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-05T14:40:55.151Z"
+      },
       "firstSeenAt": "2026-11-05T13:02:10.490Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T14:36:50.638Z"
+      "updatedAt": "2026-11-05T14:40:59.191Z"
     },
     "6193b6c449d823aeeb905acc": {
       "fingerprint": "6193b6c449d823aeeb905acc",
@@ -1386,6 +1393,26 @@
       "firstSeenAt": "2026-11-05T14:36:50.660Z",
       "lastOutcome": "rejected",
       "updatedAt": "2026-11-05T14:36:50.660Z"
+    },
+    "7b577c90977825a11f38f3e0": {
+      "fingerprint": "7b577c90977825a11f38f3e0",
+      "sourceUrl": "https://www.youtube.com/watch?v=XD764vcZJEA",
+      "title": "ELA MISTUROU 4 SABÕES E NÃO ACREDITOU NO RESULTADO! 🎀😱",
+      "creator": "Daphne & Co",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T14:40:59.196Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T14:40:59.196Z"
+    },
+    "1df7b0eea96bf2f3490e0684": {
+      "fingerprint": "1df7b0eea96bf2f3490e0684",
+      "sourceUrl": "https://www.youtube.com/watch?v=xGwb1wqU0DE",
+      "title": "The gazelle played those dogs 🤣🤣 #wildlife #funny #nature #viral #youtubeshorts #trending",
+      "creator": "Joyce Freeman",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-05T14:40:59.200Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-05T14:40:59.200Z"
     }
   }
 }

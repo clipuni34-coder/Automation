@@ -59,5 +59,47 @@
       "mode": "full",
       "targetDurationSeconds": 15
     }
+  },
+  {
+    "id": "don-pettit-kids-questions",
+    "label": "Astronaut Don Pettit answers kids' funniest questions about life in space",
+    "creator": "NASA",
+    "sourceResolution": "1280x720",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fe/NASA_Astronaut_Don_Pettit_Answers_Hawthorne_Elementary_Student_Questions_%E2%80%93_January_10%2C_2025_%28iss072m260101728%29.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:NASA_Astronaut_Don_Pettit_Answers_Hawthorne_Elementary_Student_Questions_%E2%80%93_January_10,_2025_(iss072m260101728).webm",
+    "license": {
+      "type": "public_domain",
+      "basis": "Work of the United States federal government (NASA) — not subject to copyright (17 U.S.C. § 105); Commons file page records Public domain.",
+      "rightsStatus": "public_domain",
+      "attributionRequirement": "Credit NASA. No endorsement implied.",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "processing": {
+      "mode": "excerpt",
+      "excerptSeconds": 240,
+      "scaleHeight": 720,
+      "targetDurationSeconds": 15
+    }
+  },
+  {
+    "id": "astronaut-pennsylvania-students-2026",
+    "label": "An astronaut's surprising answers to Pennsylvania students' questions (2026)",
+    "creator": "NASA",
+    "sourceResolution": "1920x1080",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b4/NASA_Astronaut_Discusses_Life_in_Space_with_Pennsylvania_students_%E2%80%93_February_5%2C_2026_%28iss074m260361718%29.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:NASA_Astronaut_Discusses_Life_in_Space_with_Pennsylvania_students_%E2%80%93_February_5,_2026_(iss074m260361718).webm",
+    "license": {
+      "type": "public_domain",
+      "basis": "Work of the United States federal government (NASA) — not subject to copyright (17 U.S.C. § 105); Commons file page records Public domain.",
+      "rightsStatus": "public_domain",
+      "attributionRequirement": "Credit NASA. No endorsement implied.",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "processing": {
+      "mode": "excerpt",
+      "excerptSeconds": 240,
+      "scaleHeight": 720,
+      "targetDurationSeconds": 15
+    }
   }
 ]

@@ -1,0 +1,113 @@
+{
+  "id": "baby-elephant-funny-moments-v3",
+  "label": "Baby elephants discovering the world — funny first moments (final: CTA reframed + loudness-normalized narration)",
+  "creator": "YouTube creator via Wikimedia Commons (CC BY)",
+  "pathway": "narrated",
+  "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm",
+  "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Most_Funny_and_Cute_Baby_Elephant_Videos_(Copyright_Free)_Full_HD.webm",
+  "license": {
+    "type": "CC BY 3.0",
+    "basis": "Wikimedia Commons file page records Creative Commons Attribution 3.0 Unported for this footage. Reuse permitted with attribution.",
+    "rightsStatus": "licensed",
+    "attributionRequirement": "Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.",
+    "verificationStatus": "evidence_recorded_on_commons_file_page"
+  },
+  "status": "completed",
+  "reason": null,
+  "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/baby-elephant-funny-moments-v3.mp4",
+  "thumbnailPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/baby-elephant-funny-moments-v3.thumbnail.jpg",
+  "sha256": "34181bdfa6ef6271258536ff2d8cb1a0d3e044ce8505d376dbb0f21e57bd2b74",
+  "startedAt": "2026-11-05T14:15:56.132Z",
+  "finishedAt": "2026-11-05T14:16:25.084Z",
+  "narrationWords": 56,
+  "originalProbe": {
+    "width": 1920,
+    "height": 1072,
+    "durationSeconds": 64.288,
+    "hasAudio": true
+  },
+  "narration": {
+    "provider": "gemini",
+    "model": "gemini-3.8-flash-tts"
+  },
+  "sourceOverlayDetection": {
+    "status": "ok",
+    "frames": 6,
+    "wholeFrameChange": 56.52,
+    "overlays": [
+      {
+        "band": "top",
+        "fraction": 0.2,
+        "staticness": 0,
+        "colourfulness": 0.241,
+        "signatureFrames": 2,
+        "method": "text-signature"
+      }
+    ],
+    "detected": true
+  },
+  "overlayDecision": {
+    "action": "reframe",
+    "band": "top",
+    "fraction": 0.2,
+    "reason": null
+  },
+  "captionCues": 4,
+  "outputOverlayDetection": {
+    "status": "ok",
+    "frames": 6,
+    "wholeFrameChange": 45.33,
+    "overlays": [],
+    "detected": false
+  },
+  "qc": {
+    "status": "passed",
+    "repaired": false,
+    "probe": {
+      "width": 1080,
+      "height": 1920,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fps": 30,
+      "durationSeconds": 25.153,
+      "sizeBytes": 10395403,
+      "hasAudio": true
+    },
+    "failures": [],
+    "attempts": 0
+  },
+  "outputProbe": {
+    "width": 1080,
+    "height": 1920,
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "fps": 30,
+    "durationSeconds": 25.153,
+    "sizeBytes": 10395403,
+    "hasAudio": true
+  },
+  "pipeline": {
+    "status": "completed",
+    "pathway": "narrated",
+    "wordCount": 56,
+    "editorialAverage": null,
+    "title": "Baby Elephants' Funniest First Moments 🐘",
+    "selectedMoments": [
+      "Nobody enjoys life quite like a baby elephant discovering the world for the first time.",
+      "Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress.",
+      "The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love.",
+      "Pure joy, zero worries."
+    ]
+  },
+  "postingPackage": {
+    "title": "Baby Elephants' Funniest First Moments 🐘",
+    "description": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.\n\nSource: https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm\nCredit: YouTube creator via Wikimedia Commons (CC BY). Rights: CC BY 3.0 — Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.\nOriginal commentary narration, captions and edit by Primeplug.",
+    "hashtags": [
+      "#Shorts",
+      "#funny",
+      "#elephant",
+      "#animals",
+      "#cute"
+    ]
+  }
+}

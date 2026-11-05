@@ -689,6 +689,87 @@
         }
       },
       "finishedAt": "2026-11-05T14:14:12.830Z"
+    },
+    {
+      "attempts": 1,
+      "status": "completed",
+      "createdAt": "2026-11-05T14:15:56.079Z",
+      "fingerprint": "2e7c240b2f41688af6d70195",
+      "type": "produce",
+      "candidate": {
+        "id": "baby-elephant-funny-moments-v3",
+        "title": "Baby elephants discovering the world — funny first moments (final: CTA reframed + loudness-normalized narration)",
+        "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm",
+        "creator": "YouTube creator via Wikimedia Commons (CC BY)",
+        "supersedesCandidateId": "baby-elephant-funny-moments-v2",
+        "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Most_Funny_and_Cute_Baby_Elephant_Videos_(Copyright_Free)_Full_HD.webm",
+        "license": {
+          "type": "CC BY 3.0",
+          "basis": "Wikimedia Commons file page records Creative Commons Attribution 3.0 Unported for this footage. Reuse permitted with attribution.",
+          "rightsStatus": "licensed",
+          "attributionRequirement": "Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.",
+          "verificationStatus": "evidence_recorded_on_commons_file_page"
+        },
+        "sourceResolution": "1920x1072",
+        "seedManifestEntry": {
+          "id": "baby-elephant-funny-moments-v3",
+          "label": "Baby elephants discovering the world — funny first moments (final: CTA reframed + loudness-normalized narration)",
+          "creator": "YouTube creator via Wikimedia Commons (CC BY)",
+          "sourceResolution": "1920x1072",
+          "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm",
+          "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Most_Funny_and_Cute_Baby_Elephant_Videos_(Copyright_Free)_Full_HD.webm",
+          "license": {
+            "type": "CC BY 3.0",
+            "basis": "Wikimedia Commons file page records Creative Commons Attribution 3.0 Unported for this footage. Reuse permitted with attribution.",
+            "rightsStatus": "licensed",
+            "attributionRequirement": "Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.",
+            "verificationStatus": "evidence_recorded_on_commons_file_page"
+          },
+          "processing": {
+            "mode": "full",
+            "targetDurationSeconds": 15
+          },
+          "productionMode": "narrated",
+          "window": {
+            "startSeconds": 0,
+            "seconds": 30
+          },
+          "hookText": "Baby elephants discovering mud for the first time is pure chaos.",
+          "postingTitle": "Baby Elephants' Funniest First Moments 🐘",
+          "narrationScript": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.",
+          "hashtags": [
+            "#Shorts",
+            "#funny",
+            "#elephant",
+            "#animals",
+            "#cute"
+          ],
+          "supersedesCandidateId": "baby-elephant-funny-moments-v2"
+        }
+      },
+      "channelId": "Primeplug",
+      "updatedAt": "2026-11-05T14:15:56.094Z",
+      "result": {
+        "produced": true,
+        "outcome": "completed",
+        "pathway": "narrated",
+        "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/baby-elephant-funny-moments-v3.mp4",
+        "sha256": "34181bdfa6ef6271258536ff2d8cb1a0d3e044ce8505d376dbb0f21e57bd2b74",
+        "thumbnailPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/baby-elephant-funny-moments-v3.thumbnail.jpg",
+        "title": "Baby Elephants' Funniest First Moments 🐘",
+        "postingPackage": {
+          "title": "Baby Elephants' Funniest First Moments 🐘",
+          "description": "Nobody enjoys life quite like a baby elephant discovering the world for the first time. Every puddle is a swimming pool, every slope is a slide, and balance is very much a work in progress. The confidence is enormous, the coordination is not, and honestly, that combination is impossible not to love. Pure joy, zero worries.\n\nSource: https://upload.wikimedia.org/wikipedia/commons/0/02/Most_Funny_and_Cute_Baby_Elephant_Videos_%28Copyright_Free%29_Full_HD.webm\nCredit: YouTube creator via Wikimedia Commons (CC BY). Rights: CC BY 3.0 — Credit the original creator as recorded on the Commons file page, via Wikimedia Commons, CC BY 3.0 — licence link https://creativecommons.org/licenses/by/3.0/ in the description.\nOriginal commentary narration, captions and edit by Primeplug.",
+          "hashtags": [
+            "#Shorts",
+            "#funny",
+            "#elephant",
+            "#animals",
+            "#cute"
+          ]
+        }
+      },
+      "finishedAt": "2026-11-05T14:16:25.109Z"
     }
   ]
 }

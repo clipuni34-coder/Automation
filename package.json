@@ -29,6 +29,8 @@
     "select-best-dossier": "node src/creative/select-best-dossier.js",
     "youtube-comments": "node src/platforms/youtube/comments-cli.js",
     "repurpose": "node src/clips/repurpose-cli.js",
-    "viral-report": "node src/discovery/viral-report.js"
+    "viral-report": "node src/discovery/viral-report.js",
+    "e2e": "node src/pipeline/e2e-cli.js",
+    "credential-audit": "node src/config/credentials.js"
   }
 }

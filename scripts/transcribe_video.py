@@ -20,14 +20,27 @@ def main():
     except ImportError as exc:
         raise SystemExit("Missing faster-whisper. Install requirements/repurposing.txt first.") from exc
 
+    # Fail cleanly (not with a PyAV traceback) on silent/video-only sources:
+    # there is nothing to transcribe, and callers treat this as a rejection.
+    try:
+        import av
+        with av.open(str(source)) as container:
+            if not container.streams.audio:
+                raise SystemExit("Source video has no audio stream; nothing to transcribe.")
+    except ImportError:
+        pass  # faster-whisper import below will surface the real dependency error
     model = WhisperModel(args.model, device="cpu", compute_type="int8")
-    segments, info = model.transcribe(
-        str(source), beam_size=5, word_timestamps=True, vad_filter=True
-    )
+    try:
+        segments, info = model.transcribe(
+            str(source), beam_size=5, word_timestamps=True, vad_filter=True
+        )
+        segment_list = list(segments)  # decoding happens lazily during iteration
+    except Exception as exc:
+        raise SystemExit(f"Audio decoding/transcription failed for this source: {exc}") from exc
     words = []
     dropped_word_count = 0
     last_start = -1.0
-    for segment in segments:
+    for segment in segment_list:
         for item in (segment.words or []):
             token = (item.word or "").strip()
             try:

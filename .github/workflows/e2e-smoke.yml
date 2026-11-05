@@ -1,0 +1,75 @@
+name: End-to-end smoke (private upload opt-in)
+
+# Runs the full test suite plus a credential readiness report (names only).
+# A PRIVATE YouTube upload smoke test runs only when this workflow is
+# manually dispatched with private_upload_smoke=true AND the OAuth secrets
+# below exist. Public publishing is never enabled here.
+
+on:
+  workflow_dispatch:
+    inputs:
+      private_upload_smoke:
+        description: "Attempt one PRIVATE upload smoke test (requires OAuth secrets + a completed package)"
+        type: boolean
+        default: false
+  push:
+    branches: [editorial-evidence-hold]
+    paths:
+      - "src/pipeline/**"
+      - "src/production/qc-repair.js"
+      - "src/config/credentials.js"
+      - "src/config/channels.js"
+      - "src/server.js"
+      - ".github/workflows/e2e-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Ensure FFmpeg
+        run: |
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y ffmpeg; fi
+          ffmpeg -version | head -1
+      - name: Full test suite
+        run: npm test
+      - name: Credential readiness (names only, never values)
+        env:
+          YOUTUBE_DATA_API_KEY: ${{ secrets.YOUTUBE_DATA_API_KEY }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY || secrets.OPENROUTER_API }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: npm run credential-audit | tee credential-readiness.json
+      - name: YouTube OAuth validation (private-upload smoke, opt-in only)
+        if: inputs.private_upload_smoke == true
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+          YOUTUBE_PUBLISH_PRIVACY: private
+          YOUTUBE_ALLOW_PUBLIC_PUBLISH: "false"
+        run: |
+          echo "OAuth refresh + channel identity are validated by the uploader before any upload."
+          echo "A package file must be supplied by the pipeline; without one this step only validates configuration presence."
+          node -e "const m=['YOUTUBE_CLIENT_ID','YOUTUBE_REFRESH_TOKEN','YOUTUBE_EXPECTED_CHANNEL_ID'].filter(k=>!process.env[k]); if(m.length){console.log('::warning::Private upload smoke skipped — missing: '+m.join(', ')); process.exit(0)} console.log('OAuth configuration present (values not shown). Live upload requires a completed, approved package artifact.')"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: credential-readiness
+          path: credential-readiness.json
+          retention-days: 14

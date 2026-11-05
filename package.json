@@ -34,6 +34,7 @@
     "credential-audit": "node src/config/credentials.js",
     "daily-operations": "node scripts/run-daily-operations.mjs",
     "sync-analytics": "node scripts/sync-analytics.mjs",
-    "publish-awaiting": "node scripts/publish-awaiting.mjs"
+    "publish-awaiting": "node scripts/publish-awaiting.mjs",
+    "produce-narrated": "node scripts/produce-narrated.mjs"
   }
 }

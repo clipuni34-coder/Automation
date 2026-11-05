@@ -58,6 +58,19 @@ async function produceJob(job, channel) {
   if (!productionEnabled) return { deferred: true, produced: false, reason: "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.", candidate: job.candidate?.id ?? null };
   const seed = job.candidate?.seedManifestEntry;
   if (!seed) throw new Error("Job candidate has no seed manifest entry; cannot produce");
+  if (seed.productionMode === "narrated") {
+    const channelWorkN = join(stateRoot, channel.id, "production");
+    await mkdir(channelWorkN, { recursive: true });
+    const manifestPathN = join(channelWorkN, `${job.candidate.id}.manifest.json`);
+    await writeFile(manifestPathN, JSON.stringify([seed], null, 2));
+    const outDirN = join(channelWorkN, "output");
+    const rn = spawnSync("node", ["scripts/produce-narrated.mjs", manifestPathN, outDirN, join(channelWorkN, "work")], { encoding: "utf8", timeout: 1500000, maxBuffer: 32 * 1024 * 1024 });
+    let outcomeN = null;
+    try { outcomeN = JSON.parse(await readFile(join(outDirN, `${job.candidate.id}.candidate.json`), "utf8")); } catch { /* below */ }
+    if (!outcomeN) throw new Error(`Narrated production produced no outcome record: ${(rn.stderr || rn.stdout || "").slice(-300)}`);
+    if (outcomeN.status === "completed") return { produced: true, outcome: outcomeN.status, pathway: "narrated", outputPath: outcomeN.outputPath, sha256: outcomeN.sha256, thumbnailPath: outcomeN.thumbnailPath ?? null, title: outcomeN.postingPackage?.title ?? null, postingPackage: outcomeN.postingPackage ?? null };
+    return { produced: false, outcome: outcomeN.status, pathway: "narrated", reason: outcomeN.reason };
+  }
   const channelWork = join(stateRoot, channel.id, "production");
   await mkdir(channelWork, { recursive: true });
   const manifestPath = join(channelWork, `${job.candidate.id}.manifest.json`);
@@ -68,8 +81,8 @@ async function produceJob(job, channel) {
   try { outcome = JSON.parse(await readFile(join(outDir, `${job.candidate.id}.candidate.json`), "utf8")); } catch { /* below */ }
   if (!outcome) throw new Error(`Production produced no outcome record: ${(r.stderr || r.stdout || "").slice(-300)}`);
   if (outcome.status === "completed") {
-    let pkg = null;
-    try { const rep = JSON.parse(await readFile(join(outDir, `${job.candidate.id}.repurpose.json`), "utf8")); pkg = rep.postingPackage?.platformPackages?.youtube_shorts ?? null; } catch { /* package optional */ }
+    let pkg = outcome.postingPackage ?? null;
+    if (!pkg) { try { const rep = JSON.parse(await readFile(join(outDir, `${job.candidate.id}.repurpose.json`), "utf8")); pkg = rep.postingPackage?.platformPackages?.youtube_shorts ?? null; } catch { /* package optional */ } }
     return { produced: true, outcome: outcome.status, outputPath: outcome.outputPath, sha256: outcome.sha256, thumbnailPath: outcome.thumbnailPath ?? null, title: pkg?.title ?? outcome.pipeline?.title ?? null, postingPackage: pkg ? { title: pkg.title, description: pkg.description, hashtags: pkg.hashtags } : null };
   }
   // Held/rejected is a successful *decision*, not a job failure to retry forever.
@@ -90,6 +103,30 @@ for (const channel of channels) {
     }
     if (revived) { await st.saveQueue(q); console.log(`[${channel.id}] revived ${revived} production-disabled deferral(s)`); }
   } catch (error) { console.error(`[${channel.id}] revive failed: ${error.message}`); }
+}
+
+// Requeue candidates that previously could not be produced (no speech /
+// no audio) but whose current seed now routes to the narration-first
+// pathway. This is a pathway change, not a retry of a failed decision.
+for (const channel of channels) {
+  if (!channel.seedCandidateManifest) continue;
+  try {
+    const seeds = JSON.parse(await readFile(channel.seedCandidateManifest, "utf8"));
+    const byId = new Map(seeds.map((x) => [x.id, x]));
+    const st = await openChannelState(stateRoot, channel.id);
+    const q = await st.getQueue();
+    let requeued = 0;
+    for (const job of q.jobs) {
+      const current = byId.get(job.candidate?.id);
+      if (job.status === "completed" && job.result?.produced === false && current?.productionMode === "narrated") {
+        job.status = "queued"; job.attempts = 0;
+        job.candidate.seedManifestEntry = current;
+        job.result = { ...(job.result ?? {}), requeuedForNarratedPathwayAt: new Date().toISOString() };
+        requeued += 1;
+      }
+    }
+    if (requeued) { await st.saveQueue(q); console.log(`[${channel.id}] requeued ${requeued} job(s) for the narrated pathway`); }
+  } catch (error) { console.error(`[${channel.id}] narrated requeue failed: ${error.message}`); }
 }
 
 // Cancel queued seed jobs superseded by a niche/config change (their seed is

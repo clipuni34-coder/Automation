@@ -16,7 +16,7 @@ import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { join, resolve } from "node:path";
 import { qcAndRepair, probeVideo } from "../src/production/qc-repair.js";
-import { classifyRepurpose } from "./candidate-utils.mjs";
+import { classifyRepurpose, computeQualityAudit } from "./candidate-utils.mjs";
 
 const manifestPath = resolve(process.argv[2] ?? "config/candidate-manifest.json");
 const outDir = resolve(process.argv[3] ?? "output/candidates");
@@ -144,6 +144,13 @@ for (const entry of manifest) {
     } catch { /* keep original classification */ }
   }
   if (classification.status !== "completed") { await done(classification.status, classification.reason); continue; }
+
+  // 6b — Editorial quality audit: hook strength, payoff, coherence of the
+  // selected story. A technically rendered video with a weak opening or no
+  // payoff is HELD for review, not counted as a completed production.
+  const qualityAudit = computeQualityAudit(result.plan);
+  outcome.qualityAudit = qualityAudit;
+  if (!qualityAudit.passed) { await done("held_quality_review", `Quality audit held this render: ${qualityAudit.reasons.join("; ")}`); continue; }
 
   outcome.pipeline = {
     status: result.status,

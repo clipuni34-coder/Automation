@@ -53,3 +53,23 @@ export function summariseComparison(rows, rankedAt = new Date().toISOString()) {
     candidates: sorted
   };
 }
+
+export function computeQualityAudit(plan) {
+  const moments = plan?.editDecisionList ?? [];
+  const scores = moments.map((m) => Number(m.score ?? 0));
+  const first = scores.length ? scores[0] : null;
+  const last = scores.length ? scores[scores.length - 1] : null;
+  const avg = scores.length ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2)) : null;
+  const hookText = typeof plan?.openingHook === "string" ? plan.openingHook : (plan?.openingHook?.text ?? plan?.openingHook?.caption ?? null);
+  const reasons = [];
+  if (!moments.length) reasons.push("No selected moments to audit");
+  if (moments.length === 1) reasons.push("Only one moment selected: a single clip cannot establish a story arc (setup + payoff required)");
+  const selectedDuration = Number(plan?.editorialQuality?.selectedDurationSeconds ?? moments.reduce((a, m) => a + Number(m.durationSeconds ?? 0), 0));
+  if (selectedDuration > 0 && selectedDuration < 8) reasons.push(`Selected story is only ${selectedDuration}s (< 8s): too short to deliver a hook, development and payoff`);
+  const firstCaption = String(moments[0]?.caption ?? "");
+  if (/are you ready for the event|how do you hear|do you read me|read you loud and clear|radio check|standing by/i.test(firstCaption)) reasons.push("Opening moment is procedural communications chatter, not a content hook");
+  if (first !== null && first < 5) reasons.push(`Opening hook moment scores ${first}/10 (< 5): the first seconds do not earn attention`);
+  if (last !== null && last < 4.5) reasons.push(`Final payoff moment scores ${last}/10 (< 4.5): the ending does not pay off`);
+  if (avg !== null && avg < 5.5) reasons.push(`Average selected-moment score ${avg}/10 (< 5.5)`);
+  return { hookScore: first, payoffScore: last, averageScore: avg, momentCount: moments.length, selectedDurationSeconds: selectedDuration || null, hookText, passed: reasons.length === 0, reasons };
+}

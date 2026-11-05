@@ -84,6 +84,8 @@ jobs:
           YOUTUBE_DATA_API_KEY: ${{ secrets.YOUTUBE_DATA_API_KEY }}
           RSS_FEEDS: ${{ vars.RSS_FEEDS }}
           DAILY_PRODUCTION_ENABLED: ${{ inputs.production_enabled || 'false' }}
+          ENABLE_GEMINI_TTS: "true"
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: npm run daily-operations
       - name: Approval-gated PRIVATE upload of produced Primeplug videos (never public)
         if: inputs.approve_private_upload == true
@@ -116,6 +118,16 @@ jobs:
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
           YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
         run: npm run sync-analytics
+      - name: Independently verify published registry against the YouTube API
+        if: always()
+        continue-on-error: true
+        env:
+          STATE_DIR: state
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+        run: node scripts/verify-published.mjs
       - name: Persist updated channel state
         run: |
           printf '*.mp4\n*.webm\n*.wav\n*.source\n**/production/work/\n' > state/.gitignore

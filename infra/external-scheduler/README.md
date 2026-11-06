@@ -23,7 +23,25 @@ per-video approval (candidate id + output SHA-256) inside the pipeline.
 | Health | `GET /health` |
 | Endpoints | `GET /health`, `GET /history`, `POST /trigger`, `POST /selftest` (both POSTs require header `x-admin-token`) |
 
-## One-time setup (dashboard actions — no tokens ever go into chat)
+## One-time setup
+
+There are two equivalent paths — pick one.
+
+**Path A (fastest, no copy-paste): wrangler CLI.** From `infra/external-scheduler/`:
+```bash
+npx wrangler login                        # browser OAuth; no token to copy anywhere
+npx wrangler deploy                       # deploys worker + both cron triggers
+npx wrangler secret put DISPATCH_TOKEN    # paste the GitHub PAT at the prompt (not echoed)
+npx wrangler secret put ADMIN_TOKEN       # random string you keep private
+npx wrangler kv namespace create HISTORY  # optional; then uncomment the binding in wrangler.toml
+npx wrangler deploy                       # second deploy picks up the KV binding
+```
+`wrangler.toml` in this folder already declares the Worker name, the two cron
+triggers and observability, so nothing needs configuring by hand.
+
+**Path B: Cloudflare dashboard** (below) if you prefer not to install anything.
+
+## Path B — dashboard actions (no token ever goes into chat)
 
 ### 1. Create the GitHub token
 Open **https://github.com/settings/personal-access-tokens/new**

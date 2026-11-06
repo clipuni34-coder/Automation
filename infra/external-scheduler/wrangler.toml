@@ -1,0 +1,36 @@
+# Cloudflare Worker deployment for the Primeplug external scheduler.
+#
+# Deploy with wrangler (no secrets in this file — they are set with
+# `wrangler secret put`, which stores them in Cloudflare's encrypted secret store):
+#
+#   cd infra/external-scheduler
+#   npx wrangler login                        # browser OAuth, no token to copy
+#   npx wrangler deploy                       # creates/updates the Worker + crons
+#   npx wrangler secret put DISPATCH_TOKEN    # paste the GitHub PAT at the prompt
+#   npx wrangler secret put ADMIN_TOKEN       # any random string you keep private
+#   npx wrangler kv namespace create HISTORY  # then uncomment the binding below
+#   npx wrangler deploy                       # second deploy picks up the KV binding
+#
+# Verify afterwards:
+#   curl https://primeplug-scheduler.<your-subdomain>.workers.dev/health
+
+name = "primeplug-scheduler"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+# 06:30 Africa/Lagos daily (Lagos is UTC+01:00 all year) + hourly idempotent
+# catch-up. Cloudflare cron expressions are evaluated in UTC.
+[triggers]
+crons = ["30 5 * * *", "0 * * * *"]
+
+# Uncomment and fill in the id printed by `wrangler kv namespace create HISTORY`.
+# The Worker works without it (the GitHub runs API remains the authoritative
+# duplicate guard) but /history and the fast-path day marker need it.
+# [[kv_namespaces]]
+# binding = "HISTORY"
+# id = "<KV_NAMESPACE_ID>"
+
+# Workers Logs: structured, credential-free log lines (secrets pass through
+# redact() before logging).
+[observability]
+enabled = true

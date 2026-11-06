@@ -577,5 +577,46 @@
       "#sports",
       "#running"
     ]
+  },
+  {
+    "id": "audit-moving-subject-horses",
+    "label": "Horses running across open pasture — fresh verified CC BY 3.0 source (travelling-subject cloud test)",
+    "creator": "Field of Dreams via Wikimedia Commons",
+    "sourceResolution": "1920x1080",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/a/af/Horses_running_in_a_pasture.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Horses_running_in_a_pasture.webm",
+    "license": {
+      "type": "CC BY 3.0",
+      "basis": "Wikimedia Commons file page records CC BY 3.0 for this footage (read live via Commons API). Attribution required, no ShareAlike.",
+      "rightsStatus": "licensed",
+      "attributionRequirement": "Credit: Field of Dreams, via Wikimedia Commons, CC BY 3.0 — https://creativecommons.org/licenses/by/3.0",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "processing": {
+      "mode": "full",
+      "targetDurationSeconds": 12
+    },
+    "productionMode": "narrated",
+    "window": {
+      "startSeconds": 6,
+      "seconds": 12
+    },
+    "hookText": "A string of horses breaks from the treeline and thunders across open pasture.",
+    "storyBeats": {
+      "hook": "A string of horses breaks from the treeline and thunders across open pasture.",
+      "development": "Hooves tear up the green grass as the group bunches, spreads and bunches again.",
+      "payoff": "Nobody is chasing them — they simply decided to run."
+    },
+    "visualSubject": "horses",
+    "postingTitle": "Nobody Chased Them. They Just Ran. 🐎",
+    "postingDescription": "Original commentary narration and edit by Primeplug over reusable footage.",
+    "narrationScript": "A string of horses breaks from the treeline and thunders across open pasture. Hooves tear up the green grass as the group bunches, spreads and bunches again. Nobody is chasing them, they simply decided to run.",
+    "hashtags": [
+      "#Shorts",
+      "#horses",
+      "#animals",
+      "#wildlife",
+      "#running"
+    ]
   }
 ]

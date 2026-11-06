@@ -88,6 +88,50 @@ def analyse(frames):
         edges = float((np.abs(np.diff(b.astype(np.float32), axis=1)).mean(axis=2) > 28).mean())
         return promo_red, yellow_sub, edges
 
+    # --- Scene-locked suppression ------------------------------------------
+    # A band that barely changes only proves an overlay when the band is FIXED
+    # TO THE FRAME. On a camera that pans, the sky/treeline band changes far
+    # less than the foreground and trips the staticness test even though it is
+    # ordinary scene content. Measured case: "horses running in a pasture"
+    # (1920x1080, CC BY 3.0) was flagged top-band purely because of its sky.
+    # If compensating the camera shift between frames makes the band agree
+    # better, the band is moving WITH the scene and cannot be a burned-in
+    # graphic.
+    def band_is_scene_locked(y0, y1):
+        raws, comps = [], []
+        for a, b in zip(imgs, imgs[1:]):
+            ba = band(a, y0, y1).mean(axis=2)
+            bb = band(b, y0, y1).mean(axis=2)
+            raw = float(np.abs(ba - bb).mean())
+            if raw < 1e-6:
+                continue
+            fa = np.fft.fft2(ba - ba.mean())
+            fb = np.fft.fft2(bb - bb.mean())
+            cross = fa * np.conj(fb)
+            cross /= np.abs(cross) + 1e-9
+            corr = np.abs(np.fft.ifft2(cross))
+            hh, ww = corr.shape
+            iy, ix = np.unravel_index(int(np.argmax(corr)), corr.shape)
+            dy = iy if iy < hh // 2 else iy - hh
+            dx = ix if ix < ww // 2 else ix - ww
+            if abs(dy) > 0.15 * hh or abs(dx) > 0.15 * ww:
+                continue
+            moved = np.roll(np.roll(ba, dy, axis=0), dx, axis=1)
+            raws.append(raw)
+            comps.append(float(np.abs(moved - bb).mean()))
+        if not raws:
+            return False
+        raw_m, comp_m = float(np.mean(raws)), float(np.mean(comps))
+        return comp_m <= 0.7 * raw_m
+
+    # A static band is only evidence of a graphic if the band actually contains
+    # graphic structure. Measured on real footage the mean band edge density was
+    # 0.000 for sky/treeline (soft gradients) versus 0.034+ for a burned-in
+    # lower third. A smooth band cannot be a watermark, however static it is.
+    def band_edge_density(y0, y1):
+        vals = [float((np.abs(np.diff(band(im, y0, y1), axis=1)).mean(axis=2) > 28).mean()) for im in imgs]
+        return float(np.mean(vals))
+
     overlays = []
     for name, diffs, colour, frac, yr in (
         ("top", top_diffs, top_colour, 0.20, (0, 0.2)),
@@ -95,7 +139,11 @@ def analyse(frames):
         ("centre", centre_diffs, centre_colour, 0.20, (0.4, 0.6)),
     ):
         staticness, colourful = verdict(diffs, colour)
-        static_detected = staticness > 0.72 and colourful > 0.02 and whole > 4
+        static_detected = (
+            staticness > 0.72 and colourful > 0.02 and whole > 4
+            and band_edge_density(*yr) >= 0.01
+            and not band_is_scene_locked(*yr)
+        )
         sig_hits = sum(1 for im in imgs if (lambda se: (se[0] > 0.02 and se[2] > 0.04) or (se[1] > 0.01 and se[2] > 0.03))(text_signature(im, *yr)))
         text_detected = sig_hits >= 2
         if static_detected or text_detected:

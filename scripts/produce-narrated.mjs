@@ -19,6 +19,9 @@ import { qcAndRepair, probeVideo } from "../src/production/qc-repair.js";
 import { runAdvancedQc } from "../src/production/advanced-qc.js";
 import { generateNarration } from "../src/production/voice.js";
 import { buildCaptionCues, buildAssDocument, validateNarratedEntry, decideOverlayCorrection } from "../src/production/narrated-plan.js";
+import {
+  planSubjectFraming, evaluateSubjectFraming, evaluateRenderedFraming, buildSubjectBeatFilters,
+} from "../src/production/subject-framing.js";
 
 const manifestPath = resolve(process.argv[2] ?? "config/primeplug-candidates.json");
 const outDir = resolve(process.argv[3] ?? "output/narrated");
@@ -129,6 +132,34 @@ for (const entry of manifest) {
   // Vertical re-edit of the chosen story window, timed to the narration.
   const windowStart = Number(entry.window?.startSeconds ?? 0);
   const windowSeconds = Math.min(Number(entry.window?.seconds ?? 30), Math.max(10, narrationSeconds + 1));
+
+  // Subject-aware framing. A fixed centre crop of a 16:9 source keeps only
+  // ~32% of the width, which cuts moving subjects out of frame. Track the
+  // subject first, plan the framing from that track, and HOLD the candidate if
+  // the main subject cannot be kept inside the safe frame. Never crop a subject
+  // away to make a render pass.
+  let subjectTrack;
+  try {
+    const tr = run(process.env.PYTHON ?? "python3", ["scripts/track_subject.py", rawPath, String(windowStart), String(windowSeconds)], { timeout: 900000 });
+    subjectTrack = JSON.parse(tr.stdout.trim().split("\n").at(-1));
+  } catch (e) {
+    outcome.subjectFraming = { status: "untrackable", reason: `Subject tracking could not be completed: ${String(e?.message ?? e).slice(0, 200)}` };
+    await done("held_subject_not_trackable", outcome.subjectFraming.reason);
+    continue;
+  }
+  const sourceAspect = originalProbe.width / Math.max(1, originalProbe.height);
+  const framingPlan = planSubjectFraming(subjectTrack, { sourceAspect, windowSeconds });
+  const sourceFramingGate = evaluateSubjectFraming(subjectTrack, framingPlan);
+  outcome.subjectFraming = {
+    status: framingPlan.status,
+    track: subjectTrack.summary ?? null,
+    beats: framingPlan.beats.map((b) => ({ mode: b.mode, widthFraction: b.widthFraction, cropCoverage: b.cropCoverage })),
+    sourceGate: { status: sourceFramingGate.status, reason: sourceFramingGate.reason, metrics: sourceFramingGate.metrics },
+  };
+  if (sourceFramingGate.status !== "pass") {
+    await done(sourceFramingGate.status === "untrackable" ? "held_subject_not_trackable" : "held_subject_out_of_frame", sourceFramingGate.reason);
+    continue;
+  }
   const cues = buildCaptionCues(entry.narrationScript, narrationSeconds);
   const assPath = join(workDir, `${entry.id}.captions.ass`);
   await writeFile(assPath, buildAssDocument(cues, { title: entry.postingTitle }));
@@ -139,14 +170,17 @@ for (const entry of manifest) {
   // three story beats with alternating punch-in reframing (wide -> 1.25x
   // punch -> wide), then our captions are burned over the joined edit.
   const third = (windowSeconds / 3).toFixed(2);
-  const segScale = (factor) => factor === 1
-    ? "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920"
-    : `scale=${Math.round(1080 * factor)}:${Math.round(1920 * factor)}:force_original_aspect_ratio=increase,crop=1080:1920`;
-  const filter = `[0:v]trim=start=${windowStart}:duration=${windowSeconds},setpts=PTS-STARTPTS,${preCropFilter}split=3[vv1][vv2][vv3];` +
-    `[vv1]trim=start=0:duration=${third},setpts=PTS-STARTPTS,${segScale(1)},setsar=1[v1];` +
-    `[vv2]trim=start=${third}:duration=${third},setpts=PTS-STARTPTS,${segScale(1.25)},setsar=1[v2];` +
-    `[vv3]trim=start=${(2 * Number(third)).toFixed(2)},setpts=PTS-STARTPTS,${segScale(1)},setsar=1[v3];` +
-    `[v1][v2][v3]concat=n=3:v=1:a=0,subtitles=${assPath.replace(/\\/g, "/").replace(/:/g, "\\:").replace(/'/g, "'\\''")}[v]`;
+  const postOverlayHeight = overlayDecision.action === "reframe"
+    ? originalProbe.height * (1 - overlayDecision.fraction - 0.02)
+    : originalProbe.height;
+  const beatFilters = buildSubjectBeatFilters(framingPlan, {
+    sourceWidth: originalProbe.width,
+    sourceHeight: originalProbe.height,
+    postOverlayHeight,
+  });
+  const filter = `[0:v]trim=start=${windowStart}:duration=${windowSeconds},setpts=PTS-STARTPTS,${preCropFilter}split=3[vv1][vv2][vv3];`
+    + beatFilters.map((b, i) => `[vv${i + 1}]trim=start=${(i * Number(third)).toFixed(2)}:duration=${third},setpts=PTS-STARTPTS,${b.filter}[v${i + 1}];`).join("")
+    + `[v1][v2][v3]concat=n=3:v=1:a=0,subtitles=${assPath.replace(/\\/g, "/").replace(/:/g, "\\:").replace(/'/g, "'\\''")}[v]`;
   const args = ["-y", "-hide_banner", "-loglevel", "error", "-i", rawPath, "-i", narrationPath, "-filter_complex", filter];
   if (originalProbe.hasAudio) {
     args.push("-filter_complex", `${filter};[0:a]atrim=start=${windowStart}:duration=${windowSeconds},asetpts=PTS-STARTPTS,volume=0.12[bg];[1:a]asetpts=PTS-STARTPTS[na];[bg][na]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]`, "-map", "[v]", "-map", "[a]");
@@ -192,6 +226,20 @@ for (const entry of manifest) {
   }
   if (outcome.outputOverlayDetection.detected) {
     await done("held_output_overlay", `Output still contains a detected source overlay: ${JSON.stringify(outcome.outputOverlayDetection.overlays)}`);
+    continue;
+  }
+  // Output-side framing gate: run the tracker on the RENDERED file so crop
+  // maths or offsets that did not do what the plan said cannot pass silently.
+  try {
+    const trOut = run(process.env.PYTHON ?? "python3", ["scripts/track_subject.py", outputPath, "0", String(Math.min(windowSeconds, narrationSeconds))], { timeout: 900000 });
+    const outTrack = JSON.parse(trOut.stdout.trim().split("\n").at(-1));
+    const renderedGate = evaluateRenderedFraming(outTrack);
+    outcome.subjectFraming.outputGate = { status: renderedGate.status, reason: renderedGate.reason, metrics: renderedGate.metrics };
+  } catch (e) {
+    outcome.subjectFraming.outputGate = { status: "untrackable", reason: `Output subject tracking failed: ${String(e?.message ?? e).slice(0, 200)}` };
+  }
+  if (outcome.subjectFraming.outputGate.status !== "pass") {
+    await done(outcome.subjectFraming.outputGate.status === "untrackable" ? "held_subject_check_failed" : "held_subject_out_of_frame", outcome.subjectFraming.outputGate.reason);
     continue;
   }
   if (!(cues.length >= 3)) {

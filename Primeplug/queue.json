@@ -1266,8 +1266,8 @@
       "finishedAt": "2026-11-05T16:17:24.405Z"
     },
     {
-      "attempts": 0,
-      "status": "queued",
+      "attempts": 1,
+      "status": "completed",
       "createdAt": "2026-11-05T16:15:38.513Z",
       "fingerprint": "c010778a4497c7cf56d822d3",
       "type": "produce",
@@ -1340,18 +1340,18 @@
         }
       },
       "channelId": "Primeplug",
-      "updatedAt": "2026-11-06T09:45:43.543Z",
+      "updatedAt": "2026-11-06T09:46:36.437Z",
       "result": {
-        "deferred": true,
         "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "audit-weak-story-kitten"
+        "outcome": "held_narration_plan_incomplete",
+        "pathway": "narrated",
+        "reason": "Narration plan incomplete: Narration script too short (16 words; minimum 25 for a complete story beat structure) storyBeats.hook is missing: a complete Short needs a planned hook, development and payoff storyBeats.development is missing: a complete Short needs a planned hook, development and payoff storyBeats.payoff is missing: a complete Short needs a planned hook, development and payoff Narration script has only 2 sentence(s); at least 3 are required for hook, development and payoff The script's opening sentence does not contain the planned hookText: the opening must be the planned hook, not an unrelated start visualSubject missing: the footage's actual subject must be recorded so narration can be checked against it"
       },
-      "finishedAt": "2026-11-06T09:42:06.497Z"
+      "finishedAt": "2026-11-06T09:46:36.467Z"
     },
     {
-      "attempts": 0,
-      "status": "queued",
+      "attempts": 1,
+      "status": "completed",
       "createdAt": "2026-11-06T09:31:30.041Z",
       "fingerprint": "c1ab543479f0ab0bf3a1711a",
       "type": "produce",
@@ -1434,14 +1434,14 @@
         }
       },
       "channelId": "Primeplug",
-      "updatedAt": "2026-11-06T09:45:43.545Z",
+      "updatedAt": "2026-11-06T09:46:36.468Z",
       "result": {
-        "deferred": true,
         "produced": false,
-        "reason": "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.",
-        "candidate": "audit-moving-subject-sprint"
+        "outcome": "held_source_overlay",
+        "pathway": "narrated",
+        "reason": "Source overlay is in the centre band; only top/bottom edge bands can be reframed safely"
       },
-      "finishedAt": "2026-11-06T09:42:13.761Z"
+      "finishedAt": "2026-11-06T09:46:43.091Z"
     }
   ]
 }

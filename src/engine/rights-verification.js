@@ -115,7 +115,14 @@ export async function verifyCandidateRights(candidate, { fetchImpl = fetch } = {
   try {
     const title = decodeURIComponent(match[1]);
     const api = `https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=url|extmetadata&format=json&titles=${encodeURIComponent(title)}`;
-    const res = await fetchImpl(api, { headers: { "user-agent": "PrimePlugRightsVerifier/1.0" } });
+    // The Commons API rate-limits bursts (HTTP 429), which previously made a
+    // verified source look unverified and silently dropped it from production.
+    // Retry transient failures with backoff before concluding anything.
+    let res = await fetchImpl(api, { headers: { "user-agent": "PrimePlugRightsVerifier/1.0" } });
+    for (let attempt = 0; attempt < 2 && !res.ok && (res.status === 429 || res.status >= 500); attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)));
+      res = await fetchImpl(api, { headers: { "user-agent": "PrimePlugRightsVerifier/1.0" } });
+    }
     if (!res.ok) throw new Error(`Commons API HTTP ${res.status}`);
     const payload = await res.json();
     const page = Object.values(payload?.query?.pages ?? {})[0];

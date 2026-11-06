@@ -115,6 +115,19 @@ test("framing: output-side gate holds when the rendered subject sits at the edge
   assert.equal(evaluateRenderedFraming(centred).status, "pass");
 });
 
+test("framing: output-side gate only demands centring where the render follows the subject", () => {
+  const offCentre = {
+    status: "ok",
+    samples: Array.from({ length: 40 }, (_, i) => ({ t: i / 8, peakX: 0.93, prominence: 30, mainX: 0.93, mainLo: 0.9, mainHi: 0.96 })),
+  };
+  const cropPlan = { status: "planned", beats: [{ index: 0, startSeconds: 0, seconds: 5, mode: "crop", widthFraction: 0.316, controlPoints: [{ t: 0, x: 0.3 }] }] };
+  const containPlan = { status: "planned", beats: [{ index: 0, startSeconds: 0, seconds: 5, mode: "contain", widthFraction: 1, controlPoints: [{ t: 0, x: 0 }] }] };
+  // Following a subject with a narrow window: an edge peak means the crop missed.
+  assert.equal(evaluateRenderedFraming(offCentre, { plan: cropPlan }).status, "hold");
+  // Whole frame visible: a subject near the source edge is visible, not cut.
+  assert.equal(evaluateRenderedFraming(offCentre, { plan: containPlan }).status, "pass");
+});
+
 test("framing: output-side gate refuses to pass an unmeasurable render", () => {
   const blank = { status: "ok", samples: [{ t: 0, peakX: null, prominence: 0 }] };
   assert.equal(evaluateRenderedFraming(blank).status, "untrackable");

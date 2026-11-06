@@ -233,7 +233,7 @@ for (const entry of manifest) {
   try {
     const trOut = run(process.env.PYTHON ?? "python3", ["scripts/track_subject.py", outputPath, "0", String(Math.min(windowSeconds, narrationSeconds))], { timeout: 900000 });
     const outTrack = JSON.parse(trOut.stdout.trim().split("\n").at(-1));
-    const renderedGate = evaluateRenderedFraming(outTrack);
+    const renderedGate = evaluateRenderedFraming(outTrack, { plan: framingPlan });
     outcome.subjectFraming.outputGate = { status: renderedGate.status, reason: renderedGate.reason, metrics: renderedGate.metrics };
   } catch (e) {
     outcome.subjectFraming.outputGate = { status: "untrackable", reason: `Output subject tracking failed: ${String(e?.message ?? e).slice(0, 200)}` };

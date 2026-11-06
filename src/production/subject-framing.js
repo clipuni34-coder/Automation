@@ -271,6 +271,16 @@ export function evaluateSubjectFraming(track, plan) {
  */
 export function evaluateRenderedFraming(outputTrack, opts = {}) {
   const band = opts.safeBand ?? [0.12, 0.88];
+  // A band centred on the frame only makes sense where the render is FOLLOWING
+  // the subject with a narrow window. When the framing keeps the whole frame
+  // width visible (contain / padded), a subject near the edge of the SOURCE is
+  // fully visible by construction, so demanding it be centred would be wrong.
+  const plan = opts.plan ?? null;
+  const beatFor = (t) => {
+    const beats = plan?.beats ?? [];
+    const i = beats.findIndex((b, k) => t >= b.startSeconds && (k === beats.length - 1 || t < b.startSeconds + b.seconds));
+    return beats[i === -1 ? beats.length - 1 : i] ?? null;
+  };
   const minUsable = opts.minUsableRatio ?? MIN_USABLE_RATIO;
   const minInside = opts.minInsideRatio ?? 0.9;
   const samples = usableSamples(outputTrack);
@@ -278,20 +288,25 @@ export function evaluateRenderedFraming(outputTrack, opts = {}) {
   if (!samples.length) {
     return { status: "untrackable", reason: "No measurable subject motion in the rendered output; framing cannot be verified.", metrics: { usableFrames: 0, totalFrames: all.length } };
   }
-  const inside = samples.filter((s) => s.peakX >= band[0] && s.peakX <= band[1]);
+  const bandFor = (s) => {
+    const beat = plan ? beatFor(s.t) : null;
+    if (!beat || beat.mode === "crop") return band;
+    return opts.containBand ?? [0.01, 0.99];
+  };
+  const inside = samples.filter((s) => s.peakX >= bandFor(s)[0] && s.peakX <= bandFor(s)[1]);
   const metrics = {
     usableFrames: samples.length,
     totalFrames: all.length,
     usableRatio: round3(samples.length / Math.max(1, all.length)),
     insideRatio: round3(inside.length / samples.length),
     peakRange: [round3(Math.min(...samples.map((s) => s.peakX))), round3(Math.max(...samples.map((s) => s.peakX)))],
-    outside: samples.filter((s) => s.peakX < band[0] || s.peakX > band[1]).slice(0, 5).map((s) => ({ t: s.t, peakX: s.peakX })),
+    outside: samples.filter((s) => s.peakX < bandFor(s)[0] || s.peakX > bandFor(s)[1]).slice(0, 5).map((s) => ({ t: s.t, peakX: s.peakX })),
   };
   if (metrics.usableRatio < minUsable) {
     return { status: "untrackable", reason: `Subject measurable in only ${samples.length}/${all.length} output frames; framing cannot be verified.`, metrics };
   }
   if (metrics.insideRatio < minInside) {
-    return { status: "hold", reason: `Rendered subject outside the safe band ${band.join("-")} in ${((1 - metrics.insideRatio) * 100).toFixed(1)}% of measurable frames.`, metrics };
+    return { status: "hold", reason: `Rendered subject outside its safe band in ${((1 - metrics.insideRatio) * 100).toFixed(1)}% of measurable frames (crop-follow bands ${band.join("-")}).`, metrics };
   }
   return { status: "pass", reason: `Rendered subject inside the safe band in ${(metrics.insideRatio * 100).toFixed(1)}% of measurable frames.`, metrics };
 }

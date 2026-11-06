@@ -287,7 +287,7 @@
       "creator": "Chiitan (official mascot channel, via Wikimedia Commons)",
       "firstSeenAt": "2026-11-05T13:02:10.478Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:49:31.490Z",
+      "updatedAt": "2026-11-06T09:50:14.132Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
@@ -298,7 +298,7 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:49:11.345Z"
+        "checkedAt": "2026-11-06T09:50:06.902Z"
       }
     },
     "2fcfd9b3ba9bdc5204655c2b": {
@@ -308,7 +308,7 @@
       "creator": "YouTube creator compilation via Wikimedia Commons (CC BY)",
       "firstSeenAt": "2026-11-05T13:02:10.480Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:49:31.493Z",
+      "updatedAt": "2026-11-06T09:50:14.134Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
@@ -319,7 +319,7 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:49:11.546Z"
+        "checkedAt": "2026-11-06T09:50:07.060Z"
       }
     },
     "80213f8020ffaf02f8b9cbce": {
@@ -337,11 +337,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:49:11.984Z"
+        "checkedAt": "2026-11-06T09:50:07.302Z"
       },
       "firstSeenAt": "2026-11-05T13:02:10.490Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:49:31.523Z"
+      "updatedAt": "2026-11-06T09:50:14.252Z"
     },
     "6193b6c449d823aeeb905acc": {
       "fingerprint": "6193b6c449d823aeeb905acc",
@@ -575,9 +575,10 @@
       "sourceUrl": "https://www.youtube.com/watch?v=ViF1XCk-CRo",
       "title": "Mummy Vs Badmash Bache! Diwali special #shorts",
       "creator": "Shreemani Tripathi",
+      "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:03:53.170Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T13:03:53.170Z"
+      "updatedAt": "2026-11-06T09:50:14.334Z"
     },
     "c4fb3585c3a55480beafc79a": {
       "fingerprint": "c4fb3585c3a55480beafc79a",
@@ -683,9 +684,10 @@
       "sourceUrl": "https://www.youtube.com/watch?v=G4ewizdlbZ0",
       "title": "NEW GUY SHIFTS INTO SOCIETY #friends #society #shorts #explore #funny #fun #comedy #relatable #love",
       "creator": "Baccha Mat Bolna",
+      "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:03:53.182Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T13:03:53.182Z"
+      "updatedAt": "2026-11-06T09:50:14.349Z"
     },
     "94dcea8720c7bc6f33c905ff": {
       "fingerprint": "94dcea8720c7bc6f33c905ff",
@@ -811,9 +813,10 @@
       "sourceUrl": "https://www.youtube.com/watch?v=XsYe8c3kJec",
       "title": "Tente não rir: nível difícil 😂",
       "creator": "Só Rindo",
+      "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:06:12.824Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T13:06:12.824Z"
+      "updatedAt": "2026-11-06T09:50:14.335Z"
     },
     "b32fb06efc646b4106018c92": {
       "fingerprint": "b32fb06efc646b4106018c92",
@@ -838,9 +841,10 @@
       "sourceUrl": "https://www.youtube.com/watch?v=om0ti3XhA74",
       "title": "SALVANDO MEUS PINTINHOS!",
       "creator": "Natan por Aí",
+      "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:06:12.827Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T13:06:12.827Z"
+      "updatedAt": "2026-11-06T09:50:14.350Z"
     },
     "dbdab4773320e53ef3c97238": {
       "fingerprint": "dbdab4773320e53ef3c97238",
@@ -1009,9 +1013,10 @@
       "sourceUrl": "https://www.youtube.com/watch?v=aUwkjJ5A3dQ",
       "title": "Advance mein happy diwali guyss🧨😊",
       "creator": "Nishtha and Sanjana varyani ",
+      "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:07:43.059Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T13:07:43.059Z"
+      "updatedAt": "2026-11-06T09:50:14.347Z"
     },
     "2097d8e5ce970665bf0eb0cc": {
       "fingerprint": "2097d8e5ce970665bf0eb0cc",
@@ -1027,9 +1032,10 @@
       "sourceUrl": "https://www.youtube.com/watch?v=8hDAnzgwTXk",
       "title": "Real things I’ve heard as a Paramedic. Life can be short if you make dumb decisions #bathroom #ems",
       "creator": "Fire Department Chronicles",
+      "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:07:43.062Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T13:07:43.062Z"
+      "updatedAt": "2026-11-06T09:50:14.332Z"
     },
     "4187eee32d0e7d57b505e344": {
       "fingerprint": "4187eee32d0e7d57b505e344",
@@ -1049,9 +1055,9 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:49:11.667Z"
+        "checkedAt": "2026-11-06T09:50:07.101Z"
       },
-      "updatedAt": "2026-11-06T09:49:31.498Z"
+      "updatedAt": "2026-11-06T09:50:14.189Z"
     },
     "3166a6060b079e1aebb360eb": {
       "fingerprint": "3166a6060b079e1aebb360eb",
@@ -1071,9 +1077,9 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:49:11.724Z"
+        "checkedAt": "2026-11-06T09:50:07.122Z"
       },
-      "updatedAt": "2026-11-06T09:49:31.501Z"
+      "updatedAt": "2026-11-06T09:50:14.221Z"
     },
     "b574bb140017fde5e443e9e1": {
       "fingerprint": "b574bb140017fde5e443e9e1",
@@ -1440,9 +1446,10 @@
       "sourceUrl": "https://www.youtube.com/watch?v=i0FSBY8Z8eQ",
       "title": "My baby’s almost 14 she gets food when she demands it 😂🐶 #dogs #dogshorts",
       "creator": "Doggosbuzz🐶",
+      "rightsVerification": null,
       "firstSeenAt": "2026-11-05T14:33:35.248Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T14:33:35.248Z"
+      "updatedAt": "2026-11-06T09:50:14.380Z"
     },
     "a81da1b5bfa1990e00fb9bb8": {
       "fingerprint": "a81da1b5bfa1990e00fb9bb8",
@@ -1761,7 +1768,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T15:43:00.390Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T15:43:00.390Z"
+      "updatedAt": "2026-11-06T09:50:14.346Z"
     },
     "2248cdd4d36150baf46c6022": {
       "fingerprint": "2248cdd4d36150baf46c6022",
@@ -1838,11 +1845,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:49:11.812Z"
+        "checkedAt": "2026-11-06T09:50:07.245Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.499Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:49:31.516Z"
+      "updatedAt": "2026-11-06T09:50:14.239Z"
     },
     "b1238d7238a453eb97f3aeef": {
       "fingerprint": "b1238d7238a453eb97f3aeef",
@@ -1859,11 +1866,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:49:11.862Z"
+        "checkedAt": "2026-11-06T09:50:07.264Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.503Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:49:31.518Z"
+      "updatedAt": "2026-11-06T09:50:14.241Z"
     },
     "80e3d83db047fd64e18aee0a": {
       "fingerprint": "80e3d83db047fd64e18aee0a",
@@ -1880,11 +1887,11 @@
         "attributionRequired": null,
         "commercialUse": null,
         "derivativesAllowed": null,
-        "checkedAt": "2026-11-06T09:49:11.920Z"
+        "checkedAt": "2026-11-06T09:50:07.283Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.507Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:49:31.521Z"
+      "updatedAt": "2026-11-06T09:50:14.250Z"
     },
     "c010778a4497c7cf56d822d3": {
       "fingerprint": "c010778a4497c7cf56d822d3",
@@ -1901,11 +1908,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:49:11.990Z"
+        "checkedAt": "2026-11-06T09:50:07.321Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.511Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:49:31.526Z"
+      "updatedAt": "2026-11-06T09:50:14.254Z"
     },
     "d5af0d690333ef54b72cd221": {
       "fingerprint": "d5af0d690333ef54b72cd221",
@@ -1922,11 +1929,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:45:34.707Z"
+        "checkedAt": "2026-11-06T09:50:07.460Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.515Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:45:43.483Z"
+      "updatedAt": "2026-11-06T09:50:14.269Z"
     },
     "2020f2381e9e97943fd204f5": {
       "fingerprint": "2020f2381e9e97943fd204f5",
@@ -1943,11 +1950,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:45:34.707Z"
+        "checkedAt": "2026-11-06T09:50:07.460Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.518Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:45:43.485Z"
+      "updatedAt": "2026-11-06T09:50:14.270Z"
     },
     "ba9283727529a5974e0629c3": {
       "fingerprint": "ba9283727529a5974e0629c3",
@@ -1957,7 +1964,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T16:15:38.522Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T16:15:38.522Z"
+      "updatedAt": "2026-11-06T09:50:14.317Z"
     },
     "0360139eefe0cc45124cf991": {
       "fingerprint": "0360139eefe0cc45124cf991",
@@ -2087,7 +2094,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T16:22:50.203Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:49:31.601Z"
+      "updatedAt": "2026-11-06T09:50:14.330Z"
     },
     "68af6d8c090b3934e5fbfbe0": {
       "fingerprint": "68af6d8c090b3934e5fbfbe0",
@@ -2144,11 +2151,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:49:12.050Z"
+        "checkedAt": "2026-11-06T09:50:07.346Z"
       },
       "firstSeenAt": "2026-11-06T09:31:30.039Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:49:31.529Z"
+      "updatedAt": "2026-11-06T09:50:14.256Z"
     },
     "25870083c769898f5c13a7bf": {
       "fingerprint": "25870083c769898f5c13a7bf",
@@ -2178,7 +2185,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:31:30.060Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:31:30.060Z"
+      "updatedAt": "2026-11-06T09:50:14.378Z"
     },
     "9c0e72b32cfb4b62ac916c47": {
       "fingerprint": "9c0e72b32cfb4b62ac916c47",
@@ -2188,7 +2195,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:31:30.064Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:31:30.064Z"
+      "updatedAt": "2026-11-06T09:50:14.381Z"
     },
     "f6c96fb200d7d12479993ba3": {
       "fingerprint": "f6c96fb200d7d12479993ba3",
@@ -2216,20 +2223,20 @@
       "title": "Horses running across open pasture — fresh verified CC BY 3.0 source (travelling-subject cloud test)",
       "creator": "Field of Dreams via Wikimedia Commons",
       "rightsVerification": {
-        "status": "evidence_recorded_not_independently_verified",
-        "observedLicence": null,
-        "licenceFamily": null,
-        "licenceVersion": null,
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "CC BY 3.0",
+        "licenceFamily": "by",
+        "licenceVersion": "3.0",
         "shareAlike": false,
-        "licenceUrl": null,
-        "attributionRequired": null,
-        "commercialUse": null,
-        "derivativesAllowed": null,
-        "checkedAt": "2026-11-06T09:49:12.112Z"
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+        "attributionRequired": true,
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-06T09:50:07.365Z"
       },
       "firstSeenAt": "2026-11-06T09:42:06.415Z",
-      "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:49:31.532Z"
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-06T09:50:14.266Z"
     },
     "b7b7a95594748766ad60eb62": {
       "fingerprint": "b7b7a95594748766ad60eb62",
@@ -2296,11 +2303,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:45:34.707Z"
+        "checkedAt": "2026-11-06T09:50:07.460Z"
       },
       "firstSeenAt": "2026-11-06T09:45:43.488Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:45:43.488Z"
+      "updatedAt": "2026-11-06T09:50:14.282Z"
     },
     "59d49837a108813cf372f460": {
       "fingerprint": "59d49837a108813cf372f460",
@@ -2317,11 +2324,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:45:34.707Z"
+        "checkedAt": "2026-11-06T09:50:07.460Z"
       },
       "firstSeenAt": "2026-11-06T09:45:43.490Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:45:43.490Z"
+      "updatedAt": "2026-11-06T09:50:14.283Z"
     },
     "ca876affa69ccb4fbf189dd9": {
       "fingerprint": "ca876affa69ccb4fbf189dd9",
@@ -2338,11 +2345,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:45:34.707Z"
+        "checkedAt": "2026-11-06T09:50:07.460Z"
       },
       "firstSeenAt": "2026-11-06T09:45:43.493Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:45:43.493Z"
+      "updatedAt": "2026-11-06T09:50:14.285Z"
     },
     "5225f66fbfe0b37ed78aca55": {
       "fingerprint": "5225f66fbfe0b37ed78aca55",
@@ -2359,11 +2366,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:45:34.707Z"
+        "checkedAt": "2026-11-06T09:50:07.460Z"
       },
       "firstSeenAt": "2026-11-06T09:45:43.496Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:45:43.496Z"
+      "updatedAt": "2026-11-06T09:50:14.287Z"
     },
     "2205bb43190e878dd6101f3b": {
       "fingerprint": "2205bb43190e878dd6101f3b",
@@ -2383,7 +2390,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:45:43.504Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:45:43.504Z"
+      "updatedAt": "2026-11-06T09:50:14.300Z"
     },
     "0dda9241bc0b40fe35659630": {
       "fingerprint": "0dda9241bc0b40fe35659630",
@@ -2754,6 +2761,126 @@
       "firstSeenAt": "2026-11-06T09:49:31.598Z",
       "lastOutcome": "rejected",
       "updatedAt": "2026-11-06T09:49:31.598Z"
+    },
+    "1787aec81ae46eb7d3618156": {
+      "fingerprint": "1787aec81ae46eb7d3618156",
+      "sourceUrl": "https://www.youtube.com/watch?v=nGA0l4bklIc",
+      "title": "omo the story long oo 😂😂.#police #case",
+      "creator": "Richard animations ",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:50:14.302Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:50:14.302Z"
+    },
+    "160a0a0c5ef9636b569fe3ff": {
+      "fingerprint": "160a0a0c5ef9636b569fe3ff",
+      "sourceUrl": "https://www.youtube.com/watch?v=QtKMNi7-84k",
+      "title": "Fui comprar o box pro banheiro da minha CASA e testei se era bom mesmo!!🗣️🤯 #foryou",
+      "creator": "Stories dos famosos ",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:50:14.303Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:50:14.303Z"
+    },
+    "11123499df483003f36eb897": {
+      "fingerprint": "11123499df483003f36eb897",
+      "sourceUrl": "https://www.youtube.com/watch?v=AV0DxIxMzbg",
+      "title": "RATING PEOPLE CRASHING BIKES IN THE WORST WAYS 😂📉",
+      "creator": "TierList",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:50:14.305Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:50:14.305Z"
+    },
+    "7bfd877eb8de9bf459301ec8": {
+      "fingerprint": "7bfd877eb8de9bf459301ec8",
+      "sourceUrl": "https://www.youtube.com/watch?v=d3gY_eQjQVo",
+      "title": "ELE ATACA NOVAMENTE!!#shorts",
+      "creator": "Gahh Shoow",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:50:14.313Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:50:14.313Z"
+    },
+    "92cc9342bb45f7a14bf2426f": {
+      "fingerprint": "92cc9342bb45f7a14bf2426f",
+      "sourceUrl": "https://www.youtube.com/watch?v=FLiQGO81S6w",
+      "title": "Great to see people learning about Australia …",
+      "creator": "Toni and Ryan",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:50:14.315Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:50:14.315Z"
+    },
+    "9ef417f6ff955fabb424fdb7": {
+      "fingerprint": "9ef417f6ff955fabb424fdb7",
+      "sourceUrl": "https://www.youtube.com/watch?v=_XCKMel4Uy0",
+      "title": "FaceTime with Different People! 😂😂",
+      "creator": "BlobbyClips",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:50:14.319Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:50:14.319Z"
+    },
+    "1f738dd6dd294d0e1287ccc7": {
+      "fingerprint": "1f738dd6dd294d0e1287ccc7",
+      "sourceUrl": "https://www.youtube.com/watch?v=82UMKYJa8uY",
+      "title": "ACTION MAN - Unexpected Funny Moment #kungfu #funny",
+      "creator": "ACTION MAN",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:50:14.329Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:50:14.329Z"
+    },
+    "97e214cddcb7b208cdcf3665": {
+      "fingerprint": "97e214cddcb7b208cdcf3665",
+      "sourceUrl": "https://www.youtube.com/watch?v=Su7kfWZhBCk",
+      "title": "The Last One Is Actually Crazy 💀 #funny #fail #shorts",
+      "creator": "RateRex",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:50:14.337Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:50:14.337Z"
+    },
+    "6c039c68cadf6ee8837c136a": {
+      "fingerprint": "6c039c68cadf6ee8837c136a",
+      "sourceUrl": "https://www.youtube.com/watch?v=ymBx5xrtV6U",
+      "title": "Dad Gets Jumped by a Raccoon and Throws His Kid Away 😭",
+      "creator": "GrimaceClips",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:50:14.361Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:50:14.361Z"
+    },
+    "aee78de37d9746a900584dc4": {
+      "fingerprint": "aee78de37d9746a900584dc4",
+      "sourceUrl": "https://www.youtube.com/watch?v=c8SaE3OFnxY",
+      "title": "He didn’t even hesitate ✌️",
+      "creator": "Smirk",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:50:14.362Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:50:14.362Z"
+    },
+    "c9ac4e5a4dddf311ec88c79e": {
+      "fingerprint": "c9ac4e5a4dddf311ec88c79e",
+      "sourceUrl": "https://www.youtube.com/watch?v=CJCbYd0qt5Q",
+      "title": "POV - Aquela mãe que ajuda o Amigo",
+      "creator": "Biel GEN TV",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:50:14.364Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:50:14.364Z"
+    },
+    "1b4df4da9f80d459fba2ae33": {
+      "fingerprint": "1b4df4da9f80d459fba2ae33",
+      "sourceUrl": "https://www.youtube.com/watch?v=DtTs1ZxeGTI",
+      "title": "THE MAN SHE FEARED EPISODE 7",
+      "creator": "TalesbySteph TV",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:50:14.366Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:50:14.366Z"
     }
   }
 }

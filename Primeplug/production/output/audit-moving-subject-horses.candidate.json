@@ -1,0 +1,314 @@
+{
+  "id": "audit-moving-subject-horses",
+  "label": "Horses running across open pasture — fresh verified CC BY 3.0 source (travelling-subject cloud test)",
+  "creator": "Field of Dreams via Wikimedia Commons",
+  "pathway": "narrated",
+  "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/a/af/Horses_running_in_a_pasture.webm",
+  "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Horses_running_in_a_pasture.webm",
+  "license": {
+    "type": "CC BY 3.0",
+    "basis": "Wikimedia Commons file page records CC BY 3.0 for this footage (read live via Commons API). Attribution required, no ShareAlike.",
+    "rightsStatus": "licensed",
+    "attributionRequirement": "Credit: Field of Dreams, via Wikimedia Commons, CC BY 3.0 — https://creativecommons.org/licenses/by/3.0",
+    "verificationStatus": "evidence_recorded_on_commons_file_page"
+  },
+  "status": "completed",
+  "reason": null,
+  "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/audit-moving-subject-horses.mp4",
+  "thumbnailPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/audit-moving-subject-horses.thumbnail.jpg",
+  "sha256": "d002c859276f474dc9f4af827e56a464ad272918bdb748ac78d90fc402ee9ac8",
+  "startedAt": "2026-11-06T09:50:25.725Z",
+  "finishedAt": "2026-11-06T09:50:58.293Z",
+  "narrationWords": 36,
+  "originalProbe": {
+    "width": 1920,
+    "height": 1080,
+    "durationSeconds": 67.608,
+    "hasAudio": true
+  },
+  "narration": {
+    "provider": "gemini",
+    "model": "gemini-3.8-flash-tts"
+  },
+  "sourceOverlayDetection": {
+    "status": "ok",
+    "frames": 12,
+    "wholeFrameChange": 20.28,
+    "overlays": [],
+    "detected": false
+  },
+  "overlayDecision": {
+    "action": "none",
+    "reason": null
+  },
+  "subjectFraming": {
+    "status": "planned",
+    "track": {
+      "frames": 96,
+      "fps": 8,
+      "usableFrames": 95,
+      "usableRatio": 0.99,
+      "peakRange": [
+        0.106,
+        0.912
+      ],
+      "spanRange": [
+        0.069,
+        0.925
+      ],
+      "coreSpanRange": [
+        0.075,
+        0.919
+      ],
+      "mainRange": [
+        0,
+        1
+      ],
+      "medianMainWidth": 0.206,
+      "medianMainShare": 0.37,
+      "rejectedJumps": 15,
+      "medianProminence": 35.2
+    },
+    "beats": [
+      {
+        "mode": "contain",
+        "widthFraction": 1,
+        "cropCoverage": 1
+      },
+      {
+        "mode": "padded",
+        "widthFraction": 0.88,
+        "cropCoverage": 1
+      },
+      {
+        "mode": "contain",
+        "widthFraction": 1,
+        "cropCoverage": 1
+      }
+    ],
+    "sourceGate": {
+      "status": "pass",
+      "reason": "Main subject inside the safe frame in 100.0% of 95 measurable frames.",
+      "metrics": {
+        "usableFrames": 95,
+        "totalFrames": 96,
+        "usableRatio": 0.99,
+        "containedFrames": 95,
+        "containedRatio": 1,
+        "spanCutFrames": 5,
+        "failures": [],
+        "spanCuts": [
+          {
+            "t": 4.125,
+            "span": [
+              0.094,
+              0.894
+            ],
+            "window": [
+              0.12,
+              1
+            ]
+          },
+          {
+            "t": 4.25,
+            "span": [
+              0.081,
+              0.881
+            ],
+            "window": [
+              0.12,
+              1
+            ]
+          },
+          {
+            "t": 4.375,
+            "span": [
+              0.081,
+              0.894
+            ],
+            "window": [
+              0.12,
+              1
+            ]
+          },
+          {
+            "t": 4.5,
+            "span": [
+              0.081,
+              0.869
+            ],
+            "window": [
+              0.12,
+              1
+            ]
+          },
+          {
+            "t": 4.625,
+            "span": [
+              0.081,
+              0.894
+            ],
+            "window": [
+              0.12,
+              1
+            ]
+          }
+        ]
+      }
+    },
+    "outputGate": {
+      "status": "pass",
+      "reason": "Rendered subject inside the safe band in 100.0% of measurable frames.",
+      "metrics": {
+        "usableFrames": 95,
+        "totalFrames": 96,
+        "usableRatio": 0.99,
+        "insideRatio": 1,
+        "peakRange": [
+          0.081,
+          0.913
+        ],
+        "outside": []
+      }
+    }
+  },
+  "captionCues": 3,
+  "audioLevels": {
+    "meanDb": -15.5,
+    "maxDb": -0.5
+  },
+  "outputOverlayDetection": {
+    "status": "ok",
+    "frames": 12,
+    "wholeFrameChange": 15.94,
+    "overlays": [],
+    "detected": false
+  },
+  "advancedQc": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "resolution_1080x1920",
+        "passed": true,
+        "detail": "video=1080x1920"
+      },
+      {
+        "name": "codec_h264",
+        "passed": true,
+        "detail": "video=h264"
+      },
+      {
+        "name": "audio_present_aac",
+        "passed": true,
+        "detail": "audio=aac"
+      },
+      {
+        "name": "duration_8_to_58s",
+        "passed": true,
+        "detail": "duration=12s"
+      },
+      {
+        "name": "narration_audible",
+        "passed": true,
+        "detail": "mean=-15.5 dB"
+      },
+      {
+        "name": "no_clipping",
+        "passed": true,
+        "detail": "max=-0.5 dB"
+      },
+      {
+        "name": "limited_black_frames",
+        "passed": true,
+        "detail": "black=0s of 12s"
+      },
+      {
+        "name": "limited_silence",
+        "passed": true,
+        "detail": "silence=0s of 12s"
+      },
+      {
+        "name": "no_trailing_silence",
+        "passed": true,
+        "detail": "trailingSilence=0s"
+      },
+      {
+        "name": "scene_pacing",
+        "passed": true,
+        "detail": "sceneChanges=1"
+      },
+      {
+        "name": "faststart",
+        "passed": true,
+        "detail": "moov precedes mdat"
+      }
+    ],
+    "metrics": {
+      "volume": {
+        "meanDb": -15.5,
+        "maxDb": -0.5
+      },
+      "black": {
+        "blackSegments": 0,
+        "blackSeconds": 0
+      },
+      "silence": {
+        "silenceSegments": 0,
+        "silenceSeconds": 0,
+        "trailingSilenceSeconds": 0
+      },
+      "scenes": {
+        "sceneChanges": 1
+      }
+    }
+  },
+  "qc": {
+    "status": "passed",
+    "repaired": false,
+    "probe": {
+      "width": 1080,
+      "height": 1920,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fps": 29.97002997002997,
+      "durationSeconds": 12,
+      "sizeBytes": 9902678,
+      "hasAudio": true
+    },
+    "failures": [],
+    "attempts": 0
+  },
+  "outputProbe": {
+    "width": 1080,
+    "height": 1920,
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "fps": 29.97002997002997,
+    "durationSeconds": 12,
+    "sizeBytes": 9902678,
+    "hasAudio": true
+  },
+  "pipeline": {
+    "status": "completed",
+    "pathway": "narrated",
+    "wordCount": 36,
+    "editorialAverage": null,
+    "title": "Nobody Chased Them. They Just Ran. 🐎",
+    "selectedMoments": [
+      "A string of horses breaks from the treeline and thunders across open pasture.",
+      "Hooves tear up the green grass as the group bunches, spreads and bunches again.",
+      "Nobody is chasing them, they simply decided to run."
+    ]
+  },
+  "postingPackage": {
+    "title": "Nobody Chased Them. They Just Ran. 🐎",
+    "description": "Original commentary narration and edit by Primeplug over reusable footage.\n\nSource: https://upload.wikimedia.org/wikipedia/commons/a/af/Horses_running_in_a_pasture.webm\nCredit: Field of Dreams via Wikimedia Commons. Rights: CC BY 3.0 — Credit: Field of Dreams, via Wikimedia Commons, CC BY 3.0 — https://creativecommons.org/licenses/by/3.0\nOriginal commentary narration, captions and edit by Primeplug.",
+    "hashtags": [
+      "#Shorts",
+      "#horses",
+      "#animals",
+      "#wildlife",
+      "#running"
+    ]
+  }
+}

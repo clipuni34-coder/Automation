@@ -1,0 +1,43 @@
+[
+  {
+    "id": "audit-moving-subject-sprint",
+    "label": "School sprinters crossing frame — fresh verified CC BY-SA 4.0 source (travelling-subject framing test)",
+    "creator": "Arch-Angel Raphael the Artist via Wikimedia Commons",
+    "sourceResolution": "1280x720",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/4/45/200m_Race_-_Boys_-_Racing_Events%2C_Inter-house_Sports_of_Annunciation_Sec._Sch._Enugu_-_Play_and_Africa.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:200m_Race_-_Boys_-_Racing_Events,_Inter-house_Sports_of_Annunciation_Sec._Sch._Enugu_-_Play_and_Africa.webm",
+    "license": {
+      "type": "CC BY-SA 4.0",
+      "basis": "Wikimedia Commons file page records CC BY-SA 4.0 for this footage (read live via Commons API). ShareAlike: derivative works must be shared under the same licence terms.",
+      "rightsStatus": "licensed",
+      "attributionRequirement": "Credit: Arch-Angel Raphael the Artist, via Wikimedia Commons, CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0 — derivative shared alike.",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "processing": {
+      "mode": "full",
+      "targetDurationSeconds": 11
+    },
+    "productionMode": "narrated",
+    "window": {
+      "startSeconds": 0,
+      "seconds": 12
+    },
+    "hookText": "Eight school sprinters explode off the line at a sports day in Enugu.",
+    "storyBeats": {
+      "hook": "Eight school sprinters explode off the line at a sports day in Enugu.",
+      "development": "Shoulders dip and spikes bite the red earth as the pack strings out.",
+      "payoff": "Within seconds the field spreads, and one sprinter finds daylight."
+    },
+    "visualSubject": "sprinters",
+    "postingTitle": "Eight Sprinters, One Start Gun 🏃‍♂️",
+    "postingDescription": "Original commentary narration and edit by Primeplug over reusable footage.",
+    "narrationScript": "Eight school sprinters explode off the line at a sports day in Enugu. Shoulders dip and spikes bite the red earth as the pack strings out. Within seconds the field spreads, and one sprinter finds daylight.",
+    "hashtags": [
+      "#Shorts",
+      "#athletics",
+      "#sprint",
+      "#sports",
+      "#running"
+    ]
+  }
+]

@@ -1340,14 +1340,108 @@
         }
       },
       "channelId": "Primeplug",
-      "updatedAt": "2026-11-05T16:23:56.029Z",
+      "updatedAt": "2026-11-06T09:31:30.072Z",
       "result": {
         "produced": false,
         "outcome": "held_narration_plan_incomplete",
         "pathway": "narrated",
         "reason": "Narration plan incomplete: Narration script too short (16 words; minimum 25 for a complete story beat structure) storyBeats.hook is missing: a complete Short needs a planned hook, development and payoff storyBeats.development is missing: a complete Short needs a planned hook, development and payoff storyBeats.payoff is missing: a complete Short needs a planned hook, development and payoff Narration script has only 2 sentence(s); at least 3 are required for hook, development and payoff The script's opening sentence does not contain the planned hookText: the opening must be the planned hook, not an unrelated start visualSubject missing: the footage's actual subject must be recorded so narration can be checked against it"
       },
-      "finishedAt": "2026-11-05T16:23:56.074Z"
+      "finishedAt": "2026-11-06T09:31:30.120Z"
+    },
+    {
+      "attempts": 1,
+      "status": "completed",
+      "createdAt": "2026-11-06T09:31:30.041Z",
+      "fingerprint": "c1ab543479f0ab0bf3a1711a",
+      "type": "produce",
+      "candidate": {
+        "id": "audit-moving-subject-sprint",
+        "title": "School sprinters crossing frame — fresh verified CC BY-SA 4.0 source (travelling-subject framing test)",
+        "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/4/45/200m_Race_-_Boys_-_Racing_Events%2C_Inter-house_Sports_of_Annunciation_Sec._Sch._Enugu_-_Play_and_Africa.webm",
+        "creator": "Arch-Angel Raphael the Artist via Wikimedia Commons",
+        "supersedesCandidateId": null,
+        "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:200m_Race_-_Boys_-_Racing_Events,_Inter-house_Sports_of_Annunciation_Sec._Sch._Enugu_-_Play_and_Africa.webm",
+        "license": {
+          "type": "CC BY-SA 4.0",
+          "basis": "Wikimedia Commons file page records CC BY-SA 4.0 for this footage (read live via Commons API). ShareAlike: derivative works must be shared under the same licence terms.",
+          "rightsStatus": "licensed",
+          "attributionRequirement": "Credit: Arch-Angel Raphael the Artist, via Wikimedia Commons, CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0 — derivative shared alike.",
+          "verificationStatus": "evidence_recorded_on_commons_file_page"
+        },
+        "sourceResolution": "1280x720",
+        "seedManifestEntry": {
+          "id": "audit-moving-subject-sprint",
+          "label": "School sprinters crossing frame — fresh verified CC BY-SA 4.0 source (travelling-subject framing test)",
+          "creator": "Arch-Angel Raphael the Artist via Wikimedia Commons",
+          "sourceResolution": "1280x720",
+          "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/4/45/200m_Race_-_Boys_-_Racing_Events%2C_Inter-house_Sports_of_Annunciation_Sec._Sch._Enugu_-_Play_and_Africa.webm",
+          "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:200m_Race_-_Boys_-_Racing_Events,_Inter-house_Sports_of_Annunciation_Sec._Sch._Enugu_-_Play_and_Africa.webm",
+          "license": {
+            "type": "CC BY-SA 4.0",
+            "basis": "Wikimedia Commons file page records CC BY-SA 4.0 for this footage (read live via Commons API). ShareAlike: derivative works must be shared under the same licence terms.",
+            "rightsStatus": "licensed",
+            "attributionRequirement": "Credit: Arch-Angel Raphael the Artist, via Wikimedia Commons, CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0 — derivative shared alike.",
+            "verificationStatus": "evidence_recorded_on_commons_file_page"
+          },
+          "processing": {
+            "mode": "full",
+            "targetDurationSeconds": 11
+          },
+          "productionMode": "narrated",
+          "window": {
+            "startSeconds": 0,
+            "seconds": 12
+          },
+          "hookText": "Eight school sprinters explode off the line at a sports day in Enugu.",
+          "storyBeats": {
+            "hook": "Eight school sprinters explode off the line at a sports day in Enugu.",
+            "development": "Shoulders dip and spikes bite the red earth as the pack strings out.",
+            "payoff": "Within seconds the field spreads, and one sprinter finds daylight."
+          },
+          "visualSubject": "sprinters",
+          "postingTitle": "Eight Sprinters, One Start Gun 🏃‍♂️",
+          "postingDescription": "Original commentary narration and edit by Primeplug over reusable footage.",
+          "narrationScript": "Eight school sprinters explode off the line at a sports day in Enugu. Shoulders dip and spikes bite the red earth as the pack strings out. Within seconds the field spreads, and one sprinter finds daylight.",
+          "hashtags": [
+            "#Shorts",
+            "#athletics",
+            "#sprint",
+            "#sports",
+            "#running"
+          ]
+        },
+        "rightsVerification": {
+          "candidateId": "audit-moving-subject-sprint",
+          "claimedType": "CC BY-SA 4.0",
+          "claimedStatus": "licensed",
+          "evidenceUrl": "https://commons.wikimedia.org/wiki/File:200m_Race_-_Boys_-_Racing_Events,_Inter-house_Sports_of_Annunciation_Sec._Sch._Enugu_-_Play_and_Africa.webm",
+          "checkedAt": "2026-11-06T09:31:14.759Z",
+          "status": "rights_verified_with_evidence",
+          "commercialUse": true,
+          "derivativesAllowed": true,
+          "shareAlike": true,
+          "attributionRequired": true,
+          "artist": "Arch-Angel Raphael the Artist",
+          "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "observedLicence": "CC BY-SA 4.0",
+          "licenceFamily": "by-sa",
+          "licenceVersion": "4.0",
+          "reasons": [
+            "Exact licence observed on the asset's Commons file page (CC BY-SA 4.0) matches the claim and permits commercial reuse and derivative works under ShareAlike conditions, which are recorded and must be honoured. This is recorded evidence, not legal certification."
+          ],
+          "verificationMethod": "wikimedia_commons_api_extmetadata"
+        }
+      },
+      "channelId": "Primeplug",
+      "updatedAt": "2026-11-06T09:31:30.125Z",
+      "result": {
+        "produced": false,
+        "outcome": "held_source_overlay",
+        "pathway": "narrated",
+        "reason": "Source overlay is in the centre band; only top/bottom edge bands can be reframed safely"
+      },
+      "finishedAt": "2026-11-06T09:31:38.774Z"
     }
   ]
 }

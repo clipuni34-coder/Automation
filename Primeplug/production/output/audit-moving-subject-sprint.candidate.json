@@ -1,0 +1,53 @@
+{
+  "id": "audit-moving-subject-sprint",
+  "label": "School sprinters crossing frame — fresh verified CC BY-SA 4.0 source (travelling-subject framing test)",
+  "creator": "Arch-Angel Raphael the Artist via Wikimedia Commons",
+  "pathway": "narrated",
+  "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/4/45/200m_Race_-_Boys_-_Racing_Events%2C_Inter-house_Sports_of_Annunciation_Sec._Sch._Enugu_-_Play_and_Africa.webm",
+  "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:200m_Race_-_Boys_-_Racing_Events,_Inter-house_Sports_of_Annunciation_Sec._Sch._Enugu_-_Play_and_Africa.webm",
+  "license": {
+    "type": "CC BY-SA 4.0",
+    "basis": "Wikimedia Commons file page records CC BY-SA 4.0 for this footage (read live via Commons API). ShareAlike: derivative works must be shared under the same licence terms.",
+    "rightsStatus": "licensed",
+    "attributionRequirement": "Credit: Arch-Angel Raphael the Artist, via Wikimedia Commons, CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0 — derivative shared alike.",
+    "verificationStatus": "evidence_recorded_on_commons_file_page"
+  },
+  "status": "held_source_overlay",
+  "reason": "Source overlay is in the centre band; only top/bottom edge bands can be reframed safely",
+  "outputPath": null,
+  "thumbnailPath": null,
+  "sha256": null,
+  "startedAt": "2026-11-06T09:31:30.163Z",
+  "finishedAt": "2026-11-06T09:31:38.751Z",
+  "narrationWords": 36,
+  "originalProbe": {
+    "width": 1280,
+    "height": 720,
+    "durationSeconds": 97649.649,
+    "hasAudio": true
+  },
+  "narration": {
+    "provider": "gemini",
+    "model": "gemini-3.8-flash-tts"
+  },
+  "sourceOverlayDetection": {
+    "status": "ok",
+    "frames": 12,
+    "wholeFrameChange": 28.22,
+    "overlays": [
+      {
+        "band": "centre",
+        "fraction": 0.2,
+        "staticness": 0,
+        "colourfulness": 0.115,
+        "signatureFrames": 6,
+        "method": "text-signature"
+      }
+    ],
+    "detected": true
+  },
+  "overlayDecision": {
+    "action": "hold",
+    "reason": "Source overlay is in the centre band; only top/bottom edge bands can be reframed safely"
+  }
+}

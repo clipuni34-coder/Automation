@@ -32,7 +32,7 @@ Outputs are verified 1080×1920 H.264/AAC fast-start MP4s with SHA-256 recorded 
 ## 8. YouTube API verification & duplicate protection — PASS
 Upload approval is now PER-VIDEO: an approval names one candidate id AND the exact SHA-256 of its rendered output (`src/engine/approval.js`); approval of one video never authorizes another, and a re-render (new hash) needs new approval. Proven against the real persisted state: a wrong-hash approval matched nothing, all 3 awaiting videos reported `awaiting_per_video_approval`, zero uploads attempted; superseded outputs never appear in the awaiting list. Channel identity is verified by live OAuth before any upload or analytics read. `verify-published.mjs` independently re-reads the registry on every run: 4 private videos, expected channel, `all_verified` in the final run; registry exactly 4 — no duplicates, nothing public.
 
-## 9. Scheduler — PENDING (by calendar)
+## 9. Scheduler — REPAIRED, STILL PENDING A NATURAL RUN
 `clipuni34-coder/Primeplug-scheduler` dispatches the daily workflow at 06:30 Lagos (workflow `408122820`, production on, upload approval off); the dispatch mechanism is proven end-to-end by manual test dispatches. The first *natural* cron firing is due **2026-11-06 06:30 Lagos** and has not happened yet. It is not claimed.
 
 ## 10. Stress & recovery — PASS
@@ -43,6 +43,9 @@ Analytics sync is identity-verified and integrated, using only real API data. Al
 
 ## 12. Policy & monetization-risk audit — PASS (as an audit)
 `docs/POLICY_MONETIZATION_AUDIT.md` assesses reused-content and policy risk (rated MODERATE and inherent to the format), with mitigations: original narration, transformative editing, attribution, human review before public use. No monetization-eligibility promises are made anywhere in the system, dashboard, or docs.
+
+## 12b. Subject-aware framing & subject-in-frame gate — PASS (with stated limitations)
+A fixed centre crop previously cut moving subjects out of frame. The pipeline now tracks the source subject (motion-compensated, alpha-beta filtered, no ML model), plans the tightest per-beat framing that keeps the main subject inside the safe frame for >=97% of sampled frames (crop-follow where verifiable, otherwise full-width with blurred fill), and **holds** any render whose main subject is not verifiably in frame (`held_subject_out_of_frame`, `held_subject_not_trackable`, `held_subject_check_failed`), re-checked on the rendered file. Evidence: synthetic ground-truth tracker error mean 0.0065 frame-widths (max 0.0611); the old centre crop fails the same gate at 29.9%/15.8% contained while the new framing passes at 100%; cloud render of a fresh CC BY 3.0 moving-subject source produced 1080x1920 H.264/AAC, 12.0 s, SHA-256 `d002c859276f474dc9f4af827e56a464ad272918bdb748ac78d90fc402ee9ac8`, all 11 QC gates pass. Limitation: on footage whose motion spans most of the frame, the honest framing is full-width containment (subject never cut, but the 16:9 image sits in the middle of the 9:16 frame with blurred fill).
 
 ## 13. Dashboard truthfulness — PASS
 https://clipuni34-coder.github.io/Automation/ embeds figures read from the persisted `automation-state` branch at deploy time (191 sources screened after the final run, job/awaiting/private-upload counts from state), re-deployed automatically after every daily run. Primeplug shows as sole ACTIVE channel; the other three show INACTIVE/paused.
@@ -59,7 +62,7 @@ Nothing public was ever uploaded; all 4 uploads are private. No existing private
 ## 17. Remaining owner decisions & pending items — PENDING
 1. Per-video private-upload approvals (candidate id + SHA-256) for any of the 3 awaiting videos: elephant v6 (`709fafe4…`), Cape fox pups (`434986fe…`), Einstein parrot (`fd5d15cc…`). None is uploaded; approval of one never authorizes the others.
 2. Delete/keep decisions for the two weak private uploads (`ITRMwg5DbxA`, `sQZOvhrNEdE`) and the defective elephant v1 (`dQwD_It3oXM`).
-3. First natural scheduler run — due 2026-11-06 06:30 Lagos (calendar only; not claimed).
+3. First natural scheduler run — the 2026-11-06 06:30 Lagos slot **did not fire** (0 scheduled runs in the scheduler repo; the account's other schedules do fire, hours late). Repaired with an hourly idempotent catch-up plus a Lagos-day guard (`39ae2de`, `c032655`) and verified by a forced manual dispatch (`42195598179` → Automation `42195615043`). A natural `schedule`-event run has still not been observed, so daily autonomous operation remains **not claimed**.
 4. Known engineering limitations to accept or fund: subject-aware vertical reframing (center-crop subject loss), white-logo detection on static-camera footage, Commons API rate limits.
 5. Any public publishing or monetization steps — only on explicit owner authorization.
 

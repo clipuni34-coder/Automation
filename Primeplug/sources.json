@@ -287,7 +287,7 @@
       "creator": "Chiitan (official mascot channel, via Wikimedia Commons)",
       "firstSeenAt": "2026-11-05T13:02:10.478Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:42:06.374Z",
+      "updatedAt": "2026-11-06T09:45:43.435Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
@@ -298,7 +298,7 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:41:49.256Z"
+        "checkedAt": "2026-11-06T09:45:33.973Z"
       }
     },
     "2fcfd9b3ba9bdc5204655c2b": {
@@ -308,7 +308,7 @@
       "creator": "YouTube creator compilation via Wikimedia Commons (CC BY)",
       "firstSeenAt": "2026-11-05T13:02:10.480Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:42:06.377Z",
+      "updatedAt": "2026-11-06T09:45:43.438Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
@@ -319,7 +319,7 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:41:49.527Z"
+        "checkedAt": "2026-11-06T09:45:34.300Z"
       }
     },
     "80213f8020ffaf02f8b9cbce": {
@@ -337,11 +337,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:41:50.427Z"
+        "checkedAt": "2026-11-06T09:45:34.553Z"
       },
       "firstSeenAt": "2026-11-05T13:02:10.490Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:42:06.408Z"
+      "updatedAt": "2026-11-06T09:45:43.472Z"
     },
     "6193b6c449d823aeeb905acc": {
       "fingerprint": "6193b6c449d823aeeb905acc",
@@ -1045,9 +1045,9 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:41:49.740Z"
+        "checkedAt": "2026-11-06T09:45:34.344Z"
       },
-      "updatedAt": "2026-11-06T09:42:06.382Z"
+      "updatedAt": "2026-11-06T09:45:43.446Z"
     },
     "3166a6060b079e1aebb360eb": {
       "fingerprint": "3166a6060b079e1aebb360eb",
@@ -1067,9 +1067,9 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:41:49.848Z"
+        "checkedAt": "2026-11-06T09:45:34.367Z"
       },
-      "updatedAt": "2026-11-06T09:42:06.385Z"
+      "updatedAt": "2026-11-06T09:45:43.448Z"
     },
     "b574bb140017fde5e443e9e1": {
       "fingerprint": "b574bb140017fde5e443e9e1",
@@ -1834,11 +1834,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:41:50.094Z"
+        "checkedAt": "2026-11-06T09:45:34.493Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.499Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:42:06.400Z"
+      "updatedAt": "2026-11-06T09:45:43.464Z"
     },
     "b1238d7238a453eb97f3aeef": {
       "fingerprint": "b1238d7238a453eb97f3aeef",
@@ -1855,11 +1855,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:41:50.210Z"
+        "checkedAt": "2026-11-06T09:45:34.513Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.503Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:42:06.403Z"
+      "updatedAt": "2026-11-06T09:45:43.467Z"
     },
     "80e3d83db047fd64e18aee0a": {
       "fingerprint": "80e3d83db047fd64e18aee0a",
@@ -1876,11 +1876,11 @@
         "attributionRequired": null,
         "commercialUse": null,
         "derivativesAllowed": null,
-        "checkedAt": "2026-11-06T09:41:50.318Z"
+        "checkedAt": "2026-11-06T09:45:34.533Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.507Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:42:06.405Z"
+      "updatedAt": "2026-11-06T09:45:43.469Z"
     },
     "c010778a4497c7cf56d822d3": {
       "fingerprint": "c010778a4497c7cf56d822d3",
@@ -1897,11 +1897,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:41:50.455Z"
+        "checkedAt": "2026-11-06T09:45:34.572Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.511Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:42:06.410Z"
+      "updatedAt": "2026-11-06T09:45:43.475Z"
     },
     "d5af0d690333ef54b72cd221": {
       "fingerprint": "d5af0d690333ef54b72cd221",
@@ -1918,11 +1918,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T16:22:39.676Z"
+        "checkedAt": "2026-11-06T09:45:34.707Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.515Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T16:22:50.192Z"
+      "updatedAt": "2026-11-06T09:45:43.483Z"
     },
     "2020f2381e9e97943fd204f5": {
       "fingerprint": "2020f2381e9e97943fd204f5",
@@ -1939,11 +1939,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-05T16:22:39.676Z"
+        "checkedAt": "2026-11-06T09:45:34.707Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.518Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-05T16:22:50.195Z"
+      "updatedAt": "2026-11-06T09:45:43.485Z"
     },
     "ba9283727529a5974e0629c3": {
       "fingerprint": "ba9283727529a5974e0629c3",
@@ -2140,11 +2140,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:41:50.566Z"
+        "checkedAt": "2026-11-06T09:45:34.591Z"
       },
       "firstSeenAt": "2026-11-06T09:31:30.039Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:42:06.413Z"
+      "updatedAt": "2026-11-06T09:45:43.477Z"
     },
     "25870083c769898f5c13a7bf": {
       "fingerprint": "25870083c769898f5c13a7bf",
@@ -2212,20 +2212,20 @@
       "title": "Horses running across open pasture — fresh verified CC BY 3.0 source (travelling-subject cloud test)",
       "creator": "Field of Dreams via Wikimedia Commons",
       "rightsVerification": {
-        "status": "evidence_recorded_not_independently_verified",
-        "observedLicence": null,
-        "licenceFamily": null,
-        "licenceVersion": null,
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "CC BY 3.0",
+        "licenceFamily": "by",
+        "licenceVersion": "3.0",
         "shareAlike": false,
-        "licenceUrl": null,
-        "attributionRequired": null,
-        "commercialUse": null,
-        "derivativesAllowed": null,
-        "checkedAt": "2026-11-06T09:41:50.671Z"
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+        "attributionRequired": true,
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-06T09:45:34.611Z"
       },
       "firstSeenAt": "2026-11-06T09:42:06.415Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:42:06.415Z"
+      "updatedAt": "2026-11-06T09:45:43.480Z"
     },
     "b7b7a95594748766ad60eb62": {
       "fingerprint": "b7b7a95594748766ad60eb62",
@@ -2276,6 +2276,200 @@
       "firstSeenAt": "2026-11-06T09:42:06.444Z",
       "lastOutcome": "rejected",
       "updatedAt": "2026-11-06T09:42:06.444Z"
+    },
+    "46b941aec7a6e1e35897fcab": {
+      "fingerprint": "46b941aec7a6e1e35897fcab",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Coyote_Pees_On_Brother%27s_Face.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "title": "Coyote Pees On Brother's Face",
+      "creator": "Desert Critters of Arizona",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "CC BY 3.0",
+        "licenceFamily": "by",
+        "licenceVersion": "3.0",
+        "shareAlike": false,
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+        "attributionRequired": true,
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-06T09:45:34.707Z"
+      },
+      "firstSeenAt": "2026-11-06T09:45:43.488Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-06T09:45:43.488Z"
+    },
+    "59d49837a108813cf372f460": {
+      "fingerprint": "59d49837a108813cf372f460",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Life_in_Afghanistan_You_Won%E2%80%99t_Expect_to_See%21.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "title": "Life in Afghanistan You Won’t Expect to See!",
+      "creator": "Peace Travels",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "CC BY 3.0",
+        "licenceFamily": "by",
+        "licenceVersion": "3.0",
+        "shareAlike": false,
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+        "attributionRequired": true,
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-06T09:45:34.707Z"
+      },
+      "firstSeenAt": "2026-11-06T09:45:43.490Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-06T09:45:43.490Z"
+    },
+    "ca876affa69ccb4fbf189dd9": {
+      "fingerprint": "ca876affa69ccb4fbf189dd9",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/2/27/Man_Drives_Off_During_Simple_Traffic_Stop%2C_Ends_Terribly.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "title": "Man Drives Off During Simple Traffic Stop, Ends Terribly",
+      "creator": "Bodycam Lockup",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "Public domain",
+        "licenceFamily": "public-domain",
+        "licenceVersion": null,
+        "shareAlike": false,
+        "licenceUrl": null,
+        "attributionRequired": false,
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-06T09:45:34.707Z"
+      },
+      "firstSeenAt": "2026-11-06T09:45:43.493Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-06T09:45:43.493Z"
+    },
+    "5225f66fbfe0b37ed78aca55": {
+      "fingerprint": "5225f66fbfe0b37ed78aca55",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/6/68/State_of_the_Union_Address_%28January_27%2C_2010%29_Barack_Obama_%28WhiteHouse.gov-reedit%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "title": "State of the Union Address (January 27, 2010) Barack Obama (WhiteHouse.gov-reedit)",
+      "creator": "Whitehouse.gov",
+      "rightsVerification": {
+        "status": "rights_verified_with_evidence",
+        "observedLicence": "Public domain",
+        "licenceFamily": "public-domain",
+        "licenceVersion": null,
+        "shareAlike": false,
+        "licenceUrl": null,
+        "attributionRequired": false,
+        "commercialUse": true,
+        "derivativesAllowed": true,
+        "checkedAt": "2026-11-06T09:45:34.707Z"
+      },
+      "firstSeenAt": "2026-11-06T09:45:43.496Z",
+      "lastOutcome": "eligible",
+      "updatedAt": "2026-11-06T09:45:43.496Z"
+    },
+    "2205bb43190e878dd6101f3b": {
+      "fingerprint": "2205bb43190e878dd6101f3b",
+      "sourceUrl": "https://www.youtube.com/watch?v=0gIlak9Q4dY",
+      "title": "Simple No stressing 😅 #fyp #shorts",
+      "creator": "Raw Edits 🎬😂",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:45:43.498Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:45:43.498Z"
+    },
+    "befda351e869916b88d22727": {
+      "fingerprint": "befda351e869916b88d22727",
+      "sourceUrl": "https://www.youtube.com/watch?v=Z2XDKvVp1yM",
+      "title": "ACTION MAN - Unexpected Funny Moment",
+      "creator": "ACTION MAN",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:45:43.504Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:45:43.504Z"
+    },
+    "0dda9241bc0b40fe35659630": {
+      "fingerprint": "0dda9241bc0b40fe35659630",
+      "sourceUrl": "https://www.youtube.com/watch?v=ZoEFpTlW3Zc",
+      "title": "MOTHER'S BARGAIN 2 - CHINENYE NNEBE, EMEKA IKE, KELVIN UTULU latest 2026 nigerian movie",
+      "creator": "Uchenna Mbunabo Tv",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:45:43.513Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:45:43.513Z"
+    },
+    "f400ac29f32f729b031cef2d": {
+      "fingerprint": "f400ac29f32f729b031cef2d",
+      "sourceUrl": "https://www.youtube.com/watch?v=5VZM6DVoj7k",
+      "title": "Eu já sabia",
+      "creator": "Djlouromixoficial",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:45:43.519Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:45:43.519Z"
+    },
+    "cc5498837ba2c4c5744684a5": {
+      "fingerprint": "cc5498837ba2c4c5744684a5",
+      "sourceUrl": "https://www.youtube.com/watch?v=PF-FknazmN4",
+      "title": "É assim que faz essa trend? Não acompanho muito. 😂 QUASE O DISJUNTOR DESLIGA 🤣🤣🤣",
+      "creator": "𝟑𝐢 𝐀𝐓𝐋𝐀𝐒 - PRODUÇÕES ",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:45:43.522Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:45:43.522Z"
+    },
+    "4111503980ff0f7439de4dec": {
+      "fingerprint": "4111503980ff0f7439de4dec",
+      "sourceUrl": "https://www.youtube.com/watch?v=hcrRbUW_mBM",
+      "title": "The Trampoline Double Bounce Trick⁉️😱",
+      "creator": "ShowerThinkerz",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:45:43.526Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:45:43.526Z"
+    },
+    "7baf7b94ffcb9f14ba2dccfc": {
+      "fingerprint": "7baf7b94ffcb9f14ba2dccfc",
+      "sourceUrl": "https://www.youtube.com/watch?v=nS97ROCZM1I",
+      "title": "Mr. Ballz seems to love his new snack!",
+      "creator": "Hibiscusw",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:45:43.529Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:45:43.529Z"
+    },
+    "a06001caf68f2e71a137b88d": {
+      "fingerprint": "a06001caf68f2e71a137b88d",
+      "sourceUrl": "https://www.youtube.com/watch?v=iBifynwy8sw",
+      "title": "quanto vcs acham que a gente tem de altura???",
+      "creator": "Camila Viseu",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:45:43.531Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:45:43.531Z"
+    },
+    "eba943ad0fe76c5e4f1becc2": {
+      "fingerprint": "eba943ad0fe76c5e4f1becc2",
+      "sourceUrl": "https://www.youtube.com/watch?v=7_IGgtb25kE",
+      "title": "Bonfire Night In England Versus America!",
+      "creator": "mrthomasenglish",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:45:43.534Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:45:43.534Z"
+    },
+    "f6789413de10dd5a78904e20": {
+      "fingerprint": "f6789413de10dd5a78904e20",
+      "sourceUrl": "https://www.youtube.com/watch?v=rxiC6loOJcw",
+      "title": "BLOOD NOT SISTERS - ONYII ALEX, CHINENYE NNEBE,PATIENCE OZOKWOR,CHARLES,CHIKE DANIEL#BLOODNOTSISTERS",
+      "creator": "onyiialexTV",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:45:43.537Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:45:43.537Z"
+    },
+    "24b0b68ef249f97754159ff7": {
+      "fingerprint": "24b0b68ef249f97754159ff7",
+      "sourceUrl": "https://www.youtube.com/watch?v=S-P6PT5JLKo",
+      "title": "The bride is traditionally and officially released to the groom’s father. What a practice #wedding",
+      "creator": "PerfectMachForever TV",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-06T09:45:43.540Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-06T09:45:43.540Z"
     }
   }
 }

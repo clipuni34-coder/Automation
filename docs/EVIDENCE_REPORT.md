@@ -301,3 +301,50 @@ Live persisted state now holds 215 sources, 10 with `rights_verified_with_eviden
 4. Commons API rate limiting (429) intermittently rejects discovery queries; one retry helps but does not eliminate it.
 5. Held narrated candidates are re-evaluated each production run (cheap validation holds re-hold; renders only re-run when the pathway outcome was non-terminal). Elephant v5 re-rendered and completed in the final run (new hash `bd76eba46843c3e2…`); it remains superseded by v6 and non-uploadable.
 6. Three videos await owner per-video approval (v6 elephant, Cape fox, parrot); two weak private uploads and defective elephant v1 await owner delete/keep decisions; public publishing remains OFF. Nothing was uploaded, published, or deleted in this cycle (`verify-published`: `all_verified`, 4 private videos, channel `UCB7EhjM0bj2wtIBy_A_kkkg`).
+
+## Scheduler audit — 2026-11-06 (did the natural 06:30 Lagos run fire?)
+**Answer: NO. The scheduled run did not happen, and the cause was in the scheduler repository, not in Automation.**
+
+Evidence (GitHub API, 2026-11-06 09:12Z): the `Primeplug-scheduler` repository had exactly **1** run in total — the manual test dispatch `42035124026` (2026-11-05T13:22Z). The workflow was enabled (`state: active`) on the default branch `main`, Actions permissions were `enabled: true`, and other scheduled workflows in the same account *do* fire (Automation's `Discovery scan` has `schedule` runs on 11-01, 11-02, 11-03, 11-04, 11-05 — several of them hours late). So GitHub cron delivery for this account is functional but unreliable/late, and a single daily slot was simply dropped.
+
+**Repair (scheduler repo, branch `main`, commits `39ae2de` + `c032655`):**
+- `30 5 * * *` (06:30 Lagos) kept as the intended slot, plus `0 * * * *` hourly **idempotent catch-up**.
+- Before dispatching, the job asks the Automation API whether any `daily-operations` run already exists since Lagos midnight (computed explicitly as UTC+01:00, no tzdata dependency, `c032655` fixed a UTC-midnight fallback observed in run `42195598179`). If a run exists it skips and logs it; if the guard query itself fails it dispatches anyway and warns (a rare duplicate is safer than a silent missed day).
+- `force: true` manual input for tests.
+- Verified: scheduler run `42195598179` (workflow_dispatch) logged `Lagos day starts …`, `daily-operations runs since Lagos midnight: 0`, `Forced manual dispatch.`, `Dispatch HTTP 204` and created Automation run `42195615043`. https://github.com/clipuni34-coder/Primeplug-scheduler/actions/runs/42195598179
+- The natural hourly cron has **not yet been observed** at the time of writing (next slot 10:00Z). Until a `schedule`-event run is recorded and the guard is seen to skip, daily autonomous operation is **NOT claimed**.
+
+## Subject-aware vertical reframing + hard subject-in-frame gate — 2026-11-06
+Commits on `editorial-evidence-hold`: `0fb8eea` (tracker, planner, gates, pipeline wiring, tests), `da68020` (overlay-detector scene-locked fix + horses candidate), `8627f99` (mode-aware output gate + Commons 429 retry in rights verification), `046c208` (re-screen sources rejected on transient faults). Tests **350/350** locally; GitHub Tests green at each push. Branch never merged into `main`; Syntheniq untouched.
+
+### What was wrong
+The vertical re-edit was a fixed centre crop of a 16:9 source into 9:16, which keeps only ~31.6% of the frame width, with three punch-in beats. Any subject outside the middle third was cut out of frame — visible in the previously produced Cape fox Short (pups clipped at t≈7s and t≈20s, noted as a limitation in the previous audit).
+
+### What was built
+1. `scripts/track_subject.py` (numpy + Pillow only; no model download, no network): dense sampling at 8 fps; per-frame camera translation estimated by phase correlation and compensated; residual motion soft-thresholded with robust statistics (median + 3·MAD) to reject grain/grass texture; the **main subject** is the strongest contiguous run of the column-energy profile, with adjacent runs merged (a moving object produces residual at its leading *and* trailing edges, so unmerged runs track one edge); an **alpha-beta predictive filter** follows constant-velocity motion with no lag while rejecting implausible single-frame jumps (re-anchoring if the new position persists 3 frames).
+2. `src/production/subject-framing.js`: per story beat the planner tries candidate window widths from narrow (crop-follow, punch-in) to full frame and keeps the **narrowest framing whose following window keeps the main subject inside the safe frame for ≥97% of sampled frames**; where no narrow window can be verified it keeps the whole frame width visible and fills with a blurred copy of the same footage ("padded"/"contain"). Nothing is ever cropped away to force a pass. `cropXExpression()` compiles the trajectory into a piecewise-linear ffmpeg `crop x` expression.
+3. `scripts/produce-narrated.mjs`: tracks the source before rendering; **holds** with `held_subject_not_trackable` / `held_subject_out_of_frame` if the plan cannot be verified; after rendering it re-runs the tracker on the **rendered file** and holds with `held_subject_out_of_frame` / `held_subject_check_failed`.
+
+### Measured results
+| Test | Result |
+|---|---|
+| Synthetic ground-truth clip (block crossing a static noisy background, 20 s) | tracker error vs truth: **mean 0.0065, p95 0.0227, max 0.0611** frame-widths; planner chooses a following window; gate passes |
+| Same clip, regime of the OLD fixed centre crop | gate **HOLDS**: "Main subject inside the safe frame in only 29.9% of measurable frames (gate 95%)" |
+| Cape fox (real CC BY-SA 2.0 footage, 1920×1080) — new framing | gate **pass**, 100.0% of 158 measurable frames contained; render SHA-256 `1629e95c60528cbfb384af05fc108328675d1f23d75b4d52914be1da0598393a` (local 720×1280 verification render) |
+| Cape fox — previous fixed centre crop | gate **HOLDS** (subject outside the safe band in 15.8% of measurable frames); SHA-256 `39fea297e0fbfd16b9bc012299a49f2462f91eec0cefd14d2036cd335df6d521`; frames show pups clipped at the frame edge |
+| Cloud, fresh moving-subject source (horses, CC BY 3.0) | **produced**: 1080×1920 H.264/AAC, 12.0 s, SHA-256 `d002c859276f474dc9f4af827e56a464ad272918bdb748ac78d90fc402ee9ac8`; all 11 advanced-QC checks pass; mean −15.5 dB; source gate pass (100% of 95 frames); output gate pass (100%) |
+Comparison frames: `docs/evidence/framing/` (cape fox new vs old at t=7s/13s/20s plus 3 s-interval contact sheets).
+
+### Three cloud runs, three real defects found and fixed
+| Run | What happened | Defect → fix |
+|---|---|---|
+| `42195615043` | sprint candidate HELD `held_source_overlay` (centre band) although the footage has no overlay | dense colourful crowd (red shirts) tripped the text signature. Measured separation: sky/treeline band edge density 0.000 vs 0.034+ for a real lower third → staticness path now requires graphic structure **and** the band not to be scene-locked (camera-compensated); `da68020`. Crowd footage still trips the text signature — documented limitation, it is HELD, never passed. |
+| `42196879606` | horses candidate rejected as `evidence_recorded_not_independently_verified` | the Commons file-page read was rate-limited (HTTP 429) → rights verification now retries 429/5xx with backoff (`8627f99`); same candidate verifies locally as `rights_verified_with_evidence` (CC BY 3.0) |
+| `42197390039` | horses candidate silently *deduped* (duplicates 26, produced 0) | a source stored as `rejected` (because of that 429) was blocked forever by dedupe → `hasUsedSource(url, {rescreenRejected:true})` re-screens rejected sources while eligible/produced ones stay deduped (`046c208`, regression test added) |
+| `42197859705` | horses candidate **produced** (discovered 48 / rightsVerified 6 / eligible 6 / duplicates 16 / produced 1 / uploaded 0, outcome `produced`), artifact `13493270843` | — |
+
+### Honest limitations of the framing work
+1. On wide shots where several animals are far apart or motion is spread over most of the frame (Cape fox, the Enugu sprint, the horse pasture), the planner falls back to full-width containment: the subject is never cut, but the 16:9 image occupies the middle of the 9:16 frame with blurred fill. This is a deliberate safety-over-fill trade-off, not a bug; a following crop could not be verified at ≥97% coverage on those clips.
+2. The tracker is motion-based: a completely static subject in a static shot yields no measurable track, which holds the candidate (`held_subject_not_trackable`) rather than guessing.
+3. Subject identity is "the strongest coherent motion cluster"; in multi-subject footage one animal may leave frame while the tracked one stays — the gate protects the main subject, not every animal.
+4. The output-side gate is mode-aware: centred safe-band checks apply only to beats that follow the subject with a narrow window (a subject near the edge of a fully visible frame is not "cut").

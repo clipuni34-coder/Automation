@@ -165,7 +165,12 @@ export function planSubjectFraming(track, opts) {
     for (const wf of candidates) {
       const fallback = lastX === null ? clamp(0.5 - wf / 2, 0, Math.max(0, 1 - wf)) : clamp(lastX, 0, Math.max(0, 1 - wf));
       const points = controlPointsFor(inBeat.length ? inBeat : samples.filter((s) => Math.abs(s.t - t0) <= 2), t0, t1, wf, controlStep, fallback);
-      const coverage = cropCoverage(inBeat.length ? inBeat : [], t0, wf, points);
+      // A full-width candidate keeps the whole frame visible, so it must be
+      // scored with contain conventions (no interior inset): a subject at the
+      // edge of the SOURCE is fully visible, not "outside the safe frame".
+      const coverage = wf >= 0.999
+        ? (inBeat.length ? 1 : 1)
+        : cropCoverage(inBeat.length ? inBeat : [], t0, wf, points);
       const ok = inBeat.length === 0 ? wf >= 1 : coverage >= MIN_CROP_COVERAGE;
       if (ok) { chosen = { widthFraction: wf, points, coverage: inBeat.length ? coverage : 1 }; break; }
     }

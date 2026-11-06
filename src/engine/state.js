@@ -36,9 +36,17 @@ export class ChannelState {
   }
 
   async getSources() { return readJson(this.path("sources.json"), { version: 1, sources: {} }); }
-  async hasUsedSource(sourceUrl) {
+  async hasUsedSource(sourceUrl, opts = {}) {
     const db = await this.getSources();
-    return Boolean(db.sources[sourceFingerprint(sourceUrl)]);
+    const entry = db.sources[sourceFingerprint(sourceUrl)];
+    if (!entry) return false;
+    // A source that was rejected on a TRANSIENT fault (e.g. the Commons API
+    // rate-limited the licence read) must be re-screened on a later run, not
+    // blocked forever by dedupe. Run 42196879606 lost a valid CC BY 3.0 source
+    // this way: it was stored as "rejected" because of an HTTP 429 and every
+    // later run then counted it as a duplicate.
+    if (opts.rescreenRejected && entry.lastOutcome === "rejected") return false;
+    return true;
   }
   async recordSource(candidate, outcome) {
     const db = await this.getSources();

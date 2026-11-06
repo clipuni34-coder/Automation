@@ -136,3 +136,20 @@ test("reporting: paused channels report paused, not no_production", () => {
   const r = buildProductionReport({ generatedAt: "t", runs: [{ channelId: "x", status: "paused", produced: 0, rejected: [] }] }, { productionEnabled: true });
   assert.equal(r.channels[0].productionOutcome, "paused");
 });
+
+test("state: a source rejected on a transient fault is re-screened, not deduped forever", async () => {
+  // Regression for run 42196879606: a CC BY 3.0 source was rejected only because
+  // the Commons licence read was rate-limited, then every later run deduped it.
+  const { mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { openChannelState } = await import("../src/engine/state.js");
+  const dir = mkdtempSync(join(tmpdir(), "state-"));
+  const state = await openChannelState(dir, "Primeplug");
+  const candidate = { id: "c1", sourceUrl: "https://upload.wikimedia.org/x.webm", title: "x" };
+  await state.recordSource(candidate, "rejected");
+  assert.equal(await state.hasUsedSource(candidate.sourceUrl), true);
+  assert.equal(await state.hasUsedSource(candidate.sourceUrl, { rescreenRejected: true }), false);
+  await state.recordSource(candidate, "eligible");
+  assert.equal(await state.hasUsedSource(candidate.sourceUrl, { rescreenRejected: true }), true);
+});

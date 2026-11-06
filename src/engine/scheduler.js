@@ -45,7 +45,7 @@ export async function runChannelCycle({ channel, niche, state, candidateProvider
   for (const candidate of candidates) {
     const isCorrection = Boolean(candidate?.supersedesCandidateId);
     const fingerprint = sourceFingerprint(candidate.sourceUrl ?? candidate.id ?? "", isCorrection ? candidate.id : "");
-    if (!isCorrection && await state.hasUsedSource(candidate.sourceUrl ?? "")) {
+    if (!isCorrection && await state.hasUsedSource(candidate.sourceUrl ?? "", { rescreenRejected: true })) {
       // Deduped, but still persist this cycle's live rights verification so
       // the audit record for already-used sources stays current.
       await state.refreshSourceRights(candidate).catch(() => null);

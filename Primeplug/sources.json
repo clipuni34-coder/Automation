@@ -287,7 +287,7 @@
       "creator": "Chiitan (official mascot channel, via Wikimedia Commons)",
       "firstSeenAt": "2026-11-05T13:02:10.478Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-07T10:45:12.622Z",
+      "updatedAt": "2026-11-07T23:01:42.598Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
@@ -298,7 +298,7 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-07T10:44:53.553Z"
+        "checkedAt": "2026-11-07T23:01:18.485Z"
       }
     },
     "2fcfd9b3ba9bdc5204655c2b": {
@@ -308,7 +308,7 @@
       "creator": "YouTube creator compilation via Wikimedia Commons (CC BY)",
       "firstSeenAt": "2026-11-05T13:02:10.480Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-07T10:45:12.625Z",
+      "updatedAt": "2026-11-07T23:01:42.601Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
@@ -319,7 +319,7 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-07T10:44:54.331Z"
+        "checkedAt": "2026-11-07T23:01:18.613Z"
       }
     },
     "80213f8020ffaf02f8b9cbce": {
@@ -337,11 +337,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-07T10:44:54.762Z"
+        "checkedAt": "2026-11-07T23:01:18.969Z"
       },
       "firstSeenAt": "2026-11-05T13:02:10.490Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-07T10:45:12.661Z"
+      "updatedAt": "2026-11-07T23:01:42.634Z"
     },
     "6193b6c449d823aeeb905acc": {
       "fingerprint": "6193b6c449d823aeeb905acc",
@@ -687,7 +687,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:03:53.182Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-07T10:45:12.716Z"
+      "updatedAt": "2026-11-07T23:01:42.662Z"
     },
     "94dcea8720c7bc6f33c905ff": {
       "fingerprint": "94dcea8720c7bc6f33c905ff",
@@ -869,9 +869,10 @@
       "sourceUrl": "https://www.youtube.com/watch?v=PZ3pzhxrG0c",
       "title": "Sita’s Skeptical Move 🪔",
       "creator": "Hicon",
+      "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:06:12.830Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T13:06:12.830Z"
+      "updatedAt": "2026-11-07T23:01:42.678Z"
     },
     "db66b0387469a8eaf8beea54": {
       "fingerprint": "db66b0387469a8eaf8beea54",
@@ -1016,7 +1017,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:07:43.059Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-07T10:45:12.713Z"
+      "updatedAt": "2026-11-07T23:01:42.659Z"
     },
     "2097d8e5ce970665bf0eb0cc": {
       "fingerprint": "2097d8e5ce970665bf0eb0cc",
@@ -1035,7 +1036,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:07:43.062Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-07T10:45:12.703Z"
+      "updatedAt": "2026-11-07T23:01:42.653Z"
     },
     "4187eee32d0e7d57b505e344": {
       "fingerprint": "4187eee32d0e7d57b505e344",
@@ -1055,9 +1056,9 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-07T10:44:54.447Z"
+        "checkedAt": "2026-11-07T23:01:18.697Z"
       },
-      "updatedAt": "2026-11-07T10:45:12.631Z"
+      "updatedAt": "2026-11-07T23:01:42.607Z"
     },
     "3166a6060b079e1aebb360eb": {
       "fingerprint": "3166a6060b079e1aebb360eb",
@@ -1077,9 +1078,9 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-07T10:44:54.501Z"
+        "checkedAt": "2026-11-07T23:01:18.751Z"
       },
-      "updatedAt": "2026-11-07T10:45:12.634Z"
+      "updatedAt": "2026-11-07T23:01:42.610Z"
     },
     "b574bb140017fde5e443e9e1": {
       "fingerprint": "b574bb140017fde5e443e9e1",
@@ -1449,7 +1450,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T14:33:35.248Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-07T10:45:12.755Z"
+      "updatedAt": "2026-11-07T23:01:42.669Z"
     },
     "a81da1b5bfa1990e00fb9bb8": {
       "fingerprint": "a81da1b5bfa1990e00fb9bb8",
@@ -1468,7 +1469,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T14:40:59.196Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T14:40:59.196Z"
+      "updatedAt": "2026-11-07T23:01:42.694Z"
     },
     "1df7b0eea96bf2f3490e0684": {
       "fingerprint": "1df7b0eea96bf2f3490e0684",
@@ -1588,7 +1589,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T15:39:14.440Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T15:39:14.440Z"
+      "updatedAt": "2026-11-07T23:01:42.683Z"
     },
     "0f266fadc0c3126ccca0671b": {
       "fingerprint": "0f266fadc0c3126ccca0671b",
@@ -1845,11 +1846,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-07T10:44:54.600Z"
+        "checkedAt": "2026-11-07T23:01:18.810Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.499Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-07T10:45:12.650Z"
+      "updatedAt": "2026-11-07T23:01:42.626Z"
     },
     "b1238d7238a453eb97f3aeef": {
       "fingerprint": "b1238d7238a453eb97f3aeef",
@@ -1866,11 +1867,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-07T10:44:54.665Z"
+        "checkedAt": "2026-11-07T23:01:18.857Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.503Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-07T10:45:12.653Z"
+      "updatedAt": "2026-11-07T23:01:42.629Z"
     },
     "80e3d83db047fd64e18aee0a": {
       "fingerprint": "80e3d83db047fd64e18aee0a",
@@ -1887,11 +1888,11 @@
         "attributionRequired": null,
         "commercialUse": null,
         "derivativesAllowed": null,
-        "checkedAt": "2026-11-07T10:44:54.721Z"
+        "checkedAt": "2026-11-07T23:01:18.923Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.507Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-07T10:45:12.659Z"
+      "updatedAt": "2026-11-07T23:01:42.632Z"
     },
     "c010778a4497c7cf56d822d3": {
       "fingerprint": "c010778a4497c7cf56d822d3",
@@ -1908,11 +1909,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-07T10:44:54.770Z"
+        "checkedAt": "2026-11-07T23:01:18.972Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.511Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-07T10:45:12.664Z"
+      "updatedAt": "2026-11-07T23:01:42.637Z"
     },
     "d5af0d690333ef54b72cd221": {
       "fingerprint": "d5af0d690333ef54b72cd221",
@@ -2034,7 +2035,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T16:21:55.229Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T16:21:55.229Z"
+      "updatedAt": "2026-11-07T23:01:42.697Z"
     },
     "71e006ba0338d869a70267e6": {
       "fingerprint": "71e006ba0338d869a70267e6",
@@ -2094,7 +2095,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T16:22:50.203Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-07T10:45:12.700Z"
+      "updatedAt": "2026-11-07T23:01:42.650Z"
     },
     "68af6d8c090b3934e5fbfbe0": {
       "fingerprint": "68af6d8c090b3934e5fbfbe0",
@@ -2151,11 +2152,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-07T10:44:54.813Z"
+        "checkedAt": "2026-11-07T23:01:19.030Z"
       },
       "firstSeenAt": "2026-11-06T09:31:30.039Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-07T10:45:12.667Z"
+      "updatedAt": "2026-11-07T23:01:42.640Z"
     },
     "25870083c769898f5c13a7bf": {
       "fingerprint": "25870083c769898f5c13a7bf",
@@ -2175,7 +2176,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:31:30.052Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:31:30.052Z"
+      "updatedAt": "2026-11-07T23:01:42.692Z"
     },
     "57f50ffd7272764b86c743c6": {
       "fingerprint": "57f50ffd7272764b86c743c6",
@@ -2185,7 +2186,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:31:30.060Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-07T10:45:12.749Z"
+      "updatedAt": "2026-11-07T23:01:42.664Z"
     },
     "9c0e72b32cfb4b62ac916c47": {
       "fingerprint": "9c0e72b32cfb4b62ac916c47",
@@ -2195,7 +2196,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:31:30.064Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-07T10:45:12.757Z"
+      "updatedAt": "2026-11-07T23:01:42.672Z"
     },
     "f6c96fb200d7d12479993ba3": {
       "fingerprint": "f6c96fb200d7d12479993ba3",
@@ -2205,7 +2206,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:31:30.066Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-07T10:45:12.760Z"
+      "updatedAt": "2026-11-07T23:01:42.675Z"
     },
     "0a6156782ccc98050e4cf712": {
       "fingerprint": "0a6156782ccc98050e4cf712",
@@ -2232,11 +2233,11 @@
         "attributionRequired": null,
         "commercialUse": null,
         "derivativesAllowed": null,
-        "checkedAt": "2026-11-07T10:44:54.872Z"
+        "checkedAt": "2026-11-07T23:01:19.076Z"
       },
       "firstSeenAt": "2026-11-06T09:42:06.415Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-07T10:45:12.670Z"
+      "updatedAt": "2026-11-07T23:01:42.643Z"
     },
     "b7b7a95594748766ad60eb62": {
       "fingerprint": "b7b7a95594748766ad60eb62",
@@ -2246,7 +2247,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:42:06.429Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:42:06.429Z"
+      "updatedAt": "2026-11-07T23:01:42.686Z"
     },
     "d5b13caf3529aad3f65aa0dd": {
       "fingerprint": "d5b13caf3529aad3f65aa0dd",
@@ -2286,7 +2287,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:42:06.444Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:42:06.444Z"
+      "updatedAt": "2026-11-07T23:01:42.700Z"
     },
     "46b941aec7a6e1e35897fcab": {
       "fingerprint": "46b941aec7a6e1e35897fcab",
@@ -2410,7 +2411,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:45:43.519Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:45:43.519Z"
+      "updatedAt": "2026-11-07T23:01:42.703Z"
     },
     "cc5498837ba2c4c5744684a5": {
       "fingerprint": "cc5498837ba2c4c5744684a5",
@@ -2790,7 +2791,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:50:14.305Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-07T10:45:12.692Z"
+      "updatedAt": "2026-11-07T23:01:42.647Z"
     },
     "7bfd877eb8de9bf459301ec8": {
       "fingerprint": "7bfd877eb8de9bf459301ec8",
@@ -2840,7 +2841,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:50:14.337Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-07T10:45:12.705Z"
+      "updatedAt": "2026-11-07T23:01:42.656Z"
     },
     "6c039c68cadf6ee8837c136a": {
       "fingerprint": "6c039c68cadf6ee8837c136a",
@@ -2901,6 +2902,76 @@
       "firstSeenAt": "2026-11-07T10:45:12.741Z",
       "lastOutcome": "rejected",
       "updatedAt": "2026-11-07T10:45:12.741Z"
+    },
+    "36e60d74b1a5dbc09d325ca2": {
+      "fingerprint": "36e60d74b1a5dbc09d325ca2",
+      "sourceUrl": "https://www.youtube.com/watch?v=r_WHZH5LoaE",
+      "title": "ALLURA CIKIN RUWA SEASON 6 EPISODE 4",
+      "creator": "YAKUBU MOHAMMED 2EFFECT TV",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-07T23:01:42.680Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-07T23:01:42.680Z"
+    },
+    "5a3eba8b7ce9e8aa3c02d6ff": {
+      "fingerprint": "5a3eba8b7ce9e8aa3c02d6ff",
+      "sourceUrl": "https://www.youtube.com/watch?v=ZV6PRTODLXY",
+      "title": "Bro just ruined the date 💔",
+      "creator": "owimble",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-07T23:01:42.689Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-07T23:01:42.689Z"
+    },
+    "a771b4fa44f3ed6ef3a51857": {
+      "fingerprint": "a771b4fa44f3ed6ef3a51857",
+      "sourceUrl": "https://www.youtube.com/watch?v=CfGF4WasH_4",
+      "title": "Why Can Snow Be POTENTIALLY DANGEROUS?",
+      "creator": "Stay Curious",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-07T23:01:42.705Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-07T23:01:42.705Z"
+    },
+    "6ed4388a9846c881e0c8befe": {
+      "fingerprint": "6ed4388a9846c881e0c8befe",
+      "sourceUrl": "https://www.youtube.com/watch?v=SWKYnswrOdI",
+      "title": "He Had to Wrestle His Own Teammate to Keep His Dream Alive!",
+      "creator": "POV Cinematics",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-07T23:01:42.708Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-07T23:01:42.708Z"
+    },
+    "6d0f48a7edf59c252976840a": {
+      "fingerprint": "6d0f48a7edf59c252976840a",
+      "sourceUrl": "https://www.youtube.com/watch?v=0lTR2A-A2io",
+      "title": "I think he’s got potential ✌️",
+      "creator": "Smirk",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-07T23:01:42.711Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-07T23:01:42.711Z"
+    },
+    "75fdcb4bd2952cb1d33b37b6": {
+      "fingerprint": "75fdcb4bd2952cb1d33b37b6",
+      "sourceUrl": "https://www.youtube.com/watch?v=eUsbEDXp5RA",
+      "title": "Ele escondia um grande segredo, até que...",
+      "creator": "Nerdcf ",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-07T23:01:42.714Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-07T23:01:42.714Z"
+    },
+    "8c19acd2d2a8f672ae2aa1a0": {
+      "fingerprint": "8c19acd2d2a8f672ae2aa1a0",
+      "sourceUrl": "https://www.youtube.com/watch?v=y_rKe1vGJAU",
+      "title": "Cute Animal vids V3",
+      "creator": "MediaMeow",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-07T23:01:42.716Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-07T23:01:42.716Z"
     }
   }
 }

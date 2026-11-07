@@ -26,7 +26,9 @@ import { dirname, join } from "node:path";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const API = "https://api.cloudflare.com/client/v4";
-const WORKER_NAME = "primeplug-scheduler";
+// Overridable so an existing Worker (e.g. a Hello World stub) can be upgraded in
+// place instead of a second Worker being created.
+const WORKER_NAME = process.env.WORKER_NAME ?? "primeplug-scheduler";
 const KV_TITLE = "primeplug-scheduler-history";
 const CRONS = ["30 5 * * *", "0 * * * *"];
 const COMPATIBILITY_DATE = "2026-11-01";

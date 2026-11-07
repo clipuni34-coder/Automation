@@ -287,7 +287,7 @@
       "creator": "Chiitan (official mascot channel, via Wikimedia Commons)",
       "firstSeenAt": "2026-11-05T13:02:10.478Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.132Z",
+      "updatedAt": "2026-11-07T10:45:12.622Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
@@ -298,7 +298,7 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:06.902Z"
+        "checkedAt": "2026-11-07T10:44:53.553Z"
       }
     },
     "2fcfd9b3ba9bdc5204655c2b": {
@@ -308,7 +308,7 @@
       "creator": "YouTube creator compilation via Wikimedia Commons (CC BY)",
       "firstSeenAt": "2026-11-05T13:02:10.480Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.134Z",
+      "updatedAt": "2026-11-07T10:45:12.625Z",
       "rightsVerification": {
         "status": "rights_verified_with_evidence",
         "observedLicence": "CC BY 3.0",
@@ -319,7 +319,7 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.060Z"
+        "checkedAt": "2026-11-07T10:44:54.331Z"
       }
     },
     "80213f8020ffaf02f8b9cbce": {
@@ -337,11 +337,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.302Z"
+        "checkedAt": "2026-11-07T10:44:54.762Z"
       },
       "firstSeenAt": "2026-11-05T13:02:10.490Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.252Z"
+      "updatedAt": "2026-11-07T10:45:12.661Z"
     },
     "6193b6c449d823aeeb905acc": {
       "fingerprint": "6193b6c449d823aeeb905acc",
@@ -559,7 +559,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:03:53.168Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:49:31.569Z"
+      "updatedAt": "2026-11-07T10:45:12.725Z"
     },
     "ea5b363211f6d198722518cc": {
       "fingerprint": "ea5b363211f6d198722518cc",
@@ -687,7 +687,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:03:53.182Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:50:14.349Z"
+      "updatedAt": "2026-11-07T10:45:12.716Z"
     },
     "94dcea8720c7bc6f33c905ff": {
       "fingerprint": "94dcea8720c7bc6f33c905ff",
@@ -752,7 +752,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:06:12.785Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:49:31.593Z"
+      "updatedAt": "2026-11-07T10:45:12.730Z"
     },
     "0e56914853d72dce2eca8b01": {
       "fingerprint": "0e56914853d72dce2eca8b01",
@@ -1016,7 +1016,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:07:43.059Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:50:14.347Z"
+      "updatedAt": "2026-11-07T10:45:12.713Z"
     },
     "2097d8e5ce970665bf0eb0cc": {
       "fingerprint": "2097d8e5ce970665bf0eb0cc",
@@ -1035,7 +1035,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:07:43.062Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:50:14.332Z"
+      "updatedAt": "2026-11-07T10:45:12.703Z"
     },
     "4187eee32d0e7d57b505e344": {
       "fingerprint": "4187eee32d0e7d57b505e344",
@@ -1055,9 +1055,9 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.101Z"
+        "checkedAt": "2026-11-07T10:44:54.447Z"
       },
-      "updatedAt": "2026-11-06T09:50:14.189Z"
+      "updatedAt": "2026-11-07T10:45:12.631Z"
     },
     "3166a6060b079e1aebb360eb": {
       "fingerprint": "3166a6060b079e1aebb360eb",
@@ -1077,9 +1077,9 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.122Z"
+        "checkedAt": "2026-11-07T10:44:54.501Z"
       },
-      "updatedAt": "2026-11-06T09:50:14.221Z"
+      "updatedAt": "2026-11-07T10:45:12.634Z"
     },
     "b574bb140017fde5e443e9e1": {
       "fingerprint": "b574bb140017fde5e443e9e1",
@@ -1449,7 +1449,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T14:33:35.248Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:50:14.380Z"
+      "updatedAt": "2026-11-07T10:45:12.755Z"
     },
     "a81da1b5bfa1990e00fb9bb8": {
       "fingerprint": "a81da1b5bfa1990e00fb9bb8",
@@ -1758,7 +1758,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T15:43:00.387Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-05T15:43:00.387Z"
+      "updatedAt": "2026-11-07T10:45:12.736Z"
     },
     "d07c7cdbb58ac7098787771a": {
       "fingerprint": "d07c7cdbb58ac7098787771a",
@@ -1845,11 +1845,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.245Z"
+        "checkedAt": "2026-11-07T10:44:54.600Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.499Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.239Z"
+      "updatedAt": "2026-11-07T10:45:12.650Z"
     },
     "b1238d7238a453eb97f3aeef": {
       "fingerprint": "b1238d7238a453eb97f3aeef",
@@ -1866,11 +1866,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.264Z"
+        "checkedAt": "2026-11-07T10:44:54.665Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.503Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.241Z"
+      "updatedAt": "2026-11-07T10:45:12.653Z"
     },
     "80e3d83db047fd64e18aee0a": {
       "fingerprint": "80e3d83db047fd64e18aee0a",
@@ -1887,11 +1887,11 @@
         "attributionRequired": null,
         "commercialUse": null,
         "derivativesAllowed": null,
-        "checkedAt": "2026-11-06T09:50:07.283Z"
+        "checkedAt": "2026-11-07T10:44:54.721Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.507Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:50:14.250Z"
+      "updatedAt": "2026-11-07T10:45:12.659Z"
     },
     "c010778a4497c7cf56d822d3": {
       "fingerprint": "c010778a4497c7cf56d822d3",
@@ -1908,11 +1908,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.321Z"
+        "checkedAt": "2026-11-07T10:44:54.770Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.511Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.254Z"
+      "updatedAt": "2026-11-07T10:45:12.664Z"
     },
     "d5af0d690333ef54b72cd221": {
       "fingerprint": "d5af0d690333ef54b72cd221",
@@ -1929,11 +1929,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.460Z"
+        "checkedAt": "2026-11-07T10:44:59.409Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.515Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.269Z"
+      "updatedAt": "2026-11-07T10:45:12.672Z"
     },
     "2020f2381e9e97943fd204f5": {
       "fingerprint": "2020f2381e9e97943fd204f5",
@@ -1950,11 +1950,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.460Z"
+        "checkedAt": "2026-11-07T10:44:59.409Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.518Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.270Z"
+      "updatedAt": "2026-11-07T10:45:12.675Z"
     },
     "ba9283727529a5974e0629c3": {
       "fingerprint": "ba9283727529a5974e0629c3",
@@ -2094,7 +2094,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T16:22:50.203Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:50:14.330Z"
+      "updatedAt": "2026-11-07T10:45:12.700Z"
     },
     "68af6d8c090b3934e5fbfbe0": {
       "fingerprint": "68af6d8c090b3934e5fbfbe0",
@@ -2151,11 +2151,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.346Z"
+        "checkedAt": "2026-11-07T10:44:54.813Z"
       },
       "firstSeenAt": "2026-11-06T09:31:30.039Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.256Z"
+      "updatedAt": "2026-11-07T10:45:12.667Z"
     },
     "25870083c769898f5c13a7bf": {
       "fingerprint": "25870083c769898f5c13a7bf",
@@ -2185,7 +2185,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:31:30.060Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:50:14.378Z"
+      "updatedAt": "2026-11-07T10:45:12.749Z"
     },
     "9c0e72b32cfb4b62ac916c47": {
       "fingerprint": "9c0e72b32cfb4b62ac916c47",
@@ -2195,7 +2195,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:31:30.064Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:50:14.381Z"
+      "updatedAt": "2026-11-07T10:45:12.757Z"
     },
     "f6c96fb200d7d12479993ba3": {
       "fingerprint": "f6c96fb200d7d12479993ba3",
@@ -2205,7 +2205,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:31:30.066Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:31:30.066Z"
+      "updatedAt": "2026-11-07T10:45:12.760Z"
     },
     "0a6156782ccc98050e4cf712": {
       "fingerprint": "0a6156782ccc98050e4cf712",
@@ -2223,20 +2223,20 @@
       "title": "Horses running across open pasture — fresh verified CC BY 3.0 source (travelling-subject cloud test)",
       "creator": "Field of Dreams via Wikimedia Commons",
       "rightsVerification": {
-        "status": "rights_verified_with_evidence",
-        "observedLicence": "CC BY 3.0",
-        "licenceFamily": "by",
-        "licenceVersion": "3.0",
+        "status": "evidence_recorded_not_independently_verified",
+        "observedLicence": null,
+        "licenceFamily": null,
+        "licenceVersion": null,
         "shareAlike": false,
-        "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
-        "attributionRequired": true,
-        "commercialUse": true,
-        "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.365Z"
+        "licenceUrl": null,
+        "attributionRequired": null,
+        "commercialUse": null,
+        "derivativesAllowed": null,
+        "checkedAt": "2026-11-07T10:44:54.872Z"
       },
       "firstSeenAt": "2026-11-06T09:42:06.415Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.266Z"
+      "updatedAt": "2026-11-07T10:45:12.670Z"
     },
     "b7b7a95594748766ad60eb62": {
       "fingerprint": "b7b7a95594748766ad60eb62",
@@ -2303,11 +2303,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.460Z"
+        "checkedAt": "2026-11-07T10:44:59.409Z"
       },
       "firstSeenAt": "2026-11-06T09:45:43.488Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.282Z"
+      "updatedAt": "2026-11-07T10:45:12.678Z"
     },
     "59d49837a108813cf372f460": {
       "fingerprint": "59d49837a108813cf372f460",
@@ -2324,11 +2324,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.460Z"
+        "checkedAt": "2026-11-07T10:44:59.409Z"
       },
       "firstSeenAt": "2026-11-06T09:45:43.490Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.283Z"
+      "updatedAt": "2026-11-07T10:45:12.681Z"
     },
     "ca876affa69ccb4fbf189dd9": {
       "fingerprint": "ca876affa69ccb4fbf189dd9",
@@ -2345,11 +2345,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.460Z"
+        "checkedAt": "2026-11-07T10:44:59.409Z"
       },
       "firstSeenAt": "2026-11-06T09:45:43.493Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.285Z"
+      "updatedAt": "2026-11-07T10:45:12.684Z"
     },
     "5225f66fbfe0b37ed78aca55": {
       "fingerprint": "5225f66fbfe0b37ed78aca55",
@@ -2366,11 +2366,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-06T09:50:07.460Z"
+        "checkedAt": "2026-11-07T10:44:59.409Z"
       },
       "firstSeenAt": "2026-11-06T09:45:43.496Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-06T09:50:14.287Z"
+      "updatedAt": "2026-11-07T10:45:12.687Z"
     },
     "2205bb43190e878dd6101f3b": {
       "fingerprint": "2205bb43190e878dd6101f3b",
@@ -2470,7 +2470,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:45:43.537Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:49:31.540Z"
+      "updatedAt": "2026-11-07T10:45:12.711Z"
     },
     "24b0b68ef249f97754159ff7": {
       "fingerprint": "24b0b68ef249f97754159ff7",
@@ -2490,7 +2490,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:46:36.411Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:46:36.411Z"
+      "updatedAt": "2026-11-07T10:45:12.728Z"
     },
     "3c9201833d23bdbf22bee588": {
       "fingerprint": "3c9201833d23bdbf22bee588",
@@ -2510,7 +2510,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:46:36.415Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:46:36.415Z"
+      "updatedAt": "2026-11-07T10:45:12.697Z"
     },
     "71d543987ab23c12d8e75621": {
       "fingerprint": "71d543987ab23c12d8e75621",
@@ -2540,7 +2540,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:46:36.420Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:46:36.420Z"
+      "updatedAt": "2026-11-07T10:45:12.720Z"
     },
     "e57be151bbb75c4861179bb3": {
       "fingerprint": "e57be151bbb75c4861179bb3",
@@ -2550,7 +2550,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:46:36.421Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:46:36.421Z"
+      "updatedAt": "2026-11-07T10:45:12.744Z"
     },
     "166c01f00a8bd12ee3c4cfa5": {
       "fingerprint": "166c01f00a8bd12ee3c4cfa5",
@@ -2580,7 +2580,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:46:36.428Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:46:36.428Z"
+      "updatedAt": "2026-11-07T10:45:12.722Z"
     },
     "0d29b031b83e490cbc6f16cd": {
       "fingerprint": "0d29b031b83e490cbc6f16cd",
@@ -2590,7 +2590,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:46:36.432Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:46:36.432Z"
+      "updatedAt": "2026-11-07T10:45:12.747Z"
     },
     "ae0b2e9da6a98242bd5d48e5": {
       "fingerprint": "ae0b2e9da6a98242bd5d48e5",
@@ -2600,7 +2600,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:49:31.535Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:49:31.535Z"
+      "updatedAt": "2026-11-07T10:45:12.694Z"
     },
     "1e74ca0160c0cfef3e33ce01": {
       "fingerprint": "1e74ca0160c0cfef3e33ce01",
@@ -2610,7 +2610,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:49:31.543Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:49:31.543Z"
+      "updatedAt": "2026-11-07T10:45:12.733Z"
     },
     "fefdf28bf12971577e3f7923": {
       "fingerprint": "fefdf28bf12971577e3f7923",
@@ -2630,7 +2630,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:49:31.549Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:49:31.549Z"
+      "updatedAt": "2026-11-07T10:45:12.708Z"
     },
     "b2006328613f8a93dbb28952": {
       "fingerprint": "b2006328613f8a93dbb28952",
@@ -2790,7 +2790,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:50:14.305Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:50:14.305Z"
+      "updatedAt": "2026-11-07T10:45:12.692Z"
     },
     "7bfd877eb8de9bf459301ec8": {
       "fingerprint": "7bfd877eb8de9bf459301ec8",
@@ -2840,7 +2840,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:50:14.337Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-06T09:50:14.337Z"
+      "updatedAt": "2026-11-07T10:45:12.705Z"
     },
     "6c039c68cadf6ee8837c136a": {
       "fingerprint": "6c039c68cadf6ee8837c136a",
@@ -2881,6 +2881,26 @@
       "firstSeenAt": "2026-11-06T09:50:14.366Z",
       "lastOutcome": "rejected",
       "updatedAt": "2026-11-06T09:50:14.366Z"
+    },
+    "bb69cfe1d246b142b6974135": {
+      "fingerprint": "bb69cfe1d246b142b6974135",
+      "sourceUrl": "https://www.youtube.com/watch?v=x0ky6NAuQNQ",
+      "title": "Formou muito aura😂",
+      "creator": "Gigi Rayegilla",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-07T10:45:12.739Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-07T10:45:12.739Z"
+    },
+    "d5ff1b932e594d682c82752b": {
+      "fingerprint": "d5ff1b932e594d682c82752b",
+      "sourceUrl": "https://www.youtube.com/watch?v=tuUr40iqTJw",
+      "title": "ERU MI (MY FEAR)  Yoruba Movie 2026 Wumi Toriola, Tunde Aderinoye, Damilola Oni, Joke Muyiwa",
+      "creator": "Wumitoriolatv",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-07T10:45:12.741Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-07T10:45:12.741Z"
     }
   }
 }

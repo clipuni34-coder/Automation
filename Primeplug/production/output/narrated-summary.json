@@ -1,12 +1,12 @@
 {
-  "producedAt": "2026-11-06T09:50:58.294Z",
+  "producedAt": "2026-11-07T10:45:22.012Z",
   "total": 1,
-  "completed": 1,
+  "completed": 0,
   "outcomes": [
     {
-      "id": "audit-moving-subject-horses",
-      "status": "completed",
-      "reason": null
+      "id": "audit-moving-subject-sprint",
+      "status": "held_source_overlay",
+      "reason": "Source overlay is in the centre band; only top/bottom edge bands can be reframed safely"
     }
   ]
 }

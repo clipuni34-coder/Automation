@@ -387,7 +387,7 @@ the per-video approval requirement or the public-publishing switch was changed.
 
 | # | Requirement | Result | Evidence |
 |---|---|---|---|
-| 1 | External scheduler executes | **PASS** (manual path) | `POST /trigger` on the deployed Worker returned `action:"dispatched"` at `2026-11-07T10:44:18.266Z`, `lagosDay:"2026-11-07"`. The 06:30 cron slot itself is **PENDING** — see below. |
+| 1 | External scheduler executes | **PASS** (manual **and** cron path) | `POST /trigger` on the deployed Worker returned `action:"dispatched"` at `2026-11-07T10:44:18.266Z`, `lagosDay:"2026-11-07"`. Separately, the **hourly cron fired by itself**: `2026-11-07T11:00:52.237Z`, `source:"cron:0 * * * *"`, `action:"skipped"`, `reason:"already_dispatched_today_kv"` — Cloudflare Cron Triggers do execute this Worker, which is exactly the mechanism GitHub failed to deliver. The 06:30 slot itself is **PENDING** — see below. |
 | 2 | Authentication succeeds | **PASS** | GitHub dispatch API accepted the call with the `DISPATCH_TOKEN` secret: `HTTP 204`, `attempts: 1`. |
 | 3 | GitHub accepts the dispatch | **PASS** | Run `42365211139` created, `event: workflow_dispatch`, `head_branch: editorial-evidence-hold`, `head_sha: 4fab60d`. |
 | 4 | Automation starts | **PASS** | Run `42365211139` — https://github.com/clipuni34-coder/Automation/actions/runs/42365211139 — `in_progress` 10:44:19Z, `completed / success` 10:45:34Z (75 s). Logs confirm `PRODUCTION_ENABLED: true`. |

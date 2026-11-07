@@ -23,6 +23,20 @@ per-video approval (candidate id + output SHA-256) inside the pipeline.
 | Health | `GET /health` |
 | Endpoints | `GET /health`, `GET /history`, `POST /trigger`, `POST /selftest` (both POSTs require header `x-admin-token`) |
 
+## Deployed instance (2026-11-07)
+
+| Property | Value |
+|---|---|
+| Worker | `automation` (upgraded in place from a Hello World stub — no duplicate Worker) |
+| URL | https://automation.primeplug71.workers.dev |
+| Health / history | `/health`, `/history` |
+| Account id | `3cb6ca6e777cb0c3fc7111e6d8edd9d1` |
+| KV | `primeplug-scheduler-history` (`e3273329a7144049a9b8d7260e13e2f3`) bound as `HISTORY` |
+| Crons | `30 5 * * *`, `0 * * * *` |
+| Deployed by | `node deploy-api.mjs --apply` (see script header for the scoped token) |
+
+The dashboard steps below are kept for rebuilds from scratch.
+
 ## One-time setup
 
 There are two equivalent paths — pick one.

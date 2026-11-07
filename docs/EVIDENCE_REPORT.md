@@ -349,3 +349,72 @@ Comparison frames: `docs/evidence/framing/` (cape fox new vs old at t=7s/13s/20s
 2. The tracker is motion-based: a completely static subject in a static shot yields no measurable track, which holds the candidate (`held_subject_not_trackable`) rather than guessing.
 3. Subject identity is "the strongest coherent motion cluster"; in multi-subject footage one animal may leave frame while the tracked one stays — the gate protects the main subject, not every animal.
 4. The output-side gate is mode-aware: centred safe-band checks apply only to beats that follow the subject with a narrow window (a subject near the edge of a fully visible frame is not "cut").
+
+---
+
+# Third assignment — external scheduler (Cloudflare Worker + Cron Triggers)
+
+Executed 2026-11-07. Nothing in the production engine, the editorial/rights gates,
+the per-video approval requirement or the public-publishing switch was changed.
+
+## Provider and configuration
+
+| Property | Value |
+|---|---|
+| Provider | Cloudflare Workers + Cron Triggers + Workers KV (free plan) |
+| Account id | `3cb6ca6e777cb0c3fc7111e6d8edd9d1` |
+| Worker | `automation` (an untouched "Hello world" stub was upgraded **in place** — no duplicate Worker was created) |
+| Worker URL | https://automation.primeplug71.workers.dev |
+| Health | https://automation.primeplug71.workers.dev/health |
+| History | https://automation.primeplug71.workers.dev/history |
+| Deployment method | Cloudflare REST API from `infra/external-scheduler/deploy-api.mjs` (inspect → apply) |
+| KV namespace | `primeplug-scheduler-history` = `e3273329a7144049a9b8d7260e13e2f3`, binding `HISTORY` |
+| Cron triggers | `30 5 * * *` (06:30 Africa/Lagos daily) and `0 * * * *` (hourly idempotent catch-up) |
+| Timezone | Africa/Lagos = UTC+01:00 all year, no DST; the Lagos day boundary is computed explicitly (`06:30 Lagos == 05:30 UTC`) |
+| Secrets | `DISPATCH_TOKEN`, `ADMIN_TOKEN` — Cloudflare encrypted secrets only; set through the secrets API, never written to the repo, never printed |
+| Target | workflow `408122820` `daily-operations.yml`, ref `editorial-evidence-hold`, inputs `production_enabled=true`, `approve_private_upload=false` |
+
+`/health` at deployment time:
+
+```json
+{"ok":true,"service":"primeplug-external-scheduler",
+ "schedule":{"cron":["30 5 * * *","0 * * * *"],"timezone":"Africa/Lagos (UTC+01:00)","daily":"06:30 Africa/Lagos"},
+ "lagosDay":"2026-11-07","lagosMidnightUtc":"2026-11-06T23:00:00Z",
+ "tokenConfigured":true,"adminTokenConfigured":true,"kvBound":true,"todayDispatched":false}
+```
+
+## The eight proofs
+
+| # | Requirement | Result | Evidence |
+|---|---|---|---|
+| 1 | External scheduler executes | **PASS** (manual path) | `POST /trigger` on the deployed Worker returned `action:"dispatched"` at `2026-11-07T10:44:18.266Z`, `lagosDay:"2026-11-07"`. The 06:30 cron slot itself is **PENDING** — see below. |
+| 2 | Authentication succeeds | **PASS** | GitHub dispatch API accepted the call with the `DISPATCH_TOKEN` secret: `HTTP 204`, `attempts: 1`. |
+| 3 | GitHub accepts the dispatch | **PASS** | Run `42365211139` created, `event: workflow_dispatch`, `head_branch: editorial-evidence-hold`, `head_sha: 4fab60d`. |
+| 4 | Automation starts | **PASS** | Run `42365211139` — https://github.com/clipuni34-coder/Automation/actions/runs/42365211139 — `in_progress` 10:44:19Z, `completed / success` 10:45:34Z (75 s). Logs confirm `PRODUCTION_ENABLED: true`. |
+| 5 | Lagos-day guard works | **PASS** | KV marker deleted on purpose, then `POST /trigger` → `action:"skipped"`, `reason:"already_ran_today"`, `existingRuns:1`. The authoritative GitHub check alone refused the dispatch. |
+| 6 | Repeated trigger does not duplicate | **PASS** | Triggers #2 and #3 → `reason:"already_dispatched_today_kv"` (no network call). Runs on workflow `408122820` created `>= 2026-11-06T23:00:00Z`: **count = 1**. |
+| 7 | Failed requests retry safely | **PASS** | In the deployed runtime `POST /selftest` → `ok:true`: `retry_after_503` dispatched on attempt 2, `retry_after_network_error` dispatched on attempt 2, `no_retry_on_401` stopped after 1 call. Backoff 2 s then 6 s, max 3 attempts, only 429/5xx/network are retried. |
+| 8 | Logs contain no credentials | **PASS** | Leak scan of `/health` and `/history`: 0 occurrences of `github_pat_`, 0 of the admin token, 0 of `gh?_` patterns. `no_secret_in_result` self-test case: `redacted:true, leaked:false`. `redact()` scrubs both secrets and GitHub token patterns from every response and log line. |
+
+## Production safety during this run
+
+The dispatched run reported `{discovered 48, rightsVerified 5, eligible 5, duplicates 17, enqueued 0, produced 0, qcPassed 0, uploaded 0}`.
+No candidate passed the duplicate filter, so nothing new was rendered and **no upload occurred**.
+Uploads remain per-video approval gated (candidate id + SHA-256); public publishing remains OFF;
+the four existing private videos were not touched; no video was deleted; no channel was added.
+
+## Duplicate-scheduler de-conflict
+
+`Primeplug-scheduler` cron triggers were removed (`a27ac9f`, branch `main`); it is now a
+**manual fallback only**. Two schedulers can no longer race into a duplicate production run.
+
+## Remaining limitations
+
+1. **Natural 06:30 Africa/Lagos execution: PENDING.** It cannot be observed before the next
+   `30 5 * * *` firing; today's 06:30 slot had already passed when the Worker went live.
+   A manual dispatch is explicitly *not* proof of natural daily scheduling, so this item stays open.
+2. The `DISPATCH_TOKEN` is a fine-grained PAT with an expiry; when it lapses the dispatches stop.
+   `/health` reports `tokenConfigured` and `lastAttempt`, which is the thing to watch.
+3. `workers.dev` free-tier limits (100k requests/day, 1k KV writes/day) are used at a rounding
+   error by two runs a day, but the failure mode is silent unless `/health` is checked.
+4. If Cloudflare is unavailable the only fallback is the manual dispatch in `Primeplug-scheduler`.

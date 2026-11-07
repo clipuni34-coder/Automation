@@ -72,3 +72,20 @@ Nothing public was ever uploaded; all 4 uploads are private. No existing private
 
 ## 18. Audit addendum — 2026-11-05 (evening)
 An independent audit pass re-inspected the code from first principles and found defects the prior reports had missed or understated: broad (non-exact) licence matching, global queue-wide upload approval, uncounted end-of-file silence, renders with no audio passing QC, output overlay detection recorded but never gated, a miscalibrated scene-pacing threshold, production reporting that conflated execution with production success, a state-persistence race, and the absence of any verified-footage discovery lane. All were repaired (commits `241d794`, `7409015`, `6fd9e30`) and proven in cloud runs `42062317891` and `42063607217` with independently inspected artifacts (see the audit section of `docs/EVIDENCE_REPORT.md` for the candidate-by-candidate table, hashes, and run links). Tests rose from 321 to **336/336**. Classifications above reflect the post-repair state; Sections 4 and 6 remain PARTIAL for the stated limitations, Section 9 remains PENDING by calendar, and no section is FAIL.
+
+## 9c. External scheduler (third assignment) — RESULT
+
+Daily triggering moved off GitHub cron (which never delivered a scheduled slot for
+`Primeplug-scheduler`) to a Cloudflare Worker + Cron Trigger:
+
+- Worker `automation` at https://automation.primeplug71.workers.dev (account
+  `3cb6ca6e777cb0c3fc7111e6d8edd9d1`, KV `primeplug-scheduler-history`), upgraded
+  in place from a Hello World stub — no duplicate Worker.
+- Crons `30 5 * * *` (06:30 Africa/Lagos) and `0 * * * *` (hourly idempotent catch-up).
+- Live dispatch: HTTP 204 -> Automation run
+  https://github.com/clipuni34-coder/Automation/actions/runs/42365211139 (success, 75 s,
+  0 uploads, 0 published).
+- Duplicate prevention proven twice: KV fast path (`already_dispatched_today_kv`) and, with
+  the marker deleted, the authoritative GitHub check (`already_ran_today`, `existingRuns:1`).
+- Retry and redaction proven inside the deployed runtime via `POST /selftest` (`ok:true`).
+- **Natural 06:30 Lagos firing: PENDING** — not yet observed.

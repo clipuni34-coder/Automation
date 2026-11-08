@@ -4,7 +4,9 @@
  * so no dashboard clicking is required beyond authorizing a scoped token.
  *
  *   CLOUDFLARE_API_TOKEN=... node deploy-api.mjs --inspect
- *   CLOUDFLARE_API_TOKEN=... GITHUB_DISPATCH_TOKEN=... node deploy-api.mjs --apply
+ *   CLOUDFLARE_API_TOKEN=... node deploy-api.mjs --apply  (existing secrets retained)
+ *   CLOUDFLARE_API_TOKEN=... GITHUB_DISPATCH_TOKEN=... ADMIN_TOKEN=... node deploy-api.mjs --apply
+ *   (both secrets must be supplied for a new Worker; never paste them into chat).
  *
  * Required token permissions (nothing more):
  *   Account -> Workers Scripts : Edit
@@ -20,7 +22,6 @@
  *  - Does not touch the Automation repository or the production engine.
  */
 import { readFile } from "node:fs/promises";
-import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -32,11 +33,16 @@ const WORKER_NAME = process.env.WORKER_NAME ?? "primeplug-scheduler";
 const KV_TITLE = "primeplug-scheduler-history";
 const CRONS = ["30 5 * * *", "0 * * * *"];
 const COMPATIBILITY_DATE = "2026-11-01";
+const SCHEDULER_VERSION = "external-scheduler/2-health-expiry";
 
 const token = process.env.CLOUDFLARE_API_TOKEN ?? "";
 const mode = process.argv[2] ?? "--inspect";
 if (!token) {
   console.error("CLOUDFLARE_API_TOKEN is required (set it in the environment, not in a file).");
+  process.exit(2);
+}
+if (mode !== "--inspect" && mode !== "--apply") {
+  console.error("Choose --inspect or --apply; nothing was changed.");
   process.exit(2);
 }
 
@@ -124,9 +130,12 @@ async function upload(accountId, kvId) {
   const metadata = {
     main_module: "worker.js",
     compatibility_date: COMPATIBILITY_DATE,
+    // Preserve encrypted Worker secrets on code-only redeploys. They are never
+    // fetched or exposed; explicit supplied replacements are applied separately.
+    keep_bindings: ["secret_text"],
     bindings: [
       { type: "kv_namespace", name: "HISTORY", namespace_id: kvId },
-      { type: "plain_text", name: "SCHEDULER_VERSION", text: "external-scheduler/2-health-expiry" },
+      { type: "plain_text", name: "SCHEDULER_VERSION", text: SCHEDULER_VERSION },
     ],
   };
   const form = new FormData();
@@ -142,24 +151,43 @@ async function upload(accountId, kvId) {
     throw new Error(`upload failed: HTTP ${res.status} ${redact(JSON.stringify(body?.errors ?? body)).slice(0, 400)}`);
   }
   log(`uploaded ${WORKER_NAME} (${code.split("\n").length} lines, module worker)`);
+  // Only whitelist non-secret deployment identifiers; never log response bindings.
+  const result = body.result ?? {};
+  for (const key of ["id", "etag", "deployment_id", "version_id", "modified_on"]) {
+    if (result[key]) log(`upload ${key}:`, result[key]);
+  }
+}
+
+/** Before any writes, require new secrets or confirm existing bindings by name. */
+function validateSecrets(state) {
+  const list = state.details?.["secrets (names only)"];
+  const existingNames = new Set(Array.isArray(list) ? list.map((item) => item.name) : []);
+  for (const [name, supplied] of [
+    ["DISPATCH_TOKEN", process.env.GITHUB_DISPATCH_TOKEN],
+    ["ADMIN_TOKEN", process.env.ADMIN_TOKEN],
+  ]) {
+    if (!supplied && !(state.existing && existingNames.has(name))) {
+      throw new Error(`${name} is neither supplied nor confirmed on the existing Worker; nothing was changed`);
+    }
+  }
 }
 
 async function putSecrets(accountId) {
-  const dispatch = process.env.GITHUB_DISPATCH_TOKEN;
-  if (!dispatch) throw new Error("GITHUB_DISPATCH_TOKEN is required to set the DISPATCH_TOKEN secret");
-  const admin = process.env.ADMIN_TOKEN ?? randomBytes(18).toString("hex");
-  for (const [name, text] of [["DISPATCH_TOKEN", dispatch], ["ADMIN_TOKEN", admin]]) {
+  const updates = [
+    ["DISPATCH_TOKEN", process.env.GITHUB_DISPATCH_TOKEN],
+    ["ADMIN_TOKEN", process.env.ADMIN_TOKEN],
+  ].filter(([, text]) => Boolean(text));
+  for (const [name, text] of updates) {
     await api(`/accounts/${accountId}/workers/scripts/${WORKER_NAME}/secrets`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ name, text, type: "secret_text" }),
     });
-    log(`secret set: ${name}`);
+    log(`secret set: ${name} (value not printed)`);
   }
-  // The admin token is only a manual-trigger gate. It is not printed: a credential
-  // written to a transcript or a log is a credential leaked.
-  log("ADMIN_TOKEN set (value not printed; rotate with `wrangler secret put ADMIN_TOKEN`)");
-  return admin;
+  if (!updates.length) log("existing Worker secrets preserved without reading them");
+  // If no admin secret was supplied we cannot access it; do not invent a new one.
+  return process.env.ADMIN_TOKEN ?? null;
 }
 
 async function putSchedules(accountId) {
@@ -194,6 +222,7 @@ if (mode === "--inspect") {
   process.exit(0);
 }
 
+validateSecrets(state); // fail before making changes if required secrets are missing
 const kvId = await ensureKv(accountId);
 await upload(accountId, kvId);
 const adminToken = await putSecrets(accountId);
@@ -206,8 +235,26 @@ const health = await fetch(`${url}/health`);
 const body = await health.text();
 log("health HTTP", health.status);
 log("health body:", body.slice(0, 1200));
+let healthData;
+try { healthData = JSON.parse(body); } catch { healthData = null; }
+if (!health.ok || !healthData?.ok || !healthData.tokenConfigured || !healthData.adminTokenConfigured || !healthData.kvBound) {
+  throw new Error("Worker was uploaded, but health/binding verification failed; inspect before declaring success");
+}
+if (healthData.schedulerVersion !== SCHEDULER_VERSION) {
+  throw new Error("Worker was uploaded, but the expected version was not observed; propagation or verification is pending");
+}
+if (healthData.lastAutomationRun?.error) {
+  throw new Error(`Worker was uploaded, but the GitHub status check failed: ${redact(healthData.lastAutomationRun.error)}`);
+}
 
-const selftest = await fetch(`${url}/selftest`, { method: "POST", headers: { "x-admin-token": adminToken } });
-const selftestBody = await selftest.text();
-log("selftest HTTP", selftest.status, "| body:", selftestBody.slice(0, 800));
+if (adminToken) {
+  const selftest = await fetch(`${url}/selftest`, { method: "POST", headers: { "x-admin-token": adminToken } });
+  const selftestBody = await selftest.text();
+  log("selftest HTTP", selftest.status, "| body:", selftestBody.slice(0, 800));
+  let selftestData;
+  try { selftestData = JSON.parse(selftestBody); } catch { selftestData = null; }
+  if (!selftest.ok || !selftestData?.ok) throw new Error("Worker was uploaded, but the deployed self-test failed");
+} else {
+  log("selftest skipped: existing admin secret was retained, but its value is not available");
+}
 log(state.existing ? "reused the existing Worker (no duplicate created)" : "created exactly one Worker");

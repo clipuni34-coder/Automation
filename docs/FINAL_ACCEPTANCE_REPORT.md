@@ -1,6 +1,8 @@
 # Primeplug — Final Acceptance Report
 
 Date: 2026-11-05 · Branch: `editorial-evidence-hold` · HEAD at report time: see audit addendum (Section 18)
+
+**Current correction:** see Section 9d below. An automatic run occurred at midnight rather than 06:30, a timing fix was deployed, and its first on-time production dispatch remains unobserved. Exposed setup tokens still require rotation.
 Tests: **336/336 passing** (local; GitHub Tests success at `6fd9e30`)
 Public publishing: **OFF** (unchanged; requires explicit owner authorization)
 
@@ -68,7 +70,7 @@ Nothing public was ever uploaded; all 4 uploads are private. No existing private
 
 ---
 
-**Overall:** the autonomous system is complete and verified end-to-end within its safety constraints. No section is FAIL. The only PENDING items are a calendar event and decisions that belong to the owner.
+**Overall at the original report date:** this was the contemporaneous assessment. Later findings and unresolved limitations, including the scheduler timing defect and credential exposure, are recorded in Section 9d below and supersede any inconsistent earlier claim.
 
 ## 18. Audit addendum — 2026-11-05 (evening)
 An independent audit pass re-inspected the code from first principles and found defects the prior reports had missed or understated: broad (non-exact) licence matching, global queue-wide upload approval, uncounted end-of-file silence, renders with no audio passing QC, output overlay detection recorded but never gated, a miscalibrated scene-pacing threshold, production reporting that conflated execution with production success, a state-persistence race, and the absence of any verified-footage discovery lane. All were repaired (commits `241d794`, `7409015`, `6fd9e30`) and proven in cloud runs `42062317891` and `42063607217` with independently inspected artifacts (see the audit section of `docs/EVIDENCE_REPORT.md` for the candidate-by-candidate table, hashes, and run links). Tests rose from 321 to **336/336**. Classifications above reflect the post-repair state; Sections 4 and 6 remain PARTIAL for the stated limitations, Section 9 remains PENDING by calendar, and no section is FAIL.
@@ -88,4 +90,14 @@ Daily triggering moved off GitHub cron (which never delivered a scheduled slot f
 - Duplicate prevention proven twice: KV fast path (`already_dispatched_today_kv`) and, with
   the marker deleted, the authoritative GitHub check (`already_ran_today`, `existingRuns:1`).
 - Retry and redaction proven inside the deployed runtime via `POST /selftest` (`ok:true`).
-- **Natural 06:30 Lagos firing: PENDING** — not yet observed.
+- The original report predated the next scheduled slot. The 06:30 tick later fired but skipped after an early midnight run; an on-time production dispatch after the fix is **PENDING** (Section 9d).
+
+
+## 9d. Timing correction and credential status — 2026-11-08
+
+- The unattended hourly tick dispatched run [42423259613](https://github.com/clipuni34-coder/Automation/actions/runs/42423259613) at **00:00:54 Lagos**, not 06:30. It completed successfully on `editorial-evidence-hold` at `b00c774027b427c930a9e13cfaac09348b0cd334`; its private-upload step was **skipped**. GitHub lists artifact `13593549116` with digest `sha256:309b1a519ccf595e2e16ececc2b569e02d01fbc286a76253a3585077bc6e6d80` (reported by GitHub, not independently downloaded).
+- The scheduled 06:30 tick fired at 06:30:46 Lagos and correctly skipped a second dispatch because the midnight run already existed.
+- A cron gate was deployed to the same Worker to prevent automatic production before 06:30 Lagos. Source: local commit `796ca54dc3228c3d7ed925387ddc159401883473`, SHA-256 `5ec2a69d436a979ba443dc9370213203b6b35c08925e054ec4af6ef1832611da`. Local gate suite: 368/368 overall, 18/18 focused. Cloudflare deployment/version ID was not captured. The first natural, on-time production dispatch **after the fix is PENDING**.
+- The GitHub PAT and Cloudflare deployment token were exposed in the setup conversation/tool command and still need rotation. Replace the Worker GitHub secret **before** revoking the old PAT, or the daily schedule will stop dispatching. The old PAT expires `2026-12-06 10:38:24 UTC` (11:38 Lagos). No alert service is configured.
+- An expiry-warning enhancement was tested locally (21/21 scheduler tests), but has **not** been deployed. The improved deployer (`c3a811e`) passed 8/8 mocked API tests but has not been exercised live. At the 06:59 Lagos audit, commits `796ca54`, `3b79650`, and `c3a811e` had not been pushed because GitHub authentication was unavailable. Public publishing remains OFF and approval remains per-video; no approval was granted.
+- Sequential duplicate protection was observed; exactly-once behavior under concurrent invocations was **not** proven because KV and the GitHub check are not an atomic lock.

@@ -1,6 +1,11 @@
-# Cloudflare Worker deployment for the Primeplug external scheduler.
+# Cloudflare Worker deployment template for a new Primeplug external scheduler.
+# WARNING: the live Worker is named `automation` and already has a KV namespace.
+# This generic template names a DIFFERENT Worker and omits its existing KV binding.
+# Do not run `wrangler deploy` with this template against the live account: it
+# would create a duplicate and would not reproduce the existing deployment.
+# Use the inspected API deployer with WORKER_NAME=automation for that instance.
 #
-# Deploy with wrangler (no secrets in this file — they are set with
+# Deploy a fresh instance with wrangler (no secrets in this file — they are set with
 # `wrangler secret put`, which stores them in Cloudflare's encrypted secret store):
 #
 #   cd infra/external-scheduler

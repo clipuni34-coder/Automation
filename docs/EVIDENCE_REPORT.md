@@ -371,7 +371,7 @@ the per-video approval requirement or the public-publishing switch was changed.
 | KV namespace | `primeplug-scheduler-history` = `e3273329a7144049a9b8d7260e13e2f3`, binding `HISTORY` |
 | Cron triggers | `30 5 * * *` (06:30 Africa/Lagos daily) and `0 * * * *` (hourly idempotent catch-up) |
 | Timezone | Africa/Lagos = UTC+01:00 all year, no DST; the Lagos day boundary is computed explicitly (`06:30 Lagos == 05:30 UTC`) |
-| Secrets | `DISPATCH_TOKEN`, `ADMIN_TOKEN` — Cloudflare encrypted secrets only; set through the secrets API, never written to the repo, never printed |
+| Secrets | `DISPATCH_TOKEN`, `ADMIN_TOKEN` are bound as Cloudflare Worker secrets. The GitHub PAT and Cloudflare deployment token were exposed in the setup conversation/tool command and still require rotation; see the 2026-11-08 correction below. |
 | Target | workflow `408122820` `daily-operations.yml`, ref `editorial-evidence-hold`, inputs `production_enabled=true`, `approve_private_upload=false` |
 
 `/health` at deployment time:
@@ -394,7 +394,7 @@ the per-video approval requirement or the public-publishing switch was changed.
 | 5 | Lagos-day guard works | **PASS** | KV marker deleted on purpose, then `POST /trigger` → `action:"skipped"`, `reason:"already_ran_today"`, `existingRuns:1`. The authoritative GitHub check alone refused the dispatch. |
 | 6 | Repeated trigger does not duplicate | **PASS** | Triggers #2 and #3 → `reason:"already_dispatched_today_kv"` (no network call). Runs on workflow `408122820` created `>= 2026-11-06T23:00:00Z`: **count = 1**. |
 | 7 | Failed requests retry safely | **PASS** | In the deployed runtime `POST /selftest` → `ok:true`: `retry_after_503` dispatched on attempt 2, `retry_after_network_error` dispatched on attempt 2, `no_retry_on_401` stopped after 1 call. Backoff 2 s then 6 s, max 3 attempts, only 429/5xx/network are retried. |
-| 8 | Logs contain no credentials | **PASS** | Leak scan of `/health` and `/history`: 0 occurrences of `github_pat_`, 0 of the admin token, 0 of `gh?_` patterns. `no_secret_in_result` self-test case: `redacted:true, leaked:false`. `redact()` scrubs both secrets and GitHub token patterns from every response and log line. |
+| 8 | Public endpoints contain no credentials | **PASS for the two scanned endpoints only** | Leak scan of `/health` and `/history`: 0 occurrences of `github_pat_`, the then-current admin token, or `gh?_` patterns. The self-test returned `redacted:true, leaked:false`. This was not a clean bill of health for the setup transcript: the GitHub PAT and Cloudflare deployment token were exposed there and must be rotated. The original printed admin token was subsequently replaced. |
 
 ## Production safety during this run
 
@@ -406,15 +406,82 @@ the four existing private videos were not touched; no video was deleted; no chan
 ## Duplicate-scheduler de-conflict
 
 `Primeplug-scheduler` cron triggers were removed (`a27ac9f`, branch `main`); it is now a
-**manual fallback only**. Two schedulers can no longer race into a duplicate production run.
+**manual fallback only**, so there are not two independently scheduled triggers. The live
+repeat tests were sequential: they do not prove exactly-once behavior for concurrent manual
+and scheduled calls. KV is eventually consistent and the check and dispatch are not atomic;
+concurrent invocations can still race. See [Cloudflare's KV consistency guidance](https://developers.cloudflare.com/kv/api/write-key-value-pairs/).
 
 ## Remaining limitations
 
-1. **Natural 06:30 Africa/Lagos execution: PENDING.** It cannot be observed before the next
-   `30 5 * * *` firing; today's 06:30 slot had already passed when the Worker went live.
-   A manual dispatch is explicitly *not* proof of natural daily scheduling, so this item stays open.
-2. The `DISPATCH_TOKEN` is a fine-grained PAT with an expiry; when it lapses the dispatches stop.
-   `/health` reports `tokenConfigured` and `lastAttempt`, which is the thing to watch.
-3. `workers.dev` free-tier limits (100k requests/day, 1k KV writes/day) are used at a rounding
-   error by two runs a day, but the failure mode is silent unless `/health` is checked.
-4. If Cloudflare is unavailable the only fallback is the manual dispatch in `Primeplug-scheduler`.
+1. **Natural on-time production dispatch after the timing fix: PENDING.** The 2026-11-08
+   06:30 trigger did fire but skipped because production had already run at midnight. See
+   the correction below. A manual dispatch is not proof of the natural 06:30 start.
+2. The GitHub `DISPATCH_TOKEN` expires at **2026-12-06 10:38:24 UTC**; dispatches stop
+   unless it is replaced. `tokenConfigured` only means a secret is present, not that it is
+   valid. There is no automatic notification configured; check `lastAttempt` and
+   `lastAutomationRun` on `/health` and maintain a separate reminder.
+3. The hourly scheduler uses Cloudflare free-tier resources sparingly, but a failure needs
+   monitoring; no proactive alert channel has been set up.
+4. If Cloudflare is unavailable, the fallback is the manual workflow in `Primeplug-scheduler`;
+   do not run a manual fallback concurrently with an automatic tick.
+
+## Correction and timing repair — 2026-11-08
+
+**The first unattended production start was too early.** The hourly catch-up fired at
+`2026-11-07T23:00:52.325Z` = **2026-11-08 00:00:52.325 Africa/Lagos** and dispatched
+run [42423259613](https://github.com/clipuni34-coder/Automation/actions/runs/42423259613)
+at `2026-11-07T23:00:54Z` = **00:00:54 Lagos**. It completed successfully on
+`editorial-evidence-hold`, commit `b00c774027b427c930a9e13cfaac09348b0cd334`.
+The `operate` job `128556043975` completed successfully and its **Approval-gated PRIVATE
+upload** step was **skipped**. The artifact `daily-operations-report`, id `13593549116`,
+is listed by GitHub with digest `sha256:309b1a519ccf595e2e16ececc2b569e02d01fbc286a76253a3585077bc6e6d80`;
+this digest is GitHub's reported value, not an independently downloaded hash (the unauthenticated
+artifact request returned HTTP 401).
+
+The 06:30 scheduled tick **did fire** at `2026-11-08T05:30:46.928Z` = **06:30:46.928 Lagos**,
+but it skipped with `already_dispatched_today_kv` because that midnight run already existed.
+It was not an on-time production dispatch. The initial deployment report's claim that the 06:30
+firing was unobserved is therefore historical, and its description of the hourly schedule did
+not account for this early dispatch.
+
+A gate was then deployed to the existing Cloudflare Worker: cron-sourced invocations before
+06:30 Lagos record `before_daily_slot` and do not call GitHub; after 06:30 the regular daily and
+hourly catch-up paths still work. Explicit admin manual triggers are exempt, and can start a run
+before 06:30 if no run exists, so they must be used deliberately. The Cloudflare upload reported
+success and `/health` subsequently returned HTTP 200; the deployment command did **not** record
+a Cloudflare deployment/version ID, so one is not invented here. The exact deployed Worker source
+is commit `796ca54dc3228c3d7ed925387ddc159401883473`, SHA-256
+`5ec2a69d436a979ba443dc9370213203b6b35c08925e054ec4af6ef1832611da`.
+The full local suite at this gate revision reported **368 passed, 0 failed**; the focused
+scheduler suite reported **18 passed, 0 failed**. Natural `before_daily_slot` behavior and a
+natural on-time production dispatch **after this deployment remain PENDING**, not claimed.
+
+At `2026-11-08T05:49Z`, `/health` correctly showed `lagosDay: 2026-11-08` and the midnight
+run as today's marker. The `2026-11-07T23:00Z` UTC date is already November 8 in Lagos; it is
+not evidence of a previous-day marker. The marker's run status is a snapshot from dispatch and
+may still say `in_progress`; `lastAutomationRun` fetched from GitHub showed `completed/success`.
+
+### Token health and remaining security work
+
+- The GitHub PAT currently installed in `DISPATCH_TOKEN` expires **2026-12-06 10:38:24 UTC**
+  (11:38:24 Lagos). Both this PAT and the Cloudflare deployment token were exposed in the setup
+  conversation/tool invocation. They remain active and require rotation. Replace the GitHub
+  secret in Cloudflare first, then revoke the old PAT; otherwise daily dispatch stops. Revoke
+  the Cloudflare deployment token separately; doing so does not itself stop the deployed Worker.
+  Do not paste replacement credentials into chat or logs.
+- The latest deployment generated a new random `ADMIN_TOKEN` and used it in memory for its
+  self-test; it was not retained or printed. Scheduled runs are unaffected, but `/trigger` and
+  `/selftest` require an owner-set replacement admin secret to be usable again. The filtered
+  deployment output did not preserve that self-test's HTTP result, so it is not claimed.
+- A separate **locally tested but not deployed** health enhancement, commit
+  `3b79650515855b3f2d6b3327ac101573a34f5656`, reads GitHub's optional token-expiration
+  response header and reports `tokenExpiresOn`, `tokenExpiryStatus`, and days remaining; it
+  reports `unknown` if GitHub does not supply a usable date. The focused suite passed
+  **21/21**. This is a passive health-page warning, not an email or push notification.
+- The local deployer was improved in commit `c3a811e895863c88364f7d514fae8e6e6280e20f`
+  to preserve existing Cloudflare `secret_text` bindings on a code-only redeployment, never
+  fetch the secret values, and check the version/health; **8/8 mocked API tests passed**.
+  This updated deployer has not yet been validated against a live Cloudflare deployment.
+- At this audit (2026-11-08 06:59 Lagos), the gate, health enhancement and deployer commits
+  were local only: GitHub authentication was unavailable for `git push`, and remote
+  `editorial-evidence-hold` remained at `b00c774`. No merge to `main` was performed.

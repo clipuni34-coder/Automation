@@ -14,11 +14,11 @@ per-video approval (candidate id + output SHA-256) inside the pipeline.
 |---|---|
 | Provider | Cloudflare Workers + Cron Triggers (free plan) |
 | Primary cron | `30 5 * * *` (UTC) = **06:30 Africa/Lagos** daily |
-| Catch-up cron | `0 * * * *` (UTC, hourly, idempotent — dispatches only if today has no run) |
+| Catch-up cron | `0 * * * *` (UTC, hourly; cron dispatches are blocked before 06:30 Lagos and otherwise skipped when today's run is already seen) |
 | Timezone handling | Lagos is UTC+01:00 all year (no DST); the day boundary is computed explicitly, never from the host TZ |
 | Target | Automation `daily-operations` workflow id `408122820`, ref `editorial-evidence-hold` |
-| Secrets | `DISPATCH_TOKEN` (GitHub PAT), `ADMIN_TOKEN` (manual trigger) — Worker Secrets only, never in code or logs |
-| Idempotency | GitHub runs API (authoritative) + KV day marker (fast path) |
+| Secrets | `DISPATCH_TOKEN` (GitHub PAT), `ADMIN_TOKEN` (manual trigger) — Cloudflare Worker secrets; previously exposed setup tokens still require rotation |
+| Duplicate guard | GitHub runs API + KV day marker; sequential repeats are proven, but concurrent invocations can race |
 | History | KV `history` (last 40 attempts) via `GET /history` |
 | Health | `GET /health` |
 | Endpoints | `GET /health`, `GET /history`, `POST /trigger`, `POST /selftest` (both POSTs require header `x-admin-token`) |
@@ -35,7 +35,23 @@ per-video approval (candidate id + output SHA-256) inside the pipeline.
 | Crons | `30 5 * * *`, `0 * * * *` |
 | Deployed by | `node deploy-api.mjs --apply` (see script header for the scoped token) |
 
-The dashboard steps below are kept for rebuilds from scratch.
+On 2026-11-08 the hourly cron started production at midnight Lagos; the 06:30 tick
+fired but skipped because that day's run already existed. The early-run gate has since
+been deployed. A natural 06:30 production dispatch after the fix is still pending. See
+`docs/EVIDENCE_REPORT.md` for exact timestamps and evidence.
+
+The most recent deployment generated an admin secret in memory and did not retain its
+value. Cron operation does not need it, but the two POST endpoints cannot be used until
+the owner sets a new `ADMIN_TOKEN` Worker secret. The token-expiry health enhancement
+in the current local source is not yet deployed, and it does not send alerts.
+
+**Do not use the generic `wrangler.toml` or the create-Worker steps below against the
+live account:** that template names a different Worker and does not bind the existing
+KV namespace. The steps are for a fresh rebuild only. For the live instance use the
+API deployer with `WORKER_NAME=automation` after inspecting the existing configuration.
+The updated deployer preserves existing encrypted secrets without reading them and
+checks the version after uploading; these changes passed mocked API tests but have not
+yet been exercised in a live redeployment.
 
 ## One-time setup
 
@@ -95,7 +111,7 @@ Worker → **Settings → Triggers → Cron Triggers → Add Cron Trigger**
 | Cron expression | Meaning |
 |---|---|
 | `30 5 * * *` | 06:30 Africa/Lagos daily (the production trigger) |
-| `0 * * * *` | hourly idempotent catch-up (covers a dropped slot without double-running) |
+| `0 * * * *` | hourly catch-up, with cron runs before 06:30 Lagos blocked and sequential repeats skipped |
 
 Cloudflare evaluates cron expressions in **UTC**; 05:30 UTC = 06:30 in Lagos.
 
@@ -112,6 +128,11 @@ Without KV the scheduler still works — the GitHub runs API remains the
 authoritative duplicate guard — but `/history` and the fast-path day marker need it.
 
 ### 6. Verify (all read-only except the POSTs you run yourself)
+
+A manual `/trigger` can start production before 06:30 if there is no run that day;
+it is not a read-only test. Do not run it or the manual fallback concurrently with a
+scheduled tick. Prefer the two GET endpoints when checking status.
+
 ```bash
 # a) health — expect "ok": true, "tokenConfigured": true
 curl https://primeplug-scheduler.<your-subdomain>.workers.dev/health
@@ -128,23 +149,28 @@ curl -X POST https://primeplug-scheduler.<your-subdomain>.workers.dev/trigger \
   (unless a run already exists today, in which case `"action": "skipped"`).
 - Second call: `"action": "skipped"`, `"reason": "already_dispatched_today_kv"`.
 
-## What the Worker guarantees
+## Worker behavior and limits
 
-- **Never twice in a Lagos day.** It asks GitHub whether any `daily-operations`
+- **Sequential duplicate guard.** It asks GitHub whether any `daily-operations`
   run exists since Lagos midnight; if one does it skips and records that. A KV
-  day marker short-circuits repeat ticks with no network call at all.
+  day marker can short-circuit repeat ticks. These checks are not an atomic lock:
+  concurrently running invocations can both dispatch before either observes the
+  other's run or KV write. Exactly-once behavior under concurrency is not proven.
+- **No cron start before 06:30 Lagos.** The gate applies to scheduled ticks;
+  manual admin triggers are intentionally exempt.
 - **Retries transient failures** (HTTP 429/5xx and network errors) with backoff —
   3 attempts, 2 s then 6 s — and **never retries** auth/config failures
   (401/403/404), which are reported for a human instead of hammering GitHub.
 - **Records every attempt** (timestamp, source `cron:*`/`manual`, action,
   HTTP status, resulting run URL) in KV history.
-- **Never logs or returns credentials.** Error strings pass through `redact()`,
-  which strips `DISPATCH_TOKEN`, `ADMIN_TOKEN` and anything matching GitHub
-  token patterns before it reaches a response or a log line.
+- **Redaction in the Worker.** Error strings pass through `redact()`, which strips
+  the two configured secrets and GitHub token patterns. Scans of `/health` and
+  `/history` found no credentials, but the setup conversation/tool command exposed
+  the deployment token and GitHub PAT; those tokens must be rotated.
 - **Fails closed.** Missing `DISPATCH_TOKEN` records an error and dispatches nothing.
 
 ## Relationship to `Primeplug-scheduler`
 
-`Primeplug-scheduler` is kept as a **manual fallback only** — its cron triggers
-were removed so two schedulers can never race each other. Use
-*Run workflow* in that repository if Cloudflare is ever unavailable.
+`Primeplug-scheduler` is kept as a **manual fallback only** — its automatic cron
+triggers were removed. A manually launched fallback can still race a Cloudflare tick;
+use *Run workflow* only if Cloudflare is unavailable and no other tick is running.

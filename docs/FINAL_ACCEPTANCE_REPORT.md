@@ -2,7 +2,7 @@
 
 Date: 2026-11-05 · Branch: `editorial-evidence-hold` · HEAD at report time: see audit addendum (Section 18)
 
-**Current correction:** see Section 9d below. An automatic run occurred at midnight rather than 06:30, a timing fix was deployed, and its first on-time production dispatch remains unobserved. Exposed setup tokens still require rotation.
+**Current corrections:** see Section 9d below. An automatic production run occurred at midnight rather than 06:30 and did not upload; a timing fix was deployed, but its first on-time production dispatch remains unobserved. The four recorded videos were previously verified as private, but a later anonymous channel check listed Chiitan and Baby Elephants publicly; their current live audience settings were not checked. Exposed setup tokens still require rotation.
 Tests: **336/336 passing** (local; GitHub Tests success at `6fd9e30`)
 Public publishing: **OFF** (unchanged; requires explicit owner authorization)
 
@@ -59,7 +59,7 @@ The audit cycle ran the real cloud pipeline with five fresh scenario candidates 
 `docs/EVIDENCE_REPORT.md` is updated through this cycle: commits, test counts, run IDs, artifact IDs, hashes, frame/audio inspections, rights results, scheduler status, YouTube verification, limitations and blockers — including failures and holds, not only successes.
 
 ## 16. Privacy & safety constraints — PASS
-Nothing public was ever uploaded; all 4 uploads are private. No existing private upload was deleted. No secrets are exposed in code, docs, dashboard, or state (state files carry licence metadata only). Publishing, deletion, and any privacy-status change remain owner-gated.
+All four recorded videos were uploaded privately and were verified private in the earlier audit. A later anonymous channel-page check listed the Chiitan and baby-elephant Shorts publicly; their current settings/descriptions were not independently verified and the cause or timing of any visibility change is unknown. No existing upload was deleted by the automation. Public publishing by the automation remains disabled; publishing, deletion and privacy-status changes remain owner-gated. Setup credentials exposed during deployment still require rotation (see Section 9d).
 
 ## 17. Remaining owner decisions & pending items — PENDING
 1. Per-video private-upload approvals (candidate id + SHA-256) for any of the 3 awaiting videos: elephant v6 (`709fafe4…`), Cape fox pups (`434986fe…`), Einstein parrot (`fd5d15cc…`). None is uploaded; approval of one never authorizes the others.

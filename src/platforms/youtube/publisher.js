@@ -41,6 +41,9 @@ function validateMetadata(metadata) {
   if (description.length > 5000) throw new Error("YouTube description exceeds 5,000 characters.");
   const privacyStatus = metadata?.privacyStatus ?? "private";
   if (!["private", "unlisted", "public"].includes(privacyStatus)) throw new Error("Invalid YouTube privacy status.");
+  if (typeof metadata?.selfDeclaredMadeForKids !== "boolean") {
+    throw new Error("An explicit, reviewed selfDeclaredMadeForKids boolean is required for this video; no audience default is permitted.");
+  }
   const tags = Array.isArray(metadata?.tags) ? metadata.tags.map(tag => String(tag).trim()).filter(Boolean).slice(0, 30) : [];
   return {
     snippet: {
@@ -51,7 +54,7 @@ function validateMetadata(metadata) {
     },
     status: {
       privacyStatus,
-      ...(typeof metadata?.selfDeclaredMadeForKids === "boolean" ? { selfDeclaredMadeForKids: metadata.selfDeclaredMadeForKids } : {})
+      selfDeclaredMadeForKids: metadata.selfDeclaredMadeForKids
     }
   };
 }

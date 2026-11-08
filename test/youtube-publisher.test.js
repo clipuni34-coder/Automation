@@ -42,7 +42,7 @@ test("uploads MP4 through the official resumable upload flow", async () => {
     const result = await uploadYouTubeVideo({
       videoPath,
       accessToken: "test-access-token",
-      metadata: { title: "Original short", description: "Test description", tags: ["test"], privacyStatus: "unlisted" },
+      metadata: { title: "Original short", description: "Test description", tags: ["test"], privacyStatus: "unlisted", selfDeclaredMadeForKids: false },
       fetchImpl: async (url, options) => {
         calls.push({ url, options });
         if (calls.length === 1) return {
@@ -58,6 +58,7 @@ test("uploads MP4 through the official resumable upload flow", async () => {
     });
     assert.equal(calls.length, 2);
     assert.equal(calls[0].options.method, "POST");
+    assert.equal(JSON.parse(calls[0].options.body).status.selfDeclaredMadeForKids, false);
     assert.equal(calls[1].options.method, "PUT");
     assert.equal(result.videoId, "video123");
     assert.equal(result.privacyStatus, "unlisted");
@@ -66,13 +67,53 @@ test("uploads MP4 through the official resumable upload flow", async () => {
   }
 });
 
+test("requires an explicit reviewed audience before any YouTube upload request", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "youtube-audience-"));
+  try {
+    const videoPath = join(dir, "short.mp4");
+    await writeFile(videoPath, "data");
+    for (const missingOrInvalid of [undefined, null, "false", "true", 0, 1]) {
+      let requested = false;
+      await assert.rejects(uploadYouTubeVideo({
+        videoPath, accessToken: "token",
+        metadata: { title: "x", selfDeclaredMadeForKids: missingOrInvalid },
+        fetchImpl: async () => { requested = true; throw new Error("must not contact YouTube"); }
+      }), /explicit, reviewed selfDeclaredMadeForKids boolean/);
+      assert.equal(requested, false);
+    }
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+test("forwards a reviewed made-for-kids selection in the YouTube upload metadata", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "youtube-audience-made-"));
+  try {
+    const videoPath = join(dir, "short.mp4");
+    await writeFile(videoPath, "data");
+    let requests = 0;
+    await uploadYouTubeVideo({
+      videoPath, accessToken: "token",
+      metadata: { title: "x", privacyStatus: "private", selfDeclaredMadeForKids: true },
+      fetchImpl: async (_url, options) => {
+        requests++;
+        if (requests === 1) {
+          assert.equal(JSON.parse(options.body).status.selfDeclaredMadeForKids, true);
+          assert.equal(JSON.parse(options.body).status.privacyStatus, "private");
+          return { ok: true, headers: { get: () => "https://www.googleapis.com/upload/youtube/v3/videos/session/test" } };
+        }
+        return { ok: true, json: async () => ({ id: "vid", status: { privacyStatus: "private" } }) };
+      }
+    });
+    assert.equal(requests, 2);
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
 test("rejects invalid resumable upload URLs and oversized media", async () => {
   const dir = await mkdtemp(join(tmpdir(), "youtube-upload-"));
   try {
     const videoPath = join(dir, "short.mp4");
     await writeFile(videoPath, "data");
     await assert.rejects(uploadYouTubeVideo({
-      videoPath, accessToken: "token", metadata: { title: "x" },
+      videoPath, accessToken: "token", metadata: { title: "x", selfDeclaredMadeForKids: true },
       fetchImpl: async () => ({ ok: true, headers: { get: () => "https://example.com/not-youtube" } })
     }), /valid resumable upload URL/);
   } finally {

@@ -3,8 +3,8 @@ name: Private upload smoke test (real footage)
 # End-to-end: download rights-cleared NASA footage -> Faster-Whisper ->
 # moment selection -> vertical render -> QC -> posting package ->
 # PRIVATE YouTube upload to the verified Primeplug channel -> processing check.
-# Manual dispatch with confirm_private_upload=true is the human approval
-# record for this single private test. Public publishing is impossible here.
+# A manual dispatch must explicitly approve this candidate ID, its exact
+# rendered SHA-256, and its reviewed audience. Public publishing is impossible.
 
 on:
   push:
@@ -19,6 +19,22 @@ on:
         type: boolean
         required: true
         default: false
+      approve_candidate_id:
+        description: "Per-video approval: apollo11-landing-baseline-smoke"
+        type: string
+        default: ""
+      approve_sha256:
+        description: "Per-video approval: exact SHA-256 of the rendered output"
+        type: string
+        default: ""
+      approve_audience:
+        description: "Audience reviewed for that exact video (required for private upload)"
+        type: choice
+        options:
+          - review_required
+          - made_for_kids
+          - not_made_for_kids
+        default: review_required
 
 permissions:
   contents: read
@@ -87,6 +103,9 @@ jobs:
         env:
           SMOKE_UPLOAD_CONFIRM: "true"
           HUMAN_APPROVED: "true"
+          APPROVED_CANDIDATE_ID: ${{ inputs.approve_candidate_id }}
+          APPROVED_SHA256: ${{ inputs.approve_sha256 }}
+          APPROVED_AUDIENCE: ${{ inputs.approve_audience }}
           YOUTUBE_PUBLISH_PRIVACY: private
           YOUTUBE_ALLOW_PUBLIC_PUBLISH: "false"
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}

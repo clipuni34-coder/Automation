@@ -44,6 +44,14 @@ on:
         description: "Per-video approval: exact SHA-256 of that video's rendered output"
         type: string
         default: ""
+      approve_audience:
+        description: "Audience reviewed for that exact video (required for private upload)"
+        type: choice
+        options:
+          - review_required
+          - made_for_kids
+          - not_made_for_kids
+        default: review_required
 
 permissions:
   contents: write
@@ -125,6 +133,7 @@ jobs:
           HUMAN_APPROVED_PRIVATE: "true"
           APPROVED_CANDIDATE_ID: ${{ inputs.approve_candidate_id }}
           APPROVED_SHA256: ${{ inputs.approve_sha256 }}
+          APPROVED_AUDIENCE: ${{ inputs.approve_audience }}
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
@@ -138,6 +147,7 @@ jobs:
           HUMAN_APPROVED_PRIVATE: "true"
           APPROVED_CANDIDATE_ID: ${{ inputs.approve_candidate_id }}
           APPROVED_SHA256: ${{ inputs.approve_sha256 }}
+          APPROVED_AUDIENCE: ${{ inputs.approve_audience }}
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}

@@ -8,6 +8,7 @@ import { writeFile, mkdir } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { loadChannels } from "../src/config/channels.js";
 import { openChannelState } from "../src/engine/state.js";
+import { observedAudienceStatus } from "../src/platforms/youtube/audience.js";
 import { refreshYouTubeAccessToken, getAuthorizedYouTubeChannel } from "../src/platforms/youtube/publisher.js";
 
 const stateRoot = resolve(process.env.STATE_DIR ?? "data/state");
@@ -37,6 +38,9 @@ for (const channel of channels) {
         privacyStatus: item?.status?.privacyStatus ?? null,
         channelId: item?.snippet?.channelId ?? null,
         titleOnYouTube: item?.snippet?.title ?? null,
+        // This is read-only evidence. Null means the API did not return the
+        // field; the effective setting may differ from the owner's choice.
+        observedAudience: observedAudienceStatus(item?.status),
         matchesRegistry: Boolean(item) && item.status?.privacyStatus === (video.privacyStatus ?? "private") && item.snippet?.channelId === channel.youtubeChannelId
       });
     }

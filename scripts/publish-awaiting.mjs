@@ -6,6 +6,8 @@
 //     id AND the exact SHA-256 of its rendered output
 //     (APPROVED_CANDIDATE_ID / APPROVED_SHA256). Approval of one video
 //     never authorizes another; a re-render (new hash) needs new approval,
+//   - that same approval includes an explicit reviewed YouTube audience
+//     (APPROVED_AUDIENCE); there is no default audience classification,
 //   - decidePublish() passes: channel not paused, publishing not disabled,
 //     privacy locked to "private", public requires the separate global
 //     opt-in, content fingerprint not already published (idempotency),
@@ -22,6 +24,7 @@ import { loadChannels } from "../src/config/channels.js";
 import { openChannelState } from "../src/engine/state.js";
 import { decidePublish } from "../src/engine/publisher-guard.js";
 import { matchApproval } from "../src/engine/approval.js";
+import { parseReviewedAudience, observedAudienceStatus } from "../src/platforms/youtube/audience.js";
 import { refreshYouTubeAccessToken, uploadYouTubeVideo, waitForYouTubeProcessing, getAuthorizedYouTubeChannel } from "../src/platforms/youtube/publisher.js";
 
 const stateRoot = resolve(process.env.STATE_DIR ?? "data/state");
@@ -29,6 +32,10 @@ const channelId = process.env.PUBLISH_CHANNEL_ID ?? "Primeplug";
 // Per-video approval only: one candidate id + its exact output hash.
 const approvedCandidateId = process.env.APPROVED_CANDIDATE_ID ?? "";
 const approvedSha256 = process.env.APPROVED_SHA256 ?? "";
+// Bound to the same one-video approval; never infer an audience from topic,
+// channel-wide defaults, or the absence of a selection.
+const approvedAudience = process.env.APPROVED_AUDIENCE ?? "";
+const reviewedMadeForKids = parseReviewedAudience(approvedAudience);
 const approved = Boolean(approvedCandidateId && approvedSha256);
 const reportPath = resolve(process.env.PUBLISH_REPORT ?? "output/publishing/publish-report.json");
 
@@ -50,7 +57,7 @@ const awaiting = queue.jobs.filter((j) =>
   !publishedFingerprints.has(j.result.sha256) && !supersededIds.has(j.candidate?.id));
 
 const approvalMatch = matchApproval(awaiting, { approvedCandidateId, approvedSha256 });
-const report = { channelId, generatedAt: new Date().toISOString(), approval: { candidateId: approvedCandidateId || null, sha256: approvedSha256 ? `${String(approvedSha256).slice(0, 12)}…` : null, matched: Boolean(approvalMatch.job), reasons: approvalMatch.reasons }, awaitingApproval: awaiting.map((j) => ({ candidateId: j.candidate?.id ?? null, fingerprint: j.result.sha256, title: j.result.title ?? null })), results: [] };
+const report = { channelId, generatedAt: new Date().toISOString(), approval: { candidateId: approvedCandidateId || null, sha256: approvedSha256 ? `${String(approvedSha256).slice(0, 12)}…` : null, audience: reviewedMadeForKids === null ? null : approvedAudience, matched: Boolean(approvalMatch.job), reasons: approvalMatch.reasons }, awaitingApproval: awaiting.map((j) => ({ candidateId: j.candidate?.id ?? null, fingerprint: j.result.sha256, title: j.result.title ?? null })), results: [] };
 
 async function sha256File(path) {
   const hash = createHash("sha256");
@@ -73,6 +80,12 @@ for (const job of awaiting) {
     entry.reasons.push("No per-video approval names this candidate id and output hash; not authorized for upload.");
     continue;
   }
+  if (reviewedMadeForKids === null) {
+    entry.status = "awaiting_audience_review";
+    entry.reasons.push("An explicit, reviewed audience is required for this approved video (made_for_kids or not_made_for_kids); no upload attempted.");
+    continue;
+  }
+  entry.audience = approvedAudience;
   const videoPath = job.result.outputPath ? resolve(job.result.outputPath) : null;
   let filePresent = false;
   if (videoPath) { try { await access(videoPath); filePresent = true; } catch { filePresent = false; } }
@@ -99,7 +112,7 @@ for (const job of awaiting) {
         title: String(video.title).slice(0, 95),
         description: String(pkg.description ?? `Original commentary Short by Primeplug.\n\nSource: ${job.candidate?.sourceUrl ?? ""}\nRights: ${job.candidate?.license?.type ?? ""} — ${job.candidate?.license?.attributionRequirement ?? ""}\nUploaded privately for owner review. Not published publicly.`).slice(0, 4500),
         tags: (pkg.hashtags ?? ["#shorts", "#funny", "#moments"]).map((t) => String(t).replace(/^#/, "")).slice(0, 20),
-        categoryId: "24", privacyStatus: "private", selfDeclaredMadeForKids: false
+        categoryId: "24", privacyStatus: "private", selfDeclaredMadeForKids: reviewedMadeForKids
       }
     });
     const processing = await waitForYouTubeProcessing({ videoId: uploaded.videoId, accessToken: token.accessToken, maxAttempts: 30, intervalMs: 15000 });
@@ -108,7 +121,19 @@ for (const job of awaiting) {
     const v = verifyPayload.items?.[0];
     const verified = Boolean(v) && v.status?.privacyStatus === "private" && v.snippet?.channelId === channel.youtubeChannelId;
     if (!verified) { entry.status = "uploaded_unverified"; entry.videoId = uploaded.videoId; entry.reasons.push("Upload returned but independent verification did not confirm private status on the expected channel."); continue; }
-    await state.recordPublished({ fingerprint: video.fingerprint, videoId: uploaded.videoId, candidateId: job.candidate?.id ?? null, title: video.title, privacyStatus: "private", channelId: channel.youtubeChannelId, uploadedAt: new Date().toISOString(), processingStatus: processing.processingStatus });
+    // The API may omit the owner-declared flag or YouTube may choose a
+    // different effective setting. Record that uncertainty; do not pretend
+    // the audience was verified just because privacy/channel were verified.
+    const observedAudience = observedAudienceStatus(v.status);
+    entry.observedAudience = observedAudience;
+    entry.audienceVerification = observedAudience.selfDeclaredMadeForKids === null ? "not_returned" :
+      observedAudience.selfDeclaredMadeForKids === reviewedMadeForKids ? "declaration_matches" : "declaration_mismatch";
+    entry.effectiveAudienceVerification = observedAudience.madeForKids === null ? "not_returned" :
+      observedAudience.madeForKids === reviewedMadeForKids ? "matches" : "differs";
+    if (entry.audienceVerification === "declaration_mismatch" || entry.effectiveAudienceVerification === "differs") {
+      entry.reasons.push("YouTube returned an audience setting different from the per-video review; inspect YouTube Studio.");
+    }
+    await state.recordPublished({ fingerprint: video.fingerprint, videoId: uploaded.videoId, candidateId: job.candidate?.id ?? null, title: video.title, privacyStatus: "private", channelId: channel.youtubeChannelId, uploadedAt: new Date().toISOString(), processingStatus: processing.processingStatus, approvedAudience, ...observedAudience });
     entry.status = "uploaded_private_verified";
     entry.videoId = uploaded.videoId;
     entry.watchUrl = uploaded.watchUrl;

@@ -40,6 +40,8 @@ if (!packagePath) {
       accessToken: token.accessToken,
       metadata: {
         ...pkg.platformPackages?.youtube_shorts,
+        hashtags: Array.isArray(pkg.platformPackages?.youtube_shorts?.hashtags) && pkg.platformPackages.youtube_shorts.hashtags.length
+          ? pkg.platformPackages.youtube_shorts.hashtags : ["#Shorts"],
         privacyStatus,
         categoryId: process.env.YOUTUBE_CATEGORY_ID ?? "22"
       }

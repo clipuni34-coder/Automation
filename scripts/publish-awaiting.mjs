@@ -106,12 +106,14 @@ for (const job of awaiting) {
 
   try {
     const pkg = job.result.postingPackage ?? {};
+    const hashtags = Array.isArray(pkg.hashtags) && pkg.hashtags.length ? pkg.hashtags : ["#Shorts"];
     const uploaded = await uploadYouTubeVideo({
       videoPath, accessToken: token.accessToken,
       metadata: {
         title: String(video.title).slice(0, 95),
-        description: String(pkg.description ?? `Original commentary Short by Primeplug.\n\nSource: ${job.candidate?.sourceUrl ?? ""}\nRights: ${job.candidate?.license?.type ?? ""} — ${job.candidate?.license?.attributionRequirement ?? ""}\nUploaded privately for owner review. Not published publicly.`).slice(0, 4500),
-        tags: (pkg.hashtags ?? ["#shorts", "#funny", "#moments"]).map((t) => String(t).replace(/^#/, "")).slice(0, 20),
+        description: String(pkg.description ?? ["Original commentary Short by Primeplug.", `Source: ${job.candidate?.sourceUrl ?? ""}`, `Rights: ${job.candidate?.license?.type ?? ""} — ${job.candidate?.license?.attributionRequirement ?? ""}`].join("\n\n")),
+        hashtags,
+        tags: hashtags.map((t) => String(t).replace(/^#/, "")).slice(0, 20),
         categoryId: "24", privacyStatus: "private", selfDeclaredMadeForKids: reviewedMadeForKids
       }
     });

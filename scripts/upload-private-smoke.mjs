@@ -45,11 +45,12 @@ const channel = await getAuthorizedYouTubeChannel({ accessToken });
 const expected = process.env.YOUTUBE_EXPECTED_CHANNEL_ID ?? "";
 if (!expected || channel.channelId !== expected) throw new Error(`Refused: authorized channel ${channel.channelId} does not match expected ${expected || "(unset)"}.`);
 
-const description = [pkg.description, "", "Source: " + (pkg.source?.url ?? result.plan?.source?.sourceUrl ?? ""), "Uploaded as a PRIVATE automation smoke test. Not published."].join("\n").slice(0, 4500);
+const description = [pkg.description, "", "Source: " + (pkg.source?.url ?? result.plan?.source?.sourceUrl ?? ""), "Uploaded as a PRIVATE automation smoke test. Not published."].join("\n");
+const hashtags = Array.isArray(pkg.hashtags) && pkg.hashtags.length ? pkg.hashtags : ["#Shorts"];
 const uploaded = await uploadYouTubeVideo({
   videoPath: resolve(result.outputPath),
   accessToken,
-  metadata: { title: pkg.title.slice(0, 95), description, tags: (pkg.hashtags ?? []).map((t) => t.replace(/^#/, "")).slice(0, 20), categoryId: "22", privacyStatus: "private", selfDeclaredMadeForKids: reviewedMadeForKids }
+  metadata: { title: pkg.title.slice(0, 95), description, hashtags, tags: hashtags.map((t) => String(t).replace(/^#/, "")).slice(0, 20), categoryId: "22", privacyStatus: "private", selfDeclaredMadeForKids: reviewedMadeForKids }
 });
 const processing = await waitForYouTubeProcessing({ videoId: uploaded.videoId, accessToken, maxAttempts: 30, intervalMs: 15000 });
 

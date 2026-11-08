@@ -1,5 +1,6 @@
 import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
+import { appendVisibleHashtags, MAX_DESCRIPTION_BYTES } from "./hashtags.js";
 
 const TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
 const UPLOAD_ENDPOINT = "https://www.googleapis.com/upload/youtube/v3/videos";
@@ -36,9 +37,10 @@ export async function refreshYouTubeAccessToken({
 
 function validateMetadata(metadata) {
   const title = String(metadata?.title ?? "").trim();
-  const description = String(metadata?.description ?? "").trim();
+  const rawDescription = String(metadata?.description ?? "").trim();
   if (!title || title.length > 100) throw new Error("YouTube title must contain 1–100 characters.");
-  if (description.length > 5000) throw new Error("YouTube description exceeds 5,000 characters.");
+  if (Buffer.byteLength(rawDescription, "utf8") > MAX_DESCRIPTION_BYTES) throw new Error("YouTube description exceeds 5,000 UTF-8 bytes.");
+  const { description } = appendVisibleHashtags(rawDescription, metadata?.hashtags);
   const privacyStatus = metadata?.privacyStatus ?? "private";
   if (!["private", "unlisted", "public"].includes(privacyStatus)) throw new Error("Invalid YouTube privacy status.");
   if (typeof metadata?.selfDeclaredMadeForKids !== "boolean") {

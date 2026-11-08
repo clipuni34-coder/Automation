@@ -12,6 +12,10 @@ on:
         description: "Attempt one PRIVATE upload smoke test (requires OAuth secrets + a completed package)"
         type: boolean
         default: false
+      update_primeplug_hashtags:
+        description: "Owner-requested: append visible hashtags to the two specified public Primeplug Shorts only"
+        type: boolean
+        default: false
   push:
     branches: [editorial-evidence-hold]
     paths:
@@ -27,6 +31,7 @@ permissions:
 
 jobs:
   smoke:
+    if: inputs.update_primeplug_hashtags != true
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -70,4 +75,30 @@ jobs:
         with:
           name: credential-readiness
           path: credential-readiness.json
+          retention-days: 14
+  primeplug_hashtags:
+    # This deliberately uses a separate workflow from daily production so an
+    # owner-requested metadata edit cannot consume the 06:30 scheduler slot.
+    if: github.event_name == 'workflow_dispatch' && inputs.update_primeplug_hashtags == true && inputs.private_upload_smoke != true
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Append visible hashtags to the two authorized public Shorts
+        env:
+          HASHTAG_UPDATE_CONFIRM: "true"
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+        run: node scripts/update-primeplug-hashtags.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: primeplug-hashtag-update-evidence
+          path: output/hashtag-update/report.json
+          if-no-files-found: warn
           retention-days: 14

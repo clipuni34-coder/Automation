@@ -156,9 +156,9 @@ async function putSecrets(accountId) {
     });
     log(`secret set: ${name}`);
   }
-  // The admin token is only a manual-trigger gate; it is reported so the owner can
-  // use /trigger and /selftest. It cannot upload or publish anything.
-  log("ADMIN_TOKEN value (keep private, rotate freely):", admin);
+  // The admin token is only a manual-trigger gate. It is not printed: a credential
+  // written to a transcript or a log is a credential leaked.
+  log("ADMIN_TOKEN set (value not printed; rotate with `wrangler secret put ADMIN_TOKEN`)");
   return admin;
 }
 

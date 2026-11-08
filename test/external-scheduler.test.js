@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import worker, { run, selfTest, lagosDate, lagosMidnightUtcIso } from "../infra/external-scheduler/worker.js";
+import worker, { run, selfTest, lagosDate, lagosMidnightUtcIso, lagosMinutesOfDay } from "../infra/external-scheduler/worker.js";
 
 const TOKEN = "ghp_EXAMPLESECRETTOKEN1234567890";
 
@@ -85,7 +85,7 @@ test("scheduler: a repeated trigger the same Lagos day does not dispatch again",
   assert.equal(globalThis.fetch.calls.length, 0, "no network call should be made when the day marker exists");
 });
 
-test("scheduler: concurrent ticks cannot both dispatch (second sees the marker)", async () => {
+test("scheduler: a sequential repeat tick sees the marker and does not dispatch", async () => {
   const kv = memoryKv();
   globalThis.fetch = fakeFetch([
     emptyRuns(),
@@ -219,4 +219,43 @@ test("scheduler: self-test endpoint requires the admin token", async () => {
   const allowed = await worker.fetch(new Request("https://x.example/selftest", { method: "POST", headers: { "x-admin-token": "a" } }), { DISPATCH_TOKEN: TOKEN, ADMIN_TOKEN: "a" });
   assert.equal(allowed.status, 200);
   assert.equal((await allowed.json()).ok, true);
+});
+
+test("scheduler: hourly catch-up never starts production before 06:30 Lagos", async () => {
+  // 05:00 UTC = 06:00 Lagos, half an hour before the slot.
+  assert.equal(lagosMinutesOfDay(new Date("2026-11-08T05:00:00Z")), 360);
+  const kv = memoryKv();
+  globalThis.fetch = fakeFetch([]);
+  const out = await run({ DISPATCH_TOKEN: TOKEN, HISTORY: kv }, "cron:0 * * * *", new Date("2026-11-08T05:00:00Z"));
+  assert.equal(out.action, "skipped");
+  assert.equal(out.reason, "before_daily_slot");
+  assert.equal(globalThis.fetch.calls.length, 0, "no GitHub call, no dispatch before the slot");
+  // 00:00:52 Lagos — the tick that actually fired early on 2026-11-08.
+  const early = await run({ DISPATCH_TOKEN: TOKEN, HISTORY: kv }, "cron:0 * * * *", new Date("2026-11-07T23:00:52Z"));
+  assert.equal(early.reason, "before_daily_slot");
+});
+
+test("scheduler: the 06:30 Lagos cron does dispatch when the day has no run", async () => {
+  // 05:30 UTC == 06:30 Africa/Lagos exactly.
+  assert.equal(lagosMinutesOfDay(new Date("2026-11-08T05:30:00Z")), 390);
+  const kv = memoryKv();
+  globalThis.fetch = fakeFetch([
+    emptyRuns(),
+    { status: 204, rawBody: "" },
+    { status: 200, body: { total_count: 1, workflow_runs: [{ id: 5150, html_url: "https://github.com/clipuni34-coder/Automation/actions/runs/5150", status: "queued" }] } },
+  ]);
+  const out = await run({ DISPATCH_TOKEN: TOKEN, HISTORY: kv }, "cron:30 5 * * *", new Date("2026-11-08T05:30:00Z"));
+  assert.equal(out.action, "dispatched");
+  assert.equal(out.run.id, 5150);
+});
+
+test("scheduler: a manual trigger still works before the slot (explicit admin action)", async () => {
+  const kv = memoryKv();
+  globalThis.fetch = fakeFetch([
+    emptyRuns(),
+    { status: 204, rawBody: "" },
+    { status: 200, body: { total_count: 1, workflow_runs: [{ id: 6262, html_url: "r/6262", status: "queued" }] } },
+  ]);
+  const out = await run({ DISPATCH_TOKEN: TOKEN, HISTORY: kv }, "manual", new Date("2026-11-08T02:00:00Z"));
+  assert.equal(out.action, "dispatched");
 });

@@ -23,6 +23,9 @@ const WORKFLOW_FILE = "daily-operations.yml";
 const WORKFLOW_ID = "408122820"; // id of "Daily multi-channel operations"
 const TARGET_REF = "editorial-evidence-hold";
 const LAGOS_OFFSET_MS = 60 * 60 * 1000; // Africa/Lagos is UTC+01:00 all year, no DST
+// The daily production slot. Cron-driven runs may not start before this time, so
+// the hourly catch-up cannot drag production to midnight Lagos.
+const DAILY_SLOT_LAGOS_MIN = 6 * 60 + 30; // 06:30
 const MAX_ATTEMPTS = 3;
 const HISTORY_LIMIT = 40;
 const DAY_MARKER_TTL_SECONDS = 36 * 60 * 60;
@@ -34,6 +37,12 @@ const json = (body, status = 200) =>
   });
 
 /** YYYY-MM-DD in Africa/Lagos. */
+/** Minutes since local midnight in Lagos for an instant. */
+export function lagosMinutesOfDay(now = new Date()) {
+  const ms = (((new Date(now).getTime() + LAGOS_OFFSET_MS) % 86400000) + 86400000) % 86400000;
+  return Math.floor(ms / 60000);
+}
+
 export function lagosDate(now = new Date()) {
   return new Date(now.getTime() + LAGOS_OFFSET_MS).toISOString().slice(0, 10);
 }
@@ -156,6 +165,21 @@ export async function run(env, source = "cron", now = new Date(), transport = fe
 
   if (!env?.DISPATCH_TOKEN) {
     const out = { ...record, action: "error", ok: false, message: "DISPATCH_TOKEN secret is not configured" };
+    await appendHistory(env, out);
+    return out;
+  }
+
+  // The hourly catch-up exists to rescue a missed 06:30 slot, not to run early.
+  // Manual triggers are explicit admin actions and bypass this window.
+  if (String(source).startsWith("cron") && lagosMinutesOfDay(now) < DAILY_SLOT_LAGOS_MIN) {
+    const out = {
+      ...record,
+      action: "skipped",
+      ok: true,
+      reason: "before_daily_slot",
+      dailySlot: "06:30 Africa/Lagos",
+      localTime: `${String(Math.floor(lagosMinutesOfDay(now) / 60)).padStart(2, "0")}:${String(lagosMinutesOfDay(now) % 60).padStart(2, "0")}`,
+    };
     await appendHistory(env, out);
     return out;
   }

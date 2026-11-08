@@ -126,7 +126,7 @@ async function upload(accountId, kvId) {
     compatibility_date: COMPATIBILITY_DATE,
     bindings: [
       { type: "kv_namespace", name: "HISTORY", namespace_id: kvId },
-      { type: "plain_text", name: "SCHEDULER_VERSION", text: "external-scheduler/1" },
+      { type: "plain_text", name: "SCHEDULER_VERSION", text: "external-scheduler/2-health-expiry" },
     ],
   };
   const form = new FormData();

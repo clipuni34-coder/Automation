@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import worker, { run, selfTest, lagosDate, lagosMidnightUtcIso, lagosMinutesOfDay } from "../infra/external-scheduler/worker.js";
+import worker, { run, selfTest, health, tokenExpiryInfo, lagosDate, lagosMidnightUtcIso, lagosMinutesOfDay } from "../infra/external-scheduler/worker.js";
 
 const TOKEN = "ghp_EXAMPLESECRETTOKEN1234567890";
 
@@ -25,7 +25,7 @@ function fakeFetch(script) {
     const status = next.status ?? 200;
     // 204 responses must not carry a body (the Response constructor rejects it).
     const payload = status === 204 ? null : (next.rawBody ?? JSON.stringify(next.body ?? {}));
-    return new Response(payload, { status, headers: { "content-type": "application/json" } });
+    return new Response(payload, { status, headers: { "content-type": "application/json", ...(next.headers ?? {}) } });
   };
   fn.calls = calls;
   return fn;
@@ -233,6 +233,9 @@ test("scheduler: hourly catch-up never starts production before 06:30 Lagos", as
   // 00:00:52 Lagos — the tick that actually fired early on 2026-11-08.
   const early = await run({ DISPATCH_TOKEN: TOKEN, HISTORY: kv }, "cron:0 * * * *", new Date("2026-11-07T23:00:52Z"));
   assert.equal(early.reason, "before_daily_slot");
+  const justBefore = await run({ DISPATCH_TOKEN: TOKEN, HISTORY: kv }, "cron:30 5 * * *", new Date("2026-11-08T05:29:59Z"));
+  assert.equal(justBefore.reason, "before_daily_slot");
+  assert.equal(globalThis.fetch.calls.length, 0);
 });
 
 test("scheduler: the 06:30 Lagos cron does dispatch when the day has no run", async () => {
@@ -258,4 +261,55 @@ test("scheduler: a manual trigger still works before the slot (explicit admin ac
   ]);
   const out = await run({ DISPATCH_TOKEN: TOKEN, HISTORY: kv }, "manual", new Date("2026-11-08T02:00:00Z"));
   assert.equal(out.action, "dispatched");
+});
+
+test("scheduler: health reports the PAT expiration header and a 30-day warning", async () => {
+  const now = new Date("2026-11-08T05:50:00Z");
+  const response = existingRun();
+  response.headers = { "github-authentication-token-expiration": "2026-12-06 10:38:24 UTC" };
+  globalThis.fetch = fakeFetch([response]);
+  const out = await health({ DISPATCH_TOKEN: TOKEN, SCHEDULER_VERSION: "test-version" }, now);
+  assert.equal(out.tokenExpiresOn, "2026-12-06T10:38:24.000Z");
+  assert.equal(out.tokenExpiryStatus, "expiring");
+  assert.equal(out.tokenDaysRemaining, 29);
+  assert.equal(out.schedulerVersion, "test-version");
+  assert.equal(JSON.stringify(out).includes(TOKEN), false);
+});
+
+test("scheduler: token expiry boundaries and unavailable headers are honest", async () => {
+  const expires = "2026-12-06 10:38:24 UTC";
+  assert.equal(tokenExpiryInfo(expires, new Date("2026-11-06T10:38:23.999Z")).tokenExpiryStatus, "ok");
+  assert.equal(tokenExpiryInfo(expires, new Date("2026-11-06T10:38:24Z")).tokenExpiryStatus, "expiring");
+  assert.equal(tokenExpiryInfo(expires, new Date("2026-12-06T10:38:24Z")).tokenExpiryStatus, "expired");
+  assert.equal(tokenExpiryInfo("not-a-date", new Date("2026-11-08T05:50:00Z")).tokenExpiryStatus, "unknown");
+  globalThis.fetch = fakeFetch([existingRun()]);
+  const noHeader = await health({ DISPATCH_TOKEN: TOKEN }, new Date("2026-11-08T05:50:00Z"));
+  assert.equal(noHeader.tokenExpiresOn, null);
+  assert.equal(noHeader.tokenExpiryStatus, "unknown");
+  globalThis.fetch = fakeFetch([{ status: 401, body: { message: "Bad credentials" } }]);
+  const denied = await health({ DISPATCH_TOKEN: TOKEN }, new Date("2026-11-08T05:50:00Z"));
+  assert.equal(denied.tokenExpiresOn, null);
+  assert.equal(denied.tokenExpiryStatus, "unknown");
+  assert.equal(denied.lastAutomationRun.error, "github_auth_failed");
+});
+
+test("scheduler: UTC timestamps around midnight map to the correct Lagos day", async () => {
+  const kv = memoryKv();
+  const runCreatedAt = "2026-11-07T23:00:54Z"; // 00:00:54 on November 8 in Lagos
+  assert.equal(lagosDate(new Date(runCreatedAt)), "2026-11-08");
+  await kv.put("day:2026-11-08", JSON.stringify({
+    status: "dispatched",
+    at: "2026-11-07T23:00:52.325Z",
+    run: { id: 42423259613, status: "in_progress" },
+  }));
+  globalThis.fetch = fakeFetch([{
+    status: 200,
+    body: { total_count: 1, workflow_runs: [{ id: 42423259613, status: "completed", conclusion: "success", created_at: runCreatedAt }] },
+  }]);
+  const out = await health({ DISPATCH_TOKEN: TOKEN, HISTORY: kv }, new Date("2026-11-08T05:50:00Z"));
+  assert.equal(out.lagosDay, "2026-11-08");
+  assert.equal(out.todayDispatched, true);
+  assert.equal(out.todayMarker.run.id, 42423259613);
+  assert.equal(out.lastAutomationRun.createdAt, runCreatedAt);
+  assert.equal(out.lastAutomationRun.conclusion, "success");
 });

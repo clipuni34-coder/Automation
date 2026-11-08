@@ -36,13 +36,13 @@ const json = (body, status = 200) =>
     headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
   });
 
-/** YYYY-MM-DD in Africa/Lagos. */
 /** Minutes since local midnight in Lagos for an instant. */
 export function lagosMinutesOfDay(now = new Date()) {
   const ms = (((new Date(now).getTime() + LAGOS_OFFSET_MS) % 86400000) + 86400000) % 86400000;
   return Math.floor(ms / 60000);
 }
 
+/** YYYY-MM-DD in Africa/Lagos. */
 export function lagosDate(now = new Date()) {
   return new Date(now.getTime() + LAGOS_OFFSET_MS).toISOString().slice(0, 10);
 }
@@ -113,7 +113,27 @@ async function githubRunsSince(env, sinceIso, transport = fetch) {
   }
   if (!res.ok) throw Object.assign(new Error(`github_query_http_${res.status}`), { httpStatus: res.status });
   const body = await res.json();
-  return { totalCount: body.total_count ?? 0, runs: (body.workflow_runs ?? []).slice(0, 5) };
+  return {
+    totalCount: body.total_count ?? 0,
+    runs: (body.workflow_runs ?? []).slice(0, 5),
+    // GitHub omits this header for some tokens. Missing must never be reported as safe.
+    tokenExpirationHeader: res.headers.get("github-authentication-token-expiration"),
+  };
+}
+
+/** Interpret GitHub's optional PAT-expiration header; this does not send alerts. */
+export function tokenExpiryInfo(header, now = new Date()) {
+  const expirationMs = header ? Date.parse(header) : NaN;
+  if (!Number.isFinite(expirationMs)) {
+    return { tokenExpiresOn: null, tokenExpiryStatus: "unknown", tokenDaysRemaining: null };
+  }
+  const remainingMs = expirationMs - now.getTime();
+  const tokenExpiryStatus = remainingMs <= 0 ? "expired" : remainingMs <= 30 * 86400000 ? "expiring" : "ok";
+  return {
+    tokenExpiresOn: new Date(expirationMs).toISOString(),
+    tokenExpiryStatus,
+    tokenDaysRemaining: Math.max(0, Math.ceil(remainingMs / 86400000)),
+  };
 }
 
 async function dispatchWorkflow(env, transport = fetch) {
@@ -257,15 +277,17 @@ export async function run(env, source = "cron", now = new Date(), transport = fe
   return out;
 }
 
-async function health(env, now = new Date()) {
+export async function health(env, now = new Date()) {
   const day = lagosDate(now);
   const marker = await kvGet(env, `day:${day}`);
   const history = (await kvGet(env, "history")) ?? [];
   const last = history[0] ?? null;
   const record = await kvGet(env, "lastRun");
   let lastRun = record;
+  let expiry = tokenExpiryInfo(null, now);
   try {
-    const { runs } = await githubRunsSince(env, new Date(now.getTime() - 7 * 24 * 3600 * 1000).toISOString());
+    const { runs, tokenExpirationHeader } = await githubRunsSince(env, new Date(now.getTime() - 7 * 24 * 3600 * 1000).toISOString());
+    expiry = tokenExpiryInfo(tokenExpirationHeader, now);
     lastRun = runs[0] ? { id: runs[0].id, url: runs[0].html_url, status: runs[0].status, conclusion: runs[0].conclusion, createdAt: runs[0].created_at, event: runs[0].event } : null;
   } catch (error) {
     lastRun = { error: redact(String(error?.message ?? error), env) };
@@ -273,10 +295,12 @@ async function health(env, now = new Date()) {
   return {
     ok: true,
     service: "primeplug-external-scheduler",
+    schedulerVersion: env.SCHEDULER_VERSION ?? null,
     schedule: { cron: ["30 5 * * *", "0 * * * *"], timezone: "Africa/Lagos (UTC+01:00)", daily: "06:30 Africa/Lagos" },
     lagosDay: day,
     lagosMidnightUtc: lagosMidnightUtcIso(now),
     tokenConfigured: Boolean(env.DISPATCH_TOKEN),
+    ...expiry,
     adminTokenConfigured: Boolean(env.ADMIN_TOKEN),
     kvBound: Boolean(env.HISTORY),
     todayDispatched: marker?.status === "dispatched",

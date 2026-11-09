@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "attempts": [
+    {
+      "attemptId": "gha-42597951330-1",
+      "candidateId": "seal-diver-fin-skomer",
+      "fingerprint": "5fdbdc8bd59cd7e062a4201bb7766842066be62ac2104d7dd2da007d62a582ac",
+      "approvedAudience": "not_made_for_kids",
+      "status": "reserved",
+      "reservedAt": "2026-11-09T10:02:52.811Z"
+    }
+  ]
+}

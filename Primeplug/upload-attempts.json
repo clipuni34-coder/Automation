@@ -6,8 +6,11 @@
       "candidateId": "seal-diver-fin-skomer",
       "fingerprint": "5fdbdc8bd59cd7e062a4201bb7766842066be62ac2104d7dd2da007d62a582ac",
       "approvedAudience": "not_made_for_kids",
-      "status": "reserved",
-      "reservedAt": "2026-11-09T10:02:52.811Z"
+      "status": "verified",
+      "reservedAt": "2026-11-09T10:02:52.811Z",
+      "updatedAt": "2026-11-09T10:03:27.393Z",
+      "videoId": "S41AwPiEW0k",
+      "watchUrl": "https://www.youtube.com/watch?v=S41AwPiEW0k"
     }
   ]
 }

@@ -44,6 +44,21 @@
       "channelId": "UCB7EhjM0bj2wtIBy_A_kkkg",
       "uploadedAt": "2026-11-05T13:40:29.496Z",
       "processingStatus": "succeeded"
+    },
+    {
+      "recordedAt": "2026-11-09T10:02:56.510Z",
+      "fingerprint": "5fdbdc8bd59cd7e062a4201bb7766842066be62ac2104d7dd2da007d62a582ac",
+      "videoId": "S41AwPiEW0k",
+      "candidateId": "seal-diver-fin-skomer",
+      "title": "The Seal That Joined a Diver’s Survey 🦭",
+      "privacyStatus": "private",
+      "channelId": "UCB7EhjM0bj2wtIBy_A_kkkg",
+      "uploadedAt": "2026-11-09T10:02:56.509Z",
+      "processingStatus": "succeeded",
+      "uploadVerification": "private_channel_verified",
+      "approvedAudience": "not_made_for_kids",
+      "selfDeclaredMadeForKids": false,
+      "madeForKids": false
     }
   ]
 }

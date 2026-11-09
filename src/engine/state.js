@@ -105,6 +105,57 @@ export class ChannelState {
     await writeJsonAtomic(this.path("published.json"), db);
     return db;
   }
+  async updatePublishedVerification(fingerprint, patch) {
+    const db = await this.getPublished();
+    const matches = db.videos.filter((video) => video.fingerprint === fingerprint);
+    if (matches.length !== 1) throw new Error("Expected exactly one published record to update");
+    const allowed = ["processingStatus", "uploadVerification", "selfDeclaredMadeForKids", "madeForKids"];
+    for (const key of allowed) if (Object.hasOwn(patch, key)) matches[0][key] = patch[key];
+    await writeJsonAtomic(this.path("published.json"), db);
+    return matches[0];
+  }
+
+  // A durable reservation prevents an uncertain upload from being retried.
+  // Unlike ordinary optional state, an invalid ledger is an error: treating a
+  // corrupt ledger as empty could upload the same private video twice.
+  async getUploadAttempts() {
+    let text;
+    try { text = await readFile(this.path("upload-attempts.json"), "utf8"); }
+    catch (error) { if (error.code === "ENOENT") return { version: 1, attempts: [] }; throw error; }
+    let db;
+    try { db = JSON.parse(text); } catch { throw new Error("Upload-attempt ledger is invalid JSON"); }
+    if (db?.version !== 1 || !Array.isArray(db.attempts) || db.attempts.some((a) => !a || typeof a.attemptId !== "string" || !/^[a-f0-9]{64}$/.test(a.fingerprint ?? "") || typeof a.status !== "string")) {
+      throw new Error("Upload-attempt ledger has an invalid shape");
+    }
+    return db;
+  }
+  async reserveUploadAttempt({ attemptId, candidateId, fingerprint, approvedAudience }) {
+    if (!/^[A-Za-z0-9_-]{1,100}$/.test(String(attemptId ?? "")) || !/^[A-Za-z0-9_-]{1,120}$/.test(String(candidateId ?? "")) || !/^[a-f0-9]{64}$/.test(String(fingerprint ?? "")) || !["made_for_kids", "not_made_for_kids"].includes(approvedAudience)) {
+      throw new Error("A valid attempt, candidate, fingerprint, and reviewed audience are required");
+    }
+    const db = await this.getUploadAttempts();
+    if (db.attempts.some((a) => a.attemptId === attemptId || (a.fingerprint === fingerprint && a.status !== "released_no_upload"))) {
+      throw new Error("An upload attempt already exists; inspect YouTube and reconcile before any retry");
+    }
+    if (await this.hasPublishedFingerprint(fingerprint)) throw new Error("This fingerprint is already recorded as uploaded");
+    const record = { attemptId, candidateId, fingerprint, approvedAudience, status: "reserved", reservedAt: new Date().toISOString() };
+    db.attempts.push(record);
+    await writeJsonAtomic(this.path("upload-attempts.json"), db);
+    return record;
+  }
+  async transitionUploadAttempt(attemptId, status, extra = {}) {
+    const db = await this.getUploadAttempts();
+    const matches = db.attempts.filter((a) => a.attemptId === attemptId);
+    if (matches.length !== 1) throw new Error("Expected exactly one upload-attempt reservation");
+    const attempt = matches[0];
+    const allowed = { reserved: ["attempting"], attempting: ["uploaded", "unknown"], uploaded: ["verified"] };
+    if (!allowed[attempt.status]?.includes(status)) throw new Error(`Invalid upload-attempt transition ${attempt.status} -> ${status}`);
+    attempt.status = status;
+    attempt.updatedAt = new Date().toISOString();
+    for (const key of ["videoId", "watchUrl"]) if (typeof extra[key] === "string") attempt[key] = extra[key];
+    await writeJsonAtomic(this.path("upload-attempts.json"), db);
+    return attempt;
+  }
 
   async saveAnalytics(snapshot) { await writeJsonAtomic(this.path("analytics.json"), snapshot); return snapshot; }
   async getAnalytics() { return readJson(this.path("analytics.json"), null); }

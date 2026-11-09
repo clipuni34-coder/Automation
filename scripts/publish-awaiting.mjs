@@ -13,8 +13,10 @@
 //     opt-in, content fingerprint not already published (idempotency),
 //   - the channel's OWN OAuth identity is verified live and matches the
 //     configured YouTube channel id.
-// After upload, the video is re-read from the API and its privacy/channel
-// are verified before the publish is recorded in persistent state.
+// A returned video id is recorded immediately so verification failures cannot
+// silently cause duplicate uploads. The video is then re-read from the API;
+// until that succeeds its record is explicitly marked unverified. A durable
+// prior attempt reservation blocks retries whose outcome may be uncertain.
 // Nothing here can upload publicly.
 import { access, writeFile, mkdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
@@ -38,6 +40,7 @@ const approvedAudience = process.env.APPROVED_AUDIENCE ?? "";
 const reviewedMadeForKids = parseReviewedAudience(approvedAudience);
 const approved = Boolean(approvedCandidateId && approvedSha256);
 const reportPath = resolve(process.env.PUBLISH_REPORT ?? "output/publishing/publish-report.json");
+const uploadAttemptId = String(process.env.UPLOAD_ATTEMPT_ID ?? "").trim();
 
 const channels = await loadChannels(process.env.CHANNEL_PROFILES_PATH ?? "config/channels.json");
 const channel = channels.find((c) => c.id === channelId);
@@ -58,6 +61,8 @@ const awaiting = queue.jobs.filter((j) =>
 
 const approvalMatch = matchApproval(awaiting, { approvedCandidateId, approvedSha256 });
 const report = { channelId, generatedAt: new Date().toISOString(), approval: { candidateId: approvedCandidateId || null, sha256: approvedSha256 ? `${String(approvedSha256).slice(0, 12)}…` : null, audience: reviewedMadeForKids === null ? null : approvedAudience, matched: Boolean(approvalMatch.job), reasons: approvalMatch.reasons }, awaitingApproval: awaiting.map((j) => ({ candidateId: j.candidate?.id ?? null, fingerprint: j.result.sha256, title: j.result.title ?? null })), results: [] };
+await mkdir(dirname(reportPath), { recursive: true });
+async function saveReport() { await writeFile(reportPath, JSON.stringify(report, null, 2)); }
 
 async function sha256File(path) {
   const hash = createHash("sha256");
@@ -86,6 +91,16 @@ for (const job of awaiting) {
     continue;
   }
   entry.audience = approvedAudience;
+  // A previously reserved/uncertain attempt blocks all but the SAME fresh
+  // reservation. This is also checked by ordinary daily uploader invocations.
+  const attempts = await state.getUploadAttempts();
+  const locks = attempts.attempts.filter((a) => a.fingerprint === job.result.sha256 && a.status !== "released_no_upload");
+  const lock = locks[0] ?? null;
+  if (locks.length > 1 || (lock && (lock.attemptId !== uploadAttemptId || lock.status !== "reserved" || lock.candidateId !== approvedCandidateId || lock.approvedAudience !== approvedAudience)) || (uploadAttemptId && !lock)) {
+    entry.status = "blocked_prior_or_mismatched_upload_attempt";
+    entry.reasons.push("An upload attempt is missing, mismatched or already pending. Inspect YouTube and reconcile before retrying.");
+    continue;
+  }
   const videoPath = job.result.outputPath ? resolve(job.result.outputPath) : null;
   let filePresent = false;
   if (videoPath) { try { await access(videoPath); filePresent = true; } catch { filePresent = false; } }
@@ -104,10 +119,16 @@ for (const job of awaiting) {
   entry.decision = { allowed: decision.allowed, reasons: decision.reasons, identity: decision.identity };
   if (!decision.allowed) { entry.status = approved ? "blocked_by_guard" : "awaiting_approval"; continue; }
 
+  let uploaded = null;
+  let requestStarted = false;
   try {
+    if (lock) await state.transitionUploadAttempt(lock.attemptId, "attempting");
+    entry.status = "upload_request_starting";
+    await saveReport();
     const pkg = job.result.postingPackage ?? {};
     const hashtags = Array.isArray(pkg.hashtags) && pkg.hashtags.length ? pkg.hashtags : ["#Shorts"];
-    const uploaded = await uploadYouTubeVideo({
+    requestStarted = true;
+    uploaded = await uploadYouTubeVideo({
       videoPath, accessToken: token.accessToken,
       metadata: {
         title: String(video.title).slice(0, 95),
@@ -117,34 +138,57 @@ for (const job of awaiting) {
         categoryId: "24", privacyStatus: "private", selfDeclaredMadeForKids: reviewedMadeForKids
       }
     });
+    // Capture the returned id BEFORE processing or read-back: either can
+    // fail after YouTube has already accepted the video. Never auto-retry.
+    entry.status = "uploaded_verification_pending";
+    entry.videoId = uploaded.videoId;
+    entry.watchUrl = uploaded.watchUrl;
+    console.log(JSON.stringify({ event: "youtube_upload_accepted", candidateId: entry.candidateId, videoId: uploaded.videoId, watchUrl: uploaded.watchUrl }));
+    await saveReport();
+    if (lock) await state.transitionUploadAttempt(lock.attemptId, "uploaded", { videoId: uploaded.videoId, watchUrl: uploaded.watchUrl });
+    await state.recordPublished({ fingerprint: video.fingerprint, videoId: uploaded.videoId, candidateId: job.candidate?.id ?? null, title: video.title, privacyStatus: "private", channelId: channel.youtubeChannelId, uploadedAt: new Date().toISOString(), processingStatus: null, uploadVerification: "pending", approvedAudience, selfDeclaredMadeForKids: null, madeForKids: null });
+    await saveReport();
+
     const processing = await waitForYouTubeProcessing({ videoId: uploaded.videoId, accessToken: token.accessToken, maxAttempts: 30, intervalMs: 15000 });
     const verifyRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,status&id=${uploaded.videoId}`, { headers: { authorization: `Bearer ${token.accessToken}` } });
     const verifyPayload = await verifyRes.json().catch(() => ({}));
     const v = verifyPayload.items?.[0];
-    const verified = Boolean(v) && v.status?.privacyStatus === "private" && v.snippet?.channelId === channel.youtubeChannelId;
-    if (!verified) { entry.status = "uploaded_unverified"; entry.videoId = uploaded.videoId; entry.reasons.push("Upload returned but independent verification did not confirm private status on the expected channel."); continue; }
-    // The API may omit the owner-declared flag or YouTube may choose a
-    // different effective setting. Record that uncertainty; do not pretend
-    // the audience was verified just because privacy/channel were verified.
-    const observedAudience = observedAudienceStatus(v.status);
-    entry.observedAudience = observedAudience;
-    entry.audienceVerification = observedAudience.selfDeclaredMadeForKids === null ? "not_returned" :
-      observedAudience.selfDeclaredMadeForKids === reviewedMadeForKids ? "declaration_matches" : "declaration_mismatch";
-    entry.effectiveAudienceVerification = observedAudience.madeForKids === null ? "not_returned" :
-      observedAudience.madeForKids === reviewedMadeForKids ? "matches" : "differs";
-    if (entry.audienceVerification === "declaration_mismatch" || entry.effectiveAudienceVerification === "differs") {
-      entry.reasons.push("YouTube returned an audience setting different from the per-video review; inspect YouTube Studio.");
+    const verified = verifyRes.ok && Boolean(v) && v.status?.privacyStatus === "private" && v.snippet?.channelId === channel.youtubeChannelId;
+    if (!verified) {
+      entry.status = "uploaded_unverified";
+      entry.reasons.push("Upload returned a video id, but independent verification did not confirm private status on the expected channel. Do not retry; inspect YouTube Studio.");
+    } else {
+      // The API may omit the owner-declared flag or YouTube may choose a
+      // different effective setting; preserve these as separate observations.
+      const observedAudience = observedAudienceStatus(v.status);
+      entry.observedAudience = observedAudience;
+      entry.audienceVerification = observedAudience.selfDeclaredMadeForKids === null ? "not_returned" :
+        observedAudience.selfDeclaredMadeForKids === reviewedMadeForKids ? "declaration_matches" : "declaration_mismatch";
+      entry.effectiveAudienceVerification = observedAudience.madeForKids === null ? "not_returned" :
+        observedAudience.madeForKids === reviewedMadeForKids ? "matches" : "differs";
+      if (entry.audienceVerification === "declaration_mismatch" || entry.effectiveAudienceVerification === "differs") {
+        entry.reasons.push("YouTube returned an audience setting different from the per-video review; inspect YouTube Studio.");
+      }
+      await state.updatePublishedVerification(video.fingerprint, { processingStatus: processing.processingStatus, uploadVerification: "private_channel_verified", ...observedAudience });
+      if (lock) await state.transitionUploadAttempt(lock.attemptId, "verified");
+      entry.status = "uploaded_private_verified";
+      entry.processingStatus = processing.processingStatus;
     }
-    await state.recordPublished({ fingerprint: video.fingerprint, videoId: uploaded.videoId, candidateId: job.candidate?.id ?? null, title: video.title, privacyStatus: "private", channelId: channel.youtubeChannelId, uploadedAt: new Date().toISOString(), processingStatus: processing.processingStatus, approvedAudience, ...observedAudience });
-    entry.status = "uploaded_private_verified";
-    entry.videoId = uploaded.videoId;
-    entry.watchUrl = uploaded.watchUrl;
   } catch (error) {
-    entry.status = "upload_failed";
+    entry.status = uploaded?.videoId ? "uploaded_unverified" : requestStarted ? "upload_result_unknown" : "upload_not_attempted";
     entry.reasons.push(String(error?.message ?? error).slice(0, 400));
+    if (requestStarted || uploaded?.videoId) entry.reasons.push("Do not retry automatically; inspect YouTube Studio to avoid a duplicate.");
+    // Keep the reservation blocking retries even if YouTube's response was
+    // lost or processing/verification failed after an accepted upload.
+    if (lock) {
+      try {
+        const latest = (await state.getUploadAttempts()).attempts.find((a) => a.attemptId === lock.attemptId);
+        if (latest?.status === "attempting") await state.transitionUploadAttempt(lock.attemptId, uploaded?.videoId ? "uploaded" : "unknown", uploaded ? { videoId: uploaded.videoId, watchUrl: uploaded.watchUrl } : {});
+      } catch { /* The previously pushed reservation still blocks other runs. */ }
+    }
   }
+  await saveReport();
 }
 
-await mkdir(dirname(reportPath), { recursive: true });
-await writeFile(reportPath, JSON.stringify(report, null, 2));
+await saveReport();
 console.log(JSON.stringify(report, null, 2));

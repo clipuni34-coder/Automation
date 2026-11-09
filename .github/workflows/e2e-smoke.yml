@@ -16,6 +16,34 @@ on:
         description: "Owner-requested: append visible hashtags to the two specified public Primeplug Shorts only"
         type: boolean
         default: false
+      upload_existing_private:
+        description: "Owner-approved: upload ONE previously produced video as PRIVATE"
+        type: boolean
+        default: false
+      approve_candidate_id:
+        description: "Exact candidate ID explicitly approved for private upload"
+        type: string
+        default: ""
+      approve_sha256:
+        description: "Exact approved output SHA-256"
+        type: string
+        default: ""
+      approve_audience:
+        description: "Separately reviewed audience for this exact video"
+        type: choice
+        options:
+          - review_required
+          - made_for_kids
+          - not_made_for_kids
+        default: review_required
+      artifact_run_id:
+        description: "Run ID containing the approved production artifact"
+        type: string
+        default: ""
+      artifact_id:
+        description: "Artifact ID containing the approved video"
+        type: string
+        default: ""
   push:
     branches: [editorial-evidence-hold]
     paths:
@@ -31,7 +59,7 @@ permissions:
 
 jobs:
   smoke:
-    if: inputs.update_primeplug_hashtags != true
+    if: inputs.update_primeplug_hashtags != true && inputs.upload_existing_private != true
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -79,7 +107,7 @@ jobs:
   primeplug_hashtags:
     # This deliberately uses a separate workflow from daily production so an
     # owner-requested metadata edit cannot consume the 06:30 scheduler slot.
-    if: github.event_name == 'workflow_dispatch' && inputs.update_primeplug_hashtags == true && inputs.private_upload_smoke != true
+    if: github.event_name == 'workflow_dispatch' && inputs.update_primeplug_hashtags == true && inputs.private_upload_smoke != true && inputs.upload_existing_private != true
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -102,3 +130,118 @@ jobs:
           path: output/hashtag-update/report.json
           if-no-files-found: warn
           retention-days: 14
+  approved_private_artifact:
+    # Separate workflow ID: this upload-only action does not count as the
+    # daily production run and does not consume its scheduler slot. It shares
+    # the daily concurrency group to avoid racing the persistent state branch.
+    if: github.event_name == 'workflow_dispatch' && inputs.upload_existing_private == true && inputs.update_primeplug_hashtags != true && inputs.private_upload_smoke != true
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: daily-operations
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate the explicit upload inputs
+        env:
+          CANDIDATE_ID: ${{ inputs.approve_candidate_id }}
+          APPROVED_SHA: ${{ inputs.approve_sha256 }}
+          AUDIENCE: ${{ inputs.approve_audience }}
+          SOURCE_RUN: ${{ inputs.artifact_run_id }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+        shell: bash
+        run: |
+          [[ "$CANDIDATE_ID" =~ ^[A-Za-z0-9_-]{1,120}$ ]]
+          [[ "$APPROVED_SHA" =~ ^[a-f0-9]{64}$ ]]
+          [[ "$AUDIENCE" == made_for_kids || "$AUDIENCE" == not_made_for_kids ]]
+          [[ "$SOURCE_RUN" =~ ^[0-9]+$ && "$ARTIFACT_ID" =~ ^[0-9]+$ ]]
+      - name: Restore current persistent state
+        run: |
+          git config user.name "automation-bot"
+          git config user.email "PrimePlug"
+          git fetch --no-tags origin +refs/heads/automation-state:refs/remotes/origin/automation-state
+          git worktree add -b private-upload-state state refs/remotes/origin/automation-state
+      - name: Download the existing production artifact (no re-render)
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ inputs.artifact_id }}
+          run-id: ${{ inputs.artifact_run_id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/approved-video-artifact
+          merge-multiple: true
+      - name: Verify exact file, rights, QC and reserve one attempt
+        id: prepare
+        env:
+          STATE_DIR: ${{ github.workspace }}/state
+          APPROVED_ARTIFACT_ROOT: ${{ runner.temp }}/approved-video-artifact
+          APPROVED_CANDIDATE_ID: ${{ inputs.approve_candidate_id }}
+          APPROVED_SHA256: ${{ inputs.approve_sha256 }}
+          APPROVED_AUDIENCE: ${{ inputs.approve_audience }}
+          UPLOAD_ATTEMPT_ID: gha-${{ github.run_id }}-${{ github.run_attempt }}
+        run: node scripts/prepare-approved-artifact.mjs
+      - name: Persist duplicate-prevention reservation BEFORE upload
+        id: reserve
+        run: |
+          git -C state add Primeplug/upload-attempts.json
+          git -C state commit -m "state: reserve one approved private upload"
+          # A non-fast-forward is a hard stop before any YouTube request.
+          git -C state push origin HEAD:refs/heads/automation-state
+          expected=$(git -C state rev-parse HEAD)
+          actual=$(git -C state ls-remote origin refs/heads/automation-state | cut -f1)
+          test "$expected" = "$actual"
+      - name: Upload the approved file PRIVATE, then verify on YouTube
+        id: upload
+        env:
+          STATE_DIR: ${{ github.workspace }}/state
+          PUBLISH_CHANNEL_ID: Primeplug
+          APPROVED_CANDIDATE_ID: ${{ inputs.approve_candidate_id }}
+          APPROVED_SHA256: ${{ inputs.approve_sha256 }}
+          APPROVED_AUDIENCE: ${{ inputs.approve_audience }}
+          UPLOAD_ATTEMPT_ID: gha-${{ github.run_id }}-${{ github.run_attempt }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+          YOUTUBE_ALLOW_PUBLIC_PUBLISH: "false"
+          PUBLISH_REPORT: output/publishing/approved-artifact-upload.json
+        run: node scripts/publish-awaiting.mjs
+      - name: Persist result and keep uncertain attempts blocked
+        if: always() && steps.reserve.outcome == 'success'
+        run: |
+          git -C state add Primeplug/upload-attempts.json Primeplug/published.json
+          if git -C state diff --cached --quiet; then
+            echo "No changes beyond the durable reservation"
+          else
+            git -C state commit -m "state: record approved private upload outcome"
+            git -C state push origin HEAD:refs/heads/automation-state
+          fi
+      - name: Save upload evidence (never the video or credentials)
+        if: always() && steps.reserve.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: approved-private-artifact-evidence
+          path: output/publishing/approved-artifact-upload.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Require an independently verified private upload
+        if: always() && steps.reserve.outcome == 'success'
+        env:
+          APPROVED_CANDIDATE_ID: ${{ inputs.approve_candidate_id }}
+        run: |
+          node --input-type=module <<'JS'
+          import { readFile } from 'node:fs/promises';
+          const report = JSON.parse(await readFile('output/publishing/approved-artifact-upload.json', 'utf8'));
+          const matches = report.results.filter((r) => r.candidateId === process.env.APPROVED_CANDIDATE_ID);
+          if (matches.length !== 1 || matches[0].status !== 'uploaded_private_verified') {
+            console.error('Upload not independently verified; inspect the evidence before any retry.');
+            process.exit(1);
+          }
+          console.log(JSON.stringify({ candidateId: matches[0].candidateId, status: matches[0].status, videoId: matches[0].videoId, watchUrl: matches[0].watchUrl, audienceVerification: matches[0].audienceVerification, effectiveAudienceVerification: matches[0].effectiveAudienceVerification, processingStatus: matches[0].processingStatus }, null, 2));
+          if (['declaration_mismatch'].includes(matches[0].audienceVerification) || ['differs'].includes(matches[0].effectiveAudienceVerification)) process.exit(1);
+          JS

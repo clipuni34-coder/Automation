@@ -1340,14 +1340,14 @@
         }
       },
       "channelId": "Primeplug",
-      "updatedAt": "2026-11-07T23:01:42.718Z",
+      "updatedAt": "2026-11-09T05:31:42.820Z",
       "result": {
         "produced": false,
         "outcome": "held_narration_plan_incomplete",
         "pathway": "narrated",
         "reason": "Narration plan incomplete: Narration script too short (16 words; minimum 25 for a complete story beat structure) storyBeats.hook is missing: a complete Short needs a planned hook, development and payoff storyBeats.development is missing: a complete Short needs a planned hook, development and payoff storyBeats.payoff is missing: a complete Short needs a planned hook, development and payoff Narration script has only 2 sentence(s); at least 3 are required for hook, development and payoff The script's opening sentence does not contain the planned hookText: the opening must be the planned hook, not an unrelated start visualSubject missing: the footage's actual subject must be recorded so narration can be checked against it"
       },
-      "finishedAt": "2026-11-07T23:01:42.765Z"
+      "finishedAt": "2026-11-09T05:31:42.868Z"
     },
     {
       "attempts": 1,
@@ -1434,14 +1434,14 @@
         }
       },
       "channelId": "Primeplug",
-      "updatedAt": "2026-11-07T23:01:42.766Z",
+      "updatedAt": "2026-11-09T05:31:42.869Z",
       "result": {
         "produced": false,
         "outcome": "held_source_overlay",
         "pathway": "narrated",
         "reason": "Source overlay is in the centre band; only top/bottom edge bands can be reframed safely"
       },
-      "finishedAt": "2026-11-07T23:01:50.578Z"
+      "finishedAt": "2026-11-09T05:31:55.697Z"
     },
     {
       "attempts": 1,

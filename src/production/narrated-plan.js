@@ -92,6 +92,37 @@ export function validateNarratedEntry(entry) {
   return { valid: reasons.length === 0, reasons, narrationWords: words };
 }
 
+// A plan may deliberately mute source audio; absence of the flag preserves
+// the established ducked-background mix for existing narrated candidates.
+export function shouldMixOriginalAudio(probe, entry) {
+  return probe?.hasAudio === true && entry?.muteOriginalAudio !== true;
+}
+
+// Optional, fail-closed timing guard for a plan whose visual payoff occurs
+// late in the source window. Keep the existing pathway unchanged for plans
+// that do not declare minimumStorySeconds. A narration that is too short to
+// reach the payoff, or too long to fit the source, must not pass as a story.
+export function validateStoryWindowTiming(entry, narrationSeconds, sourceDurationSeconds) {
+  const minimum = entry?.window?.minimumStorySeconds;
+  if (minimum == null) return { valid: true, reasons: [] };
+  const start = Number(entry?.window?.startSeconds ?? 0);
+  const length = Number(entry?.window?.seconds);
+  const required = Number(minimum);
+  const reasons = [];
+  if (!(Number.isFinite(start) && start >= 0 && Number.isFinite(length) && length > 0 && Number.isFinite(required) && required > 0 && required <= length)) reasons.push("The planned source window or minimum story duration is invalid.");
+  if (!(Number.isFinite(narrationSeconds) && narrationSeconds > 0)) reasons.push("Narration duration is unavailable.");
+  if (!(Number.isFinite(sourceDurationSeconds) && sourceDurationSeconds + 0.05 >= start + length)) reasons.push("The complete planned source window is not present.");
+  const renderedSeconds = Math.min(length, Math.max(10, narrationSeconds + 1));
+  // The FFmpeg output uses -shortest. When the source is silent or muted,
+  // narration can end the actual output before the nominal video window.
+  // Conservatively require the speech itself to reach the payoff even when
+  // an original-audio bed might otherwise extend playback by one second.
+  const guaranteedSeconds = Math.min(renderedSeconds, narrationSeconds);
+  if (guaranteedSeconds + 0.01 < required) reasons.push("Narration would end the edit before the planned visual payoff.");
+  if (narrationSeconds > length + 0.05) reasons.push("Narration is longer than the planned footage and would be cut off.");
+  return { valid: reasons.length === 0, reasons, renderedSeconds, guaranteedSeconds };
+}
+
 // Decide how to handle a source-overlay detection BEFORE rendering.
 // Only edge bands (top/bottom) up to 25% of frame height may be reframed
 // away; anything larger, central, or on both bands is held — we never

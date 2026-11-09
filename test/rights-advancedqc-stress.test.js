@@ -16,10 +16,13 @@ test("rights classification: verified / unclear / prohibited are distinct", () =
 });
 
 test("rights verifier reads the Commons API and never invents a licence on failure", async () => {
-  const okFetch = async () => ({ ok: true, json: async () => ({ query: { pages: { "1": { imageinfo: [{ extmetadata: meta("CC BY 3.0", { LicenseUrl: { value: "https://creativecommons.org/licenses/by/3.0" } }) }] } } } }) });
-  const v = await verifyCandidateRights({ id: "x", rightsEvidenceUrl: "https://commons.wikimedia.org/wiki/File:Test.webm", license: { type: "CC BY 3.0", rightsStatus: "licensed" } }, { fetchImpl: okFetch });
+  const sourceUrl = "https://upload.wikimedia.org/wikipedia/commons/1/11/Test.webm";
+  const okFetch = async () => ({ ok: true, json: async () => ({ query: { pages: { "1": { imageinfo: [{ url: `${sourceUrl}?utm_source=commons.wikimedia.org`, extmetadata: meta("CC BY 3.0", { LicenseUrl: { value: "https://creativecommons.org/licenses/by/3.0" } }) }] } } } }) });
+  const v = await verifyCandidateRights({ id: "x", sourceUrl, rightsEvidenceUrl: "https://commons.wikimedia.org/wiki/File:Test.webm", license: { type: "CC BY 3.0", rightsStatus: "licensed" } }, { fetchImpl: okFetch });
   assert.equal(v.status, "rights_verified_with_evidence");
-  const down = await verifyCandidateRights({ id: "x", rightsEvidenceUrl: "https://commons.wikimedia.org/wiki/File:Test.webm", license: { type: "CC BY 3.0", rightsStatus: "licensed" } }, { fetchImpl: async () => { throw new Error("network down"); } });
+  const mismatch = await verifyCandidateRights({ id: "x", sourceUrl: "https://upload.wikimedia.org/wikipedia/commons/1/11/Other.webm", rightsEvidenceUrl: "https://commons.wikimedia.org/wiki/File:Test.webm", license: { type: "CC BY 3.0", rightsStatus: "licensed" } }, { fetchImpl: okFetch });
+  assert.equal(mismatch.status, "permission_unclear");
+  const down = await verifyCandidateRights({ id: "x", sourceUrl, rightsEvidenceUrl: "https://commons.wikimedia.org/wiki/File:Test.webm", license: { type: "CC BY 3.0", rightsStatus: "licensed" } }, { fetchImpl: async () => { throw new Error("network down"); } });
   assert.equal(down.status, "evidence_recorded_not_independently_verified");
   assert.ok(down.verificationError);
 });

@@ -5,6 +5,7 @@
 import { mkdir, readFile, rename, writeFile, appendFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
+import { sameSourceUrl } from "./source-identity.js";
 
 export function sourceFingerprint(sourceUrl, extra = "") {
   return createHash("sha256").update(`${sourceUrl}\n${extra}`).digest("hex").slice(0, 24);
@@ -38,15 +39,19 @@ export class ChannelState {
   async getSources() { return readJson(this.path("sources.json"), { version: 1, sources: {} }); }
   async hasUsedSource(sourceUrl, opts = {}) {
     const db = await this.getSources();
-    const entry = db.sources[sourceFingerprint(sourceUrl)];
-    if (!entry) return false;
-    // A source that was rejected on a TRANSIENT fault (e.g. the Commons API
-    // rate-limited the licence read) must be re-screened on a later run, not
-    // blocked forever by dedupe. Run 42196879606 lost a valid CC BY 3.0 source
-    // this way: it was stored as "rejected" because of an HTTP 429 and every
-    // later run then counted it as a duplicate.
-    if (opts.rescreenRejected && entry.lastOutcome === "rejected") return false;
-    return true;
+    const entries = Object.values(db.sources).filter((entry) => sameSourceUrl(entry.sourceUrl, sourceUrl));
+    // Older discovery reports used "eligible" even for unplanned footage or
+    // candidates over the daily limit. Distinguish those from actual work by
+    // consulting the queue, including URL variants with Commons tracking tags.
+    const queue = await this.getQueue();
+    if (queue.jobs.some((j) => ["queued", "running", "completed", "failed"].includes(j.status) && sameSourceUrl(j.candidate?.sourceUrl, sourceUrl))) return true;
+    return entries.some((entry) => {
+      if (opts.rescreenRejected && entry.lastOutcome === "rejected") return false;
+      if (entry.lastOutcome === "deferred_capacity") return false;
+      if (opts.reconsiderPlanned && entry.lastOutcome === "awaiting_plan") return false;
+      if (opts.reconsiderUnqueued && entry.lastOutcome === "eligible") return false;
+      return true;
+    });
   }
   async recordSource(candidate, outcome) {
     const db = await this.getSources();

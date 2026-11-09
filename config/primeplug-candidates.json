@@ -1,5 +1,78 @@
 [
   {
+    "id": "puppies-share-bed-tokyo",
+    "label": "Two puppies and the contested bed — original Tokyo footage",
+    "creator": "Nesnad, via Wikimedia Commons",
+    "sourceResolution": "1694x1060",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Puppiesplaying-tokyoarea-jan7-2020.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Puppiesplaying-tokyoarea-jan7-2020.webm",
+    "license": {
+      "type": "CC BY 4.0",
+      "basis": "The Commons file page records Nesnad as the creator, own work, licensed under Creative Commons Attribution 4.0.",
+      "rightsStatus": "licensed",
+      "attributionRequirement": "Nesnad, Puppies playing, via Wikimedia Commons; original CC BY 4.0: https://creativecommons.org/licenses/by/4.0/ . This Short is an edited adaptation with added narration and captions.",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "productionMode": "narrated",
+    "window": {
+      "startSeconds": 7,
+      "seconds": 15.3,
+      "minimumStorySeconds": 14
+    },
+    "hookText": "One puppy has the bed.",
+    "postingTitle": "One Bed, Two Puppies 🐶",
+    "narrationScript": "One puppy has the bed. Another circles the cushion, keeps coming back, and finally climbs right in beside it. Suddenly, the quiet corner has become a two puppy hangout.",
+    "hashtags": [
+      "#Shorts",
+      "#FunnyAnimals",
+      "#Puppies",
+      "#Dogs"
+    ],
+    "storyBeats": {
+      "hook": "One puppy has the bed.",
+      "development": "Another puppy circles and returns to the cushion.",
+      "payoff": "The visitor climbs into the bed alongside the first puppy."
+    },
+    "visualSubject": "puppy"
+  },
+  {
+    "id": "seal-diver-fin-skomer",
+    "label": "Curious seal investigates a diver’s fin near Skomer",
+    "creator": "Natural Resources Wales, via Wikimedia Commons",
+    "sourceResolution": "960x720",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/04/Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm",
+    "license": {
+      "type": "CC BY 3.0",
+      "basis": "The Commons file page identifies Natural Resources Wales as creator and source and records Creative Commons Attribution 3.0.",
+      "rightsStatus": "licensed",
+      "attributionRequirement": "Natural Resources Wales, Seal playing with NRW diver near Skomer, via Wikimedia Commons; CC BY 3.0: https://creativecommons.org/licenses/by/3.0/ . This Short is an edited adaptation with original narration and captions.",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "productionMode": "narrated",
+    "muteOriginalAudio": true,
+    "window": {
+      "startSeconds": 20,
+      "seconds": 22,
+      "minimumStorySeconds": 14
+    },
+    "hookText": "This seal has found a diver’s fin.",
+    "postingTitle": "The Seal That Joined a Diver’s Survey 🦭",
+    "narrationScript": "This seal has found a diver’s fin. First it comes right up to the camera, then turns its attention to the fin and keeps nosing around it. The underwater survey suddenly has a very enthusiastic visitor.",
+    "hashtags": [
+      "#Shorts",
+      "#FunnyAnimals",
+      "#Seals",
+      "#Wildlife"
+    ],
+    "storyBeats": {
+      "hook": "This seal has found a diver’s fin.",
+      "development": "The seal approaches the camera, then investigates a diver’s fin.",
+      "payoff": "The seal keeps returning to the fin during the underwater survey."
+    },
+    "visualSubject": "seal"
+  },
+  {
     "id": "chiitan-mascot-fails",
     "label": "Chiitan, the Japanese mascot whose stunts always end in spectacular fails",
     "creator": "Chiitan (official mascot channel, via Wikimedia Commons)",
@@ -392,6 +465,7 @@
   },
   {
     "id": "audit-parrot-burned-subtitles",
+    "testOnly": true,
     "label": "Einstein the talking parrot (public domain) — burned-in subtitle overlay scenario",
     "creator": "Voice of America via Wikimedia Commons",
     "sourceResolution": "1080x1080",
@@ -431,6 +505,7 @@
   },
   {
     "id": "audit-licence-version-mismatch",
+    "testOnly": true,
     "label": "Otter playing with a rock — recorded claim CC BY-SA 4.0, file page records CC BY-SA 3.0 (must be rejected)",
     "creator": "Grendelkhan via Wikimedia Commons",
     "sourceResolution": "1280x720",
@@ -469,6 +544,7 @@
   },
   {
     "id": "audit-duplicate-elephant-source",
+    "testOnly": true,
     "label": "AUDIT FIXTURE: duplicate of the already-used elephant source (must be deduped, never produced)",
     "creator": "YouTube creator via Wikimedia Commons (CC BY)",
     "sourceResolution": "1920x1072",
@@ -508,6 +584,7 @@
   },
   {
     "id": "audit-weak-story-kitten",
+    "testOnly": true,
     "label": "Kitten playing in Tokyo — deliberately weak/incomplete story (must be held)",
     "creator": "Nesnad via Wikimedia Commons",
     "sourceResolution": "1920x1080",
@@ -539,6 +616,7 @@
   },
   {
     "id": "audit-moving-subject-sprint",
+    "testOnly": true,
     "label": "School sprinters crossing frame — fresh verified CC BY-SA 4.0 source (travelling-subject framing test)",
     "creator": "Arch-Angel Raphael the Artist via Wikimedia Commons",
     "sourceResolution": "1280x720",
@@ -580,6 +658,7 @@
   },
   {
     "id": "audit-moving-subject-horses",
+    "testOnly": true,
     "label": "Horses running across open pasture — fresh verified CC BY 3.0 source (travelling-subject cloud test)",
     "creator": "Field of Dreams via Wikimedia Commons",
     "sourceResolution": "1920x1080",

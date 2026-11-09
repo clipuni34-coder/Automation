@@ -24,6 +24,8 @@
 // and comparison. A human must still inspect the evidence before any
 // public use. Only `rights_verified_with_evidence` may enter production.
 
+import { sameSourceUrl } from "./source-identity.js";
+
 const PROHIBITED_FAMILIES = new Set(["by-nc", "by-nc-sa", "by-nc-nd", "by-nd"]);
 
 // Parse an exact Creative Commons licence (family + version) from a
@@ -127,9 +129,15 @@ export async function verifyCandidateRights(candidate, { fetchImpl = fetch } = {
     const payload = await res.json();
     const page = Object.values(payload?.query?.pages ?? {})[0];
     if (!page || page.missing !== undefined || !page.imageinfo?.length) throw new Error("File page not found on Commons");
-    const meta = page.imageinfo[0].extmetadata ?? null;
-    if (!meta) throw new Error("No extmetadata on file page");
-    return { ...base, ...classifyObservedLicence({ claimedType, claimedStatus, observedMeta: meta }), verificationMethod: "wikimedia_commons_api_extmetadata" };
+    const info = page.imageinfo[0];
+    const meta = info.extmetadata ?? null;
+    if (!meta || !info.url) throw new Error("No complete asset URL and licence metadata on file page");
+    // The licence must describe the exact footage the renderer will fetch,
+    // not a different file that happens to have an attractive licence.
+    if (!sameSourceUrl(candidate?.sourceUrl, info.url)) {
+      return { ...base, status: "permission_unclear", verificationMethod: "wikimedia_commons_api_extmetadata", reasons: ["The source URL does not match the original asset on the cited Commons file page."] };
+    }
+    return { ...base, observedSourceUrl: info.url, ...classifyObservedLicence({ claimedType, claimedStatus, observedMeta: meta }), verificationMethod: "wikimedia_commons_api_extmetadata" };
   } catch (error) {
     return { ...base, ...classifyObservedLicence({ claimedType, claimedStatus, observedMeta: null }), verificationMethod: "wikimedia_commons_api_extmetadata", verificationError: String(error?.message ?? error).slice(0, 200) };
   }

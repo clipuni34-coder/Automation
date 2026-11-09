@@ -18,7 +18,7 @@ import { join, resolve } from "node:path";
 import { qcAndRepair, probeVideo } from "../src/production/qc-repair.js";
 import { runAdvancedQc } from "../src/production/advanced-qc.js";
 import { generateNarration } from "../src/production/voice.js";
-import { buildCaptionCues, buildAssDocument, validateNarratedEntry, decideOverlayCorrection } from "../src/production/narrated-plan.js";
+import { buildCaptionCues, buildAssDocument, validateNarratedEntry, validateStoryWindowTiming, shouldMixOriginalAudio, decideOverlayCorrection } from "../src/production/narrated-plan.js";
 import {
   planSubjectFraming, evaluateSubjectFraming, evaluateRenderedFraming, buildSubjectBeatFilters,
 } from "../src/production/subject-framing.js";
@@ -106,6 +106,9 @@ for (const entry of manifest) {
   outcome.narration = { provider: narration.provider, model: narration.model ?? null };
   const narrationSeconds = audioDurationSeconds(narrationPath);
   if (!(narrationSeconds >= 8)) { await done("failed_narration", `Narration audio invalid or too short (${narrationSeconds}s).`); continue; }
+  const timing = validateStoryWindowTiming(entry, narrationSeconds, originalProbe.durationSeconds);
+  outcome.storyTiming = timing;
+  if (!timing.valid) { await done("held_story_timing", `Planned story timing did not fit this footage and narration: ${timing.reasons.join(" ")}`); continue; }
 
   // Source-overlay (watermark / promotional CTA) detection on the SOURCE
   // window, before any of our captions exist. Edge bands may be reframed
@@ -182,14 +185,14 @@ for (const entry of manifest) {
     + beatFilters.map((b, i) => `[vv${i + 1}]trim=start=${(i * Number(third)).toFixed(2)}:duration=${third},setpts=PTS-STARTPTS,${b.filter}[v${i + 1}];`).join("")
     + `[v1][v2][v3]concat=n=3:v=1:a=0,subtitles=${assPath.replace(/\\/g, "/").replace(/:/g, "\\:").replace(/'/g, "'\\''")}[v]`;
   const args = ["-y", "-hide_banner", "-loglevel", "error", "-i", rawPath, "-i", narrationPath, "-filter_complex", filter];
-  if (originalProbe.hasAudio) {
+  if (shouldMixOriginalAudio(originalProbe, entry)) {
     args.push("-filter_complex", `${filter};[0:a]atrim=start=${windowStart}:duration=${windowSeconds},asetpts=PTS-STARTPTS,volume=0.12[bg];[1:a]asetpts=PTS-STARTPTS[na];[bg][na]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]`, "-map", "[v]", "-map", "[a]");
   } else {
     args.push("-map", "[v]", "-map", "1:a");
   }
   // Rebuild args cleanly (filter defined once above).
   const finalArgs = ["-y", "-hide_banner", "-loglevel", "error", "-i", rawPath, "-i", narrationPath];
-  if (originalProbe.hasAudio) {
+  if (shouldMixOriginalAudio(originalProbe, entry)) {
     finalArgs.push("-filter_complex", `${filter};[0:a]atrim=start=${windowStart}:duration=${windowSeconds},asetpts=PTS-STARTPTS,volume=0.12[bg];[1:a]asetpts=PTS-STARTPTS[na];[bg][na]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]`, "-map", "[v]", "-map", "[a]");
   } else {
     finalArgs.push("-filter_complex", `${filter};[1:a]loudnorm=I=-14:TP=-1.5:LRA=11[na]`, "-map", "[v]", "-map", "[na]");

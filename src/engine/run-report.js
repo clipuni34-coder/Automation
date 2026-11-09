@@ -16,6 +16,8 @@ export function buildProductionReport(summary, { productionEnabled = false } = {
       duplicates: run.duplicates ?? 0,
       enqueued: run.enqueued ?? 0,
       awaitingPlan: run.awaitingPlan ?? 0,
+      attempted: run.attempted ?? 0,
+      retry: run.retry ?? null,
       produced,
       qcPassed: run.qcPassed ?? 0,
       uploaded: 0, // uploads happen only in the separate per-video approval step
@@ -29,9 +31,9 @@ export function buildProductionReport(summary, { productionEnabled = false } = {
     };
   });
   const totals = channels.reduce((acc, c) => {
-    for (const k of ["discovered", "researchOnlyRejected", "rightsVerified", "eligible", "rejected", "duplicates", "enqueued", "awaitingPlan", "produced", "qcPassed", "uploaded"]) acc[k] += c[k] ?? 0;
+    for (const k of ["discovered", "researchOnlyRejected", "rightsVerified", "eligible", "rejected", "duplicates", "enqueued", "awaitingPlan", "attempted", "produced", "qcPassed", "uploaded"]) acc[k] += c[k] ?? 0;
     return acc;
-  }, { discovered: 0, researchOnlyRejected: 0, rightsVerified: 0, eligible: 0, rejected: 0, duplicates: 0, enqueued: 0, awaitingPlan: 0, produced: 0, qcPassed: 0, uploaded: 0 });
+  }, { discovered: 0, researchOnlyRejected: 0, rightsVerified: 0, eligible: 0, rejected: 0, duplicates: 0, enqueued: 0, awaitingPlan: 0, attempted: 0, produced: 0, qcPassed: 0, uploaded: 0 });
   return {
     generatedAt: summary?.generatedAt ?? new Date().toISOString(),
     productionEnabled: Boolean(productionEnabled),

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { generateNarration } from "../src/production/voice.js";
+import { generateNarration, SHORT_FORM_NARRATION_STYLE } from "../src/production/voice.js";
 
 function fakeWav() {
   const bytes = Buffer.alloc(48);
@@ -128,4 +128,28 @@ test("local Kokoro can provide narration when no cloud API key is configured", a
   });
   assert.equal(result.status, "generated");
   assert.equal(result.provider, "kokoro-onnx");
+});
+
+test("short-form narration requests livelier Gemini delivery and a modest local speed", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "voice-short-form-"));
+  try {
+    const cloud = await generateNarration({
+      text: "A lively but clearly spoken narration needs room for the visual moment.",
+      outputPath: join(dir, "voice.wav"), apiKey: "test-key", style: SHORT_FORM_NARRATION_STYLE, localSpeed: 1.08,
+      fetchImpl: async (_url, options) => {
+        const style = JSON.parse(options.body).input[0].content[0].annotations[0].style;
+        assert.match(style, /brisk, conversational/i);
+        assert.match(style, /brief natural pauses/i);
+        return new Response(JSON.stringify({ output_audio: { data: fakeWav().toString("base64") } }), { status: 200 });
+      }
+    });
+    assert.equal(cloud.status, "generated");
+    let observedSpeed = null;
+    const local = await generateNarration({
+      text: "A lively but clearly spoken narration needs room for the visual moment.", apiKey: "", localSpeed: 1.08,
+      localGenerator: async ({ speed }) => { observedSpeed = speed; return { status: "generated", provider: "kokoro-onnx" }; }
+    });
+    assert.equal(local.provider, "kokoro-onnx"); assert.equal(observedSpeed, 1.08);
+    await assert.rejects(generateNarration({ text: "A sufficiently long narration to test speed validation.", apiKey: "", localSpeed: 3 }), /between 0.8 and 1.3/);
+  } finally { await rm(dir, { recursive: true, force: true }); }
 });

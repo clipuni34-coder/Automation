@@ -1,0 +1,334 @@
+{
+  "status": "transcribed",
+  "engine": "faster-whisper",
+  "model": "base",
+  "language": "en",
+  "wordCount": 54,
+  "droppedWordCount": 0,
+  "words": [
+    {
+      "word": "Me,",
+      "start": 0.0,
+      "end": 0.56,
+      "probability": 0.5267
+    },
+    {
+      "word": "Chiton,",
+      "start": 1.0,
+      "end": 1.48,
+      "probability": 0.4958
+    },
+    {
+      "word": "the",
+      "start": 1.86,
+      "end": 1.96,
+      "probability": 0.9622
+    },
+    {
+      "word": "fearless",
+      "start": 1.96,
+      "end": 2.48,
+      "probability": 0.8938
+    },
+    {
+      "word": "Japanese",
+      "start": 2.48,
+      "end": 3.0,
+      "probability": 0.9891
+    },
+    {
+      "word": "mascot",
+      "start": 3.0,
+      "end": 3.5,
+      "probability": 0.9984
+    },
+    {
+      "word": "who",
+      "start": 3.5,
+      "end": 3.84,
+      "probability": 0.8243
+    },
+    {
+      "word": "treats",
+      "start": 3.84,
+      "end": 4.1,
+      "probability": 0.9839
+    },
+    {
+      "word": "every",
+      "start": 4.1,
+      "end": 4.56,
+      "probability": 0.9949
+    },
+    {
+      "word": "stunt",
+      "start": 4.56,
+      "end": 4.84,
+      "probability": 0.9907
+    },
+    {
+      "word": "like",
+      "start": 4.84,
+      "end": 5.08,
+      "probability": 0.9866
+    },
+    {
+      "word": "a",
+      "start": 5.08,
+      "end": 5.22,
+      "probability": 0.9913
+    },
+    {
+      "word": "world",
+      "start": 5.22,
+      "end": 5.44,
+      "probability": 0.7996
+    },
+    {
+      "word": "championship",
+      "start": 5.44,
+      "end": 6.02,
+      "probability": 0.9734
+    },
+    {
+      "word": "final.",
+      "start": 6.02,
+      "end": 6.4,
+      "probability": 0.9486
+    },
+    {
+      "word": "The",
+      "start": 6.88,
+      "end": 7.14,
+      "probability": 0.9933
+    },
+    {
+      "word": "plan",
+      "start": 7.14,
+      "end": 7.72,
+      "probability": 0.9746
+    },
+    {
+      "word": "always",
+      "start": 7.72,
+      "end": 8.38,
+      "probability": 0.9894
+    },
+    {
+      "word": "starts",
+      "start": 8.38,
+      "end": 8.64,
+      "probability": 0.9913
+    },
+    {
+      "word": "with",
+      "start": 8.64,
+      "end": 8.92,
+      "probability": 0.9991
+    },
+    {
+      "word": "total",
+      "start": 8.92,
+      "end": 9.58,
+      "probability": 0.9915
+    },
+    {
+      "word": "confidence.",
+      "start": 9.58,
+      "end": 10.14,
+      "probability": 0.9979
+    },
+    {
+      "word": "The",
+      "start": 10.8,
+      "end": 11.08,
+      "probability": 0.9235
+    },
+    {
+      "word": "landing,",
+      "start": 11.08,
+      "end": 11.64,
+      "probability": 0.9784
+    },
+    {
+      "word": "however,",
+      "start": 11.86,
+      "end": 12.26,
+      "probability": 0.9984
+    },
+    {
+      "word": "has",
+      "start": 12.56,
+      "end": 12.76,
+      "probability": 0.9861
+    },
+    {
+      "word": "other",
+      "start": 12.76,
+      "end": 13.12,
+      "probability": 0.9952
+    },
+    {
+      "word": "ideas.",
+      "start": 13.12,
+      "end": 13.5,
+      "probability": 0.999
+    },
+    {
+      "word": "Watch",
+      "start": 14.22,
+      "end": 14.5,
+      "probability": 0.9939
+    },
+    {
+      "word": "the",
+      "start": 14.5,
+      "end": 14.7,
+      "probability": 0.9967
+    },
+    {
+      "word": "commitment,",
+      "start": 14.7,
+      "end": 14.98,
+      "probability": 0.9927
+    },
+    {
+      "word": "though.",
+      "start": 14.98,
+      "end": 15.24,
+      "probability": 0.9982
+    },
+    {
+      "word": "Every",
+      "start": 15.72,
+      "end": 16.02,
+      "probability": 0.9928
+    },
+    {
+      "word": "fall",
+      "start": 16.02,
+      "end": 16.32,
+      "probability": 0.9712
+    },
+    {
+      "word": "is",
+      "start": 16.32,
+      "end": 16.62,
+      "probability": 0.9964
+    },
+    {
+      "word": "followed",
+      "start": 16.62,
+      "end": 17.04,
+      "probability": 0.9961
+    },
+    {
+      "word": "by",
+      "start": 17.04,
+      "end": 17.28,
+      "probability": 0.9994
+    },
+    {
+      "word": "an",
+      "start": 17.28,
+      "end": 17.44,
+      "probability": 0.9887
+    },
+    {
+      "word": "instant",
+      "start": 17.44,
+      "end": 17.88,
+      "probability": 0.9936
+    },
+    {
+      "word": "comeback.",
+      "start": 17.88,
+      "end": 18.34,
+      "probability": 0.9047
+    },
+    {
+      "word": "That",
+      "start": 18.78,
+      "end": 19.12,
+      "probability": 0.9914
+    },
+    {
+      "word": "is",
+      "start": 19.12,
+      "end": 19.74,
+      "probability": 0.9707
+    },
+    {
+      "word": "the",
+      "start": 19.74,
+      "end": 19.96,
+      "probability": 0.9942
+    },
+    {
+      "word": "real",
+      "start": 19.96,
+      "end": 20.16,
+      "probability": 0.9934
+    },
+    {
+      "word": "lesson",
+      "start": 20.16,
+      "end": 20.52,
+      "probability": 0.9968
+    },
+    {
+      "word": "here.",
+      "start": 20.52,
+      "end": 20.78,
+      "probability": 0.9692
+    },
+    {
+      "word": "Fall",
+      "start": 21.38,
+      "end": 21.54,
+      "probability": 0.8427
+    },
+    {
+      "word": "spectacularly,",
+      "start": 21.54,
+      "end": 22.3,
+      "probability": 0.9971
+    },
+    {
+      "word": "get",
+      "start": 22.7,
+      "end": 22.98,
+      "probability": 0.9944
+    },
+    {
+      "word": "up",
+      "start": 22.98,
+      "end": 23.14,
+      "probability": 0.9946
+    },
+    {
+      "word": "immediately,",
+      "start": 23.14,
+      "end": 23.44,
+      "probability": 0.9965
+    },
+    {
+      "word": "and",
+      "start": 23.94,
+      "end": 24.06,
+      "probability": 0.9976
+    },
+    {
+      "word": "go",
+      "start": 24.06,
+      "end": 24.2,
+      "probability": 0.9977
+    },
+    {
+      "word": "again.",
+      "start": 24.2,
+      "end": 24.42,
+      "probability": 0.9977
+    }
+  ]
+}

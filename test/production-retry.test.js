@@ -289,9 +289,14 @@ test("a missing narration provider hold reopens only after a provider is configu
   assert.equal(ttsConfigurationRequeueDecision(job, { ...seed, testOnly: true }, { ttsConfigured: true }), false);
 });
 
-test("source audio is muted only when the plan explicitly requires it", async () => {
-  const { shouldMixOriginalAudio } = await import("../src/production/narrated-plan.js");
-  assert.equal(shouldMixOriginalAudio({ hasAudio: true }, {}), true);
-  assert.equal(shouldMixOriginalAudio({ hasAudio: true }, { muteOriginalAudio: true }), false);
-  assert.equal(shouldMixOriginalAudio({ hasAudio: false }, {}), false);
+test("source audio is muted unless explicitly enabled with separate clearance; explicit mute always wins", async () => {
+  const { shouldMixOriginalAudio, validateOriginalAudioPlan } = await import("../src/production/narrated-plan.js");
+  const cleared = { enabled: true, rightsStatus: "licensed", rightsEvidenceUrl: "https://example.org/audio-rights", license: "CC BY 4.0", allAudioElementsCleared: true, commercialUseAllowed: true, derivativesAllowed: true, basis: "Every sound and musical element in the source audio has been separately reviewed.", attribution: "Sound creator, CC BY 4.0" };
+  assert.equal(shouldMixOriginalAudio({ hasAudio: true }, {}), false);
+  assert.equal(shouldMixOriginalAudio({ hasAudio: true }, { sourceAudio: cleared }), true);
+  assert.equal(shouldMixOriginalAudio({ hasAudio: true }, { sourceAudio: cleared, muteOriginalAudio: true }), false);
+  assert.equal(shouldMixOriginalAudio({ hasAudio: false }, { sourceAudio: cleared }), false);
+  assert.equal(validateOriginalAudioPlan({ sourceAudio: { ...cleared, license: "CC BY-NC 4.0" } }).valid, false);
+  assert.equal(validateOriginalAudioPlan({ sourceAudio: { ...cleared, allAudioElementsCleared: false } }).valid, false);
+  assert.equal(validateOriginalAudioPlan({ sourceAudio: { ...cleared, rightsEvidenceUrl: "http://unsafe.example" } }).valid, false);
 });

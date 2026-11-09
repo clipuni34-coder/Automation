@@ -21,6 +21,7 @@
     },
     "hookText": "One puppy has the bed.",
     "postingTitle": "One Bed, Two Puppies 🐶",
+    "engagementPrompt": "Who gets the bed: the brown pup or the spotted pup?",
     "narrationScript": "One puppy has the bed. Another circles the cushion, keeps coming back, and finally climbs right in beside it. Suddenly, the quiet corner has become a two puppy hangout.",
     "hashtags": [
       "#Shorts",
@@ -33,7 +34,20 @@
       "development": "Another puppy circles and returns to the cushion.",
       "payoff": "The visitor climbs into the bed alongside the first puppy."
     },
-    "visualSubject": "puppy"
+    "visualSubject": "puppy",
+    "visualHookReview": {
+      "status": "editorial_reviewed",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Puppiesplaying-tokyoarea-jan7-2020.webm",
+      "sourceSha256": "52e89ad747baa1007f335fd863745614dd2072fe70f022307c2d098b00e3b847",
+      "windowStartSeconds": 7,
+      "firstActionSourceSeconds": 7.25,
+      "reviewedThroughSourceSeconds": 8.75,
+      "onScreenText": "One puppy has the bed.",
+      "visualAction": "The puppy in the bed leans toward the other puppy at its edge as they move around the cushion.",
+      "reviewMethod": "Eight source frames sampled at 4 fps from 7.00 to 8.75 seconds, reviewed in a contact sheet.",
+      "reviewedBy": "Assistant editorial review of sampled source frames, not a continuous human video review.",
+      "evidencePath": "docs/evidence/puppies-hook-7-9.jpg"
+    }
   },
   {
     "id": "seal-diver-fin-skomer",

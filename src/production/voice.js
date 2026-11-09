@@ -6,7 +6,11 @@ import { dirname, resolve } from "node:path";
 const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
 const MODELS = ["gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts"];
 
-async function generateKokoroNarration({ text, outputPath, modelPath, voicesPath, voice = "af_heart", pythonPath = process.env.KOKORO_PYTHON ?? "python3", timeoutMs = 600000 } = {}) {
+// Requested delivery, not a guarantee about how a particular model sounds.
+// Keep brief pauses for visual beats instead of rushing every word.
+export const SHORT_FORM_NARRATION_STYLE = "A warm, lively short-form storyteller speaking directly to a friend. Slightly brisk, conversational pacing with clear diction, expressive reactions and brief natural pauses around important visual moments. Avoid a formal documentary cadence, shouting, exaggeration or invented words.";
+
+async function generateKokoroNarration({ text, outputPath, modelPath, voicesPath, voice = "af_heart", speed = 1, pythonPath = process.env.KOKORO_PYTHON ?? "python3", timeoutMs = 600000 } = {}) {
   const model = resolve(modelPath ?? process.env.KOKORO_MODEL_PATH ?? "models/kokoro/kokoro-v1.0.onnx");
   const voices = resolve(voicesPath ?? process.env.KOKORO_VOICES_PATH ?? "models/kokoro/voices-v1.0.bin");
   if (!existsSync(model) || !existsSync(voices)) return { status: "not_configured", provider: "kokoro-onnx", outputPath: null };
@@ -29,7 +33,7 @@ async function generateKokoroNarration({ text, outputPath, modelPath, voicesPath
         reject(new Error("Kokoro local narration returned an invalid result: " + stdout.slice(-500)));
       }
     });
-    child.stdin.end(JSON.stringify({ text, outputPath: resolve(outputPath), modelPath: model, voicesPath: voices, voice }));
+    child.stdin.end(JSON.stringify({ text, outputPath: resolve(outputPath), modelPath: model, voicesPath: voices, voice, speed }));
   });
 }
 
@@ -47,14 +51,15 @@ function audioFromResponse(payload) {
 export async function generateNarration({
   text, outputPath = "narration.wav", style = "Natural, engaging, confident short-form documentary narrator. Clear diction, conversational pacing, expressive but not exaggerated.",
   voice = "Kore", apiKey = process.env.ENABLE_GEMINI_TTS === "true" ? (process.env.GEMINI_API_KEY ?? "") : "", fetchImpl = fetch, timeoutMs = 120000,
-  localVoice = process.env.KOKORO_VOICE ?? "af_heart", localGenerator = generateKokoroNarration
+  localVoice = process.env.KOKORO_VOICE ?? "af_heart", localSpeed = 1, localGenerator = generateKokoroNarration
 } = {}) {
   const narration = String(text ?? "").trim();
   if (!narration || narration.length < 20 || narration.length > 12000) {
     throw new Error("Narration text must contain between 20 and 12000 characters");
   }
+  if (!Number.isFinite(localSpeed) || localSpeed < 0.8 || localSpeed > 1.3) throw new Error("Local narration speed must be between 0.8 and 1.3");
   if (!apiKey) {
-    const local = await localGenerator({ text: narration, outputPath, voice: localVoice });
+    const local = await localGenerator({ text: narration, outputPath, voice: localVoice, speed: localSpeed });
     if (local.status === "generated") return local;
     return { status: "not_configured", provider: "gemini-and-kokoro", outputPath: null };
   }
@@ -112,7 +117,7 @@ export async function generateNarration({
     }
   }
   try {
-    const local = await localGenerator({ text: narration, outputPath, voice: localVoice });
+    const local = await localGenerator({ text: narration, outputPath, voice: localVoice, speed: localSpeed });
     if (local.status === "generated") return { ...local, fallbackReason: errors.join("; ") || "Gemini TTS unavailable" };
   } catch (error) {
     errors.push(error.message);

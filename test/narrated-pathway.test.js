@@ -1,19 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { splitScriptSentences, buildCaptionCues, buildAssDocument, validateNarratedEntry } from "../src/production/narrated-plan.js";
+import { splitScriptSentences, validateNarratedEntry } from "../src/production/narrated-plan.js";
 import { computeQualityAudit } from "../scripts/candidate-utils.mjs";
 
 const SCRIPT = "Meet Chiitan, the fearless mascot who never gives up. The plan starts with total confidence. The landing has other ideas entirely. But every fall gets an instant comeback. Fall spectacularly, get up immediately, and always go again.";
 
-test("caption cues cover the full narration with a flagged hook cue", () => {
-  const cues = buildCaptionCues(SCRIPT, 18);
-  assert.equal(cues.length, 5);
-  assert.equal(cues[0].hook, true);
-  assert.ok(Math.abs(cues.at(-1).end - 18) < 0.05);
-  for (let i = 1; i < cues.length; i++) assert.ok(cues[i].start >= cues[i - 1].end - 0.05);
-  const ass = buildAssDocument(cues, { title: "t" });
-  assert.match(ass, /Style: Hook/);
-  assert.match(ass, /Dialogue: 0,0:00:00\.00/);
+test("narration is split into the planned story sentences", () => {
+  const sentences = splitScriptSentences(SCRIPT);
+  assert.equal(sentences.length, 5);
+  assert.match(sentences[0], /^Meet Chiitan/);
+  assert.match(sentences.at(-1), /go again\.$/);
 });
 
 test("narrated entry validation enforces a complete story plan", () => {

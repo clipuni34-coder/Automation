@@ -5,20 +5,21 @@
 //   script narrated via configured TTS (Gemini when ENABLE_GEMINI_TTS=true,
 //   else local Kokoro; if neither is configured the candidate is HELD,
 //   never silently faked) -> vertical 9:16 re-edit of the selected window
-//   with narration as primary audio (original audio ducked underneath
-//   when present) -> burned captions incl. a distinct hook cue ->
-//   thumbnail -> technical QC/repair -> SHA-256 -> posting package.
+//   with narration as primary audio (source audio only if independently
+//   cleared and explicitly enabled) -> short captions aligned to the actual
+//   narration audio -> thumbnail -> technical QC/repair -> SHA-256 -> package.
 // Publishing is never performed here.
 // Usage: node scripts/produce-narrated.mjs [manifest] [outDir] [workDir]
 import { spawnSync } from "node:child_process";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { join, resolve } from "node:path";
 import { qcAndRepair, probeVideo } from "../src/production/qc-repair.js";
 import { runAdvancedQc } from "../src/production/advanced-qc.js";
-import { generateNarration } from "../src/production/voice.js";
-import { buildCaptionCues, buildAssDocument, validateNarratedEntry, validateStoryWindowTiming, shouldMixOriginalAudio, decideOverlayCorrection } from "../src/production/narrated-plan.js";
+import { generateNarration, SHORT_FORM_NARRATION_STYLE } from "../src/production/voice.js";
+import { validateNarratedEntry, validateVisualHookReview, validateOriginalAudioPlan, validateNarrationWindowBounds, validateStoryWindowTiming, shouldMixOriginalAudio, buildCreativeReviewChecklist, decideOverlayCorrection } from "../src/production/narrated-plan.js";
+import { buildSpeechAlignedCaptionCues, placeCaptionCues, buildAssDocument } from "../src/production/narrated-captions.js";
 import {
   planSubjectFraming, evaluateSubjectFraming, evaluateRenderedFraming, buildSubjectBeatFilters,
 } from "../src/production/subject-framing.js";
@@ -35,7 +36,7 @@ await mkdir(workDir, { recursive: true });
 
 function run(cmd, args, opts = {}) {
   const r = spawnSync(cmd, args, { encoding: "utf8", timeout: opts.timeout ?? 900000, maxBuffer: 32 * 1024 * 1024 });
-  return { status: r.status, stdout: r.stdout ?? "", stderr: r.stderr ?? "" };
+  return { status: r.status, stdout: r.stdout ?? "", stderr: r.stderr ?? "", error: r.error?.message ?? null };
 }
 function probe(path) {
   const r = run("ffprobe", ["-v", "error", "-show_entries", "format=duration,size:stream=codec_name,codec_type,width,height", "-of", "json", path], { timeout: 120000 });
@@ -85,10 +86,21 @@ for (const entry of manifest) {
   const validation = validateNarratedEntry(entry);
   if (!validation.valid) { await done("held_narration_plan_incomplete", `Narration plan incomplete: ${validation.reasons.join(" ")}`); continue; }
   outcome.narrationWords = validation.narrationWords;
+  const hookReview = validateVisualHookReview(entry);
+  outcome.visualHookReview = { status: hookReview.valid ? "review_recorded" : "unreviewed", reasons: hookReview.reasons };
+  if (!hookReview.valid) { await done("held_hook_unreviewed", `The opening needs an editorial action review: ${hookReview.reasons.join(" ")}`); continue; }
+  const audioPlan = validateOriginalAudioPlan(entry);
+  outcome.sourceAudio = { policy: audioPlan.reason, mixed: false };
+  if (!audioPlan.valid) { await done("held_audio_rights_unverified", `Source audio opt-in is not rights-cleared: ${audioPlan.reason}`); continue; }
 
   const rawPath = join(workDir, `${entry.id}.source`);
   const dl = run("curl", ["-fsSL", "-o", rawPath, entry.sourceUrl], { timeout: 1200000 });
-  if (dl.status !== 0) { await done("rejected_source_unavailable", `Download failed: ${dl.stderr.slice(-300)}`); continue; }
+  if (dl.status !== 0) { await done("rejected_source_unavailable", `Download failed: ${(dl.error ?? dl.stderr).slice(-300)}`); continue; }
+  const sourceSha256 = await sha256(rawPath);
+  outcome.visualHookReview.sourceSha256 = sourceSha256;
+  if (sourceSha256.toLowerCase() !== String(entry.visualHookReview.sourceSha256).toLowerCase()) {
+    await done("held_hook_source_changed", "The downloaded source does not match the SHA-256 of the reviewed opening; a new editorial review is required."); continue;
+  }
   const originalProbe = probe(rawPath);
   if (!originalProbe) { await done("failed_probe", "Downloaded file could not be probed."); continue; }
   outcome.originalProbe = originalProbe;
@@ -98,17 +110,39 @@ for (const entry of manifest) {
   const narrationPath = join(workDir, `${entry.id}.narration.wav`);
   let narration;
   try {
-    narration = await generateNarration({ text: entry.narrationScript, outputPath: narrationPath });
+    narration = await generateNarration({ text: entry.narrationScript, outputPath: narrationPath, style: SHORT_FORM_NARRATION_STYLE, localSpeed: 1.08 });
   } catch (error) {
     await done("held_tts_unavailable", `Narration generation failed: ${String(error?.message ?? error).slice(0, 300)}`); continue;
   }
   if (narration.status !== "generated") { await done("held_tts_not_configured", "No narration provider is configured (Gemini TTS requires ENABLE_GEMINI_TTS=true with GEMINI_API_KEY, or local Kokoro models). Candidate held, not faked."); continue; }
-  outcome.narration = { provider: narration.provider, model: narration.model ?? null };
+  outcome.narration = { provider: narration.provider, model: narration.model ?? null, delivery: "brisk_conversational_requested", localSpeed: narration.provider === "kokoro-onnx" ? 1.08 : null };
   const narrationSeconds = audioDurationSeconds(narrationPath);
   if (!(narrationSeconds >= 8)) { await done("failed_narration", `Narration audio invalid or too short (${narrationSeconds}s).`); continue; }
+  const bounds = validateNarrationWindowBounds(entry, narrationSeconds, originalProbe.durationSeconds);
+  if (!bounds.valid) { await done("held_story_timing", `Narration does not fit the footage: ${bounds.reasons.join(" ")}`); continue; }
   const timing = validateStoryWindowTiming(entry, narrationSeconds, originalProbe.durationSeconds);
   outcome.storyTiming = timing;
   if (!timing.valid) { await done("held_story_timing", `Planned story timing did not fit this footage and narration: ${timing.reasons.join(" ")}`); continue; }
+
+  // Transcribe the generated narration itself, never the ducked source mix.
+  // A fresh result is mandatory: the shared work directory may contain an old
+  // transcript from a previous attempt. Missing/uncertain timing is held rather
+  // than replaced by length-weighted guesses.
+  const wordTimesPath = join(workDir, `${entry.id}.narration-words.json`);
+  await rm(wordTimesPath, { force: true });
+  const asr = run(process.env.PYTHON ?? "python3", ["scripts/transcribe_video.py", narrationPath, wordTimesPath, "--model", "base", "--language", "en"], { timeout: 600000 });
+  if (asr.status !== 0) {
+    await done("held_caption_alignment_unavailable", `Narration transcription unavailable: ${(asr.error ?? asr.stderr ?? "").slice(-450)}`); continue;
+  }
+  let transcript;
+  try { transcript = JSON.parse(await readFile(wordTimesPath, "utf8")); }
+  catch { await done("held_caption_alignment_unavailable", "Narration transcription did not return a readable fresh word-timing file."); continue; }
+  if (transcript.engine !== "faster-whisper" || transcript.model !== "base" || transcript.language !== "en") {
+    await done("held_caption_alignment_unavailable", "Fresh narration transcription has an unexpected engine, model or language; speech timing cannot be verified."); continue;
+  }
+  const alignment = buildSpeechAlignedCaptionCues({ script: entry.narrationScript, transcription: transcript, durationSeconds: narrationSeconds, openingHookText: entry.visualHookReview.onScreenText });
+  outcome.captionAlignment = { status: alignment.status, engine: transcript.engine ?? null, model: transcript.model ?? null, language: transcript.language ?? null, metrics: alignment.metrics };
+  if (alignment.status !== "aligned") { await done("held_caption_alignment", `Speech-aligned captions could not be verified: ${alignment.reason}`); continue; }
 
   // Source-overlay (watermark / promotional CTA) detection on the SOURCE
   // window, before any of our captions exist. Edge bands may be reframed
@@ -163,12 +197,18 @@ for (const entry of manifest) {
     await done(sourceFramingGate.status === "untrackable" ? "held_subject_not_trackable" : "held_subject_out_of_frame", sourceFramingGate.reason);
     continue;
   }
-  const cues = buildCaptionCues(entry.narrationScript, narrationSeconds);
+  const placement = placeCaptionCues(alignment.cues, { track: subjectTrack, framingPlan, sourceWidth: originalProbe.width, sourceHeight: originalProbe.height, overlayDecision });
+  const cues = placement.cues;
   const assPath = join(workDir, `${entry.id}.captions.ass`);
   await writeFile(assPath, buildAssDocument(cues, { title: entry.postingTitle }));
   outcome.captionCues = cues.length;
+  outcome.captionAlignment.placement = placement.metrics;
+  outcome.captionAlignment.cues = cues.map((cue) => ({ text: cue.text, start: cue.start, end: cue.end, speechStart: cue.speechStart ?? cue.start, visualHook: cue.visualHook === true, lineBreakAfter: cue.lineBreakAfter ?? null, position: cue.position, placementEvidence: cue.placementEvidence, words: cue.words }));
 
   const outputPath = join(outDir, `${entry.id}.mp4`);
+  // A caption-free proxy from the SAME reframed video stream lets the output
+  // tracker check real picture motion rather than follow changing subtitles.
+  const cleanProxyPath = join(workDir, `${entry.id}.framing-qc.mp4`);
   // Meaningful re-edit, not a plain extraction: the window is cut into
   // three story beats with alternating punch-in reframing (wide -> 1.25x
   // punch -> wide), then our captions are burned over the joined edit.
@@ -183,21 +223,18 @@ for (const entry of manifest) {
   });
   const filter = `[0:v]trim=start=${windowStart}:duration=${windowSeconds},setpts=PTS-STARTPTS,${preCropFilter}split=3[vv1][vv2][vv3];`
     + beatFilters.map((b, i) => `[vv${i + 1}]trim=start=${(i * Number(third)).toFixed(2)}:duration=${third},setpts=PTS-STARTPTS,${b.filter}[v${i + 1}];`).join("")
-    + `[v1][v2][v3]concat=n=3:v=1:a=0,subtitles=${assPath.replace(/\\/g, "/").replace(/:/g, "\\:").replace(/'/g, "'\\''")}[v]`;
-  const args = ["-y", "-hide_banner", "-loglevel", "error", "-i", rawPath, "-i", narrationPath, "-filter_complex", filter];
-  if (shouldMixOriginalAudio(originalProbe, entry)) {
-    args.push("-filter_complex", `${filter};[0:a]atrim=start=${windowStart}:duration=${windowSeconds},asetpts=PTS-STARTPTS,volume=0.12[bg];[1:a]asetpts=PTS-STARTPTS[na];[bg][na]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]`, "-map", "[v]", "-map", "[a]");
-  } else {
-    args.push("-map", "[v]", "-map", "1:a");
-  }
-  // Rebuild args cleanly (filter defined once above).
-  const finalArgs = ["-y", "-hide_banner", "-loglevel", "error", "-i", rawPath, "-i", narrationPath];
-  if (shouldMixOriginalAudio(originalProbe, entry)) {
+    + `[v1][v2][v3]concat=n=3:v=1:a=0,split=2[captionIn][cleanIn];`
+    + `[captionIn]subtitles=${assPath.replace(/\\/g, "/").replace(/:/g, "\\:").replace(/'/g, "'\\''")}[v];[cleanIn]scale=360:640:flags=bicubic,fps=8[clean]`;
+  const finalArgs = ["-y", "-hide_banner", "-loglevel", "error", "-filter_complex_threads", "2", "-i", rawPath, "-i", narrationPath];
+  const mixSourceAudio = shouldMixOriginalAudio(originalProbe, entry);
+  outcome.sourceAudio.mixed = mixSourceAudio;
+  if (mixSourceAudio) {
     finalArgs.push("-filter_complex", `${filter};[0:a]atrim=start=${windowStart}:duration=${windowSeconds},asetpts=PTS-STARTPTS,volume=0.12[bg];[1:a]asetpts=PTS-STARTPTS[na];[bg][na]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]`, "-map", "[v]", "-map", "[a]");
   } else {
     finalArgs.push("-filter_complex", `${filter};[1:a]loudnorm=I=-14:TP=-1.5:LRA=11[na]`, "-map", "[v]", "-map", "[na]");
   }
-  finalArgs.push("-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", "-movflags", "+faststart", "-shortest", outputPath);
+  finalArgs.push("-c:v", "libx264", "-threads", "2", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", "-movflags", "+faststart", "-shortest", outputPath);
+  finalArgs.push("-map", "[clean]", "-an", "-c:v", "libx264", "-threads", "1", "-preset", "ultrafast", "-crf", "22", "-t", String(Math.min(windowSeconds, narrationSeconds)), cleanProxyPath);
   const render = run("ffmpeg", finalArgs, { timeout: 1200000 });
   if (render.status !== 0) { await done("failed_render", `Vertical narrated render failed: ${render.stderr.slice(-300)}`); continue; }
   outcome.outputPath = outputPath;
@@ -231,8 +268,22 @@ for (const entry of manifest) {
     await done("held_output_overlay", `Output still contains a detected source overlay: ${JSON.stringify(outcome.outputOverlayDetection.overlays)}`);
     continue;
   }
-  // Output-side framing gate: run the tracker on the RENDERED file so crop
-  // maths or offsets that did not do what the plan said cannot pass silently.
+  // Output-side framing gates: first inspect a proxy of the same reframed
+  // picture BEFORE captions, so animated word changes cannot impersonate a
+  // moving subject. Then retain the existing check on the final rendered file.
+  try {
+    const clean = run(process.env.PYTHON ?? "python3", ["scripts/track_subject.py", cleanProxyPath, "0", String(Math.min(windowSeconds, narrationSeconds))], { timeout: 900000 });
+    const cleanTrack = JSON.parse(clean.stdout.trim().split("\n").at(-1));
+    const cleanGate = evaluateRenderedFraming(cleanTrack, { plan: framingPlan });
+    outcome.subjectFraming.cleanOutputGate = { status: cleanGate.status, reason: cleanGate.reason, metrics: cleanGate.metrics };
+  } catch (e) {
+    outcome.subjectFraming.cleanOutputGate = { status: "untrackable", reason: `Caption-free output tracking failed: ${String(e?.message ?? e).slice(0, 200)}` };
+  }
+  if (outcome.subjectFraming.cleanOutputGate.status !== "pass") {
+    await done(outcome.subjectFraming.cleanOutputGate.status === "untrackable" ? "held_subject_check_failed" : "held_subject_out_of_frame", outcome.subjectFraming.cleanOutputGate.reason);
+    continue;
+  }
+  // Keep checking the final file as well: the proxy is not a substitute for it.
   try {
     const trOut = run(process.env.PYTHON ?? "python3", ["scripts/track_subject.py", outputPath, "0", String(Math.min(windowSeconds, narrationSeconds))], { timeout: 900000 });
     const outTrack = JSON.parse(trOut.stdout.trim().split("\n").at(-1));
@@ -246,7 +297,7 @@ for (const entry of manifest) {
     continue;
   }
   if (!(cues.length >= 3)) {
-    await done("held_story_incomplete", `Only ${cues.length} caption/story beats; a complete Short needs hook, development and payoff beats.`);
+    await done("held_story_incomplete", `Only ${cues.length} aligned caption phrases were generated; a complete Short needs a planned hook, development and payoff.`);
     continue;
   }
 
@@ -265,16 +316,19 @@ for (const entry of manifest) {
   outcome.qc = qc;
   if (qc.status === "failed") { await done("failed_qc", `Technical QC failed after repair attempt: ${(qc.failures ?? []).join("; ")}`); continue; }
   outcome.outputProbe = await probeVideo(outputPath, {}).catch(() => qc.probe);
+  outcome.creativeReview = buildCreativeReviewChecklist(outcome.outputProbe?.durationSeconds);
   outcome.sha256 = await sha256(outputPath);
   outcome.pipeline = {
     status: "completed", pathway: "narrated", wordCount: validation.narrationWords,
     editorialAverage: null, title: entry.postingTitle,
-    selectedMoments: cues.slice(0, 4).map((c) => c.text)
+    selectedMoments: [entry.storyBeats.hook, entry.storyBeats.development, entry.storyBeats.payoff]
   };
   outcome.postingPackage = {
     title: entry.postingTitle,
-    description: [entry.postingDescription ?? entry.narrationScript, "", `Source: ${entry.sourceUrl}`, `Credit: ${entry.creator}. Rights: ${lic.type} — ${lic.attributionRequirement ?? ""}`, "Original commentary narration, captions and edit by Primeplug."].join("\n").slice(0, 4500),
-    hashtags: entry.hashtags ?? ["#Shorts", "#funny", "#moments"]
+    description: [entry.postingDescription ?? entry.narrationScript, "", `Source: ${entry.sourceUrl}`, `Credit: ${entry.creator}. Rights: ${lic.type} — ${lic.attributionRequirement ?? ""}`, ...(mixSourceAudio ? [`Source audio: ${audioPlan.attribution}`] : []), "Original commentary narration, captions and edit by Primeplug."].join("\n").slice(0, 4500),
+    hashtags: entry.hashtags ?? ["#Shorts", "#funny", "#moments"],
+    // A suggestion for later human review only; no comment is posted or pinned.
+    suggestedComment: typeof entry.engagementPrompt === "string" ? entry.engagementPrompt.trim().slice(0, 200) || null : null
   };
   await done("completed", null);
 }

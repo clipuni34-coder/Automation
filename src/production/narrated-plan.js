@@ -5,6 +5,7 @@
 // is re-edited vertically around the narrated story beats, captions are
 // burned from the script, and the same technical QC applies. These
 // helpers are pure so the timing/caption logic is unit-testable.
+import { validateOpeningHookText } from "./narrated-captions.js";
 
 export function splitScriptSentences(script) {
   return String(script ?? "")
@@ -13,54 +14,6 @@ export function splitScriptSentences(script) {
     .split(/(?<=[.!?])\s+/)
     .map((s) => s.trim())
     .filter(Boolean);
-}
-
-// Distribute caption cues across the narration duration, weighted by
-// sentence length (longer sentence = more screen time). The first cue
-// is flagged as the hook cue.
-export function buildCaptionCues(script, durationSeconds) {
-  const sentences = splitScriptSentences(script);
-  if (!sentences.length || !(durationSeconds > 0)) return [];
-  const weights = sentences.map((s) => Math.max(8, s.length));
-  const total = weights.reduce((a, b) => a + b, 0);
-  let cursor = 0;
-  return sentences.map((text, i) => {
-    const span = (weights[i] / total) * durationSeconds;
-    const cue = { index: i, text, start: Number(cursor.toFixed(2)), end: Number(Math.min(durationSeconds, cursor + span).toFixed(2)), hook: i === 0 };
-    cursor += span;
-    return cue;
-  });
-}
-
-function assTime(seconds) {
-  const s = Math.max(0, seconds);
-  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60), cs = Math.round((s - Math.floor(s)) * 100);
-  return `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}.${String(cs).padStart(2, "0")}`;
-}
-
-function assEscape(text) {
-  return String(text).replace(/\{/g, "(").replace(/\}/g, ")").replace(/\n/g, " ");
-}
-
-// ASS subtitle document: hook cue larger and higher, body cues bottom.
-// 1080x1920 canvas (vertical Short).
-export function buildAssDocument(cues, { title = "" } = {}) {
-  const header = `[Script Info]
-Title: ${assEscape(title)}
-ScriptType: v4.00+
-PlayResX: 1080
-PlayResY: 1920
-
-[V4+ Styles]
-Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Hook,Arial,84,&H00FFFFFF,&H0000FFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,6,2,8,60,60,240,1
-Style: Body,Arial,64,&H00FFFFFF,&H0000FFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,5,2,2,60,60,180,1
-
-[Events]
-Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-`;
-  const lines = cues.map((c) => `Dialogue: 0,${assTime(c.start)},${assTime(c.end)},${c.hook ? "Hook" : "Body"},,0,0,0,,${assEscape(c.text)}`);
-  return header + lines.join("\n") + "\n";
 }
 
 export function validateNarratedEntry(entry) {
@@ -92,10 +45,64 @@ export function validateNarratedEntry(entry) {
   return { valid: reasons.length === 0, reasons, narrationWords: words };
 }
 
-// A plan may deliberately mute source audio; absence of the flag preserves
-// the established ducked-background mix for existing narrated candidates.
+// A compelling hook is an editorial judgment, not a motion score. Require a
+// recorded review of the FIRST TWO SECONDS of the exact source and edit window.
+// Hash the downloaded source separately in the producer before trusting it.
+// This validates the evidence record; it cannot itself judge the action.
+export function validateVisualHookReview(entry) {
+  const review = entry?.visualHookReview ?? {};
+  const reasons = [];
+  const start = Number(entry?.window?.startSeconds ?? 0);
+  const reviewedStart = Number(review.windowStartSeconds);
+  const action = Number(review.firstActionSourceSeconds);
+  const through = Number(review.reviewedThroughSourceSeconds);
+  if (review.status !== "editorial_reviewed") reasons.push("The visual opening has not been editorially reviewed.");
+  if (review.sourceUrl !== entry?.sourceUrl || !/^[a-f0-9]{64}$/i.test(String(review.sourceSha256 ?? ""))) reasons.push("Opening review must identify the exact source URL and SHA-256.");
+  if (!Number.isFinite(start) || start < 0 || review.windowStartSeconds == null || !Number.isFinite(reviewedStart) || Math.abs(reviewedStart - start) > 0.001) reasons.push("Opening review does not match the edit-window start.");
+  if (review.firstActionSourceSeconds == null || !Number.isFinite(action) || action < start || action > start + 2) reasons.push("The reviewed action must begin within the first two seconds.");
+  if (review.reviewedThroughSourceSeconds == null || !Number.isFinite(through) || through < start + 1.5 || through < action) reasons.push("Review evidence must cover the opening, not a single still.");
+  if (String(review.visualAction ?? "").trim().length < 20) reasons.push("The visible opening action needs a specific editorial description.");
+  if (String(review.reviewMethod ?? "").trim().length < 15 || !String(review.reviewedBy ?? "").trim()) reasons.push("Record who reviewed the opening and how it was reviewed.");
+  const openingText = validateOpeningHookText(entry?.narrationScript, review.onScreenText);
+  if (!openingText.valid) reasons.push(...openingText.reasons);
+  return { valid: reasons.length === 0, reasons };
+}
+
+// Original audio is optional. Reusing the picture licence is NOT enough to
+// clear every music, voice, or effect in the source audio. Default to muted;
+// an explicit opt-in must document clearance for all underlying elements.
+// A plan's explicit mute always wins (notably the Skomer seal plan).
+export function validateOriginalAudioPlan(entry) {
+  if (entry?.muteOriginalAudio === true) return { valid: true, mix: false, reason: "explicitly_muted" };
+  const audio = entry?.sourceAudio ?? {};
+  if (audio.enabled !== true) return { valid: true, mix: false, reason: "muted_by_default" };
+  const approved = new Set(["owned_by_user", "permission_granted", "licensed", "public_domain"]);
+  const reasons = [];
+  if (!approved.has(audio.rightsStatus)) reasons.push("audio rights status is not approved");
+  try { if (new URL(audio.rightsEvidenceUrl).protocol !== "https:") throw new Error("not HTTPS"); } catch { reasons.push("HTTPS audio-rights evidence is missing"); }
+  if (!String(audio.license ?? "").trim() || /noncommercial|no[ -]?derivatives|\bcc[ -]?by[ -]?nc\b|\bcc[ -]?by[ -]?nd\b/i.test(String(audio.license ?? ""))) reasons.push("audio licence is missing or restricts commercial/derivative use");
+  if (audio.allAudioElementsCleared !== true || audio.commercialUseAllowed !== true || audio.derivativesAllowed !== true) reasons.push("clearance of every audio element for commercial derivative use is not recorded");
+  if (String(audio.basis ?? "").trim().length < 20 || String(audio.attribution ?? "").trim().length < 8) reasons.push("audio clearance basis or attribution is missing");
+  return { valid: reasons.length === 0, mix: reasons.length === 0, reason: reasons.length ? reasons.join("; ") : "individually_cleared", attribution: audio.attribution ?? null };
+}
+
 export function shouldMixOriginalAudio(probe, entry) {
-  return probe?.hasAudio === true && entry?.muteOriginalAudio !== true;
+  const decision = validateOriginalAudioPlan(entry);
+  return probe?.hasAudio === true && decision.valid && decision.mix;
+}
+
+// Even legacy plans without a specific payoff minimum may not cut off the
+// generated narration at the end of the declared footage or the actual file.
+export function validateNarrationWindowBounds(entry, narrationSeconds, sourceDurationSeconds) {
+  const start = Number(entry?.window?.startSeconds ?? 0);
+  const declaredLength = Number(entry?.window?.seconds ?? 30);
+  const length = Math.min(declaredLength, 60);
+  const reasons = [];
+  if (!Number.isFinite(start) || start < 0 || !Number.isFinite(length) || length <= 0) reasons.push("The selected source window is invalid.");
+  if (!Number.isFinite(narrationSeconds) || narrationSeconds <= 0) reasons.push("Narration duration is unavailable.");
+  if (!Number.isFinite(sourceDurationSeconds) || sourceDurationSeconds <= start) reasons.push("The selected window is not present in the source.");
+  if (!reasons.length && narrationSeconds > Math.min(length, sourceDurationSeconds - start) + 0.05) reasons.push("Narration would be cut off before it finishes.");
+  return { valid: reasons.length === 0, reasons };
 }
 
 // Optional, fail-closed timing guard for a plan whose visual payoff occurs
@@ -121,6 +128,21 @@ export function validateStoryWindowTiming(entry, narrationSeconds, sourceDuratio
   if (guaranteedSeconds + 0.01 < required) reasons.push("Narration would end the edit before the planned visual payoff.");
   if (narrationSeconds > length + 0.05) reasons.push("Narration is longer than the planned footage and would be cut off.");
   return { valid: reasons.length === 0, reasons, renderedSeconds, guaranteedSeconds };
+}
+
+// Soft editorial targets, never an instruction to truncate or pad a story.
+// Loop quality is a human judgment about the actual end-to-start transition.
+export function buildCreativeReviewChecklist(durationSeconds) {
+  const duration = Number(durationSeconds);
+  const available = Number.isFinite(duration) && duration > 0;
+  return {
+    durationSeconds: available ? duration : null,
+    durationTargetSeconds: [15, 20],
+    durationStatus: !available ? "unavailable" : duration >= 15 && duration <= 20 ? "within_target" : "outside_target_review",
+    loopStatus: "review_required",
+    loopReview: "Compare the final moment with the opening in a continuous replay; preserve the complete visual payoff and narration.",
+    analyticsReview: "Check 24-48 hours after an approved upload, if Studio data is available."
+  };
 }
 
 // Decide how to handle a source-overlay detection BEFORE rendering.

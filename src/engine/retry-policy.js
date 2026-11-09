@@ -2,7 +2,7 @@
 // another production attempt. A quality/rights hold is a decision, not a
 // transient failure; repeatedly resetting it without changing the input
 // wastes every daily slot and can never make the output safe.
-import { validateNarratedEntry } from "../production/narrated-plan.js";
+import { validateNarratedEntry, validateVisualHookReview } from "../production/narrated-plan.js";
 
 export function isDailyProductionSeed(seed) {
   return Boolean(seed && seed.testOnly !== true);
@@ -27,13 +27,14 @@ function planKey(seed) {
     storyBeats: seed?.storyBeats ?? null,
     visualSubject: seed?.visualSubject ?? null,
     muteOriginalAudio: seed?.muteOriginalAudio === true,
+    sourceAudio: seed?.sourceAudio ?? null,
     processing: seed?.processing ?? null
   }));
 }
 
 export function isTransientProductionOutcome(outcome) {
-  if (!["rejected_source_unavailable", "held_tts_unavailable"].includes(outcome?.status)) return false;
-  return /429|\b5\d\d\b|network|fetch|timeout|timed out|connect|unreachable|temporar|econn|enotfound|quota|resource_exhausted/i.test(String(outcome.reason ?? ""));
+  if (!["rejected_source_unavailable", "held_tts_unavailable", "held_caption_alignment_unavailable"].includes(outcome?.status)) return false;
+  return /429|\b5\d\d\b|network|fetch|timeout|timed ?out|etimedout|connect|unreachable|temporar|econn|enotfound|quota|resource_exhausted/i.test(String(outcome.reason ?? ""));
 }
 
 function localDay(value, timeZone) {
@@ -74,13 +75,21 @@ export function narratedRequeueDecision(job, currentSeed) {
   if (!validation.valid) return no("updated_narration_plan_incomplete");
   const previousSeed = job.candidate?.seedManifestEntry;
   if (!previousSeed) return no("previous_plan_unknown");
-  if (planKey(previousSeed) === planKey(currentSeed)) return no("plan_unchanged");
+  if (planKey(previousSeed) === planKey(currentSeed)) {
+    // Adding opening-review evidence may resolve an opening-review hold, but
+    // MUST NOT reopen an unrelated timing/overlay/rights hold by itself.
+    const hookHold = ["held_hook_unreviewed", "held_hook_source_changed"].includes(job.result?.outcome);
+    const reviewChanged = JSON.stringify(stable(previousSeed.visualHookReview ?? null)) !== JSON.stringify(stable(currentSeed.visualHookReview ?? null));
+    if (hookHold && reviewChanged && validateVisualHookReview(currentSeed).valid) return { requeue: true, reason: "opening_review_completed" };
+    return no("plan_unchanged");
+  }
   if (previousSeed.productionMode !== "narrated") {
     // This transition was designed for non-speech source footage that was
     // previously rejected because transcript-based production could not run.
     // Do not bypass or reopen a rights, overlay, privacy or licence hold.
     const outcome = String(job.result?.outcome ?? "");
     const reason = String(job.result?.reason ?? "");
+    if (outcome === "held_excerpt_creative_review" && validateVisualHookReview(currentSeed).valid) return { requeue: true, reason: "reviewed_narrated_plan_for_legacy_excerpt" };
     const noUsableSpeech = outcome === "rejected_no_speech" || /no usable speech|no intelligible spoken|no transcript moments/i.test(reason);
     return noUsableSpeech ? { requeue: true, reason: "new_narrated_plan_for_no_speech" } : no("previous_failure_not_no_speech");
   }

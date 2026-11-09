@@ -11,6 +11,9 @@ def main():
     parser.add_argument("video")
     parser.add_argument("output")
     parser.add_argument("--model", default="base")
+    # Narrated scripts have a known language; callers can specify it without
+    # changing language detection for ordinary source-media transcription.
+    parser.add_argument("--language", default=None)
     args = parser.parse_args()
     source = Path(args.video)
     if not source.is_file():
@@ -32,7 +35,7 @@ def main():
     model = WhisperModel(args.model, device="cpu", compute_type="int8")
     try:
         segments, info = model.transcribe(
-            str(source), beam_size=5, word_timestamps=True, vad_filter=True
+            str(source), beam_size=5, word_timestamps=True, vad_filter=True, language=args.language
         )
         segment_list = list(segments)  # decoding happens lazily during iteration
     except Exception as exc:

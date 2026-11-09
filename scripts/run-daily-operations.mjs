@@ -21,6 +21,7 @@ import { verifyCandidateRights } from "../src/engine/rights-verification.js";
 import { collectCommonsCandidates } from "../src/discovery/sources/commons.js";
 import { buildProductionReport } from "../src/engine/run-report.js";
 import { isDailyProductionSeed, isTransientProductionOutcome, narratedRequeueDecision, transientNextDayDecision, ttsConfigurationRequeueDecision } from "../src/engine/retry-policy.js";
+import { primeplugCreativePathwayGate } from "../src/engine/primeplug-creative-policy.js";
 
 const stateRoot = resolve(process.env.STATE_DIR ?? "data/state");
 const channelsPath = process.env.CHANNEL_PROFILES_PATH ?? "config/channels.json";
@@ -113,6 +114,8 @@ async function produceJob(job, channel) {
   if (!gate.allowed) return { produced: false, outcome: gate.outcome, reason: gate.reason };
   job.candidate = gate.candidate;
   const seed = gate.seed;
+  const creativeGate = primeplugCreativePathwayGate(channel, seed);
+  if (!creativeGate.allowed) return { produced: false, outcome: creativeGate.outcome, reason: creativeGate.reason };
   if (seed.productionMode === "narrated") {
     const channelWorkN = join(stateRoot, channel.id, "production");
     await mkdir(channelWorkN, { recursive: true });
@@ -126,7 +129,7 @@ async function produceJob(job, channel) {
     let outcomeN = null;
     try { outcomeN = JSON.parse(await readFile(join(outDirN, `${job.candidate.id}.candidate.json`), "utf8")); } catch { /* below */ }
     if (!outcomeN || outcomeN.id !== job.candidate.id) throw new Error(`Narrated production produced no matching outcome record: ${(rn.stderr || rn.stdout || "").slice(-300)}`);
-    if (outcomeN.status === "completed") return { produced: true, outcome: outcomeN.status, pathway: "narrated", outputPath: outcomeN.outputPath, sha256: outcomeN.sha256, thumbnailPath: outcomeN.thumbnailPath ?? null, title: outcomeN.postingPackage?.title ?? null, postingPackage: outcomeN.postingPackage ?? null };
+    if (outcomeN.status === "completed") return { produced: true, outcome: outcomeN.status, pathway: "narrated", outputPath: outcomeN.outputPath, sha256: outcomeN.sha256, thumbnailPath: outcomeN.thumbnailPath ?? null, title: outcomeN.postingPackage?.title ?? null, postingPackage: outcomeN.postingPackage ?? null, creativeReview: outcomeN.creativeReview ?? null };
     if (isTransientProductionOutcome(outcomeN)) throw new Error(`Temporary production dependency failure: ${outcomeN.status}`);
     return { produced: false, outcome: outcomeN.status, pathway: "narrated", reason: outcomeN.reason };
   }

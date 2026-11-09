@@ -1,0 +1,39 @@
+[
+  {
+    "id": "seal-diver-fin-skomer",
+    "label": "Curious seal investigates a diver’s fin near Skomer",
+    "creator": "Natural Resources Wales, via Wikimedia Commons",
+    "sourceResolution": "960x720",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/04/Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm",
+    "license": {
+      "type": "CC BY 3.0",
+      "basis": "The Commons file page identifies Natural Resources Wales as creator and source and records Creative Commons Attribution 3.0.",
+      "rightsStatus": "licensed",
+      "attributionRequirement": "Natural Resources Wales, Seal playing with NRW diver near Skomer, via Wikimedia Commons; CC BY 3.0: https://creativecommons.org/licenses/by/3.0/ . This Short is an edited adaptation with original narration and captions.",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "productionMode": "narrated",
+    "muteOriginalAudio": true,
+    "window": {
+      "startSeconds": 20,
+      "seconds": 22,
+      "minimumStorySeconds": 14
+    },
+    "hookText": "This seal has found a diver’s fin.",
+    "postingTitle": "The Seal That Joined a Diver’s Survey 🦭",
+    "narrationScript": "This seal has found a diver’s fin. First it comes right up to the camera, then turns its attention to the fin and keeps nosing around it. The underwater survey suddenly has a very enthusiastic visitor.",
+    "hashtags": [
+      "#Shorts",
+      "#FunnyAnimals",
+      "#Seals",
+      "#Wildlife"
+    ],
+    "storyBeats": {
+      "hook": "This seal has found a diver’s fin.",
+      "development": "The seal approaches the camera, then investigates a diver’s fin.",
+      "payoff": "The seal keeps returning to the fin during the underwater survey."
+    },
+    "visualSubject": "seal"
+  }
+]

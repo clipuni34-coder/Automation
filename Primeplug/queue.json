@@ -1550,6 +1550,200 @@
         }
       },
       "finishedAt": "2026-11-06T09:50:58.309Z"
+    },
+    {
+      "attempts": 1,
+      "status": "completed",
+      "createdAt": "2026-11-09T06:55:25.956Z",
+      "fingerprint": "c6e0f28794e46168b3d734b5",
+      "type": "produce",
+      "candidate": {
+        "id": "puppies-share-bed-tokyo",
+        "title": "Two puppies and the contested bed — original Tokyo footage",
+        "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Puppiesplaying-tokyoarea-jan7-2020.webm",
+        "creator": "Nesnad, via Wikimedia Commons",
+        "supersedesCandidateId": null,
+        "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Puppiesplaying-tokyoarea-jan7-2020.webm",
+        "license": {
+          "type": "CC BY 4.0",
+          "basis": "The Commons file page records Nesnad as the creator, own work, licensed under Creative Commons Attribution 4.0.",
+          "rightsStatus": "licensed",
+          "attributionRequirement": "Nesnad, Puppies playing, via Wikimedia Commons; original CC BY 4.0: https://creativecommons.org/licenses/by/4.0/ . This Short is an edited adaptation with added narration and captions.",
+          "verificationStatus": "evidence_recorded_on_commons_file_page"
+        },
+        "sourceResolution": "1694x1060",
+        "seedManifestEntry": {
+          "id": "puppies-share-bed-tokyo",
+          "label": "Two puppies and the contested bed — original Tokyo footage",
+          "creator": "Nesnad, via Wikimedia Commons",
+          "sourceResolution": "1694x1060",
+          "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Puppiesplaying-tokyoarea-jan7-2020.webm",
+          "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Puppiesplaying-tokyoarea-jan7-2020.webm",
+          "license": {
+            "type": "CC BY 4.0",
+            "basis": "The Commons file page records Nesnad as the creator, own work, licensed under Creative Commons Attribution 4.0.",
+            "rightsStatus": "licensed",
+            "attributionRequirement": "Nesnad, Puppies playing, via Wikimedia Commons; original CC BY 4.0: https://creativecommons.org/licenses/by/4.0/ . This Short is an edited adaptation with added narration and captions.",
+            "verificationStatus": "evidence_recorded_on_commons_file_page"
+          },
+          "productionMode": "narrated",
+          "window": {
+            "startSeconds": 7,
+            "seconds": 15.3,
+            "minimumStorySeconds": 14
+          },
+          "hookText": "One puppy has the bed.",
+          "postingTitle": "One Bed, Two Puppies 🐶",
+          "narrationScript": "One puppy has the bed. Another circles the cushion, keeps coming back, and finally climbs right in beside it. Suddenly, the quiet corner has become a two puppy hangout.",
+          "hashtags": [
+            "#Shorts",
+            "#FunnyAnimals",
+            "#Puppies",
+            "#Dogs"
+          ],
+          "storyBeats": {
+            "hook": "One puppy has the bed.",
+            "development": "Another puppy circles and returns to the cushion.",
+            "payoff": "The visitor climbs into the bed alongside the first puppy."
+          },
+          "visualSubject": "puppy"
+        },
+        "rightsVerification": {
+          "candidateId": "puppies-share-bed-tokyo",
+          "claimedType": "CC BY 4.0",
+          "claimedStatus": "licensed",
+          "evidenceUrl": "https://commons.wikimedia.org/wiki/File:Puppiesplaying-tokyoarea-jan7-2020.webm",
+          "checkedAt": "2026-11-09T06:55:26.099Z",
+          "observedSourceUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Puppiesplaying-tokyoarea-jan7-2020.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "status": "rights_verified_with_evidence",
+          "commercialUse": true,
+          "derivativesAllowed": true,
+          "shareAlike": false,
+          "attributionRequired": true,
+          "artist": "Nesnad",
+          "licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+          "observedLicence": "CC BY 4.0",
+          "licenceFamily": "by",
+          "licenceVersion": "4.0",
+          "reasons": [
+            "Exact licence observed on the asset's Commons file page (CC BY 4.0) matches the claim and permits commercial reuse and derivative works. This is recorded evidence, not legal certification."
+          ],
+          "verificationMethod": "wikimedia_commons_api_extmetadata"
+        }
+      },
+      "channelId": "Primeplug",
+      "updatedAt": "2026-11-09T06:55:26.097Z",
+      "result": {
+        "produced": false,
+        "outcome": "held_story_timing",
+        "pathway": "narrated",
+        "reason": "Planned story timing did not fit this footage and narration: Narration would end the edit before the planned visual payoff."
+      },
+      "finishedAt": "2026-11-09T06:55:31.729Z"
+    },
+    {
+      "attempts": 1,
+      "status": "completed",
+      "createdAt": "2026-11-09T06:55:25.963Z",
+      "fingerprint": "57c3e42a42580e79afee6f89",
+      "type": "produce",
+      "candidate": {
+        "id": "seal-diver-fin-skomer",
+        "title": "Curious seal investigates a diver’s fin near Skomer",
+        "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/04/Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm",
+        "creator": "Natural Resources Wales, via Wikimedia Commons",
+        "supersedesCandidateId": null,
+        "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm",
+        "license": {
+          "type": "CC BY 3.0",
+          "basis": "The Commons file page identifies Natural Resources Wales as creator and source and records Creative Commons Attribution 3.0.",
+          "rightsStatus": "licensed",
+          "attributionRequirement": "Natural Resources Wales, Seal playing with NRW diver near Skomer, via Wikimedia Commons; CC BY 3.0: https://creativecommons.org/licenses/by/3.0/ . This Short is an edited adaptation with original narration and captions.",
+          "verificationStatus": "evidence_recorded_on_commons_file_page"
+        },
+        "sourceResolution": "960x720",
+        "seedManifestEntry": {
+          "id": "seal-diver-fin-skomer",
+          "label": "Curious seal investigates a diver’s fin near Skomer",
+          "creator": "Natural Resources Wales, via Wikimedia Commons",
+          "sourceResolution": "960x720",
+          "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/04/Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm",
+          "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm",
+          "license": {
+            "type": "CC BY 3.0",
+            "basis": "The Commons file page identifies Natural Resources Wales as creator and source and records Creative Commons Attribution 3.0.",
+            "rightsStatus": "licensed",
+            "attributionRequirement": "Natural Resources Wales, Seal playing with NRW diver near Skomer, via Wikimedia Commons; CC BY 3.0: https://creativecommons.org/licenses/by/3.0/ . This Short is an edited adaptation with original narration and captions.",
+            "verificationStatus": "evidence_recorded_on_commons_file_page"
+          },
+          "productionMode": "narrated",
+          "muteOriginalAudio": true,
+          "window": {
+            "startSeconds": 20,
+            "seconds": 22,
+            "minimumStorySeconds": 14
+          },
+          "hookText": "This seal has found a diver’s fin.",
+          "postingTitle": "The Seal That Joined a Diver’s Survey 🦭",
+          "narrationScript": "This seal has found a diver’s fin. First it comes right up to the camera, then turns its attention to the fin and keeps nosing around it. The underwater survey suddenly has a very enthusiastic visitor.",
+          "hashtags": [
+            "#Shorts",
+            "#FunnyAnimals",
+            "#Seals",
+            "#Wildlife"
+          ],
+          "storyBeats": {
+            "hook": "This seal has found a diver’s fin.",
+            "development": "The seal approaches the camera, then investigates a diver’s fin.",
+            "payoff": "The seal keeps returning to the fin during the underwater survey."
+          },
+          "visualSubject": "seal"
+        },
+        "rightsVerification": {
+          "candidateId": "seal-diver-fin-skomer",
+          "claimedType": "CC BY 3.0",
+          "claimedStatus": "licensed",
+          "evidenceUrl": "https://commons.wikimedia.org/wiki/File:Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm",
+          "checkedAt": "2026-11-09T06:55:31.732Z",
+          "observedSourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/04/Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "status": "rights_verified_with_evidence",
+          "commercialUse": true,
+          "derivativesAllowed": true,
+          "shareAlike": false,
+          "attributionRequired": true,
+          "artist": "Natural Resources Wales",
+          "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+          "observedLicence": "CC BY 3.0",
+          "licenceFamily": "by",
+          "licenceVersion": "3.0",
+          "reasons": [
+            "Exact licence observed on the asset's Commons file page (CC BY 3.0) matches the claim and permits commercial reuse and derivative works. This is recorded evidence, not legal certification."
+          ],
+          "verificationMethod": "wikimedia_commons_api_extmetadata"
+        }
+      },
+      "channelId": "Primeplug",
+      "updatedAt": "2026-11-09T06:55:31.731Z",
+      "result": {
+        "produced": true,
+        "outcome": "completed",
+        "pathway": "narrated",
+        "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/attempts/623a3086-9603-452e-8d78-87e00e343e01/seal-diver-fin-skomer.mp4",
+        "sha256": "5fdbdc8bd59cd7e062a4201bb7766842066be62ac2104d7dd2da007d62a582ac",
+        "thumbnailPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/attempts/623a3086-9603-452e-8d78-87e00e343e01/seal-diver-fin-skomer.thumbnail.jpg",
+        "title": "The Seal That Joined a Diver’s Survey 🦭",
+        "postingPackage": {
+          "title": "The Seal That Joined a Diver’s Survey 🦭",
+          "description": "This seal has found a diver’s fin. First it comes right up to the camera, then turns its attention to the fin and keeps nosing around it. The underwater survey suddenly has a very enthusiastic visitor.\n\nSource: https://upload.wikimedia.org/wikipedia/commons/0/04/Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm\nCredit: Natural Resources Wales, via Wikimedia Commons. Rights: CC BY 3.0 — Natural Resources Wales, Seal playing with NRW diver near Skomer, via Wikimedia Commons; CC BY 3.0: https://creativecommons.org/licenses/by/3.0/ . This Short is an edited adaptation with original narration and captions.\nOriginal commentary narration, captions and edit by Primeplug.",
+          "hashtags": [
+            "#Shorts",
+            "#FunnyAnimals",
+            "#Seals",
+            "#Wildlife"
+          ]
+        }
+      },
+      "finishedAt": "2026-11-09T06:56:07.341Z"
     }
   ]
 }

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "puppies-share-bed-tokyo",
+    "label": "Two puppies and the contested bed — original Tokyo footage",
+    "creator": "Nesnad, via Wikimedia Commons",
+    "sourceResolution": "1694x1060",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Puppiesplaying-tokyoarea-jan7-2020.webm",
+    "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Puppiesplaying-tokyoarea-jan7-2020.webm",
+    "license": {
+      "type": "CC BY 4.0",
+      "basis": "The Commons file page records Nesnad as the creator, own work, licensed under Creative Commons Attribution 4.0.",
+      "rightsStatus": "licensed",
+      "attributionRequirement": "Nesnad, Puppies playing, via Wikimedia Commons; original CC BY 4.0: https://creativecommons.org/licenses/by/4.0/ . This Short is an edited adaptation with added narration and captions.",
+      "verificationStatus": "evidence_recorded_on_commons_file_page"
+    },
+    "productionMode": "narrated",
+    "window": {
+      "startSeconds": 7,
+      "seconds": 15.3,
+      "minimumStorySeconds": 14
+    },
+    "hookText": "One puppy has the bed.",
+    "postingTitle": "One Bed, Two Puppies 🐶",
+    "narrationScript": "One puppy has the bed. Another circles the cushion, keeps coming back, and finally climbs right in beside it. Suddenly, the quiet corner has become a two puppy hangout.",
+    "hashtags": [
+      "#Shorts",
+      "#FunnyAnimals",
+      "#Puppies",
+      "#Dogs"
+    ],
+    "storyBeats": {
+      "hook": "One puppy has the bed.",
+      "development": "Another puppy circles and returns to the cushion.",
+      "payoff": "The visitor climbs into the bed alongside the first puppy."
+    },
+    "visualSubject": "puppy"
+  }
+]

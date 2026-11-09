@@ -1,0 +1,263 @@
+{
+  "id": "seal-diver-fin-skomer",
+  "label": "Curious seal investigates a diver’s fin near Skomer",
+  "creator": "Natural Resources Wales, via Wikimedia Commons",
+  "pathway": "narrated",
+  "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/0/04/Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm",
+  "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm",
+  "license": {
+    "type": "CC BY 3.0",
+    "basis": "The Commons file page identifies Natural Resources Wales as creator and source and records Creative Commons Attribution 3.0.",
+    "rightsStatus": "licensed",
+    "attributionRequirement": "Natural Resources Wales, Seal playing with NRW diver near Skomer, via Wikimedia Commons; CC BY 3.0: https://creativecommons.org/licenses/by/3.0/ . This Short is an edited adaptation with original narration and captions.",
+    "verificationStatus": "evidence_recorded_on_commons_file_page"
+  },
+  "status": "completed",
+  "reason": null,
+  "outputPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/attempts/623a3086-9603-452e-8d78-87e00e343e01/seal-diver-fin-skomer.mp4",
+  "thumbnailPath": "/home/runner/work/Automation/Automation/state/Primeplug/production/output/attempts/623a3086-9603-452e-8d78-87e00e343e01/seal-diver-fin-skomer.thumbnail.jpg",
+  "sha256": "5fdbdc8bd59cd7e062a4201bb7766842066be62ac2104d7dd2da007d62a582ac",
+  "startedAt": "2026-11-09T06:55:31.824Z",
+  "finishedAt": "2026-11-09T06:56:07.317Z",
+  "narrationWords": 36,
+  "originalProbe": {
+    "width": 960,
+    "height": 720,
+    "durationSeconds": 74.141,
+    "hasAudio": true
+  },
+  "narration": {
+    "provider": "gemini",
+    "model": "gemini-3.8-flash-tts"
+  },
+  "storyTiming": {
+    "valid": true,
+    "reasons": [],
+    "renderedSeconds": 15.4,
+    "guaranteedSeconds": 14.4
+  },
+  "sourceOverlayDetection": {
+    "status": "ok",
+    "frames": 22,
+    "wholeFrameChange": 28.69,
+    "overlays": [],
+    "detected": false
+  },
+  "overlayDecision": {
+    "action": "none",
+    "reason": null
+  },
+  "subjectFraming": {
+    "status": "planned",
+    "track": {
+      "frames": 123,
+      "fps": 8,
+      "usableFrames": 122,
+      "usableRatio": 0.992,
+      "peakRange": [
+        0.081,
+        0.912
+      ],
+      "spanRange": [
+        0.069,
+        0.919
+      ],
+      "coreSpanRange": [
+        0.075,
+        0.906
+      ],
+      "mainRange": [
+        0.009,
+        0.945
+      ],
+      "medianMainWidth": 0.169,
+      "medianMainShare": 0.574,
+      "rejectedJumps": 9,
+      "medianProminence": 33.67
+    },
+    "beats": [
+      {
+        "mode": "contain",
+        "widthFraction": 1,
+        "cropCoverage": 1
+      },
+      {
+        "mode": "contain",
+        "widthFraction": 1,
+        "cropCoverage": 1
+      },
+      {
+        "mode": "contain",
+        "widthFraction": 1,
+        "cropCoverage": 1
+      }
+    ],
+    "sourceGate": {
+      "status": "pass",
+      "reason": "Main subject inside the safe frame in 100.0% of 122 measurable frames.",
+      "metrics": {
+        "usableFrames": 122,
+        "totalFrames": 123,
+        "usableRatio": 0.992,
+        "containedFrames": 122,
+        "containedRatio": 1,
+        "spanCutFrames": 0,
+        "failures": [],
+        "spanCuts": []
+      }
+    },
+    "outputGate": {
+      "status": "pass",
+      "reason": "Rendered subject inside the safe band in 100.0% of measurable frames.",
+      "metrics": {
+        "usableFrames": 114,
+        "totalFrames": 115,
+        "usableRatio": 0.991,
+        "insideRatio": 1,
+        "peakRange": [
+          0.081,
+          0.913
+        ],
+        "outside": []
+      }
+    }
+  },
+  "captionCues": 3,
+  "audioLevels": {
+    "meanDb": -14.8,
+    "maxDb": -0.6
+  },
+  "outputOverlayDetection": {
+    "status": "ok",
+    "frames": 14,
+    "wholeFrameChange": 32.5,
+    "overlays": [],
+    "detected": false
+  },
+  "advancedQc": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "resolution_1080x1920",
+        "passed": true,
+        "detail": "video=1080x1920"
+      },
+      {
+        "name": "codec_h264",
+        "passed": true,
+        "detail": "video=h264"
+      },
+      {
+        "name": "audio_present_aac",
+        "passed": true,
+        "detail": "audio=aac"
+      },
+      {
+        "name": "duration_8_to_58s",
+        "passed": true,
+        "detail": "duration=14.4s"
+      },
+      {
+        "name": "narration_audible",
+        "passed": true,
+        "detail": "mean=-14.8 dB"
+      },
+      {
+        "name": "no_clipping",
+        "passed": true,
+        "detail": "max=-0.6 dB"
+      },
+      {
+        "name": "limited_black_frames",
+        "passed": true,
+        "detail": "black=0s of 14.4s"
+      },
+      {
+        "name": "limited_silence",
+        "passed": true,
+        "detail": "silence=0s of 14.4s"
+      },
+      {
+        "name": "no_trailing_silence",
+        "passed": true,
+        "detail": "trailingSilence=0s"
+      },
+      {
+        "name": "scene_pacing",
+        "passed": true,
+        "detail": "sceneChanges=1"
+      },
+      {
+        "name": "faststart",
+        "passed": true,
+        "detail": "moov precedes mdat"
+      }
+    ],
+    "metrics": {
+      "volume": {
+        "meanDb": -14.8,
+        "maxDb": -0.6
+      },
+      "black": {
+        "blackSegments": 0,
+        "blackSeconds": 0
+      },
+      "silence": {
+        "silenceSegments": 0,
+        "silenceSeconds": 0,
+        "trailingSilenceSeconds": 0
+      },
+      "scenes": {
+        "sceneChanges": 1
+      }
+    }
+  },
+  "qc": {
+    "status": "passed",
+    "repaired": false,
+    "probe": {
+      "width": 1080,
+      "height": 1920,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fps": 25,
+      "durationSeconds": 14.4,
+      "sizeBytes": 7765440,
+      "hasAudio": true
+    },
+    "failures": [],
+    "attempts": 0
+  },
+  "outputProbe": {
+    "width": 1080,
+    "height": 1920,
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "fps": 25,
+    "durationSeconds": 14.4,
+    "sizeBytes": 7765440,
+    "hasAudio": true
+  },
+  "pipeline": {
+    "status": "completed",
+    "pathway": "narrated",
+    "wordCount": 36,
+    "editorialAverage": null,
+    "title": "The Seal That Joined a Diver’s Survey 🦭",
+    "selectedMoments": [
+      "This seal has found a diver’s fin.",
+      "First it comes right up to the camera, then turns its attention to the fin and keeps nosing around it.",
+      "The underwater survey suddenly has a very enthusiastic visitor."
+    ]
+  },
+  "postingPackage": {
+    "title": "The Seal That Joined a Diver’s Survey 🦭",
+    "description": "This seal has found a diver’s fin. First it comes right up to the camera, then turns its attention to the fin and keeps nosing around it. The underwater survey suddenly has a very enthusiastic visitor.\n\nSource: https://upload.wikimedia.org/wikipedia/commons/0/04/Seal_playing_with_NRW_diver_near_Skomer_-_Morlo_yn_chwarae_gyda_deifar_CNC_yn_Sgomer.webm\nCredit: Natural Resources Wales, via Wikimedia Commons. Rights: CC BY 3.0 — Natural Resources Wales, Seal playing with NRW diver near Skomer, via Wikimedia Commons; CC BY 3.0: https://creativecommons.org/licenses/by/3.0/ . This Short is an edited adaptation with original narration and captions.\nOriginal commentary narration, captions and edit by Primeplug.",
+    "hashtags": [
+      "#Shorts",
+      "#FunnyAnimals",
+      "#Seals",
+      "#Wildlife"
+    ]
+  }
+}

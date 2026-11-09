@@ -1,0 +1,41 @@
+{
+  "id": "puppies-share-bed-tokyo",
+  "label": "Two puppies and the contested bed — original Tokyo footage",
+  "creator": "Nesnad, via Wikimedia Commons",
+  "pathway": "narrated",
+  "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Puppiesplaying-tokyoarea-jan7-2020.webm",
+  "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Puppiesplaying-tokyoarea-jan7-2020.webm",
+  "license": {
+    "type": "CC BY 4.0",
+    "basis": "The Commons file page records Nesnad as the creator, own work, licensed under Creative Commons Attribution 4.0.",
+    "rightsStatus": "licensed",
+    "attributionRequirement": "Nesnad, Puppies playing, via Wikimedia Commons; original CC BY 4.0: https://creativecommons.org/licenses/by/4.0/ . This Short is an edited adaptation with added narration and captions.",
+    "verificationStatus": "evidence_recorded_on_commons_file_page"
+  },
+  "status": "held_story_timing",
+  "reason": "Planned story timing did not fit this footage and narration: Narration would end the edit before the planned visual payoff.",
+  "outputPath": null,
+  "thumbnailPath": null,
+  "sha256": null,
+  "startedAt": "2026-11-09T06:55:26.195Z",
+  "finishedAt": "2026-11-09T06:55:31.716Z",
+  "narrationWords": 29,
+  "originalProbe": {
+    "width": 1694,
+    "height": 1060,
+    "durationSeconds": 22.522,
+    "hasAudio": false
+  },
+  "narration": {
+    "provider": "gemini",
+    "model": "gemini-3.8-flash-tts"
+  },
+  "storyTiming": {
+    "valid": false,
+    "reasons": [
+      "Narration would end the edit before the planned visual payoff."
+    ],
+    "renderedSeconds": 13.44,
+    "guaranteedSeconds": 12.44
+  }
+}

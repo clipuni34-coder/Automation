@@ -1,0 +1,12 @@
+{
+  "producedAt": "2026-11-09T06:55:31.717Z",
+  "total": 1,
+  "completed": 0,
+  "outcomes": [
+    {
+      "id": "puppies-share-bed-tokyo",
+      "status": "held_story_timing",
+      "reason": "Planned story timing did not fit this footage and narration: Narration would end the edit before the planned visual payoff."
+    }
+  ]
+}

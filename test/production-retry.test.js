@@ -166,9 +166,42 @@ test("paused channel and production-disabled operation do not trigger retry sear
     await t.state.setPaused(false);
     const deferred = await runChannelWithProductionRetries({ channel, niche, state: t.state, candidateProvider: async () => { searched++; return [candidate("deferred")]; }, produceJob: async () => ({ deferred: true, produced: false, reason: "Production disabled" }) });
     assert.equal(deferred.retry.stopReason, "production_deferred"); assert.equal(deferred.retry.passes, 1); assert.equal(searched, 1);
+    assert.equal(deferred.considered, 1); assert.equal(deferred.attempted, 0); assert.equal(deferred.deferred, 1);
+    assert.equal(deferred.retry.passResults[0].attempted, 0);
     assert.equal((await t.state.getQueue()).jobs[0].attempts, 0);
     const src = await readFile("scripts/run-daily-operations.mjs", "utf8");
     assert.match(src, /productionEnabled && channel\.id === "Primeplug"/);
+  } finally { await t.cleanup(); }
+});
+
+test("queue selection is bounded while deferrals are not reported as attempts or retries", async () => {
+  const t = await setup();
+  try {
+    const items = ["defer", "hold", "error", "unselected"].map((name) => candidate(name));
+    for (const item of items) await t.state.enqueue({ fingerprint: item.id, type: "produce", candidate: item, channelId: channel.id });
+    const initial = await t.state.getQueue();
+    initial.jobs[0].attempts = 2;
+    initial.jobs[1].attempts = 1;
+    await t.state.saveQueue(initial);
+    const seen = [];
+    const run = await runChannelCycle({ channel, niche, state: t.state, maxJobs: 3, candidateProvider: async () => [],
+      produceJob: async (job) => {
+        seen.push(job.candidate.id);
+        if (job.candidate.id === "defer") return { deferred: true, produced: false };
+        if (job.candidate.id === "error") throw new Error("temporary failure");
+        return { produced: false, outcome: "held" };
+      }
+    });
+    assert.deepEqual(seen, ["defer", "hold", "error"]);
+    assert.deepEqual({ considered: run.considered, attempted: run.attempted, deferred: run.deferred, retried: run.retried }, { considered: 3, attempted: 2, deferred: 1, retried: 1 });
+    const jobs = (await t.state.getQueue()).jobs;
+    assert.deepEqual(jobs.map((job) => job.attempts), [2, 2, 1, 0]);
+    assert.deepEqual(jobs.map((job) => job.status), ["queued", "completed", "queued", "queued"]);
+    const report = buildProductionReport({ runs: [run] }, { productionEnabled: true });
+    assert.equal(report.totals.considered, 3); assert.equal(report.totals.attempted, 2); assert.equal(report.totals.deferred, 1);
+    const resumed = await runChannelCycle({ channel, niche, state: t.state, maxJobs: 1, candidateProvider: async () => [], produceJob: async () => ({ produced: true }) });
+    assert.equal(resumed.attempted, 1); assert.equal(resumed.retried, 1);
+    assert.equal((await t.state.getQueue()).jobs[0].attempts, 3);
   } finally { await t.cleanup(); }
 });
 

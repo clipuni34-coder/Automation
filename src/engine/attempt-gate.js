@@ -24,5 +24,21 @@ export async function validateCurrentProductionAttempt({ job, candidates, verify
   const candidate = { ...canonical, rightsVerification: verification };
   const rights = screenCandidate(candidate);
   if (!rights.eligible) return { allowed: false, outcome: "held_fresh_rights_check", reason: rights.reasons.join("; "), retryable: isTransientRightsFailure(verification), candidate };
+  // Inbox plans have explicitly reviewed creator and attribution evidence.
+  // A fresh licence match alone is not enough if Commons changed the credit or
+  // licence URL since the review; hold instead of publishing stale attribution.
+  if (current.reviewedPlanning === true) {
+    const clean = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
+    const credit = clean(seed.license?.attributionRequirement);
+    const creator = clean(seed.creator);
+    const artist = clean(verification.artist);
+    const licenceUrl = clean(verification.licenceUrl);
+    if (!artist || artist.toLowerCase() !== creator.toLowerCase() || !licenceUrl || !credit.includes(licenceUrl)) {
+      return { allowed: false, outcome: "held_fresh_rights_check", reason: "Creator or exact licence attribution changed since the plan was reviewed; a new rights review is required.", candidate };
+    }
+    if (verification.shareAlike && !/(?:adaptation|edit|short).{0,100}(?:licen[cs]ed|distributed).{0,120}(?:same|compatible|cc\s*by-sa)/i.test(credit)) {
+      return { allowed: false, outcome: "held_fresh_rights_check", reason: "ShareAlike adaptation licensing is not documented in the current attribution.", candidate };
+    }
+  }
   return { allowed: true, candidate, seed };
 }

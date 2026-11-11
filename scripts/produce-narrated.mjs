@@ -18,6 +18,7 @@ import { join, resolve } from "node:path";
 import { qcAndRepair, probeVideo } from "../src/production/qc-repair.js";
 import { runAdvancedQc } from "../src/production/advanced-qc.js";
 import { generateNarration, SHORT_FORM_NARRATION_STYLE } from "../src/production/voice.js";
+import { NARRATION_AUDIO_FILTER } from "../src/production/audio-filter.js";
 import { validateNarratedEntry, validateVisualHookReview, validateOriginalAudioPlan, validateNarrationWindowBounds, validateStoryWindowTiming, shouldMixOriginalAudio, buildCreativeReviewChecklist, decideOverlayCorrection } from "../src/production/narrated-plan.js";
 import { buildSpeechAlignedCaptionCues, placeCaptionCues, buildAssDocument } from "../src/production/narrated-captions.js";
 import {
@@ -229,9 +230,9 @@ for (const entry of manifest) {
   const mixSourceAudio = shouldMixOriginalAudio(originalProbe, entry);
   outcome.sourceAudio.mixed = mixSourceAudio;
   if (mixSourceAudio) {
-    finalArgs.push("-filter_complex", `${filter};[0:a]atrim=start=${windowStart}:duration=${windowSeconds},asetpts=PTS-STARTPTS,volume=0.12[bg];[1:a]asetpts=PTS-STARTPTS[na];[bg][na]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]`, "-map", "[v]", "-map", "[a]");
+    finalArgs.push("-filter_complex", `${filter};[0:a]atrim=start=${windowStart}:duration=${windowSeconds},asetpts=PTS-STARTPTS,volume=0.12[bg];[1:a]asetpts=PTS-STARTPTS[na];[bg][na]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,${NARRATION_AUDIO_FILTER}[a]`, "-map", "[v]", "-map", "[a]");
   } else {
-    finalArgs.push("-filter_complex", `${filter};[1:a]loudnorm=I=-14:TP=-1.5:LRA=11[na]`, "-map", "[v]", "-map", "[na]");
+    finalArgs.push("-filter_complex", `${filter};[1:a]${NARRATION_AUDIO_FILTER}[na]`, "-map", "[v]", "-map", "[na]");
   }
   finalArgs.push("-c:v", "libx264", "-threads", "2", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", "-movflags", "+faststart", "-shortest", outputPath);
   finalArgs.push("-map", "[clean]", "-an", "-c:v", "libx264", "-threads", "1", "-preset", "ultrafast", "-crf", "22", "-t", String(Math.min(windowSeconds, narrationSeconds)), cleanProxyPath);
@@ -245,8 +246,8 @@ for (const entry of manifest) {
 
   // Audio QC: narration must be clearly audible (mean level gate).
   const vol = run("ffmpeg", ["-i", outputPath, "-af", "volumedetect", "-f", "null", "/dev/null"], { timeout: 300000 });
-  const meanMatch = /mean_volume:\s*(-[\d.]+) dB/.exec(vol.stderr);
-  const maxMatch = /max_volume:\s*(-[\d.]+) dB/.exec(vol.stderr);
+  const meanMatch = /mean_volume:\s*(-?[\d.]+) dB/.exec(vol.stderr);
+  const maxMatch = /max_volume:\s*(-?[\d.]+) dB/.exec(vol.stderr);
   outcome.audioLevels = { meanDb: meanMatch ? Number(meanMatch[1]) : null, maxDb: maxMatch ? Number(maxMatch[1]) : null };
   if (outcome.audioLevels.meanDb !== null && outcome.audioLevels.meanDb < -22) {
     await done("held_audio_qc", `Narration mean level ${outcome.audioLevels.meanDb} dB is below the -22 dB audibility gate after normalization.`);

@@ -1,0 +1,231 @@
+{
+  "version": 1,
+  "records": [
+    {
+      "key": "6aa553f235d8c4810b58d3c4",
+      "status": "reviewed",
+      "candidate": {
+        "id": "planned-6aa553f235d8c4810b58d3c4",
+        "title": "Tonkinese cat rolling around - Japan - 2025 mar 22",
+        "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Tonkinese_cat_rolling_around_-_Japan_-_2025_mar_22.webm",
+        "creator": "Nesnad",
+        "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Tonkinese_cat_rolling_around_-_Japan_-_2025_mar_22.webm",
+        "license": {
+          "type": "CC BY 4.0",
+          "rightsStatus": "licensed",
+          "basis": "Licence read from the asset's Commons file page via API at discovery time (CC BY 4.0).",
+          "attributionRequirement": "Credit: Nesnad, via Wikimedia Commons, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0).",
+          "verificationStatus": "independently_verified_via_commons_api"
+        },
+        "rightsVerification": {
+          "candidateId": "planned-6aa553f235d8c4810b58d3c4",
+          "claimedType": "CC BY 4.0",
+          "claimedStatus": "licensed",
+          "evidenceUrl": "https://commons.wikimedia.org/wiki/File:Tonkinese_cat_rolling_around_-_Japan_-_2025_mar_22.webm",
+          "checkedAt": "2026-11-11T03:14:23.416Z",
+          "observedSourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Tonkinese_cat_rolling_around_-_Japan_-_2025_mar_22.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "status": "rights_verified_with_evidence",
+          "commercialUse": true,
+          "derivativesAllowed": true,
+          "shareAlike": false,
+          "attributionRequired": true,
+          "artist": "Nesnad",
+          "licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+          "observedLicence": "CC BY 4.0",
+          "licenceFamily": "by",
+          "licenceVersion": "4.0",
+          "reasons": [
+            "Exact licence observed on the asset's Commons file page (CC BY 4.0) matches the claim and permits commercial reuse and derivative works. This is recorded evidence, not legal certification."
+          ],
+          "verificationMethod": "wikimedia_commons_api_extmetadata"
+        },
+        "sourceWidth": 1920,
+        "sourceHeight": 1080,
+        "sourceMime": "video/webm",
+        "discoveredVia": "wikimedia_commons_api",
+        "needsProductionPlan": true
+      },
+      "discoveredAt": "2026-11-11T03:10:46.768Z",
+      "updatedAt": "2026-11-11T03:14:23.413Z",
+      "seed": {
+        "id": "planned-6aa553f235d8c4810b58d3c4",
+        "label": "Tonkinese cat rolling around - Japan - 2025 mar 22",
+        "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Tonkinese_cat_rolling_around_-_Japan_-_2025_mar_22.webm",
+        "creator": "Nesnad",
+        "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Tonkinese_cat_rolling_around_-_Japan_-_2025_mar_22.webm",
+        "sourceResolution": "1920x1080",
+        "license": {
+          "type": "CC BY 4.0",
+          "rightsStatus": "licensed",
+          "basis": "Licence read from the asset's Commons file page via API at discovery time (CC BY 4.0).",
+          "attributionRequirement": "Nesnad, Tonkinese cat rolling around, via Wikimedia Commons, CC BY 4.0: https://creativecommons.org/licenses/by/4.0/ . This Short is an edited adaptation with original narration and captions.",
+          "verificationStatus": "independently_verified_via_commons_api"
+        },
+        "productionMode": "narrated",
+        "muteOriginalAudio": true,
+        "window": {
+          "startSeconds": 16,
+          "seconds": 15.5,
+          "minimumStorySeconds": 13
+        },
+        "hookText": "Watch this cat look right at the camera.",
+        "postingTitle": "A Cat’s Roll and Stretch 🐈",
+        "narrationScript": "Watch this cat look right at the camera. It lifts its head, then tips onto its back with its paws in the air. The cat curls up, stretches out across the soft rug, and goes right back to rolling again. Just look at those paws!",
+        "visualSubject": "cat",
+        "hashtags": [
+          "#Shorts",
+          "#FunnyAnimals",
+          "#Cats",
+          "#CatVideos"
+        ],
+        "storyBeats": {
+          "hook": "The cat lifts its head toward the camera.",
+          "development": "The cat rolls onto its back and curls its paws.",
+          "payoff": "The cat stretches out and rolls again."
+        },
+        "visualHookReview": {
+          "status": "editorial_reviewed",
+          "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Tonkinese_cat_rolling_around_-_Japan_-_2025_mar_22.webm",
+          "sourceSha256": "2e9cf474cf4dac8774c7927e3b6c9357b693ab382df51b5703adfc399d6748a3",
+          "windowStartSeconds": 16,
+          "firstActionSourceSeconds": 17,
+          "reviewedThroughSourceSeconds": 17.75,
+          "onScreenText": "Watch this cat look",
+          "visualAction": "The cat lifts its head and turns toward the camera.",
+          "reviewMethod": "Eight frames at 4 fps from 16.00 through 17.75 seconds; sampled-frame review, not continuous playback.",
+          "reviewedBy": "Assistant editorial review (sampled source frames; not continuous playback)",
+          "evidencePath": "docs/evidence/planning-cat-nesnad-opening.jpg"
+        }
+      },
+      "review": {
+        "decision": "reviewed_against_source",
+        "reviewedBy": "Assistant editorial review (sampled source frames; not continuous playback)",
+        "method": "Assistant reviewed the opening at 4 fps from 16.00–17.75 seconds and the selected window at 2 fps from 16.00–31.00 seconds. This is sampled-frame review, not continuous playback.",
+        "coverageStartSeconds": 16,
+        "coverageEndSeconds": 31,
+        "claimsChecked": true,
+        "rightsChecked": true,
+        "openingChecked": true,
+        "claimNotes": "Sampled frames show the cat lifting its head toward the camera, rolling, curling its paws, stretching out on the rug and rolling again. No inferred motive, breed, location or identity is included in the narration.",
+        "rightsNotes": "The Commons original is recorded as the creator Nesnad’s own work; CC BY 4.0 is one of the offered licences. Credit, source, licence link and adaptation notice are included; metadata is not legal certification.",
+        "shareAlikeAcknowledged": false,
+        "sourceSha256": "2e9cf474cf4dac8774c7927e3b6c9357b693ab382df51b5703adfc399d6748a3",
+        "reviewedAt": "2026-11-11T03:14:23.413Z"
+      },
+      "reviewDigest": "7d3978271456eb58d06d9f09198d3f76d8b08ba540bc3b0a6470259e27f92ddd"
+    },
+    {
+      "key": "6d619f3ea41708d0766b601e",
+      "status": "reviewed",
+      "candidate": {
+        "id": "planned-6d619f3ea41708d0766b601e",
+        "title": "Cat playing in Taiwan",
+        "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/7/72/Cat_playing_in_Taiwan.webm",
+        "creator": "MiNe",
+        "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Cat_playing_in_Taiwan.webm",
+        "license": {
+          "type": "CC BY 2.0",
+          "rightsStatus": "licensed",
+          "basis": "Licence read from the asset's Commons file page via API at discovery time (CC BY 2.0).",
+          "attributionRequirement": "Credit: MiNe, via Wikimedia Commons, CC BY 2.0 (https://creativecommons.org/licenses/by/2.0).",
+          "verificationStatus": "independently_verified_via_commons_api"
+        },
+        "rightsVerification": {
+          "candidateId": "planned-6d619f3ea41708d0766b601e",
+          "claimedType": "CC BY 2.0",
+          "claimedStatus": "licensed",
+          "evidenceUrl": "https://commons.wikimedia.org/wiki/File:Cat_playing_in_Taiwan.webm",
+          "checkedAt": "2026-11-11T03:10:46.533Z",
+          "observedSourceUrl": "https://upload.wikimedia.org/wikipedia/commons/7/72/Cat_playing_in_Taiwan.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "status": "rights_verified_with_evidence",
+          "commercialUse": true,
+          "derivativesAllowed": true,
+          "shareAlike": false,
+          "attributionRequired": true,
+          "artist": "MiNe",
+          "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+          "observedLicence": "CC BY 2.0",
+          "licenceFamily": "by",
+          "licenceVersion": "2.0",
+          "reasons": [
+            "Exact licence observed on the asset's Commons file page (CC BY 2.0) matches the claim and permits commercial reuse and derivative works. This is recorded evidence, not legal certification."
+          ],
+          "verificationMethod": "wikimedia_commons_api_extmetadata"
+        },
+        "sourceWidth": 1280,
+        "sourceHeight": 720,
+        "sourceMime": "video/webm",
+        "discoveredVia": "wikimedia_commons_api",
+        "needsProductionPlan": true
+      },
+      "discoveredAt": "2026-11-11T03:10:46.418Z",
+      "updatedAt": "2026-11-11T03:10:46.532Z",
+      "seed": {
+        "id": "planned-6d619f3ea41708d0766b601e",
+        "label": "Cat playing in Taiwan",
+        "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/7/72/Cat_playing_in_Taiwan.webm",
+        "creator": "MiNe",
+        "rightsEvidenceUrl": "https://commons.wikimedia.org/wiki/File:Cat_playing_in_Taiwan.webm",
+        "sourceResolution": "1280x720",
+        "license": {
+          "type": "CC BY 2.0",
+          "rightsStatus": "licensed",
+          "basis": "Licence read from the asset's Commons file page via API at discovery time (CC BY 2.0).",
+          "attributionRequirement": "MiNe, Cat playing in Taiwan, via Wikimedia Commons, CC BY 2.0: https://creativecommons.org/licenses/by/2.0/ . This Short is an edited adaptation with original narration and captions.",
+          "verificationStatus": "independently_verified_via_commons_api"
+        },
+        "productionMode": "narrated",
+        "muteOriginalAudio": true,
+        "window": {
+          "startSeconds": 14,
+          "seconds": 16,
+          "minimumStorySeconds": 10
+        },
+        "hookText": "Watch this cat roll around.",
+        "postingTitle": "One Cat, Lots of Rolling 🐈",
+        "narrationScript": "Watch this cat roll around. It turns its head toward the camera, then curls up and rolls across a little round tray. The cat stretches out its paws and keeps rolling for another turn.",
+        "visualSubject": "cat",
+        "hashtags": [
+          "#Shorts",
+          "#FunnyAnimals",
+          "#Cats",
+          "#CatVideos"
+        ],
+        "storyBeats": {
+          "hook": "The cat turns its head and begins to roll.",
+          "development": "It curls and rolls on the round tray.",
+          "payoff": "The cat stretches its paws and rolls again."
+        },
+        "visualHookReview": {
+          "status": "editorial_reviewed",
+          "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/7/72/Cat_playing_in_Taiwan.webm",
+          "sourceSha256": "2c779bf0bb586dce55f41ff6f43741b1d5a97f233f651e0fbbcfba99e86f900e",
+          "windowStartSeconds": 14,
+          "firstActionSourceSeconds": 14.5,
+          "reviewedThroughSourceSeconds": 15.75,
+          "onScreenText": "Watch this cat roll",
+          "visualAction": "The cat turns its head upward and begins rolling across the tray.",
+          "reviewMethod": "Eight frames at 4 fps from 14.00 through 15.75 seconds; sampled-frame review, not continuous playback.",
+          "reviewedBy": "Assistant editorial review (sampled source frames; not continuous playback)",
+          "evidencePath": "docs/evidence/planning-cat-taiwan-opening.jpg"
+        }
+      },
+      "review": {
+        "decision": "reviewed_against_source",
+        "reviewedBy": "Assistant editorial review (sampled source frames; not continuous playback)",
+        "method": "Assistant reviewed opening at 4 fps from 14.00–15.75 seconds and the complete selected window at 2 fps from 14.00–29.50 seconds. This is sampled-frame review, not continuous playback.",
+        "coverageStartSeconds": 14,
+        "coverageEndSeconds": 29.5,
+        "claimsChecked": true,
+        "rightsChecked": true,
+        "openingChecked": true,
+        "claimNotes": "Sampled frames show the cat turning its head toward the camera, curling and rolling while on a round tray, and extending its front paws. No inferred motive, breed, location or identity is included in the narration.",
+        "rightsNotes": "The original Commons file page credits MiNe and records CC BY 2.0. Commons records a 2015 Flickr licence review. Credit, source, licence link and adaptation notice are included. This is evidence, not legal certification.",
+        "shareAlikeAcknowledged": false,
+        "sourceSha256": "2c779bf0bb586dce55f41ff6f43741b1d5a97f233f651e0fbbcfba99e86f900e",
+        "reviewedAt": "2026-11-11T03:10:46.532Z"
+      },
+      "reviewDigest": "6d6724b33b2dd9631a81f80f2c6a382997278819041380d754c20a8720d77dce"
+    }
+  ]
+}

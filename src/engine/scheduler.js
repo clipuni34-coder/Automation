@@ -33,7 +33,7 @@ export function screenCandidate(candidate) {
 }
 
 export async function runChannelCycle({ channel, niche, state, candidateProvider, produceJob, now = new Date(), maxAttempts = 3, maxJobs = Infinity, persistRun = true, stopOnProduced = false }) {
-  const run = { channelId: channel.id, niche: niche?.id ?? channel.niche, startedAt: now.toISOString(), discovered: 0, researchOnlyRejected: 0, rightsVerified: 0, eligible: 0, duplicates: 0, rejected: [], enqueued: 0, awaitingPlan: 0, attempted: 0, produced: 0, qcPassed: 0, completed: 0, failed: 0, retried: 0, status: "ok" };
+  const run = { channelId: channel.id, niche: niche?.id ?? channel.niche, startedAt: now.toISOString(), discovered: 0, researchOnlyRejected: 0, rightsVerified: 0, eligible: 0, duplicates: 0, rejected: [], enqueued: 0, awaitingPlan: 0, considered: 0, attempted: 0, deferred: 0, produced: 0, qcPassed: 0, completed: 0, failed: 0, retried: 0, status: "ok" };
   const finish = async () => {
     run.finishedAt = new Date().toISOString();
     if (persistRun) await state.appendRun(run);
@@ -83,37 +83,41 @@ export async function runChannelCycle({ channel, niche, state, candidateProvider
       if (enqueued) { run.enqueued += 1; accepted += 1; }
     }
 
-    // Process this channel's queue (including leftovers from a crashed run).
+    // Bound queue selections separately from actual attempts: disabled or
+    // safely deferred jobs were considered, but did not consume a retry.
     const queue = await state.getQueue();
     for (const job of queue.jobs) {
       if (job.status !== "queued" && !(job.status === "failed" && job.attempts < maxAttempts)) continue;
-      if (run.attempted >= maxJobs) break;
-      run.attempted += 1;
-      if (job.status === "failed" || job.attempts > 0) run.retried += 1;
+      if (run.considered >= maxJobs) break;
+      run.considered += 1;
+      const isRetry = job.status === "failed" || job.attempts > 0;
       job.status = "running"; job.attempts += 1; job.updatedAt = new Date().toISOString();
       await state.saveQueue(queue);
-      try {
-        const result = await produceJob(job, channel, niche);
-        if (result?.deferred) {
-          // Not a failure and not a completion: production was disabled for
-          // this cycle. Keep the job queued and do not burn a retry attempt,
-          // so the next production-enabled cycle actually produces it.
-          job.status = "queued"; job.attempts = Math.max(0, job.attempts - 1);
-          job.result = result; job.updatedAt = new Date().toISOString();
-          run.deferred = (run.deferred ?? 0) + 1;
-          await state.saveQueue(queue);
-          continue;
-        }
+      let result, productionError, threw = false;
+      try { result = await produceJob(job, channel, niche); }
+      catch (error) { threw = true; productionError = error; }
+      if (!threw && result?.deferred) {
+        // A deferral is neither a failure nor a production attempt. Keep the
+        // job queued with its original retry count for a future enabled run.
+        job.status = "queued"; job.attempts = Math.max(0, job.attempts - 1);
+        job.result = result; job.updatedAt = new Date().toISOString();
+        run.deferred += 1;
+        await state.saveQueue(queue);
+        continue;
+      }
+      run.attempted += 1;
+      if (isRetry) run.retried += 1;
+      if (threw) {
+        job.status = job.attempts >= maxAttempts ? "failed" : "queued"; // queued = will retry next cycle; attempts bound the total
+        if (job.status === "failed") run.failed += 1;
+        job.lastError = String(productionError?.message ?? productionError).slice(0, 500); job.updatedAt = new Date().toISOString();
+      } else {
         job.status = "completed"; job.result = result ?? { ok: true }; job.finishedAt = new Date().toISOString();
         run.completed += 1;
         // A completed job is an execution outcome, not necessarily a
         // produced video. Production counts are tracked separately so a
         // zero-production run can never masquerade as production success.
         if (result?.produced === true) { run.produced += 1; run.qcPassed += 1; }
-      } catch (error) {
-        job.status = job.attempts >= maxAttempts ? "failed" : "queued"; // queued = will retry next cycle; attempts bound the total
-        if (job.status === "failed") run.failed += 1;
-        job.lastError = String(error?.message ?? error).slice(0, 500); job.updatedAt = new Date().toISOString();
       }
       await state.saveQueue(queue);
       if (stopOnProduced && run.produced > 0) break;
@@ -162,7 +166,7 @@ export async function runChannelWithProductionRetries({ channel, niche, state, c
   }
   const first = passes[0];
   const last = passes.at(-1);
-  const sumKeys = ["discovered", "researchOnlyRejected", "rightsVerified", "eligible", "duplicates", "enqueued", "awaitingPlan", "attempted", "produced", "qcPassed", "completed", "failed", "retried", "deferred"];
+  const sumKeys = ["discovered", "researchOnlyRejected", "rightsVerified", "eligible", "duplicates", "enqueued", "awaitingPlan", "considered", "attempted", "produced", "qcPassed", "completed", "failed", "retried", "deferred"];
   const total = Object.fromEntries(sumKeys.map((key) => [key, passes.reduce((n, run) => n + (run[key] ?? 0), 0)]));
   const aggregate = {
     channelId: channel.id,
@@ -178,7 +182,7 @@ export async function runChannelWithProductionRetries({ channel, niche, state, c
       maxPasses: passesLimit,
       maxProductionAttempts: jobsLimit,
       stopReason,
-      passResults: passes.map((run, index) => ({ pass: index + 1, discovered: run.discovered ?? 0, enqueued: run.enqueued ?? 0, awaitingPlan: run.awaitingPlan ?? 0, attempted: run.attempted ?? 0, produced: run.produced ?? 0, status: run.status }))
+      passResults: passes.map((run, index) => ({ pass: index + 1, discovered: run.discovered ?? 0, enqueued: run.enqueued ?? 0, awaitingPlan: run.awaitingPlan ?? 0, considered: run.considered ?? 0, attempted: run.attempted ?? 0, deferred: run.deferred ?? 0, produced: run.produced ?? 0, status: run.status }))
     },
     ...(last.error ? { error: last.error } : {})
   };

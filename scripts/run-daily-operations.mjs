@@ -6,7 +6,7 @@
 // -> record everything. One channel failing never stops the others.
 // State lives in STATE_DIR (default data/state) and is designed to be
 // persisted between cloud runs (see .github/workflows/daily-operations.yml).
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -22,6 +22,9 @@ import { collectCommonsCandidates } from "../src/discovery/sources/commons.js";
 import { buildProductionReport } from "../src/engine/run-report.js";
 import { isDailyProductionSeed, isTransientProductionOutcome, narratedRequeueDecision, transientNextDayDecision, ttsConfigurationRequeueDecision } from "../src/engine/retry-policy.js";
 import { primeplugCreativePathwayGate } from "../src/engine/primeplug-creative-policy.js";
+import { ingestPlanningCandidates, planningSummary, recoverPreviouslyAwaitingCandidates } from "../src/engine/planning-inbox.js";
+import { mergeReviewedProductionSeeds } from "../src/engine/production-seeds.js";
+import { checkRemotePlanningState } from "../src/engine/planning-state-freshness.js";
 
 const stateRoot = resolve(process.env.STATE_DIR ?? "data/state");
 const channelsPath = process.env.CHANNEL_PROFILES_PATH ?? "config/channels.json";
@@ -35,6 +38,45 @@ const channels = await loadChannels(channelsPath);
 const nicheRegistry = await loadNicheRegistry(nichesPath);
 
 const seedCandidateCache = new Map();
+const seedEntryCache = new Map();
+const planningUnavailable = new Map();
+const isPlanningJob = (channel, job) => channel.id === "Primeplug" && /^planned-[a-f0-9]{24}$/.test(String(job?.candidate?.id ?? ""));
+const planningBootstrapPath = (channel) => channel.id === "Primeplug" ? resolve("config/primeplug-reviewed-backlog.json") : null;
+
+// The current production manifest now includes individually reviewed plans
+// from persistent state. Unreviewed discoveries never enter this list. If the
+// inbox is corrupt or a reviewed plan changed, fail closed for that plan while
+// preserving the pre-existing configured seed pathway.
+async function currentProductionSeeds(channel, { fresh = false } = {}) {
+  if (!fresh && seedEntryCache.has(channel.id)) return seedEntryCache.get(channel.id);
+  const configured = JSON.parse(await readFile(channel.seedCandidateManifest, "utf8"));
+  if (!Array.isArray(configured)) throw new Error("Seed manifest is not an array.");
+  let combined = configured;
+  try {
+    const state = channel.id === "Primeplug" ? await openChannelState(stateRoot, channel.id) : null;
+    const merged = await mergeReviewedProductionSeeds({ channel, configured, state, bootstrapPath: planningBootstrapPath(channel) });
+    for (const invalid of merged.invalid) console.error(`[${channel.id}] reviewed planning record held: ${invalid.key}: ${invalid.reasons.join("; ")}`);
+    combined = merged.seeds;
+    planningUnavailable.delete(channel.id);
+  } catch (error) {
+    planningUnavailable.set(channel.id, String(error?.message ?? error).slice(0, 250));
+    console.error(`[${channel.id}] reviewed planning inbox unavailable; inbox jobs will be deferred, not cancelled: ${error.message}`);
+  }
+  seedEntryCache.set(channel.id, combined);
+  if (fresh) seedCandidateCache.delete(channel.id);
+  return combined;
+}
+
+function candidateFromSeed(seed) {
+  return {
+    id: seed.id, title: seed.label, sourceUrl: seed.sourceUrl, creator: seed.creator,
+    supersedesCandidateId: seed.supersedesCandidateId ?? null,
+    rightsEvidenceUrl: seed.rightsEvidenceUrl, license: seed.license,
+    sourceResolution: seed.sourceResolution, seedManifestEntry: seed,
+    reviewedPlanning: /^planned-[a-f0-9]{24}$/.test(String(seed.id ?? ""))
+  };
+}
+
 async function candidateProvider(channel, niche, { pass = 0 } = {}) {
   const candidates = [];
   // (a) Rights-evidenced production seeds. Audit fixtures remain available
@@ -45,15 +87,10 @@ async function candidateProvider(channel, niche, { pass = 0 } = {}) {
       let cached = seedCandidateCache.get(channel.id);
       if (!cached) {
         cached = [];
-        const seeds = JSON.parse(await readFile(channel.seedCandidateManifest, "utf8"));
+        const seeds = await currentProductionSeeds(channel);
         for (const seed of seeds) {
           if (!isDailyProductionSeed(seed)) continue;
-          cached.push({
-            id: seed.id, title: seed.label, sourceUrl: seed.sourceUrl, creator: seed.creator,
-            supersedesCandidateId: seed.supersedesCandidateId ?? null,
-            rightsEvidenceUrl: seed.rightsEvidenceUrl, license: seed.license,
-            sourceResolution: seed.sourceResolution, seedManifestEntry: seed
-          });
+          cached.push(candidateFromSeed(seed));
         }
         seedCandidateCache.set(channel.id, cached);
       }
@@ -88,6 +125,28 @@ async function candidateProvider(channel, niche, { pass = 0 } = {}) {
         rejected: [...prior.rejected, ...commons.rejected].slice(0, 75),
         attempts: [...prior.attempts, { channelId: channel.id, pass: pass + 1, queries: queries.length, items: commons.items.length }]
       };
+      // Persist the complete, still-unreviewed source record for an actual
+      // editorial workflow. Rehydrate old awaiting_plan records by reading
+      // their exact file pages again; old partial metadata is not proof.
+      if (channel.id === "Primeplug") {
+        try {
+          const st = await openChannelState(stateRoot, channel.id);
+          const seeds = await currentProductionSeeds(channel);
+          const seedSources = seeds.map((s) => s.sourceUrl);
+          const recovered = pass === 0 ? await recoverPreviouslyAwaitingCandidates(st, { existingSeedSources: seedSources }) : { items: [], checked: 0, errors: [] };
+          const intake = await ingestPlanningCandidates(st, [...recovered.items, ...commons.items], { existingSeedSources: seedSources });
+          const old = globalThis.__planningIntake?.[channel.id] ?? { added: 0, recoveredChecked: 0, recoveredVerified: 0, atCapacity: 0, errors: [] };
+          globalThis.__planningIntake = { ...globalThis.__planningIntake, [channel.id]: {
+            added: old.added + intake.added, recoveredChecked: old.recoveredChecked + recovered.checked,
+            recoveredVerified: old.recoveredVerified + recovered.items.length, atCapacity: old.atCapacity + intake.atCapacity,
+            errors: [...old.errors, ...recovered.errors].slice(0, 10)
+          } };
+        } catch (error) {
+          const old = globalThis.__planningIntake?.[channel.id] ?? { added: 0, recoveredChecked: 0, recoveredVerified: 0, atCapacity: 0, errors: [] };
+          globalThis.__planningIntake = { ...globalThis.__planningIntake, [channel.id]: { ...old, errors: [...old.errors, String(error.message).slice(0, 250)].slice(0, 10) } };
+          console.error(`[${channel.id}] planning intake unavailable; discoveries remain held: ${error.message}`);
+        }
+      }
       for (const item of commons.items) candidates.push(item);
     } catch (error) { console.error(`[${channel.id}] commons discovery failed: ${error.message}`); }
   }
@@ -107,9 +166,21 @@ async function candidateProvider(channel, niche, { pass = 0 } = {}) {
 
 async function produceJob(job, channel) {
   if (!productionEnabled) return { deferred: true, produced: false, reason: "Production disabled for this run (DAILY_PRODUCTION_ENABLED is not true). Candidate queued for the next enabled run.", candidate: job.candidate?.id ?? null };
-  // Queued entries can be days old. Require a current, non-test manifest
-  // candidate and an independent fresh rights check for every attempt.
-  const gate = await validateCurrentProductionAttempt({ job, candidates: seedCandidateCache.get(channel.id) ?? [] });
+  // Queued entries and in-process caches can be stale. Re-read the current
+  // manifest AND this channel's reviewed inbox immediately before every
+  // attempt, then independently check the exact source and licence again.
+  // A locally revoked/corrupt plan cannot survive in the discovery cache.
+  const freshSeeds = await currentProductionSeeds(channel, { fresh: true });
+  if (isPlanningJob(channel, job) && planningUnavailable.has(channel.id)) {
+    return { deferred: true, produced: false, reason: "The reviewed planning inbox is unavailable; preserve this job and retry only after the inbox is repaired.", candidate: job.candidate?.id ?? null };
+  }
+  const candidates = freshSeeds.filter(isDailyProductionSeed).map(candidateFromSeed);
+  const current = candidates.find((c) => c.id === job.candidate?.id && c.sourceUrl === job.candidate?.sourceUrl);
+  if (current?.reviewedPlanning && process.env.GITHUB_ACTIONS === "true") {
+    const freshness = checkRemotePlanningState({ stateRoot, channelId: channel.id });
+    if (!freshness.fresh) return { deferred: true, produced: false, reason: freshness.reason, candidate: job.candidate?.id ?? null };
+  }
+  const gate = await validateCurrentProductionAttempt({ job, candidates });
   if (!gate.allowed && gate.retryable) throw new Error(`Fresh rights verification temporarily unavailable: ${gate.reason}`);
   if (!gate.allowed) return { produced: false, outcome: gate.outcome, reason: gate.reason };
   job.candidate = gate.candidate;
@@ -178,7 +249,7 @@ const ttsConfigured = Boolean((process.env.ENABLE_GEMINI_TTS === "true" && proce
 for (const channel of channels) {
   if (!channel.seedCandidateManifest) continue;
   try {
-    const seeds = JSON.parse(await readFile(channel.seedCandidateManifest, "utf8"));
+    const seeds = await currentProductionSeeds(channel);
     const byId = new Map(seeds.map((x) => [x.id, x]));
     const st = await openChannelState(stateRoot, channel.id);
     const q = await st.getQueue();
@@ -211,14 +282,17 @@ for (const channel of channels) {
 for (const channel of channels) {
   if (!channel.seedCandidateManifest) continue;
   try {
-    const seeds = JSON.parse(await readFile(channel.seedCandidateManifest, "utf8"));
+    const seeds = await currentProductionSeeds(channel);
     const currentIds = new Set(seeds.filter(isDailyProductionSeed).map((x) => x.id));
     const st = await openChannelState(stateRoot, channel.id);
     const q = await st.getQueue();
     let cancelled = 0;
     for (const job of q.jobs) {
+      // An unreadable inbox is not an editorial revocation. Leave its queued
+      // work intact; a fresh attempt will defer rather than burn a retry.
+      if (isPlanningJob(channel, job) && planningUnavailable.has(channel.id)) continue;
       if (["queued", "failed"].includes(job.status) && job.candidate?.seedManifestEntry && !currentIds.has(job.candidate.id)) {
-        job.status = "cancelled"; job.result = { produced: false, reason: "Superseded or test-only: seed is not in this channel's current production manifest." };
+        job.status = "cancelled"; job.result = { produced: false, reason: "Superseded, revoked, invalid or test-only: seed is not in this channel's current production manifest." };
         cancelled += 1;
       }
     }
@@ -239,5 +313,29 @@ const summary = await runDailyOperations({
 // production-enabled run with zero produced videos is `no_production`.
 summary.commonsDiscovery = globalThis.__commonsDiscovery ?? { items: 0, rejected: [] };
 summary.productionReport = buildProductionReport(summary, { productionEnabled });
+summary.planning = {};
+for (const channel of channels.filter((c) => c.id === "Primeplug" && c.seedCandidateManifest)) {
+  try {
+    const st = await openChannelState(stateRoot, channel.id);
+    summary.planning[channel.id] = { ...(await planningSummary(st, { bootstrapPath: planningBootstrapPath(channel) })), intake: globalThis.__planningIntake?.[channel.id] ?? null };
+  } catch (error) { summary.planning[channel.id] = { status: "unavailable", error: String(error.message).slice(0, 250) }; }
+}
+const prime = summary.productionReport.channels.find((c) => c.channelId === "Primeplug");
+const primePlanning = summary.planning.Primeplug ?? {};
+const headline = !productionEnabled ? "Production was disabled for this run."
+  : prime?.productionOutcome === "produced" ? `A video was produced (${prime.produced}); upload approval is still separate.`
+  : prime?.productionOutcome === "paused" || prime?.productionOutcome === "disabled" ? `Primeplug production is ${prime.productionOutcome}.`
+  : "NO VIDEO PRODUCED. The workflow finishing is not the same as a finished video.";
+summary.productionHeadline = headline;
 await writeFile(join(reportDir, "summary.json"), JSON.stringify(summary, null, 2));
+console.log(`[Primeplug production] ${headline} Awaiting editorial review: ${primePlanning.awaitingReview ?? "unknown"}; reviewed plans available: ${primePlanning.reviewedAvailable ?? "unknown"}; queued: ${primePlanning.reviewedQueued ?? "unknown"}.`);
+if (process.env.GITHUB_STEP_SUMMARY) {
+  const escape = (text) => String(text ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])).replace(/[\r\n]/g, " ");
+  const pending = (primePlanning.pending ?? []).map((r) => `- ${escape(r.title)} — ${escape(r.licence)} — source key: ${escape(r.key)}`).join("\n");
+  const intake = primePlanning.intake ?? {};
+  const warnings = [...(intake.errors ?? []), ...(intake.atCapacity ? [`${intake.atCapacity} source(s) could not be saved because the planning inbox is full.`] : [])].map((e) => `- ${escape(e)}`).join("\n");
+  const note = `## Primeplug production outcome\n\n**${headline}**\n\n- Awaiting editorial plan review: ${primePlanning.awaitingReview ?? "unknown"}\n- Reviewed plans available: ${primePlanning.reviewedAvailable ?? "unknown"}\n- Reviewed plans already queued: ${primePlanning.reviewedQueued ?? "unknown"}\n- Invalid/tampered reviews held: ${primePlanning.invalidReviewed ?? "unknown"}\n- Planning records: ${primePlanning.totalRecords ?? "unknown"} / ${primePlanning.capacity ?? "unknown"}\n- Separate per-video upload and audience approval remain required.\n\n${warnings ? `### Planning warnings\n${warnings}\n\n` : ""}${pending ? `### Sources awaiting review\n${pending}\n` : ""}\n`;
+  try { await appendFile(process.env.GITHUB_STEP_SUMMARY, note); }
+  catch (error) { console.error(`[Primeplug] could not write the optional GitHub summary: ${String(error.message).slice(0, 200)}`); }
+}
 console.log(JSON.stringify({ ...summary, runs: summary.runs?.map((r) => ({ channelId: r.channelId, status: r.status, discovered: r.discovered, rightsVerified: r.rightsVerified, eligible: r.eligible, produced: r.produced })) }, null, 2));

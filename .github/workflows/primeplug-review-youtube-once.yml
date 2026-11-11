@@ -1,0 +1,43 @@
+name: Primeplug review branch - one-time YouTube identity check
+
+# Review-only handoff for the owner's one authorized YouTube identity check.
+# No upload, video edit, schedule, state checkout, or other provider call.
+# The job is eligible only when the exact review branch is first created in
+# this repository, not on ordinary later pushes. Do not rerun or recreate the
+# branch for another check without fresh authorization. Remove this handoff
+# workflow before any separately approved installation or merge.
+on:
+  push:
+    branches:
+      - review/primeplug-pixabay-handoff-0a29687
+
+permissions:
+  contents: read
+
+jobs:
+  youtube-identity:
+    if: >-
+      github.event_name == 'push' &&
+      github.event.created == true &&
+      github.event.deleted == false &&
+      github.repository == 'clipuni34-coder/Automation' &&
+      github.ref == 'refs/heads/review/primeplug-pixabay-handoff-0a29687'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the exact review commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - name: Refresh OAuth and verify the expected channel, without uploading
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+        run: node scripts/validate-youtube-oauth.mjs

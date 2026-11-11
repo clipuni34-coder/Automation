@@ -687,7 +687,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:03:53.182Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-10T05:31:33.811Z"
+      "updatedAt": "2026-11-11T05:31:23.411Z"
     },
     "94dcea8720c7bc6f33c905ff": {
       "fingerprint": "94dcea8720c7bc6f33c905ff",
@@ -872,7 +872,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:06:12.830Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-10T05:31:33.849Z"
+      "updatedAt": "2026-11-11T05:31:23.432Z"
     },
     "db66b0387469a8eaf8beea54": {
       "fingerprint": "db66b0387469a8eaf8beea54",
@@ -1017,7 +1017,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:07:43.059Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-10T05:31:33.808Z"
+      "updatedAt": "2026-11-11T05:31:23.407Z"
     },
     "2097d8e5ce970665bf0eb0cc": {
       "fingerprint": "2097d8e5ce970665bf0eb0cc",
@@ -1036,7 +1036,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T13:07:43.062Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-10T05:31:33.795Z"
+      "updatedAt": "2026-11-11T05:31:23.398Z"
     },
     "4187eee32d0e7d57b505e344": {
       "fingerprint": "4187eee32d0e7d57b505e344",
@@ -1450,7 +1450,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T14:33:35.248Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-10T05:31:33.840Z"
+      "updatedAt": "2026-11-11T05:31:23.419Z"
     },
     "a81da1b5bfa1990e00fb9bb8": {
       "fingerprint": "a81da1b5bfa1990e00fb9bb8",
@@ -1469,7 +1469,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T14:40:59.196Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-09T06:55:26.063Z"
+      "updatedAt": "2026-11-11T05:31:23.454Z"
     },
     "1df7b0eea96bf2f3490e0684": {
       "fingerprint": "1df7b0eea96bf2f3490e0684",
@@ -1589,7 +1589,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T15:39:14.440Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-10T05:31:33.863Z"
+      "updatedAt": "2026-11-11T05:31:23.439Z"
     },
     "0f266fadc0c3126ccca0671b": {
       "fingerprint": "0f266fadc0c3126ccca0671b",
@@ -1930,11 +1930,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:33.882Z"
+        "checkedAt": "2026-11-11T05:31:23.507Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.515Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-10T05:31:35.442Z"
+      "updatedAt": "2026-11-11T05:31:24.548Z"
     },
     "2020f2381e9e97943fd204f5": {
       "fingerprint": "2020f2381e9e97943fd204f5",
@@ -1951,11 +1951,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:33.882Z"
+        "checkedAt": "2026-11-11T05:31:23.507Z"
       },
       "firstSeenAt": "2026-11-05T16:15:38.518Z",
       "lastOutcome": "eligible",
-      "updatedAt": "2026-11-10T05:31:35.453Z"
+      "updatedAt": "2026-11-11T05:31:24.561Z"
     },
     "ba9283727529a5974e0629c3": {
       "fingerprint": "ba9283727529a5974e0629c3",
@@ -2035,7 +2035,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-05T16:21:55.229Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-09T06:55:26.072Z"
+      "updatedAt": "2026-11-11T05:31:23.462Z"
     },
     "71e006ba0338d869a70267e6": {
       "fingerprint": "71e006ba0338d869a70267e6",
@@ -2176,7 +2176,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:31:30.052Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-09T06:55:26.059Z"
+      "updatedAt": "2026-11-11T05:31:23.451Z"
     },
     "57f50ffd7272764b86c743c6": {
       "fingerprint": "57f50ffd7272764b86c743c6",
@@ -2186,7 +2186,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:31:30.060Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-10T05:31:33.836Z"
+      "updatedAt": "2026-11-11T05:31:23.415Z"
     },
     "9c0e72b32cfb4b62ac916c47": {
       "fingerprint": "9c0e72b32cfb4b62ac916c47",
@@ -2196,7 +2196,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:31:30.064Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-10T05:31:33.843Z"
+      "updatedAt": "2026-11-11T05:31:23.423Z"
     },
     "f6c96fb200d7d12479993ba3": {
       "fingerprint": "f6c96fb200d7d12479993ba3",
@@ -2206,7 +2206,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:31:30.066Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-10T05:31:33.846Z"
+      "updatedAt": "2026-11-11T05:31:23.427Z"
     },
     "0a6156782ccc98050e4cf712": {
       "fingerprint": "0a6156782ccc98050e4cf712",
@@ -2247,7 +2247,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:42:06.429Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-09T06:55:26.051Z"
+      "updatedAt": "2026-11-11T05:31:23.443Z"
     },
     "d5b13caf3529aad3f65aa0dd": {
       "fingerprint": "d5b13caf3529aad3f65aa0dd",
@@ -2287,7 +2287,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:42:06.444Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-09T06:55:26.076Z"
+      "updatedAt": "2026-11-11T05:31:23.465Z"
     },
     "46b941aec7a6e1e35897fcab": {
       "fingerprint": "46b941aec7a6e1e35897fcab",
@@ -2304,11 +2304,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:20.329Z"
+        "checkedAt": "2026-11-11T05:31:12.267Z"
       },
       "firstSeenAt": "2026-11-06T09:45:43.488Z",
       "lastOutcome": "awaiting_plan",
-      "updatedAt": "2026-11-10T05:31:33.768Z"
+      "updatedAt": "2026-11-11T05:31:23.377Z"
     },
     "59d49837a108813cf372f460": {
       "fingerprint": "59d49837a108813cf372f460",
@@ -2325,11 +2325,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:20.329Z"
+        "checkedAt": "2026-11-11T05:31:12.267Z"
       },
       "firstSeenAt": "2026-11-06T09:45:43.490Z",
       "lastOutcome": "awaiting_plan",
-      "updatedAt": "2026-11-10T05:31:33.771Z"
+      "updatedAt": "2026-11-11T05:31:23.381Z"
     },
     "ca876affa69ccb4fbf189dd9": {
       "fingerprint": "ca876affa69ccb4fbf189dd9",
@@ -2346,11 +2346,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:20.329Z"
+        "checkedAt": "2026-11-11T05:31:12.267Z"
       },
       "firstSeenAt": "2026-11-06T09:45:43.493Z",
       "lastOutcome": "awaiting_plan",
-      "updatedAt": "2026-11-10T05:31:33.775Z"
+      "updatedAt": "2026-11-11T05:31:23.385Z"
     },
     "5225f66fbfe0b37ed78aca55": {
       "fingerprint": "5225f66fbfe0b37ed78aca55",
@@ -2367,11 +2367,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:20.329Z"
+        "checkedAt": "2026-11-11T05:31:12.267Z"
       },
       "firstSeenAt": "2026-11-06T09:45:43.496Z",
       "lastOutcome": "awaiting_plan",
-      "updatedAt": "2026-11-10T05:31:33.778Z"
+      "updatedAt": "2026-11-11T05:31:23.390Z"
     },
     "2205bb43190e878dd6101f3b": {
       "fingerprint": "2205bb43190e878dd6101f3b",
@@ -2411,7 +2411,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:45:43.519Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-09T06:55:26.080Z"
+      "updatedAt": "2026-11-11T05:31:23.469Z"
     },
     "cc5498837ba2c4c5744684a5": {
       "fingerprint": "cc5498837ba2c4c5744684a5",
@@ -2791,7 +2791,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:50:14.305Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-10T05:31:33.782Z"
+      "updatedAt": "2026-11-11T05:31:23.394Z"
     },
     "7bfd877eb8de9bf459301ec8": {
       "fingerprint": "7bfd877eb8de9bf459301ec8",
@@ -2841,7 +2841,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-06T09:50:14.337Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-10T05:31:33.798Z"
+      "updatedAt": "2026-11-11T05:31:23.403Z"
     },
     "6c039c68cadf6ee8837c136a": {
       "fingerprint": "6c039c68cadf6ee8837c136a",
@@ -2911,7 +2911,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-07T23:01:42.680Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-10T05:31:33.853Z"
+      "updatedAt": "2026-11-11T05:31:23.436Z"
     },
     "5a3eba8b7ce9e8aa3c02d6ff": {
       "fingerprint": "5a3eba8b7ce9e8aa3c02d6ff",
@@ -2921,7 +2921,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-07T23:01:42.689Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-09T06:55:26.055Z"
+      "updatedAt": "2026-11-11T05:31:23.447Z"
     },
     "a771b4fa44f3ed6ef3a51857": {
       "fingerprint": "a771b4fa44f3ed6ef3a51857",
@@ -2931,7 +2931,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-07T23:01:42.705Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-09T06:55:26.084Z"
+      "updatedAt": "2026-11-11T05:31:23.473Z"
     },
     "6ed4388a9846c881e0c8befe": {
       "fingerprint": "6ed4388a9846c881e0c8befe",
@@ -2941,7 +2941,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-07T23:01:42.708Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-09T06:55:26.088Z"
+      "updatedAt": "2026-11-11T05:31:23.476Z"
     },
     "6d0f48a7edf59c252976840a": {
       "fingerprint": "6d0f48a7edf59c252976840a",
@@ -2951,7 +2951,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-07T23:01:42.711Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-09T06:55:26.092Z"
+      "updatedAt": "2026-11-11T05:31:23.480Z"
     },
     "75fdcb4bd2952cb1d33b37b6": {
       "fingerprint": "75fdcb4bd2952cb1d33b37b6",
@@ -2961,7 +2961,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-07T23:01:42.714Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-09T06:55:26.095Z"
+      "updatedAt": "2026-11-11T05:31:23.484Z"
     },
     "8c19acd2d2a8f672ae2aa1a0": {
       "fingerprint": "8c19acd2d2a8f672ae2aa1a0",
@@ -2971,7 +2971,7 @@
       "rightsVerification": null,
       "firstSeenAt": "2026-11-07T23:01:42.716Z",
       "lastOutcome": "rejected",
-      "updatedAt": "2026-11-09T05:31:42.819Z"
+      "updatedAt": "2026-11-11T05:31:23.487Z"
     },
     "02c07c8f4df17b0b244041f2": {
       "fingerprint": "02c07c8f4df17b0b244041f2",
@@ -3190,11 +3190,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:33.882Z"
+        "checkedAt": "2026-11-11T05:31:23.507Z"
       },
       "firstSeenAt": "2026-11-10T05:31:35.431Z",
       "lastOutcome": "awaiting_plan",
-      "updatedAt": "2026-11-10T05:31:35.431Z"
+      "updatedAt": "2026-11-11T05:31:24.536Z"
     },
     "f64697a040a2540dba41f7fd": {
       "fingerprint": "f64697a040a2540dba41f7fd",
@@ -3211,11 +3211,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:33.882Z"
+        "checkedAt": "2026-11-11T05:31:23.507Z"
       },
       "firstSeenAt": "2026-11-10T05:31:35.435Z",
       "lastOutcome": "awaiting_plan",
-      "updatedAt": "2026-11-10T05:31:35.435Z"
+      "updatedAt": "2026-11-11T05:31:24.541Z"
     },
     "0368fc96ec362ac89590064b": {
       "fingerprint": "0368fc96ec362ac89590064b",
@@ -3232,11 +3232,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:33.882Z"
+        "checkedAt": "2026-11-11T05:31:23.507Z"
       },
       "firstSeenAt": "2026-11-10T05:31:35.438Z",
       "lastOutcome": "awaiting_plan",
-      "updatedAt": "2026-11-10T05:31:35.438Z"
+      "updatedAt": "2026-11-11T05:31:24.545Z"
     },
     "9a1995d65e35d3c96d024389": {
       "fingerprint": "9a1995d65e35d3c96d024389",
@@ -3253,11 +3253,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:33.882Z"
+        "checkedAt": "2026-11-11T05:31:23.507Z"
       },
       "firstSeenAt": "2026-11-10T05:31:35.446Z",
       "lastOutcome": "awaiting_plan",
-      "updatedAt": "2026-11-10T05:31:35.446Z"
+      "updatedAt": "2026-11-11T05:31:24.552Z"
     },
     "26b1cc2411bfd110914dd222": {
       "fingerprint": "26b1cc2411bfd110914dd222",
@@ -3274,11 +3274,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:33.882Z"
+        "checkedAt": "2026-11-11T05:31:23.507Z"
       },
       "firstSeenAt": "2026-11-10T05:31:35.449Z",
       "lastOutcome": "awaiting_plan",
-      "updatedAt": "2026-11-10T05:31:35.449Z"
+      "updatedAt": "2026-11-11T05:31:24.556Z"
     },
     "e02655e69001de16253aa2bd": {
       "fingerprint": "e02655e69001de16253aa2bd",
@@ -3295,11 +3295,11 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:35.472Z"
+        "checkedAt": "2026-11-11T05:31:24.578Z"
       },
       "firstSeenAt": "2026-11-10T05:31:36.310Z",
       "lastOutcome": "awaiting_plan",
-      "updatedAt": "2026-11-10T05:31:36.310Z"
+      "updatedAt": "2026-11-11T05:31:24.952Z"
     },
     "d5089b39f16e0446d241e6c5": {
       "fingerprint": "d5089b39f16e0446d241e6c5",
@@ -3316,11 +3316,11 @@
         "attributionRequired": true,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:35.472Z"
+        "checkedAt": "2026-11-11T05:31:24.578Z"
       },
       "firstSeenAt": "2026-11-10T05:31:36.314Z",
       "lastOutcome": "awaiting_plan",
-      "updatedAt": "2026-11-10T05:31:36.314Z"
+      "updatedAt": "2026-11-11T05:31:24.957Z"
     },
     "284180ebe29dfefd0603a2f9": {
       "fingerprint": "284180ebe29dfefd0603a2f9",
@@ -3337,11 +3337,21 @@
         "attributionRequired": false,
         "commercialUse": true,
         "derivativesAllowed": true,
-        "checkedAt": "2026-11-10T05:31:35.472Z"
+        "checkedAt": "2026-11-11T05:31:24.578Z"
       },
       "firstSeenAt": "2026-11-10T05:31:36.317Z",
       "lastOutcome": "awaiting_plan",
-      "updatedAt": "2026-11-10T05:31:36.317Z"
+      "updatedAt": "2026-11-11T05:31:24.960Z"
+    },
+    "c9ee259be4f9ee2e689d08a3": {
+      "fingerprint": "c9ee259be4f9ee2e689d08a3",
+      "sourceUrl": "https://www.youtube.com/watch?v=9FrVzz62bnY",
+      "title": "QUANDO VOCÊ  TA PEGANDO ALGO PRA COMER NA COZINHA AS 3 DA MANHÃ  #foryou #funny",
+      "creator": "Stories dos famosos OFICIAL",
+      "rightsVerification": null,
+      "firstSeenAt": "2026-11-11T05:31:23.458Z",
+      "lastOutcome": "rejected",
+      "updatedAt": "2026-11-11T05:31:23.458Z"
     }
   }
 }

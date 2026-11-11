@@ -58,6 +58,20 @@ test("concurrent changes to review, queue or upload state fail rather than overw
   } finally { await t.cleanup(); }
 });
 
+test("concurrent Pixabay search caches are never silently overwritten", async () => {
+  const t = await fixture();
+  try {
+    await writeFile(join(t.second, "Primeplug/pixabay-search-cache.json"), '{"writer":"second"}\n');
+    await writeFile(join(t.first, "Primeplug/pixabay-search-cache.json"), '{"writer":"first"}\n');
+    advanceRemote(t.first);
+    const result = persist(t.second);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /Concurrent state change.*pixabay-search-cache\.json/);
+    assert.equal(JSON.parse(remoteFile(t.remote, "Primeplug/pixabay-search-cache.json")).writer, "first");
+    assert.equal(JSON.parse(await readFile(join(t.second, "Primeplug/pixabay-search-cache.json"), "utf8")).writer, "second");
+  } finally { await t.cleanup(); }
+});
+
 test("attempt-time remote check detects a review change and fails closed on fetch errors", async () => {
   const t = await fixture();
   try {

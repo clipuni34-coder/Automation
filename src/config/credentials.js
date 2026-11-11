@@ -8,7 +8,7 @@ export const CREDENTIAL_SPECS = [
   { name: "YOUTUBE_REFRESH_TOKEN", purpose: "YouTube OAuth refresh token", requiredFor: ["youtube_upload", "youtube_analytics"], aliases: ["REFRESH_TOKEN"] },
   { name: "YOUTUBE_EXPECTED_CHANNEL_ID", purpose: "Fail-closed channel identity check before upload", requiredFor: ["youtube_upload"] },
   { name: "TAVILY_API_KEY", purpose: "Research dossiers", requiredFor: ["research"] },
-  { name: "PIXABAY_API_KEY", purpose: "Rights-cleared stock footage search", requiredFor: ["stock_footage"] },
+  { name: "PIXABAY_API_KEY", purpose: "Stock footage search (individual rights review required)", requiredFor: ["stock_footage"] },
   { name: "GEMINI_API_KEY", purpose: "Gemini creative/TTS/vision (opt-in)", requiredFor: [] },
   { name: "GROQ_API_KEY", purpose: "Groq creative fallback (opt-in)", requiredFor: [] },
   { name: "OPENROUTER_API_KEY", purpose: "OpenRouter free-model creative/vision", requiredFor: [], aliases: ["OPENROUTER_API"] },

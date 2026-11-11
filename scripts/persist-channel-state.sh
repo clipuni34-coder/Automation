@@ -22,7 +22,7 @@ for attempt in 1 2 3; do
   remote_files=$(git -C "$state" diff --name-only "$base" "$remote")
   while IFS= read -r path; do
     case "$path" in
-      */planning-inbox.json|*/queue.json|*/sources.json|*/published.json|*/upload-attempts.json)
+      */planning-inbox.json|*/pixabay-search-cache.json|*/queue.json|*/sources.json|*/published.json|*/upload-attempts.json)
         if printf '%s\n' "$remote_files" | grep -Fxq -- "$path"; then
           echo "Concurrent state change to $path; refusing automatic overwrite. Preserve the run artifacts and reconcile explicitly." >&2
           exit 1

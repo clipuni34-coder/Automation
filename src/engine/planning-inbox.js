@@ -10,6 +10,7 @@ import { screenCandidate } from "./scheduler.js";
 import { sameSourceUrl, sourceIdentity } from "./source-identity.js";
 import { verifyCandidateRights } from "./rights-verification.js";
 import { commonsCandidateFromPage } from "../discovery/sources/commons.js";
+import { canonicalPixabayLead, pixabayLeadKey } from "../discovery/sources/pixabay-planning.js";
 import { validateNarratedEntry, validateVisualHookReview, validateOriginalAudioPlan } from "../production/narrated-plan.js";
 
 // Bounded rather than silently growing forever. At capacity, intake is held
@@ -127,6 +128,39 @@ export async function ingestPlanningCandidates(state, candidates, { existingSeed
   });
 }
 
+// Add Pixabay API search results as unverified planning leads only. They
+// are intentionally NOT rights-cleared or eligible for production: a provider-
+// specific rights verifier and reviewed production pathway are still needed.
+// The provider's stable video id deduplicates different size variants.
+export async function ingestPixabayLeads(state, leads, { now = new Date() } = {}) {
+  if (state?.channelId !== "Primeplug") throw new Error("Pixabay planning is restricted to the Primeplug channel.");
+  const date = new Date(now);
+  if (!Number.isFinite(date.getTime())) throw new Error("Invalid planning intake timestamp.");
+  return withInboxLock(state, async () => {
+    const db = await readPlanningInbox(state);
+    const queue = await state.getQueue();
+    let added = 0, ignored = 0, atCapacity = 0;
+    for (const raw of leads ?? []) {
+      const candidate = canonicalPixabayLead(raw);
+      if (!candidate) { ignored++; continue; }
+      const key = pixabayLeadKey(candidate.providerAssetId);
+      if (db.records.some((r) => r.key === key || (r.candidate?.provider === "pixabay" && r.candidate?.providerAssetId === candidate.providerAssetId))
+          || queue.jobs.some((j) => ["queued", "running", "completed", "failed"].includes(j.status)
+            && (j.candidate?.id === candidate.id || (j.candidate?.provider === "pixabay" && j.candidate?.providerAssetId === candidate.providerAssetId)))) {
+        ignored++; continue;
+      }
+      if (db.records.length >= MAX_RECORDS) { atCapacity++; continue; }
+      db.records.push({
+        key, status: PENDING, candidate, discoveredAt: date.toISOString(), updatedAt: date.toISOString(),
+        productionBlock: "Pixabay item is an unverified lead. The provider-specific rights verification and reviewed production pathway are not yet enabled."
+      });
+      added++;
+    }
+    if (added) await atomicWrite(state.path("planning-inbox.json"), db);
+    return { added, ignored, atCapacity, pending: db.records.filter((r) => r.status === PENDING).length, productionEligible: false };
+  });
+}
+
 // Recover previously held sources from the old sources registry. The old
 // registry lacks a complete licence/attribution record, so never infer one:
 // re-fetch the exact Commons file page and compare the original source URL.
@@ -178,7 +212,9 @@ export function makePlanTemplate(record) {
   }
   return {
     candidateId: c.id, sourceUrl: c.sourceUrl,
-    instructions: "DRAFT ONLY: inspect the exact source and licence. Write only visible, supportable claims. Do not set a review status until a separate real review is complete.",
+    instructions: c.provider === "pixabay"
+      ? "DRAFT ONLY: this Pixabay lead is not rights-cleared and cannot be promoted until a provider-specific rights and production pathway is implemented and tested."
+      : "DRAFT ONLY: inspect the exact source and licence. Write only visible, supportable claims. Do not set a review status until a separate real review is complete.",
     productionMode: "narrated", muteOriginalAudio: true,
     window: { startSeconds: null, seconds: null, minimumStorySeconds: null },
     postingTitle: "", hookText: "", narrationScript: "", visualSubject: "",
@@ -223,6 +259,7 @@ export async function approveReviewedPlan(state, key, draft, review, { checkedSo
     const record = db.records.find((r) => r.key === key);
     if (!record || record.status === "rejected") throw new Error("Pending/reviewed source not found or previously rejected.");
     const c = record.candidate;
+    if (c.provider === "pixabay" || c.discoveredVia === "pixabay_official_api") throw new Error("Pixabay leads remain held: provider-specific rights verification and the reviewed production pathway are not yet enabled.");
     if (draft?.candidateId !== c.id || draft?.sourceUrl !== c.sourceUrl) throw new Error("Draft source identity differs from the selected inbox item.");
     const verification = await verifyRights(c);
     const fresh = { ...c, rightsVerification: verification };
@@ -362,12 +399,13 @@ export async function planningSummary(state, { bootstrapPath = null } = {}) {
   const queued = loaded.seeds.filter((s) => jobsFor(s).some((j) => ["queued", "running"].includes(j.status)));
   return {
     awaitingReview: loaded.inbox.records.filter((r) => r.status === PENDING).length,
+    pixabayLeadsBlocked: loaded.inbox.records.filter((r) => r.status === PENDING && r.candidate?.provider === "pixabay").length,
     reviewedAvailable: available.length,
     reviewedQueued: queued.length,
     rejected: loaded.inbox.records.filter((r) => r.status === "rejected").length,
     invalidReviewed: loaded.invalid.length,
     totalRecords: loaded.inbox.records.length,
     capacity: MAX_RECORDS,
-    pending: loaded.inbox.records.filter((r) => r.status === PENDING).slice(0, 10).map((r) => ({ key: r.key, title: r.candidate.title, sourceUrl: r.candidate.sourceUrl, rightsEvidenceUrl: r.candidate.rightsEvidenceUrl, licence: r.candidate.license?.type ?? null }))
+    pending: loaded.inbox.records.filter((r) => r.status === PENDING).slice(0, 10).map((r) => ({ key: r.key, title: r.candidate.title, sourceUrl: r.candidate.sourceUrl, rightsEvidenceUrl: r.candidate.rightsEvidenceUrl, licence: r.candidate.license?.type ?? null, provider: r.candidate.provider ?? "wikimedia_commons", rightsStatus: r.candidate.license?.rightsStatus ?? "unknown", productionBlocked: Boolean(r.productionBlock) }))
   };
 }

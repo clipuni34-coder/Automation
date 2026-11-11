@@ -4,9 +4,28 @@
 
 The daily run stores screened Wikimedia Commons videos in the **Primeplug** planning inbox, including older `awaiting_plan` sources re-fetched from their exact file pages. These are leads, not videos approved for use: search results can be off-niche, misleading, sensitive, or contain third-party material. Each new source stays `awaiting_review` until someone explicitly reviews the actual footage, licence, narration and opening.
 
+A separate, operator-initiated Pixabay search can also save **unverified** leads in the inbox. Unlike the Commons records, these have not passed an independent rights check, cannot yet be promoted or rendered, and are marked `productionBlocked`. The Pixabay-specific rights and production pathway still has to be implemented and tested. This staging feature does not make Pixabay an automated daily footage source.
+
 A reviewed plan becomes eligible for the normal production queue. The renderer still checks the current plan, fresh rights evidence, the SHA-256 of the downloaded source, timing, source-audio clearance, speech/caption alignment, framing, overlays and technical QC. A successful render is **not** an approval to upload: inspect the actual result, loop, captions, audience, rights and package, then use the existing separate exact-video private-upload approval. This workflow never changes the schedule or permits public publishing.
 
 **Ongoing editorial work is required.** This is a durable manual review handoff, not an autonomous source-grounded planner. The two initial cat plans are finite examples, not an inexhaustible supply. A reviewer must keep processing new leads; the system can still produce zero videos when reviews or dependencies are unavailable. A model-generated draft, a digest, sampled frames or a green GitHub run does not prove the claims are true or that a human independently reviewed them.
+
+## Optional: find Pixabay leads (local, manual, blocked from production)
+
+Only after confirming that [Pixabay's API rules](https://pixabay.com/api/docs/) and terms permit the intended human-initiated use, an operator can select **one** specific query:
+
+```sh
+# PIXABAY_API_KEY is supplied by your approved local secret mechanism.
+# Do not paste keys into chat or put them in the query/CLI arguments.
+STATE_DIR=state node scripts/planning-inbox.mjs search-pixabay "funny cats"
+STATE_DIR=state node scripts/planning-inbox.mjs list
+```
+
+This does **not** start an autonomous or scheduled Pixabay search, download footage, select an approved licence, queue production, or upload. The official API returns metadata, not a verified licence, evidence that the content is genuine, or a model/property release. It filters to API-labelled `film`, minimum dimensions/duration and some obvious animation/AI labels, but those filters do not prove the subject is real, relevant or safe. An operator must independently inspect the whole exact clip and item page, identify the applicable grant/date, check third-party rights and review the intended use. A pre-2019 CC0 statement in the terms and an individual page's displayed licence may conflict; hold ambiguous cases rather than infer a licence. API attribution is a suggested credit only, not verified attribution.
+
+The inbox stores the exact asset page, contributor, source rendition URL and stable Pixabay video ID; different renditions of the same asset are deduplicated. It stores no API key. A search result or failed request is cached for at least 24 hours after the response; a cache slot is reserved before requesting so crashes do not silently trigger a repeat. An unfinished reservation is not automatically expired: its timing is unknown and it requires investigation. As an extra conservative local limit, at most five distinct searches can be made in a rolling 24-hour period; cached repeats do not count. This is our chosen limit, not a claim about the provider's official quota. Cache loss, concurrent separate checkouts, or an operator deleting the file can defeat this guarantee: **do not run simultaneous copies or reset the cache to bypass the provider's limits**. The local lock is not cross-machine; remote state changes are configured to fail rather than overwrite. A cache read/write/clock error or stale lock requires operator investigation, not blind deletion. Cache entries are not evicted before 24 hours. Review Pixabay's current requirements and make only limited queries for genuine human review; do not scrape or bulk-download.
+
+The production verifier only accepts independently checked Commons sources. Pixabay items deliberately cannot be approved through `review`, even if a reviewer creates a draft. No `cdn.pixabay.com` renderer allowlist or unverified rights override has been added. The separate, pre-existing storyboard fallback calls the general Pixabay adapter directly; this new planning cache does not cover that separate pathway or certify its rights and API compliance. To complete this future integration: design provider-specific independent, fresh item-page verification that handles inaccessible/changed pages and inconsistent licence dates; preserve exact ID/source SHA and human visual/attribution evidence; then separately test the producer, revocation, queue and publication gates. An HTTP 403 must remain a hold, not be bypassed. Deployment, use of GitHub-stored secrets, schedule changes and publishing require separate authorization.
 
 ## Locate the inbox
 
@@ -82,7 +101,9 @@ git -C state-review commit -m "state: review Primeplug source"
 git -C state-review push origin HEAD:refs/heads/automation-state
 ```
 
-Never force-push. If another writer advanced the branch, stop, fetch the latest state, inspect and explicitly reconcile every affected review/queue/upload decision, then retry. The daily workflow refuses to automatically overwrite concurrently changed planning, source, queue, published or upload-attempt files; on failure, inspect its saved state/report artifacts. Immediately before an inbox production attempt in GitHub Actions, the workflow also checks whether the remote planning file changed since checkout and defers if it did or cannot be checked. This reduces, but does not eliminate, distributed race windows; a final per-video approval is still necessary.
+For an explicitly authorised Pixabay search against a state worktree, preserve **both** `Primeplug/planning-inbox.json` and `Primeplug/pixabay-search-cache.json` together; never push a cache containing a secret. The search command skips bootstrap materialisation, but `list` does not. Test with copied state first; this guide does not authorise a GitHub secret test or installation.
+
+Never force-push. If another writer advanced the branch, stop, fetch the latest state, inspect and explicitly reconcile every affected review/queue/upload decision, then retry. The daily workflow refuses to automatically overwrite concurrently changed planning, Pixabay cache, source, queue, published or upload-attempt files; on failure, inspect its saved state/report artifacts. Immediately before an inbox production attempt in GitHub Actions, the workflow also checks whether the remote planning file changed since checkout and defers if it did or cannot be checked. This reduces, but does not eliminate, distributed race windows; a final per-video approval is still necessary.
 
 ## Operational checks and troubleshooting
 

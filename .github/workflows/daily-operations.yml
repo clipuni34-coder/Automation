@@ -175,7 +175,7 @@ jobs:
         run: node scripts/verify-published.mjs
       - name: Persist updated channel state
         run: |
-          printf '*.mp4\n*.webm\n*.wav\n*.source\n**/production/work/\n**/.planning-inbox.lock\n**/planning-inbox.json.tmp-*\n' > state/.gitignore
+          printf '*.mp4\n*.webm\n*.wav\n*.source\n**/production/work/\n**/.planning-inbox.lock\n**/planning-inbox.json.tmp-*\n**/.pixabay-search.lock\n**/pixabay-search-cache.json.tmp-*\n' > state/.gitignore
           # Retry safe, non-overlapping updates, but never automatically
           # overwrite a concurrent review, revocation, queue or upload ledger.
           bash scripts/persist-channel-state.sh state
@@ -198,6 +198,7 @@ jobs:
             output/publishing/
             state/Primeplug/production/output/
             state/Primeplug/planning-inbox.json
+            state/Primeplug/pixabay-search-cache.json
             state/Primeplug/queue.json
             state/Primeplug/sources.json
             state/Primeplug/runs.jsonl

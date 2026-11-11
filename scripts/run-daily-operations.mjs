@@ -330,11 +330,15 @@ summary.productionHeadline = headline;
 await writeFile(join(reportDir, "summary.json"), JSON.stringify(summary, null, 2));
 console.log(`[Primeplug production] ${headline} Awaiting editorial review: ${primePlanning.awaitingReview ?? "unknown"}; reviewed plans available: ${primePlanning.reviewedAvailable ?? "unknown"}; queued: ${primePlanning.reviewedQueued ?? "unknown"}.`);
 if (process.env.GITHUB_STEP_SUMMARY) {
-  const escape = (text) => String(text ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])).replace(/[\r\n]/g, " ");
-  const pending = (primePlanning.pending ?? []).map((r) => `- ${escape(r.title)} — ${escape(r.licence)} — source key: ${escape(r.key)}`).join("\n");
+  // Titles, tags and diagnostics can originate with source contributors.
+  // Escape Markdown as well as HTML so an untrusted label cannot render as a
+  // link, image, heading or formatting in the GitHub step summary.
+  const escape = (text) => String(text ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]))
+    .replace(/[\r\n]/g, " ").replace(/[\\`*_{}\[\]()#!|]/g, "\\$&");
+  const pending = (primePlanning.pending ?? []).map((r) => `- ${escape(r.title)} — ${escape(r.licence)}${r.productionBlocked ? " — production blocked pending provider-specific rights support" : ""} — source key: ${escape(r.key)}`).join("\n");
   const intake = primePlanning.intake ?? {};
   const warnings = [...(intake.errors ?? []), ...(intake.atCapacity ? [`${intake.atCapacity} source(s) could not be saved because the planning inbox is full.`] : [])].map((e) => `- ${escape(e)}`).join("\n");
-  const note = `## Primeplug production outcome\n\n**${headline}**\n\n- Awaiting editorial plan review: ${primePlanning.awaitingReview ?? "unknown"}\n- Reviewed plans available: ${primePlanning.reviewedAvailable ?? "unknown"}\n- Reviewed plans already queued: ${primePlanning.reviewedQueued ?? "unknown"}\n- Invalid/tampered reviews held: ${primePlanning.invalidReviewed ?? "unknown"}\n- Planning records: ${primePlanning.totalRecords ?? "unknown"} / ${primePlanning.capacity ?? "unknown"}\n- Separate per-video upload and audience approval remain required.\n\n${warnings ? `### Planning warnings\n${warnings}\n\n` : ""}${pending ? `### Sources awaiting review\n${pending}\n` : ""}\n`;
+  const note = `## Primeplug production outcome\n\n**${headline}**\n\n- Awaiting editorial plan review: ${primePlanning.awaitingReview ?? "unknown"}\n- Pixabay leads blocked pending provider-specific rights support: ${primePlanning.pixabayLeadsBlocked ?? "unknown"}\n- Reviewed plans available: ${primePlanning.reviewedAvailable ?? "unknown"}\n- Reviewed plans already queued: ${primePlanning.reviewedQueued ?? "unknown"}\n- Invalid/tampered reviews held: ${primePlanning.invalidReviewed ?? "unknown"}\n- Planning records: ${primePlanning.totalRecords ?? "unknown"} / ${primePlanning.capacity ?? "unknown"}\n- Separate per-video upload and audience approval remain required.\n\n${warnings ? `### Planning warnings\n${warnings}\n\n` : ""}${pending ? `### Sources awaiting review\n${pending}\n` : ""}\n`;
   try { await appendFile(process.env.GITHUB_STEP_SUMMARY, note); }
   catch (error) { console.error(`[Primeplug] could not write the optional GitHub summary: ${String(error.message).slice(0, 200)}`); }
 }

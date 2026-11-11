@@ -29,26 +29,30 @@ function safeVideoFile(video) {
   const candidates = affordable.length ? affordable : variants;
   const file = candidates.find((item) => item.width >= 720 && item.height >= 720) ?? candidates[0];
   if (!file || Number(file.size) > MAX_DOWNLOAD_BYTES) return null;
-  const url = new URL(file.url);
+  let url;
+  try { url = new URL(file.url); } catch { return null; }
   if (url.protocol !== "https:" || !(url.hostname === "pixabay.com" || url.hostname.endsWith(".pixabay.com"))) return null;
   return { url: url.toString(), width: file.width, height: file.height, size: file.size ?? null };
 }
 
 export async function searchPixabayVideos({
   query, apiKey = process.env.PIXABAY_API_KEY ?? "", fetchImpl = fetch,
-  perPage = 12, timeoutMs = 20000
+  perPage = 12, timeoutMs = 20000, videoType = "all"
 } = {}) {
   if (!apiKey) return { status: "not_configured", provider: "pixabay", videos: [] };
   const normalized = String(query ?? "").trim().slice(0, 100);
   if (!normalized) throw new Error("A non-empty visual search query is required");
+  if (!["all", "film", "animation"].includes(videoType)) throw new Error("Unsupported Pixabay video type.");
   const params = new URLSearchParams({
     key: apiKey, q: normalized, per_page: String(Math.max(3, Math.min(200, perPage))),
-    safesearch: "true", video_type: "all"
+    safesearch: "true", video_type: videoType
   });
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetchImpl(`${API}?${params}`, { signal: controller.signal });
+    // The provider requires its key in the query string. Refuse redirects so
+    // a redirect cannot carry that credential to a different host.
+    const response = await fetchImpl(`${API}?${params}`, { signal: controller.signal, redirect: "error" });
     if (!response.ok) throw new Error(`Pixabay video search returned HTTP ${response.status}`);
     const payload = await response.json();
     const videos = (payload.hits ?? []).flatMap((video) => {
@@ -56,12 +60,20 @@ export async function searchPixabayVideos({
       if (!file || !video.pageURL || !video.user) return [];
       return [{
         id: video.id, durationSeconds: video.duration, previewImage: video.videos?.large?.thumbnail ?? null,
+        mediaType: video.type ?? null,
         sourceUrl: video.pageURL, sourceType: "licensed_stock", license: "Pixabay Content License",
         attribution: { creator: video.user, creatorUrl: video.userImageURL ?? null, provider: "Pixabay", providerUrl: "https://pixabay.com" },
         file, width: file.width, height: file.height, tags: video.tags ?? ""
       }];
     });
     return { status: "ok", provider: "pixabay", query: normalized, totalHits: payload.totalHits ?? null, videos };
+  } catch (error) {
+    // Never propagate an HTTP-client error containing the request URL: the
+    // provider's API key is part of that URL. Keep only a bounded status.
+    const message = String(error?.message ?? "");
+    if (/^Pixabay video search returned HTTP \d{3}$/.test(message)) throw new Error(message);
+    if (error?.name === "AbortError") throw new Error("Pixabay video search timed out.");
+    throw new Error("Pixabay video search failed; credential values were not logged.");
   } finally {
     clearTimeout(timer);
   }

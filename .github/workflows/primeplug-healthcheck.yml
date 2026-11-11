@@ -1,0 +1,60 @@
+name: Primeplug provider checks (no upload)
+
+# Manual dispatch ONLY. No state checkout or persistence, schedule change,
+# media download, upload, video edit, or publication. A voice probe sends one
+# short fixed sentence to Gemini and may consume quota or incur a charge. This
+# workflow must not be dispatched without separate owner authorization.
+on:
+  workflow_dispatch:
+    inputs:
+      check_youtube_oauth:
+        description: "Read-only OAuth refresh and expected-channel identity check"
+        type: boolean
+        default: false
+      check_hosted_voice:
+        description: "Test hosted Gemini narration (may incur a charge; audio is deleted)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: primeplug-provider-checks
+  cancel-in-progress: false
+
+jobs:
+  youtube:
+    if: inputs.check_youtube_oauth == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check token refresh and expected-channel identity only
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN || secrets.REFRESH_TOKEN }}
+          YOUTUBE_EXPECTED_CHANNEL_ID: ${{ vars.YOUTUBE_EXPECTED_CHANNEL_ID }}
+        run: node scripts/validate-youtube-oauth.mjs
+  hosted_voice:
+    if: inputs.check_hosted_voice == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check hosted narration with a disposable test sentence
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PRIMEPLUG_VOICE_CHECK_AUTHORIZED: "true"
+        run: node scripts/validate-hosted-voice.mjs

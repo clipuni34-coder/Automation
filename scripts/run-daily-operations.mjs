@@ -41,12 +41,11 @@ const seedCandidateCache = new Map();
 const seedEntryCache = new Map();
 const planningUnavailable = new Map();
 const isPlanningJob = (channel, job) => channel.id === "Primeplug" && /^planned-[a-f0-9]{24}$/.test(String(job?.candidate?.id ?? ""));
-const planningBootstrapPath = (channel) => channel.id === "Primeplug" ? resolve("config/primeplug-reviewed-backlog.json") : null;
-
-// The current production manifest now includes individually reviewed plans
-// from persistent state. Unreviewed discoveries never enter this list. If the
-// inbox is corrupt or a reviewed plan changed, fail closed for that plan while
-// preserving the pre-existing configured seed pathway.
+// The current production manifest includes individually reviewed plans from
+// persistent state, not the checked-in sampled-frame cat examples. Unreviewed
+// discoveries never enter this list. If the inbox is corrupt or a reviewed
+// plan changed, fail closed for that plan while preserving the pre-existing
+// configured seed pathway.
 async function currentProductionSeeds(channel, { fresh = false } = {}) {
   if (!fresh && seedEntryCache.has(channel.id)) return seedEntryCache.get(channel.id);
   const configured = JSON.parse(await readFile(channel.seedCandidateManifest, "utf8"));
@@ -54,7 +53,7 @@ async function currentProductionSeeds(channel, { fresh = false } = {}) {
   let combined = configured;
   try {
     const state = channel.id === "Primeplug" ? await openChannelState(stateRoot, channel.id) : null;
-    const merged = await mergeReviewedProductionSeeds({ channel, configured, state, bootstrapPath: planningBootstrapPath(channel) });
+    const merged = await mergeReviewedProductionSeeds({ channel, configured, state });
     for (const invalid of merged.invalid) console.error(`[${channel.id}] reviewed planning record held: ${invalid.key}: ${invalid.reasons.join("; ")}`);
     combined = merged.seeds;
     planningUnavailable.delete(channel.id);
@@ -317,7 +316,7 @@ summary.planning = {};
 for (const channel of channels.filter((c) => c.id === "Primeplug" && c.seedCandidateManifest)) {
   try {
     const st = await openChannelState(stateRoot, channel.id);
-    summary.planning[channel.id] = { ...(await planningSummary(st, { bootstrapPath: planningBootstrapPath(channel) })), intake: globalThis.__planningIntake?.[channel.id] ?? null };
+    summary.planning[channel.id] = { ...(await planningSummary(st)), intake: globalThis.__planningIntake?.[channel.id] ?? null };
   } catch (error) { summary.planning[channel.id] = { status: "unavailable", error: String(error.message).slice(0, 250) }; }
 }
 const prime = summary.productionReport.channels.find((c) => c.channelId === "Primeplug");

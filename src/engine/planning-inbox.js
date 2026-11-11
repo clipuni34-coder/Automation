@@ -4,7 +4,7 @@
 // narration, opening, and rights may promote a record. This module does not
 // upload, change a schedule, or make an upload/audience decision.
 import { createHash, randomUUID } from "node:crypto";
-import { createReadStream } from "node:fs";
+import { constants } from "node:fs";
 import { open, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import { screenCandidate } from "./scheduler.js";
 import { sameSourceUrl, sourceIdentity } from "./source-identity.js";
@@ -26,7 +26,9 @@ function stable(value) {
 }
 function digest(value) { return createHash("sha256").update(JSON.stringify(stable(value))).digest("hex"); }
 function normalText(value) { return String(value ?? "").replace(/\s+/g, " ").trim(); }
-function sourceKey(url) {
+// Stable Commons source identity; exported so the CLI can stage an example's
+// source without trusting or importing its old assistant-authored review.
+export function sourceKey(url) {
   const identity = sourceIdentity(url);
   return identity ? createHash("sha256").update(identity).digest("hex").slice(0, 24) : null;
 }
@@ -202,19 +204,28 @@ export async function recoverPreviouslyAwaitingCandidates(state, { fetchImpl = f
 export function makePlanTemplate(record) {
   if (!record?.candidate || ![PENDING, "reviewed"].includes(record.status)) throw new Error("A pending or reviewed source is required.");
   const c = record.candidate;
+  let oldReviewInvalid = false;
   if (record.status === "reviewed") {
-    if (!validateReviewedRecord(record).valid) throw new Error("The existing reviewed record is invalid; repair it before revising.");
-    return {
-      ...structuredClone(record.seed), candidateId: c.id, sourceUrl: c.sourceUrl,
-      instructions: "REVISION DRAFT ONLY: inspect the exact source and re-review every changed claim, window, opening and rights term. The old review is not inherited.",
-      visualHookReview: { ...structuredClone(record.seed.visualHookReview), status: "review_required", sourceSha256: "", firstActionSourceSeconds: null, reviewedThroughSourceSeconds: null, reviewMethod: "", reviewedBy: "" }
-    };
+    if (validateReviewedRecord(record).valid) {
+      return {
+        ...structuredClone(record.seed), candidateId: c.id, sourceUrl: c.sourceUrl,
+        instructions: "REVISION DRAFT ONLY: inspect the exact source and re-review every changed claim, window, opening and rights term. The old review is not inherited.",
+        visualHookReview: { ...structuredClone(record.seed.visualHookReview), status: "review_required", sourceSha256: "", firstActionSourceSeconds: null, reviewedThroughSourceSeconds: null, reviewMethod: "", reviewedBy: "" }
+      };
+    }
+    // An older, incomplete review needs a practical path to a fresh review.
+    // Never carry its untrusted plan forward, and refuse a corrupted source
+    // identity rather than creating a draft for a different item.
+    if (!cleanDiscoveredCandidate(c) || record.key !== sourceKey(c.sourceUrl) || c.id !== `planned-${record.key}`) throw new Error("The existing record's source identity is invalid; investigate it before revising.");
+    oldReviewInvalid = true;
   }
   return {
     candidateId: c.id, sourceUrl: c.sourceUrl,
     instructions: c.provider === "pixabay"
       ? "DRAFT ONLY: this Pixabay lead is not rights-cleared and cannot be promoted until a provider-specific rights and production pathway is implemented and tested."
-      : "DRAFT ONLY: inspect the exact source and licence. Write only visible, supportable claims. Do not set a review status until a separate real review is complete.",
+      : oldReviewInvalid
+        ? "FRESH DRAFT ONLY: the previous review is invalid and none of its plan was inherited. Inspect the entire source and freshly review the complete window, claims, rights and attribution."
+        : "DRAFT ONLY: inspect the exact source and licence. Write only visible, supportable claims. Do not set a review status until a separate real review is complete.",
     productionMode: "narrated", muteOriginalAudio: true,
     window: { startSeconds: null, seconds: null, minimumStorySeconds: null },
     postingTitle: "", hookText: "", narrationScript: "", visualSubject: "",
@@ -232,7 +243,11 @@ function reviewProblems(seed, review, candidate, checkedSourceSha256) {
   const start = Number(seed?.window?.startSeconds), seconds = Number(seed?.window?.seconds);
   const coverageStart = Number(review?.coverageStartSeconds), coverageEnd = Number(review?.coverageEndSeconds);
   if (!Number.isFinite(start) || start < 0 || !Number.isFinite(seconds) || seconds < 10 || seconds > 60) problems.push("A source window between 10 and 60 seconds is required.");
-  if (review?.coverageStartSeconds == null || review?.coverageEndSeconds == null || !Number.isFinite(coverageStart) || !Number.isFinite(coverageEnd) || coverageStart > start || coverageEnd < start + seconds - 0.5) problems.push("The review must cover the planned source window, not just its opening.");
+  // Only a tiny floating-point tolerance is permitted: a half-second gap at
+  // the end is not complete coverage. The booleans are attestations, not
+  // proof that a human actually watched or that the review was correct.
+  if (review?.coverageStartSeconds == null || review?.coverageEndSeconds == null || !Number.isFinite(coverageStart) || !Number.isFinite(coverageEnd) || coverageStart < 0 || coverageStart > start || coverageEnd + 0.000001 < start + seconds) problems.push("The review must cover the complete planned source window, not just its opening.");
+  if (review?.humanReviewer !== true || review?.entireSourceWatched !== true || review?.continuousWindowPlayback !== true) problems.push("A human reviewer must attest to watching the entire source and continuously reviewing the complete selected window; sampled frames or AI review alone are insufficient.");
   if (review?.decision !== "reviewed_against_source" || review?.claimsChecked !== true || review?.rightsChecked !== true || review?.openingChecked !== true) problems.push("A separate, explicit review of the footage, claims, rights and opening is required.");
   if (normalText(review?.reviewedBy).length < 3 || normalText(review?.method).length < 25 || normalText(review?.claimNotes).length < 25 || normalText(review?.rightsNotes).length < 25) problems.push("Record who reviewed, the actual review method, claim evidence and rights notes.");
   if (normalText(review?.reviewedBy) !== normalText(seed?.visualHookReview?.reviewedBy)) problems.push("Opening and full-plan reviewer identities do not match.");
@@ -244,10 +259,31 @@ function reviewProblems(seed, review, candidate, checkedSourceSha256) {
   return problems;
 }
 
+// Hash only the same bounded regular file throughout the operation. This is
+// byte identity, not proof that the operator actually watched it or that it
+// came from the provider URL. The renderer still compares its own download.
 export async function hashSourceFile(path) {
-  const hash = createHash("sha256");
-  for await (const chunk of createReadStream(path)) hash.update(chunk);
-  return hash.digest("hex");
+  const { O_NOFOLLOW, O_NONBLOCK, O_RDONLY } = constants;
+  if (!Number.isInteger(O_NOFOLLOW) || !O_NOFOLLOW || !Number.isInteger(O_NONBLOCK) || !O_NONBLOCK) throw new Error("This platform cannot safely open the reviewed source.");
+  // Nonblocking open prevents a named pipe from hanging the review command.
+  const file = await open(path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK);
+  const maxBytes = 2 * 1024 * 1024 * 1024;
+  try {
+    const before = await file.stat();
+    if (!before.isFile() || before.size < 1 || before.size > maxBytes) throw new Error("The reviewed source must be a non-empty regular file of at most 2 GiB.");
+    const hash = createHash("sha256");
+    let bytes = 0;
+    for await (const chunk of file.createReadStream({ autoClose: false })) {
+      bytes += chunk.length;
+      if (bytes > maxBytes) throw new Error("The reviewed source exceeded its size limit while hashing.");
+      hash.update(chunk);
+    }
+    const after = await file.stat();
+    if (bytes !== before.size || before.size !== after.size || before.ino !== after.ino || before.dev !== after.dev || before.mtimeMs !== after.mtimeMs || before.ctimeMs !== after.ctimeMs) {
+      throw new Error("The reviewed source changed while being hashed; inspect it again.");
+    }
+    return hash.digest("hex");
+  } finally { await file.close(); }
 }
 
 // This is an explicit operator action, not a model-generated approval.
@@ -281,6 +317,8 @@ export async function approveReviewedPlan(state, key, draft, review, { checkedSo
     if (draft.engagementPrompt) seed.engagementPrompt = String(draft.engagementPrompt).slice(0, 300);
     const attestation = {
       decision: review?.decision, reviewedBy: normalText(review?.reviewedBy), method: normalText(review?.method),
+      humanReviewer: review?.humanReviewer === true, entireSourceWatched: review?.entireSourceWatched === true,
+      continuousWindowPlayback: review?.continuousWindowPlayback === true,
       coverageStartSeconds: review?.coverageStartSeconds, coverageEndSeconds: review?.coverageEndSeconds,
       claimsChecked: review?.claimsChecked === true, rightsChecked: review?.rightsChecked === true, openingChecked: review?.openingChecked === true,
       claimNotes: normalText(review?.claimNotes), rightsNotes: normalText(review?.rightsNotes),

@@ -1,6 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
-import { searchPixabayVideos, downloadPixabayVideo, scorePixabayRelevance } from "./pixabay.js";
 
 const GEMINI_IMAGE_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
 const IMAGE_MODEL = "gemini-nano-banana-2.1";
@@ -97,6 +96,14 @@ export async function generateStoryboardAssets({ visualPlan, topic, outputDir = 
   await mkdir(resolve(outputDir), { recursive: true });
   const assets = [];
   let geminiQuotaExhausted = false;
+  // The old per-scene Pixabay fallback made uncached automatic queries and
+  // downloaded footage on the strength of a generic API label. That bypassed
+  // the 24-hour coordinated search and individual rights/editorial review.
+  // Keep this generic storyboard pathway on generated/local visuals until a
+  // separately reviewed Pixabay production path exists; having a key alone
+  // must not start searches or downloads. This affects every channel using
+  // this storyboard generator if the local change is later installed.
+  if (pixabayApiKey) console.warn("Pixabay storyboard fallback is held pending coordinated caching and individual rights review; no Pixabay request or download will be made.");
   for (const [index, item] of selected.entries()) {
     const prompt = visualPrompt(item, topic, style);
     const basePath = join(resolve(outputDir), "scene-" + String(index + 1).padStart(2, "0") + ".png");
@@ -110,25 +117,6 @@ export async function generateStoryboardAssets({ visualPlan, topic, outputDir = 
       } catch (error) {
         if (/429|quota|resource.?exhausted|rate.?limit/i.test(error.message)) geminiQuotaExhausted = true;
         console.warn("Gemini visual unavailable for scene " + (index + 1) + (geminiQuotaExhausted ? "; skipping further Gemini requests for this run and trying another visual source: " : "; trying another visual source: ") + error.message);
-      }
-    }
-    if (pixabayApiKey) {
-      try {
-        const query = String(item.visual ?? item.description ?? topic ?? "").slice(0, 160);
-        const found = await searchPixabayVideos({ query, apiKey: pixabayApiKey, fetchImpl, perPage: 20 });
-        const ranked = found.videos.map((asset) => ({ asset, match: scorePixabayRelevance(query, asset) }))
-          .filter((candidate) => candidate.match.relevant)
-          .sort((a, b) => b.match.score - a.match.score || (b.asset.file.width * b.asset.file.height) - (a.asset.file.width * a.asset.file.height));
-        if (ranked.length) {
-          const { asset, match } = ranked[0];
-          const destination = join(resolve(outputDir), "scene-" + String(index + 1).padStart(2, "0") + ".mp4");
-          const downloaded = await downloadPixabayVideo(asset, destination, { fetchImpl });
-          assets.push({ videoPath: downloaded.path, sourceType: "licensed_stock", sourceUrl: downloaded.sourceUrl, license: downloaded.license, attribution: downloaded.attribution, tagRelevance: { query, score: match.score, matchedTerms: match.matchedTerms, requestedTerms: match.requestedTerms } });
-          continue;
-        }
-        console.warn("No Pixabay footage passed the visual relevance check for scene " + (index + 1) + "; refusing unrelated stock and using an original graphic. Search terms: " + scorePixabayRelevance(query, {}).requestedTerms.join(", "));
-      } catch (error) {
-        console.warn("Pixabay unavailable for scene " + (index + 1) + "; using an original graphic: " + error.message);
       }
     }
     const graphic = await generateOriginalGraphic({ outputPath: basePath, sceneIndex: index });

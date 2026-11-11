@@ -1,3 +1,8 @@
+// Low-level Pixabay HTTP adapter. Its legacy `licensed_stock` / licence
+// fields are provider metadata, NOT independent per-item rights verification.
+// Callers must enforce the provider's cache/rate rules and review each asset;
+// the automated storyboard fallback is deliberately held. The planning
+// wrapper uses this only for a bounded human-initiated lead search.
 const API = "https://pixabay.com/api/videos/";
 const MAX_DOWNLOAD_BYTES = 120 * 1024 * 1024;
 const VISUAL_STOP_WORDS = new Set(["a","an","the","and","or","of","to","in","on","at","for","with","from","show","shows","showing","scene","visual","footage","video","shot","image","cinematic","dramatic","close","wide","camera","view","background","person","people","man","woman","someone","something","their","this","that","into","while","during","about","after","before","over","under","against","near","around","vertical","portrait","professional","high","quality","natural","realistic","lighting","color","crisp","details"]);

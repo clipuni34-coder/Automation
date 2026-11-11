@@ -310,7 +310,7 @@ test("mocked manual search reaches the real daily report but cannot queue or pro
     await writeFile(published, '{"version":1,"videos":[]}\n');
     await writeFile(uploads, '{"version":1,"attempts":[]}\n');
     const before = [await digest(published), await digest(uploads)];
-    const commonEnv = { ...process.env, STATE_DIR: t.root, PIXABAY_API_KEY: KEY, YOUTUBE_DATA_API_KEY: "", GEMINI_API_KEY: "", ENABLE_GEMINI_TTS: "false",
+    const commonEnv = { ...process.env, STATE_DIR: t.root, PIXABAY_API_KEY: KEY, PIXABAY_LOCAL_ONLY_CONFIRMED: "true", PIXABAY_CLOCK_VERIFIED: "true", YOUTUBE_DATA_API_KEY: "", GEMINI_API_KEY: "", ENABLE_GEMINI_TTS: "false",
       YOUTUBE_ALLOW_PUBLIC_PUBLISH: "false", COMMONS_DISCOVERY: "off", CHANNEL_PROFILES_PATH: channels, NICHES_PATH: resolve("config/niches.json") };
     const search = spawnSync(process.execPath, ["--import", mock, resolve("scripts/planning-inbox.mjs"), "search-pixabay", "funny cats"],
       { cwd: t.root, env: commonEnv, encoding: "utf8", timeout: 30000 });
@@ -338,6 +338,24 @@ test("mocked manual search reaches the real daily report but cannot queue or pro
   } finally { await t.cleanup(); }
 });
 
+test("single-checkout CLI requires explicit isolation and clock acknowledgements before any request", async () => {
+  const t = await setup();
+  try {
+    const guard = join(t.root, "unexpected-fetch.txt"), mock = join(t.root, "guard-fetch.mjs");
+    await writeFile(mock, `import {writeFileSync} from 'node:fs'; globalThis.fetch=async()=>{writeFileSync(${JSON.stringify(guard)},'called');throw new Error('unexpected');};\n`);
+    for (const envExtra of [{ PIXABAY_LOCAL_ONLY_CONFIRMED: "false", PIXABAY_CLOCK_VERIFIED: "true" }, { PIXABAY_LOCAL_ONLY_CONFIRMED: "true", PIXABAY_CLOCK_VERIFIED: "false" }]) {
+      const result = spawnSync(process.execPath, ["--import", mock, "scripts/planning-inbox.mjs", "search-pixabay", "cats"], {
+        env: { ...process.env, STATE_DIR: t.root, PIXABAY_API_KEY: KEY, ...envExtra }, encoding: "utf8", timeout: 30000
+      });
+      assert.notEqual(result.status, 0);
+      assert.ok(!result.stdout.includes(KEY) && !result.stderr.includes(KEY));
+    }
+    await assert.rejects(readFile(guard), { code: "ENOENT" });
+    await assert.rejects(readFile(t.state.path("pixabay-search-cache.json")), { code: "ENOENT" });
+    assert.equal((await readPlanningInbox(t.state)).records.length, 0);
+  } finally { await t.cleanup(); }
+});
+
 test("planning inbox search CLI is offline-mockable, never imports cat bootstrap, and changes no publication ledgers", async () => {
   const t = await setup();
   try {
@@ -347,13 +365,17 @@ test("planning inbox search CLI is offline-mockable, never imports cat bootstrap
     const before = [await digest(published), await digest(uploads)];
     const mock = join(t.root, "mock-pixabay-fetch.mjs");
     await writeFile(mock, `globalThis.fetch = async (value) => { const u = new URL(value); if (u.origin !== 'https://pixabay.com') throw new Error('unexpected network'); return new Response(${JSON.stringify(JSON.stringify({ totalHits: 1, hits: [rawVideo()] }))}, {status: 200, headers: {'content-type':'application/json'}}); };\n`);
-    const env = { ...process.env, STATE_DIR: t.root, PIXABAY_API_KEY: KEY };
+    const env = { ...process.env, STATE_DIR: t.root, PIXABAY_API_KEY: KEY, PIXABAY_LOCAL_ONLY_CONFIRMED: "true", PIXABAY_CLOCK_VERIFIED: "true" };
     const child = spawnSync(process.execPath, ["--import", mock, "scripts/planning-inbox.mjs", "search-pixabay", "funny cats"], { env, encoding: "utf8", timeout: 30000 });
     assert.equal(child.status, 0, child.stderr);
     assert.ok(!child.stdout.includes(KEY)); assert.ok(!child.stderr.includes(KEY));
     const result = JSON.parse(child.stdout); assert.equal(result.status, "unverified_leads_only"); assert.equal(result.added, 1); assert.equal(result.productionEligible, false);
+    assert.equal(result.leads[0].provider, "Pixabay"); assert.equal(result.leads[0].inboxStatus, "awaiting_review"); assert.equal(result.leads[0].sourceKey, pixabayLeadKey("42"));
     const inbox = await readPlanningInbox(t.state);
     assert.equal(inbox.records.length, 1); assert.equal(inbox.records[0].candidate.provider, "pixabay");
+    const listed = spawnSync(process.execPath, ["scripts/planning-inbox.mjs", "list-pixabay"], { env, encoding: "utf8", timeout: 30000 });
+    assert.equal(listed.status, 0, listed.stderr); assert.equal(JSON.parse(listed.stdout).records[0].sourceKey, result.leads[0].sourceKey);
+    assert.equal((await readPlanningInbox(t.state)).records.length, 1, "listing Pixabay must not materialize the cat bootstrap");
     assert.equal((await t.state.getQueue()).jobs.length, 0);
     assert.deepEqual([await digest(published), await digest(uploads)], before);
     const files = [await readFile(t.state.path("pixabay-search-cache.json"), "utf8"), await readFile(t.state.path("planning-inbox.json"), "utf8")];

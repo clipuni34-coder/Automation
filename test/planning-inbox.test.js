@@ -1,13 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { openChannelState } from "../src/engine/state.js";
 import { runChannelCycle } from "../src/engine/scheduler.js";
 import { validateCurrentProductionAttempt } from "../src/engine/attempt-gate.js";
-import { approveReviewedPlan, ingestPlanningCandidates, makePlanTemplate, materializeReviewedBootstrap, planningSummary, readPlanningInbox, recoverPreviouslyAwaitingCandidates, rejectPlanningSource, reviewedPlanningSeeds, validateReviewedRecord } from "../src/engine/planning-inbox.js";
+import { approveReviewedPlan, hashSourceFile, ingestPlanningCandidates, makePlanTemplate, materializeReviewedBootstrap, planningSummary, readPlanningInbox, recoverPreviouslyAwaitingCandidates, rejectPlanningSource, reviewedPlanningSeeds, validateReviewedRecord } from "../src/engine/planning-inbox.js";
 import { mergeReviewedProductionSeeds } from "../src/engine/production-seeds.js";
 
 const sha = "a".repeat(64);
@@ -30,9 +31,9 @@ async function prepared(state, source = candidate()) {
     postingTitle: "A puppy's rolling moment", hookText: "A puppy rolls across the floor.",
     narrationScript: "A puppy rolls across the floor. It stretches out its legs and turns toward the camera for a moment. Then the puppy rolls back and settles down again.",
     visualSubject: "puppy", storyBeats: { hook: "The puppy rolls.", development: "The puppy stretches and turns.", payoff: "The puppy rolls back." },
-    visualHookReview: { status: "editorial_reviewed", sourceUrl: record.candidate.sourceUrl, sourceSha256: sha, windowStartSeconds: 1, firstActionSourceSeconds: 1.2, reviewedThroughSourceSeconds: 2.8, onScreenText: "A puppy rolls", visualAction: "The puppy visibly rolls across the floor.", reviewMethod: "Sampled frames over the complete opening.", reviewedBy: "Test editor" }
+    visualHookReview: { status: "editorial_reviewed", sourceUrl: record.candidate.sourceUrl, sourceSha256: sha, windowStartSeconds: 1, firstActionSourceSeconds: 1.2, reviewedThroughSourceSeconds: 2.8, onScreenText: "A puppy rolls", visualAction: "The puppy visibly rolls across the floor.", reviewMethod: "Human playback review of the complete opening.", reviewedBy: "Test editor" }
   };
-  const review = { decision: "reviewed_against_source", reviewedBy: "Test editor", method: "Reviewed sampled frames throughout the source window.", coverageStartSeconds: 1, coverageEndSeconds: 15.5, claimsChecked: true, rightsChecked: true, openingChecked: true, claimNotes: "Each narration claim was compared with sampled source frames.", rightsNotes: "The file page, creator and exact CC licence were inspected.", attributionText: `Jane Creator, source via Wikimedia Commons, CC BY 4.0 ${licenceUrl}; edited with narration and captions.` };
+  const review = { decision: "reviewed_against_source", reviewedBy: "Test editor", method: "Watched the entire synthetic source and continuously reviewed the selected window.", humanReviewer: true, entireSourceWatched: true, continuousWindowPlayback: true, coverageStartSeconds: 1, coverageEndSeconds: 16, claimsChecked: true, rightsChecked: true, openingChecked: true, claimNotes: "Each narration claim was compared with the complete synthetic source window.", rightsNotes: "The file page, creator and exact CC licence were inspected.", attributionText: `Jane Creator, source via Wikimedia Commons, CC BY 4.0 ${licenceUrl}; edited with narration and captions.` };
   return { record, draft, review };
 }
 async function promote(state, p, options = {}) { return approveReviewedPlan(state, p.record.key, p.draft, p.review, { checkedSourceSha256: sha, verifyRights: async () => verified(), ...options }); }
@@ -64,8 +65,28 @@ test("a template, model output, missing review, or wrong source bytes can never 
     await assert.rejects(promote(t.state, { ...p, review: { ...p.review, claimsChecked: false } }), /explicit review/);
     await assert.rejects(promote(t.state, p, { checkedSourceSha256: "b".repeat(64) }), /SHA-256/);
     await assert.rejects(promote(t.state, { ...p, draft: { ...p.draft, sourceUrl: "https://upload.wikimedia.org/other.webm" } }), /identity/);
-    await assert.rejects(promote(t.state, { ...p, review: { ...p.review, coverageEndSeconds: 4 } }), /cover the planned source window/);
+    await assert.rejects(promote(t.state, { ...p, review: { ...p.review, coverageEndSeconds: 4 } }), /cover the complete planned source window/);
+    await assert.rejects(promote(t.state, { ...p, review: { ...p.review, coverageEndSeconds: 15.9 } }), /cover the complete planned source window/);
+    for (const field of ["humanReviewer", "entireSourceWatched", "continuousWindowPlayback"]) {
+      await assert.rejects(promote(t.state, { ...p, review: { ...p.review, [field]: false } }), /human reviewer/);
+      const missing = { ...p.review }; delete missing[field];
+      await assert.rejects(promote(t.state, { ...p, review: missing }), /human reviewer/);
+    }
     assert.equal((await readPlanningInbox(t.state)).records[0].status, "awaiting_review");
+  } finally { await t.cleanup(); }
+});
+
+test("review hashing binds a regular file and rejects symlinks, empty files and named pipes", async () => {
+  const t = await setup();
+  try {
+    const file = join(t.root, "source.webm"), link = join(t.root, "link.webm"), empty = join(t.root, "empty.webm"), fifo = join(t.root, "pipe.webm");
+    const bytes = Buffer.from("synthetic reviewed footage");
+    await writeFile(file, bytes); await writeFile(empty, ""); await symlink(file, link);
+    assert.equal(await hashSourceFile(file), createHash("sha256").update(bytes).digest("hex"));
+    await assert.rejects(hashSourceFile(link));
+    await assert.rejects(hashSourceFile(empty), /non-empty regular file/);
+    await assert.rejects(hashSourceFile(t.root), /non-empty regular file/);
+    if (spawnSync("mkfifo", [fifo]).status === 0) await assert.rejects(hashSourceFile(fifo), /non-empty regular file/);
   } finally { await t.cleanup(); }
 });
 
@@ -275,6 +296,83 @@ async function enqueueBootstrapJob(state) {
     candidate: { id: seed.id, sourceUrl: seed.sourceUrl, seedManifestEntry: seed, reviewedPlanning: true } });
   return bootstrap.records;
 }
+
+test("legacy sampled-frame examples cannot be materialized as human-reviewed plans even through the bootstrap helper", async () => {
+  const t = await setup();
+  try {
+    const path = "config/primeplug-reviewed-backlog.json";
+    const catalog = JSON.parse(await readFile(path, "utf8"));
+    assert.equal(catalog.records.length, 2);
+    for (const record of catalog.records) {
+      const check = validateReviewedRecord(record);
+      assert.equal(check.valid, false);
+      assert.ok(check.reasons.some((reason) => /human reviewer/.test(reason)));
+      const fresh = makePlanTemplate(record);
+      assert.match(fresh.instructions, /none of its plan was inherited/);
+      assert.equal(fresh.narrationScript, ""); assert.equal(fresh.window.startSeconds, null);
+      assert.equal(fresh.visualHookReview.sourceSha256, "");
+    }
+    const tampered = structuredClone(catalog.records[0]);
+    tampered.candidate.sourceUrl = "https://upload.wikimedia.org/wikipedia/commons/a/ab/different.webm";
+    assert.throws(() => makePlanTemplate(tampered), /source identity is invalid/);
+    const result = await materializeReviewedBootstrap(t.state, { bootstrapPath: path });
+    assert.equal(result.added, 0); assert.equal(result.invalid.length, 2);
+    assert.equal((await reviewedPlanningSeeds(t.state, { bootstrapPath: path })).seeds.length, 0);
+    assert.equal((await readPlanningInbox(t.state)).records.length, 0);
+    assert.equal((await t.state.getQueue()).jobs.length, 0);
+  } finally { await t.cleanup(); }
+});
+
+test("an older invalid review can be replaced by a wholly fresh synthetic human-attested plan", async () => {
+  const t = await setup();
+  try {
+    const p = await prepared(t.state), prior = await promote(t.state, p);
+    const legacy = structuredClone(prior);
+    delete legacy.review.humanReviewer; delete legacy.review.entireSourceWatched; delete legacy.review.continuousWindowPlayback;
+    await writeFile(t.state.path("planning-inbox.json"), JSON.stringify({ version: 1, records: [legacy] }));
+    assert.equal((await reviewedPlanningSeeds(t.state)).seeds.length, 0);
+    const blank = makePlanTemplate(legacy);
+    assert.equal(blank.narrationScript, ""); assert.equal(blank.visualHookReview.status, "review_required");
+    // These are fictional local test attestations and a mocked rights response,
+    // not a real person, footage review, or live licence check.
+    const freshDraft = { ...p.draft, candidateId: blank.candidateId, sourceUrl: blank.sourceUrl };
+    const updated = await promote(t.state, { ...p, draft: freshDraft });
+    assert.equal(updated.status, "reviewed"); assert.equal(validateReviewedRecord(updated).valid, true);
+    assert.equal(updated.review.humanReviewer, true); assert.equal(updated.review.entireSourceWatched, true);
+    assert.equal((await reviewedPlanningSeeds(t.state)).seeds.length, 1);
+  } finally { await t.cleanup(); }
+});
+
+test("assistant-authored cat examples are not imported by a normal list or daily run", async () => {
+  const t = await setup();
+  try {
+    const list = spawnSync(process.execPath, ["scripts/planning-inbox.mjs", "list"], {
+      env: { ...process.env, STATE_DIR: t.root }, encoding: "utf8", timeout: 30000
+    });
+    assert.equal(list.status, 0, list.stderr); assert.deepEqual(JSON.parse(list.stdout).records, []);
+    assert.equal((await readPlanningInbox(t.state)).records.length, 0);
+    const summary = await runDailyIsolated(t.root, "report-no-implicit-cats");
+    assert.equal(summary.planning.Primeplug.totalRecords, 0);
+    assert.equal(summary.productionReport.totals.attempted, 0); assert.equal(summary.productionReport.totals.produced, 0);
+    assert.equal((await t.state.getQueue()).jobs.length, 0);
+    assert.equal((await readPlanningInbox(t.state)).records.length, 0);
+  } finally { await t.cleanup(); }
+});
+
+test("an explicit example selection stages only a pending source, never the assistant's plan or review", async () => {
+  const t = await setup();
+  try {
+    const catalog = JSON.parse(await readFile("config/primeplug-reviewed-backlog.json", "utf8"));
+    const key = catalog.records[0].key;
+    const run = () => spawnSync(process.execPath, ["scripts/planning-inbox.mjs", "stage-example", key], { env: { ...process.env, STATE_DIR: t.root }, encoding: "utf8", timeout: 30000 });
+    const first = run(); assert.equal(first.status, 0, first.stderr); assert.equal(JSON.parse(first.stdout).status, "example_staged_for_fresh_human_review");
+    const inbox = await readPlanningInbox(t.state);
+    assert.equal(inbox.records.length, 1); assert.equal(inbox.records[0].status, "awaiting_review");
+    assert.equal(inbox.records[0].seed, undefined); assert.equal(inbox.records[0].review, undefined); assert.equal(inbox.records[0].reviewDigest, undefined);
+    assert.equal((await reviewedPlanningSeeds(t.state)).seeds.length, 0); assert.equal((await t.state.getQueue()).jobs.length, 0);
+    const again = run(); assert.equal(again.status, 0, again.stderr); assert.equal(JSON.parse(again.stdout).status, "example_not_staged");
+  } finally { await t.cleanup(); }
+});
 
 test("daily integration preserves a queued plan when its inbox is unreadable", async () => {
   const t = await setup();
